@@ -1,0 +1,22 @@
+The "schematizer" Service
+=======================
+
+This repository contains a trivial service called `schematizer`.
+You can run it by doing something like
+
+    PORT=<port> STATS_PORT=<stats_port> inenv serviceinit.d/schematizer start-dev
+
+The documentation for this service should be available at:
+
+    http://servicedocs.yelpcorp.com/docs/schematizer/index.html
+
+
+How To Service
+==============
+
+Please read the update documentation to learn more about services at Yelp,
+best practices, and how to extend your service to do all the cool things
+you want to do with it:
+
+    https://trac.yelpcorp.com/wiki/HowToService
+    http://servicedocs.yelpcorp.com/docs/tutorial_happyhour/index.html
