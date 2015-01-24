@@ -35,3 +35,4 @@ yelp-pyramid==0.14.0
 yelp-servlib==4.0.1
 zope.deprecation==4.1.1
 zope.interface==4.1.1
+pyramid-swagger==1.1.0
