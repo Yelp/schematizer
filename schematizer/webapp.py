@@ -23,6 +23,11 @@ def _create_application():
     # Create a basic pyramid Configurator.
     config = Configurator(settings={
         'service_name': 'schematizer',
+        'pyramid_swagger.skip_validation': [
+            '/(static)\\b',
+            '/(api-docs)\\b',
+            '/(status)\\b'
+        ]
     })
 
     config_util.load_default_config(
@@ -36,6 +41,8 @@ def _create_application():
     # configuration so that the yelp_pyramid configuration can base decisions
     # on the service's configuration.
     config.include(yelp_pyramid)
+
+    config.include('pyramid_swagger')
 
     # Display metrics on the '/status/metrics' endpoint
     config.include(pyramid_uwsgi_metrics)
