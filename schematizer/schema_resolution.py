@@ -10,13 +10,15 @@ Note that Python Avro library also has schema resolution function
 `avro.io.DatumReader.match_schemas`, but it is missing some of the resolution
 rules. Therefore, a separate SchemaResolution class is implemented here.
 """
+from collections import defaultdict
+
 from avro import schema
 
 
 class SchemaCompatibilityValidator(object):
 
     @classmethod
-    def is_compatible(cls, writer_schema, reader_schema):
+    def is_backward_compatible(cls, writer_schema, reader_schema):
         """Whether the data serialized with given writer_schema can be
         deserialized using given reader schema
         """
@@ -75,12 +77,12 @@ class SchemaResolution(object):
         ):
             return False
 
-        promotable_map = {
+        promotable_map = defaultdict(tuple, {
             'int': ('long', 'float', 'double'),
             'long': ('float', 'double'),
             'float': ('double',),
-        }
-        promotable_types = promotable_map.get(writer_schema.fullname, ())
+        })
+        promotable_types = promotable_map[writer_schema.fullname]
         return reader_schema.fullname in promotable_types
 
     def _resolve_named_schema(self, writer_schema, reader_schema,
@@ -92,11 +94,14 @@ class SchemaResolution(object):
         ):
             return False
 
+        # Name equality is defined on fullname.
+        # Either fullname of both schemas are the same, or fullname of
+        # writer schema is one of the reader schema alias (fullname qualified)
         if writer_schema.fullname == reader_schema.fullname:
             return True
 
         aliases = reader_schema.get_prop('aliases') or []
-        namespace = '.'.join(reader_schema.fullname.split('.')[0:-1])
+        namespace = reader_schema.fullname.rpartition('.')[0]
         return writer_schema.fullname in self._get_full_aliases(
             aliases,
             namespace
@@ -104,7 +109,7 @@ class SchemaResolution(object):
 
     def _get_full_aliases(self, aliases, namespace):
         for alias in aliases:
-            yield alias if '.' not in alias else '.'.join(namespace, alias)
+            yield alias if '.' in alias else '.'.join([namespace, alias])
 
     def resolve_enum_schema(self, writer_schema, reader_schema):
         if not self._resolve_named_schema(
@@ -163,6 +168,13 @@ class SchemaResolution(object):
         # it must have a default value.
         for reader_field in reader_schema.fields:
             writer_field = writer_schema.fields_dict.get(reader_field.name)
+            for reader_field_alias in (reader_field.get_prop('aliases') or []):
+                alias_field = writer_schema.fields_dict.get(reader_field_alias)
+                if writer_field and writer_field != alias_field:
+                    # reader field matches multiple writer fields
+                    return False
+                writer_field = writer_field or alias_field
+
             if not writer_field and not reader_field.has_default:
                 return False
             if (writer_field
@@ -210,12 +222,9 @@ class SchemaResolution(object):
                 or isinstance(reader_schema, schema.UnionSchema)):
             resolver = self.resolvers.get(schema.UnionSchema)
 
-        resolved_schema = self._resolved_schemas_map.get(writer_schema)
-        if not resolved_schema and resolver(writer_schema, reader_schema):
-            resolved_schema = reader_schema
-
-        if resolved_schema:
-            self._resolved_schemas_map[writer_schema] = resolved_schema
-            return True
-
-        return False
+        key = (writer_schema, reader_schema)
+        is_resolved = self._resolved_schemas_map.get(key)
+        if is_resolved is None:
+            is_resolved = resolver(writer_schema, reader_schema)
+            self._resolved_schemas_map[key] = is_resolved
+        return is_resolved
