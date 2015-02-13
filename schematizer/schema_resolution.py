@@ -222,9 +222,33 @@ class SchemaResolution(object):
                 or isinstance(reader_schema, schema.UnionSchema)):
             resolver = self.resolvers.get(schema.UnionSchema)
 
-        key = (writer_schema, reader_schema)
+        key = self._create_key(writer_schema, reader_schema)
         is_resolved = self._resolved_schemas_map.get(key)
         if is_resolved is None:
             is_resolved = resolver(writer_schema, reader_schema)
             self._resolved_schemas_map[key] = is_resolved
         return is_resolved
+
+    def _create_key(self, writer_schema, reader_schema):
+        """Create the dictionary key from the given writer schema and
+        reader schema. We'd like to compare the actual json content
+        instead of object id.
+
+        Since dictionary and set are unordered, it creates a frozenset
+        from the sorted dictionary and sorted set.
+        """
+        return (self.freeze_object(writer_schema.to_json()),
+                self.freeze_object(reader_schema.to_json()))
+
+    def freeze_object(self, obj):
+        if isinstance(obj, (tuple, list)):
+            return tuple([self.freeze_object(item) for item in obj])
+
+        if isinstance(obj, set):
+            return tuple([self.freeze_object(item) for item in sorted(obj)])
+
+        if isinstance(obj, dict):
+            new_dict = dict((k, self.freeze_object(v)) for k, v in obj.items())
+            return frozenset(sorted(new_dict.items()))
+
+        return obj

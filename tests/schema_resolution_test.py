@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import copy
 from contextlib import nested
 
 import mock
@@ -41,12 +42,12 @@ class AvroSchemaFactory(object):
         return schema.ArraySchema(items_schema.to_json(), names=schema.Names())
 
     def create_field_schema(self, name, type_schema, has_default=False,
-                            aliases=None):
+                            default_value=None, aliases=None):
         return schema.Field(
             type_schema.to_json(),
             name,
             has_default,
-            default=mock.Mock() if has_default else None,
+            default=default_value if has_default else None,
             names=schema.Names(),
             other_props={'aliases': aliases}
         )
@@ -192,7 +193,8 @@ class TestSchemaResolution(object):
         return self.schema_factory.create_field_schema(
             'field3',
             self.schema_factory.create_primitive_schema('string'),
-            has_default=True
+            has_default=True,
+            default_value='default_string'
         )
 
     def test_resolve_record_schema(self, resolver):
@@ -591,6 +593,47 @@ class TestSchemaResolution(object):
                 'union': mock_union_resolver.call_count
             }
             assert expected_call_counts == actual_call_counts
+
+    def test_resolve_schema_with_cache(self, resolver):
+        w_schema = self.schema_factory.create_record_schema(
+            'foo_table',
+            [self.field1, self.field2]
+        )
+        r_schema = self.schema_factory.create_record_schema(
+            'foo_table',
+            [self.field2, self.field1]
+        )
+        w_schema_copy = copy.deepcopy(w_schema)
+        with mock.patch.object(
+                SchemaResolution,
+                'resolve_record_schema',
+                return_value=True
+        ) as mock_record_resolver:
+            assert resolver.resolve_schema(w_schema, r_schema)
+            assert 1 == mock_record_resolver.call_count
+
+            # The second time should not call the resolver function; instead,
+            # it uses the results from the cache.
+            mock_record_resolver.reset_mock()
+            assert resolver.resolve_schema(w_schema_copy, r_schema)
+            assert 0 == mock_record_resolver.call_count
+
+    def test_freeze_object(self, resolver):
+        obj1 = {
+            'foo': 100,
+            'bar': set(['beer', 'cocktail', 'wine']),
+            'zoo':
+            {'dog': 'bark', 'cat': 'meow', 'cow': 'moo'}
+        }
+        obj2 = {
+            'foo': 100,
+            'zoo': {'cow': 'moo', 'dog': 'bark', 'cat': 'meow'},
+            'bar': set(['wine', 'beer', 'cocktail'])
+        }
+        frozen_obj1 = resolver.freeze_object(obj1)
+        frozen_obj2 = resolver.freeze_object(obj2)
+        test_dict = {frozen_obj1: 'good'}
+        assert 'good' == test_dict[frozen_obj2]
 
 
 class TestSchemaCompatibilityValidator(object):
