@@ -101,7 +101,7 @@ class SchemaResolution(object):
             return True
 
         aliases = reader_schema.get_prop('aliases') or []
-        namespace = reader_schema.fullname.rpartition('.')[0]
+        namespace, _, _ = reader_schema.fullname.rpartition('.')
         return writer_schema.fullname in self._get_full_aliases(
             aliases,
             namespace
