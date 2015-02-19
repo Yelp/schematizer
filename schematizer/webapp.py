@@ -10,6 +10,7 @@ from yelp_servlib import config_util
 from pyramid.config import Configurator
 
 import schematizer.config
+import schematizer.models.database
 
 SERVICE_CONFIG_PATH = os.environ.get('SERVICE_CONFIG_PATH')
 SERVICE_ENV_CONFIG_PATH = os.environ.get('SERVICE_ENV_CONFIG_PATH')
@@ -46,7 +47,7 @@ def _create_application():
     # on the service's configuration.
     config.include(yelp_pyramid)
     config.include('pyramid_yelp_conn')
-    config.set_yelp_conn_session(schematizer.database.session)
+    config.set_yelp_conn_session(schematizer.models.database.session)
 
     config.include('pyramid_swagger')
 
