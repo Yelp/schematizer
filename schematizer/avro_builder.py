@@ -57,7 +57,7 @@ class AvroSchemaBuilder(object):
 
     __metaclass__ = AvroSchemaBuilderMeta
 
-    _name_match_pattern = re.compile('^[A-Za-z_]+\w*$')
+    _name_match_regex = re.compile('^[A-Za-z_]+\w*$')
 
     def __init__(self, track_created_names=False):
         """track_created_names flag controls whether previous created named
@@ -244,7 +244,7 @@ class AvroSchemaBuilder(object):
             return False
 
         names = name_to_validate.split('.')
-        return all(re.match(cls._name_match_pattern, name) for name in names)
+        return all(cls._name_match_regex.match(name) for name in names)
 
     @classmethod
     def _is_valid_default_value(cls, schema_type, value):
