@@ -13,6 +13,7 @@ jsonschema==2.4.0
 lxml==3.4.1
 ply==3.4
 pyramid==1.5.1
+pyramid-swagger==1.1.0
 pyramid-uwsgi-metrics==0.3.1
 pyramid-yelp-conn==0.4.0
 pysubnettree==0.23
@@ -36,4 +37,3 @@ yelp-pyramid==0.14.0
 yelp-servlib==4.0.1
 zope.deprecation==4.1.1
 zope.interface==4.1.1
-pyramid-swagger==1.1.0

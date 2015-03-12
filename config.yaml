@@ -30,6 +30,7 @@ module_config:
         config:
             access_log_name: service_schematizer_requests
             error_log_name: stream_service_schematizer_errors
+
     -   namespace: clog
         initialize: yelp_servlib.clog_util.initialize
         config:
@@ -37,15 +38,12 @@ module_config:
         file:
             /nail/srv/configs/clog.yaml
 
-    
     -   namespace: smartstack_services
         file: /nail/etc/services/services.yaml
-    
 
-    
-#    -   namespace: yelp_conn
-#        file: /nail/srv/configs/yelp_conn_generic.yaml
-#        initialize: yelp_conn.initialize
-#        config:
-#            connection_set_file: 'connection_sets.yaml'
-    
+    -   namespace: yelp_conn
+        file: /nail/srv/configs/yelp_conn_generic.yaml
+        initialize: yelp_conn.initialize
+        config:
+            connection_set_file: 'connection_sets.yaml'
+
