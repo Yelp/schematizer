@@ -1,0 +1,8 @@
+connection_sets:
+    primary_rw:
+        schematizer: master
+    primary_ro:
+        # Forces the connection to RO even if the connection could handle writes.
+        connection_configuration:
+            read_only: true
+        schematizer: slave
