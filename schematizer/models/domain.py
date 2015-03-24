@@ -6,8 +6,35 @@ from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from schematizer.models.database import Base
+from schematizer.models.database import session
 from schematizer.models.topic import Topic
 from schematizer.models.types.time import build_time_column
+
+
+def get_source_by_namespace_and_source_name(namespace, source_name):
+    return session.query(Domain).filter(
+        Domain.namespace == namespace,
+        Domain.source == source_name
+    ).one()
+
+
+def get_source_by_source_id(source_id):
+    return session.query(Domain).filter(Domain.id == source_id).one()
+
+
+def list_all_namespaces():
+    query_results = session.query(Domain.namespace).distinct(
+        Domain.namespace
+    ).all()
+    return [query_result[0] for query_result in query_results]
+
+
+def list_all_sources():
+    return session.query(Domain).all()
+
+
+def list_sources_by_namespace(namespace):
+    return session.query(Domain).filter(Domain.namespace == namespace).all()
 
 
 class Domain(Base):
@@ -47,3 +74,13 @@ class Domain(Base):
         onupdate_now=True,
         nullable=False
     )
+
+    def to_dict(self):
+        return {
+            'source_id': self.id,
+            'namespace': self.namespace,
+            'source': self.source,
+            'source_owner_email': self.owner_email,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }

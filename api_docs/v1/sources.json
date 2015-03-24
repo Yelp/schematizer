@@ -126,15 +126,15 @@
                     "responseMessages": [
                         {
                             "code": 400,
-                            "message": "Invalid source ID supplied"
+                            "message": "Invalid source ID supplied."
                         },
                         {
                             "code": 404,
-                            "message": "Source ID not found"
+                            "message": "Latest topic is not found."
                         },
                         {
                             "code": 500,
-                            "message": "Server side error"
+                            "message": "Server side error."
                         }
                     ]
                 }
