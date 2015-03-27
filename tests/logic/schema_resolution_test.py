@@ -5,6 +5,7 @@ from contextlib import nested
 import mock
 import pytest
 from avro import schema
+
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.logic.schema_resolution import SchemaResolution
 

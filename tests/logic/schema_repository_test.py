@@ -4,10 +4,11 @@ from contextlib import nested
 import mock
 import pytest
 import simplejson
+from sqlalchemy import exc
+
 from schematizer import models
 from schematizer.logic import schema_repository as schema_repo
 from schematizer.models.database import session
-from sqlalchemy import exc
 from testing import factories
 from tests.models.testing_db import DBTestCase
 

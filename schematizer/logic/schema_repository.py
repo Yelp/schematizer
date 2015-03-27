@@ -2,10 +2,11 @@
 import uuid
 
 import simplejson
+from sqlalchemy import exc
+
 from schematizer import models
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.models.database import session
-from sqlalchemy import exc
 
 
 def is_backward_compatible(old_schema_json, new_schema_json):
@@ -280,8 +281,6 @@ def get_schemas_by_topic_id(topic_id, include_disabled=False):
         models.AvroSchema
     ).filter(
         models.AvroSchema.topic_id == topic_id
-    ).order_by(
-        models.AvroSchema.id
     )
     if not include_disabled:
         qry = qry.filter(
