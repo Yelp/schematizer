@@ -1,0 +1,145 @@
+{
+    "apiVersion": "1.0.0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:1210",
+    "resourcePath": "/v1/compatibility",
+    "produces": [
+        "application/json"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "apis": [
+        {
+            "path": "/v1/compatibility/schemas/avro",
+            "operations": [
+                {
+                    "method": "POST",
+                    "summary": "This API is for checking input Avro schema's full compatibility.",
+                    "notes": "If the schema is compatible with the topic's schemas, it return status 200, otherwise return status 409. Compatibility means the input schema should be able to deserialize data serialized by existing schemas within the same topic and vice versa.",
+                    "type": "void",
+                    "nickname": "is_avro_schema_compatible",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "body",
+                            "required": true,
+                            "type": "AvroSchemaCompatibilityRequest",
+                            "paramType": "body"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid input supplied"
+                        },
+                        {
+                            "code": 409,
+                            "message": "Incompatible schema"
+                        },
+                        {
+                            "code": 422,
+                            "message": "Invalid schema"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/v1/compatibility/schemas/mysql",
+            "operations": [
+                {
+                    "method": "POST",
+                    "summary": "This API is for checking the full compatibility of the Avro schema derived from Mysql statements.",
+                    "notes": "If the schema is compatible with the topic's schemas, it return status 200, otherwise return status 409. Compatibility means the input schema should be able to deserialize data serialized by existing schemas within the same topic and vice versa.",
+                    "type": "void",
+                    "nickname": "is_mysql_schema_compatible",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "body",
+                            "required": true,
+                            "type": "MysqlSchemaCompatibilityRequest",
+                            "paramType": "body"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid input supplied"
+                        },
+                        {
+                            "code": 409,
+                            "message": "Incompatible schema"
+                        },
+                        {
+                            "code": 422,
+                            "message": "Invalid schema"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "MysqlSchemaCompatibilityRequest": {
+            "id": "MysqlSchemaCompatibilityRequest",
+            "required": [
+                "mysql_statements",
+                "namespace",
+                "source"
+            ],
+            "properties": {
+                "mysql_statements": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "This array should contain the old create table statement, alter statement, new create table statement for alter table events, and new create table statement for create table events."
+                },
+                "namespace": {
+                    "type": "string",
+                    "description": "Namespace of the source, such as yelpmain.db, etc"
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
+                },
+                "owner_email": {
+                    "type": "string",
+                    "description": "Email address of the source owner"
+                }
+            }
+        },
+        "AvroSchemaCompatibilityRequest": {
+            "id": "AvroSchemaCompatibilityRequest",
+            "required": [
+                "schema",
+                "namespace",
+                "source"
+            ],
+            "properties": {
+                "schema": {
+                    "type": "string",
+                    "description": "This is the json formatted avro schema."
+                },
+                "namespace": {
+                    "type": "string",
+                    "description": "Namespace of the source, such as yelpmain.db, etc"
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
+                }
+            }
+        }
+    }
+}

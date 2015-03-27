@@ -1,0 +1,108 @@
+{
+    "apiVersion": "1.0.0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:1210",
+    "resourcePath": "/v1/namespaces",
+    "produces": [
+        "application/json"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "apis": [
+        {
+            "path": "/v1/namespaces",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "List all namespaces",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "nickname": "list_namespaces",
+                    "authorizations": {},
+                    "parameters": [],
+                    "responseMessages": [
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/v1/namespaces/{namespace}/sources",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "List all source records by namespace",
+                    "type": "array",
+                    "items": {
+                        "$ref": "Source"
+                    },
+                    "nickname": "list_sources_by_namespace",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "namespace",
+                            "required": true,
+                            "type": "string",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Namespace is not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Source": {
+            "id": "Source",
+            "properties": {
+                "source_id": {
+                    "type": "integer",
+                    "description": "Source ID"
+                },
+                "namespace": {
+                    "type": "string",
+                    "description": "Namespace of the source, such as yelpmain.db, etc"
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
+                },
+                "owner_email": {
+                    "type": "string",
+                    "description": "Email address of the source owner"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the entry is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the entry is last updated"
+                }
+            }
+        }
+    }
+
+}
