@@ -8,12 +8,11 @@ from glob import glob
 import pytest
 import staticconf.testing
 import yelp_conn
+from schematizer.models import database
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker as sessionmaker_sa
 from yelp_conn.testing import sandbox
 from yelp_lib.classutil import cached_property
-
-from schematizer.models import database
 
 
 DB_NAME = 'schematizer'
@@ -139,7 +138,8 @@ def setup_yelp_conn_topology(engine):
         db=mysql_url.database,
         user=(mysql_url.username or ''),
         passwd=(mysql_url.password or ''),
-        unix_socket=mysql_url.query['unix_socket'])
+        unix_socket=mysql_url.query['unix_socket']
+    )
     topology_file = yelp_conn.parse_topology(topology)
 
     # Initialize yelp_conn if we haven't already, then replace the
@@ -157,7 +157,6 @@ def setup_yelp_conn_topology(engine):
 
 
 class TopologyFactory(object):
-
     """Create a yelp_conn topology that can be used with
     yelp_conn.parse_topology() and yelp_conn.load_topology()
 
