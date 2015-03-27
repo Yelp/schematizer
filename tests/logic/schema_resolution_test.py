@@ -5,7 +5,6 @@ from contextlib import nested
 import mock
 import pytest
 from avro import schema
-
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.logic.schema_resolution import SchemaResolution
 
@@ -666,7 +665,10 @@ class TestSchemaCompatibilityValidator(object):
                     self.schema_factory.create_primitive_schema('long')
                 )]
             )
-            validator.is_backward_compatible(w_schema, r_schema)
+            validator.is_backward_compatible(
+                w_schema.to_json(),
+                r_schema.to_json()
+            )
             # Ignore the first arg which is the SchemaResolution object
             mock_resolve_func.assert_called_once_with(
                 mock.ANY,

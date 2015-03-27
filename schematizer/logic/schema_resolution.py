@@ -18,10 +18,12 @@ from avro import schema
 class SchemaCompatibilityValidator(object):
 
     @classmethod
-    def is_backward_compatible(cls, writer_schema, reader_schema):
+    def is_backward_compatible(cls, writer_schema_json, reader_schema_json):
         """Whether the data serialized with given writer_schema can be
         deserialized using given reader schema
         """
+        writer_schema = schema.make_avsc_object(writer_schema_json)
+        reader_schema = schema.make_avsc_object(reader_schema_json)
         resolver = SchemaResolution()
         return resolver.resolve_schema(writer_schema, reader_schema)
 
