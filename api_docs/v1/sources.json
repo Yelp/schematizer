@@ -1,0 +1,216 @@
+{
+    "apiVersion": "1.0.0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:1210",
+    "resourcePath": "/v1/sources",
+    "produces": [
+        "application/json"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "apis": [
+        {
+            "path": "/v1/sources",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "List all sources",
+                    "type": "array",
+                    "items": {
+                        "$ref": "Source"
+                    },
+                    "nickname": "list_sources",
+                    "authorizations": {},
+                    "parameters": [],
+                    "responseMessages": [
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/v1/sources/{source_id}",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get source by id",
+                    "type": "Source",
+                    "nickname": "get_source_by_id",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "source_id",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid source ID supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Source ID not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/v1/sources/{source_id}/topics",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "List all topics by source_id",
+                    "type": "array",
+                    "items": {
+                        "$ref": "Topic"
+                    },
+                    "nickname": "list_topics_by_source_id",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "source_id",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid source ID supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Source ID not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/v1/sources/{source_id}/topics/latest",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get latest topic by source_id",
+                    "type": "Topic",
+                    "nickname": "get_latest_topic_by_source_id",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "source_id",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid source ID supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Source ID not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Source": {
+            "id": "Source",
+            "properties": {
+                "source_id": {
+                    "type": "integer",
+                    "description": "Source ID"
+                },
+                "namespace": {
+                    "type": "string",
+                    "description": "Namespace of the source, such as yelpmain.db, etc"
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
+                },
+                "source_owner_email": {
+                    "type": "string",
+                    "description": "Email address of the source owner"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the entry is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the entry is last updated"
+                }
+            }
+        },
+        "Topic": {
+            "id": "Topic",
+            "properties": {
+                "topic_id": {
+                    "type": "integer",
+                    "description": "Topic ID"
+                },
+                "topic": {
+                    "type": "string",
+                    "description": "The kafka topic name."
+                },
+                "namespace": {
+                    "type": "string",
+                    "description": "Namespace of the source, such as yelpmain.db, etc"
+                },
+                "source_id": {
+                    "type": "integer",
+                    "description": "Source ID"
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
+                },
+                "source_owner_email": {
+                    "type": "string",
+                    "description": "Email address of the source owner"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the entry is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the entry is last updated"
+                }
+            }
+        }
+    }
+}

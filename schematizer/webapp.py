@@ -10,6 +10,7 @@ from yelp_servlib import config_util
 from pyramid.config import Configurator
 
 import schematizer.config
+import schematizer.models.database
 
 SERVICE_CONFIG_PATH = os.environ.get('SERVICE_CONFIG_PATH')
 SERVICE_ENV_CONFIG_PATH = os.environ.get('SERVICE_ENV_CONFIG_PATH')
@@ -27,7 +28,11 @@ def _create_application():
             '/(static)\\b',
             '/(api-docs)\\b',
             '/(status)\\b'
-        ]
+        ],
+        'pyramid_yelp_conn.reload_clusters': [
+            ('schematizer', 'master'),
+            ('schematizer', 'slave'),
+        ],
     })
 
     config_util.load_default_config(
@@ -41,6 +46,8 @@ def _create_application():
     # configuration so that the yelp_pyramid configuration can base decisions
     # on the service's configuration.
     config.include(yelp_pyramid)
+    config.include('pyramid_yelp_conn')
+    config.set_yelp_conn_session(schematizer.models.database.session)
 
     config.include('pyramid_swagger')
 
