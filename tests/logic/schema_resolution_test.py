@@ -6,8 +6,8 @@ import mock
 import pytest
 from avro import schema
 
-from schematizer.schema_resolution import SchemaCompatibilityValidator
-from schematizer.schema_resolution import SchemaResolution
+from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
+from schematizer.logic.schema_resolution import SchemaResolution
 
 
 class AvroSchemaFactory(object):
