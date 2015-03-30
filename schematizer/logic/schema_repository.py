@@ -3,8 +3,10 @@ import uuid
 
 import simplejson
 from sqlalchemy import exc
+from sqlalchemy.orm import exc as orm_exc
 
 from schematizer import models
+from schematizer.components.converters.converter_base import BaseConverter
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.models.database import session
 
@@ -45,33 +47,26 @@ class IncompatibleSchemaException(Exception):
     pass
 
 
-converters_module = __import__(
-    'schematizer.components.converters',
-    fromlist=['converters']
-)
-# TODO[clin|...] setup converter from config
-mysql_converter = getattr(converters_module, 'MySqlConverter')
+def load_converters():
+    __import__('schematizer.components.converters', fromlist=['converters'])
+    _converters = dict()
+    for cls in BaseConverter.__subclasses__():
+        _converters[(cls.source_type, cls.target_type)] = cls
+    return _converters
 
 
-def create_avro_schema_from_mysql(
-        sqls,
-        namespace,
-        source,
-        domain_email_owner,
-        status=models.AvroSchemaStatus.READ_AND_WRITE,
-        base_schema_id=None
-):
-    """Add an Avro schema generated from given MySQL statement(s) into
-    the schema store.
+converters = load_converters()
+
+
+def convert_schema(source_type, target_type, source_schema):
+    """Convert the source type schema to the target type schema. The
+    source_type and target_type are the SchemaKindEnum.
     """
-    return create_avro_schema_from_avro_json(
-        mysql_converter.convert_to_avro(sqls),
-        namespace,
-        source,
-        domain_email_owner,
-        status,
-        base_schema_id
-    )
+    converter = converters.get((source_type, target_type))
+    if not converter:
+        raise Exception("Unable to find converter to convert from {0} to {1}."
+                        .format(source_type, target_type))
+    return converter.convert(source_schema)
 
 
 def create_avro_schema_from_avro_json(
@@ -83,27 +78,29 @@ def create_avro_schema_from_avro_json(
         base_schema_id=None
 ):
     """Add an Avro schema of given schema json object into schema store.
-
-    The steps from checking compatibility to create new topic should be
-    atomic or idempotent.
+    The steps from checking compatibility to create new topic should be atomic.
     """
-    # TODO[clin|...] Add necessary lock table to ensure atomic operation
+    domain = _get_domain_or_create(namespace, source, domain_email_owner)
+
+    # Lock the domain so that no other transaction can query or join Domain.
+    _lock_domain(domain)
+
     topic = get_latest_topic_of_domain(namespace, source)
+
+    # Lock topic and its schemas so that no other transaction can query,
+    # join or modify (such as changing schema status).
+    _lock_topic_and_schemas(topic)
+
     if (not topic or not is_schema_compatible_in_topic(
             avro_schema_json,
             topic.topic
     )):
+        # Note that creating duplicate topic names will throw a sqlalchemy
+        # IntegrityError exception. When it occurs, it indicates the uuid
+        # is generating the same value (rarely) and we'd like to know it.
         topic_name = _construct_topic_name(namespace, source)
-        try:
-            topic = create_topic(
-                topic_name,
-                namespace,
-                source,
-                domain_email_owner
-            )
-        except exc.IntegrityError:
-            # topic_name already exists; simply use the existing one
-            topic = get_topic_by_name(topic_name)
+        topic = _create_topic(topic_name, domain)
+
     avro_schema = _create_avro_schema(
         avro_schema_json,
         topic.id,
@@ -111,6 +108,61 @@ def create_avro_schema_from_avro_json(
         base_schema_id
     )
     return avro_schema
+
+
+def _get_domain_or_create(namespace, source, owner_email):
+    try:
+        return session.query(
+            models.Domain
+        ).filter(
+            models.Domain.namespace == namespace,
+            models.Domain.source == source
+        ).one()
+    except orm_exc.NoResultFound:
+        return _create_domain_if_not_exist(namespace, source, owner_email)
+
+
+def _create_domain_if_not_exist(namespace, source, owner_email):
+    try:
+        # Create a savepoint before trying to create new domain so that
+        # in the case which the IntegrityError occurs, the session will
+        # rollback to savepoint. Upon exiting the nested context, commit/
+        # rollback is automatically issued and no need to add it explicitly.
+        with session.begin_nested():
+            domain = models.Domain(
+                namespace=namespace,
+                source=source,
+                owner_email=owner_email
+            )
+            session.add(domain)
+    except exc.IntegrityError:
+        # Ignore this error due to trying to create a duplicate domain
+        # (same namespace and source). Simply get the existing one.
+        domain = get_domain_by_fullname(namespace, source)
+    return domain
+
+
+def _lock_domain(domain):
+    session.query(
+        models.Domain
+    ).filter(
+        models.Domain.id == domain.id
+    ).with_for_update()
+
+
+def _lock_topic_and_schemas(topic):
+    if not topic:
+        return
+    session.query(
+        models.Topic
+    ).filter(
+        models.Topic.id == topic
+    ).with_for_update()
+    session.query(
+        models.AvroSchema
+    ).filter(
+        models.AvroSchema.topic_id == topic.id
+    ).with_for_update()
 
 
 def get_latest_topic_of_domain(namespace, source):
@@ -147,19 +199,11 @@ def _construct_topic_name(namespace, source):
     return '.'.join((namespace, source, uuid.uuid4().hex))
 
 
-def create_topic(topic_name, namespace, source, domain_owner_email):
+def _create_topic(topic_name, domain):
     """Create a topic named `topic_name` in the domain of given namespace
     and source. It returns newly created topic. If a topic with same name
     already exists, an exception is thrown.
     """
-    try:
-        domain = (get_domain_by_fullname(namespace, source)
-                  or create_domain(namespace, source, domain_owner_email))
-    except exc.IntegrityError:
-        # Ignore this error due to trying to create a duplicate domain
-        # (same namespace and source). Simply get the existing one.
-        domain = get_domain_by_fullname(namespace, source)
-
     topic = models.Topic(topic=topic_name, domain_id=domain.id)
     session.add(topic)
     session.flush()
@@ -187,21 +231,6 @@ def get_domain_by_fullname(namespace, source):
         models.Domain.namespace == namespace,
         models.Domain.source == source
     ).first()
-
-
-def create_domain(namespace, source, owner_email):
-    """Create a domain of specified namespace and source. The `owner_email` is
-    the email of whoever owns this domain. If a domain with same namespace and
-    source already exists in the table, an IntegrityError is thrown.
-    """
-    domain = models.Domain(
-        namespace=namespace,
-        source=source,
-        owner_email=owner_email
-    )
-    session.add(domain)
-    session.flush()
-    return domain
 
 
 def _create_avro_schema(
@@ -245,7 +274,7 @@ def get_latest_schema_by_topic_id(topic_id):
     ).first()
 
 
-def validate_schema(target_schema, namespace, source):
+def is_schema_compatible(target_schema, namespace, source):
     """Check whether given schema is a valid Avro schema. It then determines
     the topic of given Avro schema belongs to and checks the compatibility
     against the existing schemas in this topic. Note that given target_schema

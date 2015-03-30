@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-from contextlib import nested
-
 import mock
 import pytest
 import simplejson
-from sqlalchemy import exc
 
 from schematizer import models
+from schematizer.components import converters
 from schematizer.logic import schema_repository as schema_repo
 from schematizer.models.database import session
 from testing import factories
@@ -147,6 +145,8 @@ class TestSchemaRepository(DBTestCase):
                 models.Topic.id == actual.topic_id
             ).one()
             assert created_topic.topic != topic.topic
+            assert created_topic.id != topic.id
+            assert created_topic.domain_id == topic.domain_id
 
             expected_domain = session.query(
                 models.Domain
@@ -240,43 +240,6 @@ class TestSchemaRepository(DBTestCase):
         actual = schema_repo.is_schema_compatible_in_topic('avro', 'foo')
         assert True == actual
 
-    def test_create_topic_with_duplicate_topic(self, topic):
-        with pytest.raises(exc.IntegrityError):
-            schema_repo.create_topic(
-                topic.topic,
-                self.namespace,
-                self.source,
-                self.domain_owner_email
-            )
-
-    def test_create_topic_with_creating_duplicate_domain(self):
-        domain = models.Domain(
-            id=101,
-            namespace=self.namespace,
-            source=self.source,
-            owner_email=self.domain_owner_email
-        )
-        with nested(
-            mock.patch.object(
-                schema_repo,
-                'get_domain_by_fullname',
-                side_effect=[None, domain]
-            ),
-            mock.patch.object(
-                schema_repo,
-                'create_domain',
-                side_effect=exc.IntegrityError('', None, None)
-            )
-        ):
-            actual = schema_repo.create_topic(
-                self.topic_name,
-                domain.namespace,
-                domain.source,
-                self.domain_owner_email
-            )
-            assert domain.id == actual.domain_id
-            assert self.topic_name == actual.topic
-
     def test_get_topic_by_name(self, topic):
         actual = schema_repo.get_topic_by_name(self.topic_name)
         assert topic.id == actual.id
@@ -303,14 +266,6 @@ class TestSchemaRepository(DBTestCase):
     def test_get_domain_by_fullname_with_nonexisted_domain(self):
         actual = schema_repo.get_domain_by_fullname('foo', 'bar')
         assert actual is None
-
-    def test_create_domain_with_duplicate_domain(self, domain):
-        with pytest.raises(exc.IntegrityError):
-            schema_repo.create_domain(
-                domain.namespace,
-                domain.source,
-                self.domain_owner_email
-            )
 
     def test_get_schema_by_id(self, rw_avro_schema):
         actual = schema_repo.get_schema_by_id(rw_avro_schema.id)
@@ -351,14 +306,14 @@ class TestSchemaRepository(DBTestCase):
         actual = schema_repo.get_latest_schema_by_topic_id(topic.id)
         assert actual is None
 
-    def test_validate_schema(self, avro_schemas):
+    def test_is_schema_compatible(self, avro_schemas):
         with mock.patch.object(
             schema_repo,
             'is_schema_compatible_in_topic',
             return_value=True
         ) as mock_compatible_func:
             target_schema = 'avro schema to be validated'
-            actual = schema_repo.validate_schema(
+            actual = schema_repo.is_schema_compatible(
                 target_schema,
                 self.namespace,
                 self.source
@@ -368,14 +323,14 @@ class TestSchemaRepository(DBTestCase):
                 mock.call(target_schema, self.topic_name)
             ])
 
-    def test_validate_schema_with_incompatible_schema(self, avro_schemas):
+    def test_is_schema_compatible_with_incompatible_schema(self, avro_schemas):
         with mock.patch.object(
             schema_repo,
             'is_schema_compatible_in_topic',
             return_value=False
         ) as mock_compatible_func:
             target_schema = 'avro schema to be validated'
-            actual = schema_repo.validate_schema(
+            actual = schema_repo.is_schema_compatible(
                 target_schema,
                 self.namespace,
                 self.source
@@ -385,16 +340,16 @@ class TestSchemaRepository(DBTestCase):
                 mock.call(target_schema, self.topic_name)
             ])
 
-    def test_validate_schema_with_no_topic_in_domain(self, domain):
+    def test_is_schema_compatible_with_no_topic_in_domain(self, domain):
         factories.DomainFactory.delete_topics(domain.id)
-        actual = schema_repo.validate_schema(
+        actual = schema_repo.is_schema_compatible(
             'avro schema to be validated',
             domain.namespace,
             domain.source
         )
         assert True == actual
 
-        actual = schema_repo.validate_schema('avro schema', 'foo', 'bar')
+        actual = schema_repo.is_schema_compatible('avro schema', 'foo', 'bar')
         assert True == actual
 
     def test_get_schemas_by_topic_name(self, topic, rw_avro_schema):
@@ -507,3 +462,15 @@ class TestSchemaRepository(DBTestCase):
         actual = schema_repo.get_topics_by_domain_id(domain.id)
         assert 1 == len(actual)
         self.verify_topic(topic, actual[0])
+
+    def test_available_converters(self):
+        expected = {
+            (models.SchemaKindEnum.MySQL, models.SchemaKindEnum.Avro):
+                converters.MySqlConverter,
+        }
+        for key, value in expected.iteritems():
+            actual = schema_repo.converters[key]
+            source_type, target_type = key
+            assert source_type == actual.source_type
+            assert target_type == actual.target_type
+            assert value == actual
