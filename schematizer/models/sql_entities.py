@@ -40,7 +40,7 @@ class SQLColumn(object):
         self.is_nullable = is_nullable
         self.default_value = default_value
         self.doc = doc
-        # attributes contains column settings except default value and nullable
+        # attributes contain column settings except default value and nullable
         self.attributes = set(attributes or [])
         self._attributes_lookup = dict((attr.name, attr)
                                        for attr in self.attributes)

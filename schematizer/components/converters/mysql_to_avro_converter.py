@@ -6,8 +6,8 @@ from schematizer.components.converters.converter_base \
     import SchemaConversionException
 from schematizer.components.converters.converter_base \
     import UnsupportedTypeException
-from schematizer.models import mysql_data_types
 from schematizer.models import SchemaKindEnum
+from schematizer.models import mysql_data_types
 from schematizer.models.sql_entities import MetaDataKey
 from schematizer.models.sql_entities import SQLTable
 
