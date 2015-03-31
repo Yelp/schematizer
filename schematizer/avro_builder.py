@@ -68,6 +68,12 @@ class AvroSchemaBuilder(object):
         self.track_created_names = track_created_names
         self._schema_names = schema.Names()
 
+    def begin(self):
+        self.reset()
+
+    def end(self):
+        self.reset()
+
     def reset(self):
         self._schema_names = schema.Names()
 
