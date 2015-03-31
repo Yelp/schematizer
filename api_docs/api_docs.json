@@ -1,9 +1,31 @@
 {
-  "swaggerVersion": "1.2",
-  "apis": [
-    {
-      "path": "/schematizer",
-      "description": "Retrieve business hours."
+    "apiVersion": "1.0.0",
+    "swaggerVersion": "1.2",
+    "apis": [
+        {
+            "path": "/v1/namespaces",
+            "description": "Operations about namespaces."
+        },
+        {
+            "path": "/v1/sources",
+            "description": "Operations about sources."
+        },
+        {
+            "path": "/v1/topics",
+            "description": "Operations about topics."
+        },
+        {
+            "path": "/v1/schemas",
+            "description": "Operations about Avro schemas."
+        },
+        {
+            "path": "/v1/compatibility",
+            "description": "Operations about schema compatibility check."
+        }
+    ],
+    "info": {
+    "title": "Data Pipeline Schematizer",
+    "description": "Schematizer is REST service to register and retrieve Avro schemas, maintain Avro schema backward compatibilities, register producer and consumer of Avro schemas, and generate redshift push plans.",
+    "contact": "bam@yelp.com"
     }
-  ]
 }

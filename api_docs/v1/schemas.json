@@ -1,0 +1,283 @@
+{
+    "apiVersion": "1.0.0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:1210",
+    "resourcePath": "/v1/schemas",
+    "produces": [
+        "application/json"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "apis": [
+        {
+            "path": "/v1/schemas/latest",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get latest schema from the latest topic of the specified namespace and source.",
+                    "type": "Schema",
+                    "nickname": "get_latest_schema_by_namespace_and_source",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "namespace",
+                            "required": true,
+                            "type": "string",
+                            "paramType": "query"
+                        },
+                        {
+                            "name": "source",
+                            "required": true,
+                            "type": "string",
+                            "paramType": "query"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/v1/schemas/mysql",
+            "operations": [
+                {
+                    "method": "POST",
+                    "summary": "Register an Avro Schema derived from Mysql statements to the latest topic of specified namespace and source.",
+                    "notes": "If the namespace and source do not exist, Schematizer will create it automatically.",
+                    "type": "Schema",
+                    "nickname": "register_avro_schema_from_mysql_statements",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "body",
+                            "required": true,
+                            "type": "MysqlStatementsRegistrationRequest",
+                            "paramType": "body"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/v1/schemas/avro",
+            "operations": [
+                {
+                    "method": "POST",
+                    "summary": "Register Avro schema to the latest topic for specified namespace and source.",
+                    "notes": "If the namespace and source do not exist, Schematizer will create it automatically.",
+                    "type": "Schema",
+                    "nickname": "register_avro_schema",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "body",
+                            "required": true,
+                            "type": "AvroSchemaRegistrationRequest",
+                            "paramType": "body"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/v1/schemas/{schema_id}",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get schema by schema_id",
+                    "notes": "Get schema by schema_id",
+                    "type": "Schema",
+                    "nickname": "get_schema_by_id",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "schema_id",
+                            "description": "ID of schema that will be fetched",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        },
+                        {
+                            "name": "return_schema_type",
+                            "description": "The schema representation type, right now we only support Avro",
+                            "type": "string",
+                            "enum": [
+                                "avro"
+                            ],
+                            "defaultValue": "avro",
+                            "paramType": "query",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid schema ID supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Schema not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "MysqlStatementsRegistrationRequest": {
+            "id": "MysqlStatementsRegistrationRequest",
+            "required": [
+                "mysql_statements",
+                "namespace",
+                "source",
+                "source_owner_email"
+            ],
+            "properties": {
+                "mysql_statements": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "This array should contain the old create table statement, alter statement, new create table statement for alter table events, and new create table statement for create table events."
+                },
+                "namespace": {
+                    "type": "string",
+                    "description": "Namespace of the source, such as yelpmain.db, etc"
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
+                },
+                "source_owner_email": {
+                    "type": "string",
+                    "description": "Email address of the source owner"
+                }
+            }
+        },
+        "AvroSchemaRegistrationRequest": {
+            "id": "AvroSchemaRegistrationRequest",
+            "required": [
+                "schema",
+                "namespace",
+                "source",
+                "source_owner_email"
+            ],
+            "properties": {
+                "base_schema_id": {
+                    "type": "integer",
+                    "description": "This is the original schema which the transformer uses to apply transformation on."
+                },
+                "schema": {
+                    "type": "string",
+                    "description": "This is the json formatted avro schema."
+                },
+                "namespace": {
+                    "type": "string",
+                    "description": "Namespace of the source, such as yelpmain.db, etc"
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
+                },
+                "source_owner_email": {
+                    "type": "string",
+                    "description": "Email address of the source owner"
+                }
+            }
+        },
+        "Schema": {
+            "id": "Schema",
+            "properties": {
+                "schema_id": {
+                    "type": "integer",
+                    "description": "System automatically generated id. It is unique for each registered schema"
+                },
+                "schema": {
+                    "type": "string",
+                    "description": "The stored Avro schema"
+                },
+                "namespace": {
+                    "type": "string",
+                    "description": "Namespace of the source, such as yelpmain.db, etc"
+                },
+                "source_id": {
+                    "type": "integer",
+                    "description": "Source ID"
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
+                },
+                "topic_id": {
+                    "type": "integer",
+                    "description": "Topic ID"
+                },
+                "topic": {
+                    "type": "string",
+                    "description": "The kafka topic name."
+                },
+                "source_owner_email": {
+                    "type": "string",
+                    "description": "Email address of the source owner"
+                },
+                "base_schema_id": {
+                    "type": "integer",
+                    "description": "This is the original schema which the transformer uses to apply transformation on."
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "RW",
+                        "R",
+                        "Disabled"
+                    ],
+                    "description": "Schema status: RW (read/write), R (read-only), Disabled"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the entry is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the entry is last updated"
+                }
+            }
+        }
+    }
+}
