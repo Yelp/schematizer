@@ -36,6 +36,10 @@ class TestAvroToRedshiftConverter(object):
     def col_name(self):
         return 'col'
 
+    @property
+    def table_aliases(self):
+        return ['bar']
+
     def convert_with_one_column(self, converter, avro_field, expected_column):
         record_schema = self.compose_record_schema(avro_field)
         expected_table = SQLTable(
@@ -54,13 +58,13 @@ class TestAvroToRedshiftConverter(object):
             'namespace': self.namespace,
             'fields': [avro_field],
             'doc': 'sample doc',
-            'aliases': ['foo'],
+            'aliases': self.table_aliases,
         }
 
     def get_table_metadata(self):
         return {
             MetaDataKey.NAMESPACE: self.namespace,
-            MetaDataKey.ALIASES: ['foo']
+            MetaDataKey.ALIASES: self.table_aliases
         }
 
     def test_convert_with_field_int(self, converter):
@@ -234,12 +238,12 @@ class TestAvroToRedshiftConverter(object):
     def test_convert_with_column_with_alias(self, converter):
         self.convert_with_one_column(
             converter,
-            {'name': self.col_name, 'type': 'int', 'aliases': ['bar']},
+            {'name': self.col_name, 'type': 'int', 'aliases': ['abc']},
             SQLColumn(
                 self.col_name,
                 redshift_types.RedshiftInteger(),
                 is_nullable=False,
-                **{MetaDataKey.ALIASES: ['bar']}
+                **{MetaDataKey.ALIASES: ['abc']}
             )
         )
 
