@@ -157,7 +157,7 @@ class RedshiftText(RedshiftVarChar):
 
     type_name = 'text'
 
-    def __init__(self,):
+    def __init__(self):
         super(RedshiftText, self).__init__(256)
 
 
