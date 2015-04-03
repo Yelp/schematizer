@@ -75,8 +75,7 @@ class MySQLToAvroConverter(BaseConverter):
 
     def _create_avro_field_type(self, column):
         type_cls = column.type.__class__
-        converter = (self._type_converters.get(type_cls)
-                     or self._type_converters.get(type_cls.__bases__[0]))
+        converter = self._type_converters.get(type_cls)
         if converter:
             return converter(column)
 
@@ -95,8 +94,8 @@ class MySQLToAvroConverter(BaseConverter):
             mysql_types.MySQLBigInt: self._convert_bigint_type,
 
             mysql_types.MySQLFloat: self._convert_float_type,
-            mysql_types.MySQLDouble: self._convert_real_number_type,
-            mysql_types.MySQLReal: self._convert_real_number_type,
+            mysql_types.MySQLDouble: self._convert_double_type,
+            mysql_types.MySQLReal: self._convert_double_type,
             mysql_types.MySQLDecimal: self._convert_decimal_type,
             mysql_types.MySQLNumeric: self._convert_decimal_type,
 
@@ -129,7 +128,7 @@ class MySQLToAvroConverter(BaseConverter):
         metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         return self._builder.create_long(), metadata
 
-    def _convert_real_number_type(self, column):
+    def _convert_double_type(self, column):
         metadata = self._get_primary_key_metadata(column.is_primary_key)
         metadata.update(self._get_precision_metadata(column))
         metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
