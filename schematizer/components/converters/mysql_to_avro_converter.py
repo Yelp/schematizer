@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from schematizer.avro_builder import AvroSchemaBuilder
+from schematizer.components.converters.converter_base \
+    import AvroMetaDataKeyEnum
 from schematizer.components.converters.converter_base import BaseConverter
-from schematizer.components.converters.converter_base import MetaDataKeyEnum
 from schematizer.components.converters.converter_base \
     import SchemaConversionException
 from schematizer.components.converters.converter_base \
     import UnsupportedTypeException
 from schematizer.models import SchemaKindEnum
-from schematizer.models import mysql_data_types
+from schematizer.models import mysql_data_types as mysql_types
 from schematizer.models.sql_entities import MetaDataKey
 from schematizer.models.sql_entities import SQLTable
 
@@ -87,15 +88,27 @@ class MySQLToAvroConverter(BaseConverter):
     @property
     def _type_converters(self):
         return {
-            mysql_data_types.MySQLInteger: self._convert_integer_type,
-            mysql_data_types.MySQLBigInt: self._convert_bigint_type,
-            mysql_data_types.MySQLRealNumber: self._convert_real_number_type,
-            mysql_data_types.MySQLFloat: self._convert_float_type,
-            mysql_data_types.MySQLString: self._convert_string_type,
-            mysql_data_types.MySQLChar: self._convert_char_type,
-            mysql_data_types.MySQLVarChar: self._convert_varchar_type,
-            mysql_data_types.MySQLTimestamp: self._convert_timestamp_type,
-            mysql_data_types.MySQLEnum: self._convert_enum_type,
+            mysql_types.MySQLTinyInt: self._convert_integer_type,
+            mysql_types.MySQLSmallInt: self._convert_integer_type,
+            mysql_types.MySQLMediumInt: self._convert_integer_type,
+            mysql_types.MySQLInt: self._convert_integer_type,
+            mysql_types.MySQLBigInt: self._convert_bigint_type,
+
+            mysql_types.MySQLFloat: self._convert_float_type,
+            mysql_types.MySQLDouble: self._convert_real_number_type,
+            mysql_types.MySQLReal: self._convert_real_number_type,
+            mysql_types.MySQLDecimal: self._convert_decimal_type,
+            mysql_types.MySQLNumeric: self._convert_decimal_type,
+
+            mysql_types.MySQLChar: self._convert_char_type,
+            mysql_types.MySQLVarChar: self._convert_varchar_type,
+            mysql_types.MySQLTinyText: self._convert_string_type,
+            mysql_types.MySQLText: self._convert_string_type,
+            mysql_types.MySQLMediumText: self._convert_string_type,
+            mysql_types.MySQLLongText: self._convert_string_type,
+
+            mysql_types.MySQLTimestamp: self._convert_timestamp_type,
+            mysql_types.MySQLEnum: self._convert_enum_type,
         }
 
     def _convert_integer_type(self, column):
@@ -104,10 +117,12 @@ class MySQLToAvroConverter(BaseConverter):
         return self._builder.create_int(), metadata
 
     def _get_primary_key_metadata(self, is_primary_key):
-        return {MetaDataKeyEnum.PRIMARY_KEY: True} if is_primary_key else {}
+        return ({AvroMetaDataKeyEnum.PRIMARY_KEY: True}
+                if is_primary_key else {})
 
     def _get_unsigned_metadata(self, is_unsigned):
-        return {MetaDataKeyEnum.UNSIGNED: is_unsigned} if is_unsigned else {}
+        return ({AvroMetaDataKeyEnum.UNSIGNED: is_unsigned}
+                if is_unsigned else {})
 
     def _convert_bigint_type(self, column):
         metadata = self._get_primary_key_metadata(column.is_primary_key)
@@ -122,8 +137,8 @@ class MySQLToAvroConverter(BaseConverter):
 
     def _get_precision_metadata(self, column):
         return {
-            MetaDataKeyEnum.LENGTH: column.type.length,
-            MetaDataKeyEnum.DECIMAL: column.type.decimal,
+            AvroMetaDataKeyEnum.PRECISION: column.type.precision,
+            AvroMetaDataKeyEnum.SCALE: column.type.scale,
         }
 
     def _convert_float_type(self, column):
@@ -132,18 +147,25 @@ class MySQLToAvroConverter(BaseConverter):
         metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         return self._builder.create_float(), metadata
 
+    def _convert_decimal_type(self, column):
+        metadata = self._get_primary_key_metadata(column.is_primary_key)
+        metadata.update(self._get_precision_metadata(column))
+        metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
+        metadata.update({AvroMetaDataKeyEnum.FIXED_POINT: True})
+        return self._builder.create_double(), metadata
+
     def _convert_string_type(self, column):
         metadata = self._get_primary_key_metadata(column.is_primary_key)
         return self._builder.create_string(), metadata
 
     def _convert_char_type(self, column):
         metadata = self._get_primary_key_metadata(column.is_primary_key)
-        metadata[MetaDataKeyEnum.FIX_LEN] = column.type.length
+        metadata[AvroMetaDataKeyEnum.FIX_LEN] = column.type.length
         return self._builder.create_string(), metadata
 
     def _convert_varchar_type(self, column):
         metadata = self._get_primary_key_metadata(column.is_primary_key)
-        metadata[MetaDataKeyEnum.MAX_LEN] = column.type.length
+        metadata[AvroMetaDataKeyEnum.MAX_LEN] = column.type.length
         return self._builder.create_string(), metadata
 
     def _convert_timestamp_type(self, column):
@@ -151,7 +173,7 @@ class MySQLToAvroConverter(BaseConverter):
         timestamp sql column type to long (unix timestamp)
         """
         metadata = self._get_primary_key_metadata(column.is_primary_key)
-        metadata[MetaDataKeyEnum.TIMESTAMP] = True
+        metadata[AvroMetaDataKeyEnum.TIMESTAMP] = True
         return self._builder.create_long(), metadata
 
     def _convert_enum_type(self, column):

@@ -50,12 +50,12 @@ class MySQLBigInt(MySQLInteger):
 class MySQLRealNumber(SQLColumnDataType):
     """Base class for MySQL real number data types"""
 
-    def __init__(self, length, decimal, unsigned=False):
+    def __init__(self, precision, scale, unsigned=False):
         attributes = ([SQLAttribute('unsigned', None, False)]
                       if unsigned else None)
         super(MySQLRealNumber, self).__init__(attributes)
-        self.length = length
-        self.decimal = decimal
+        self.precision = precision
+        self.scale = scale
 
     @property
     def is_unsigned(self):
@@ -142,14 +142,14 @@ class MySQLLongText(MySQLString):
     type_name = 'longtext'
 
 
-class MySQLBin(SQLColumnDataType):
+class MySQLBinaryBase(SQLColumnDataType):
     """Base class for MySQL binary data types"""
 
     def __init__(self):
-        super(MySQLBin, self).__init__()
+        super(MySQLBinaryBase, self).__init__()
 
 
-class MySQLBinary(MySQLBin):
+class MySQLBinary(MySQLBinaryBase):
 
     type_name = 'binary'
 
@@ -158,7 +158,7 @@ class MySQLBinary(MySQLBin):
         self.length = length
 
 
-class MySQLVarBinary(MySQLBin):
+class MySQLVarBinary(MySQLBinaryBase):
 
     type_name = 'varbinary'
 
@@ -167,22 +167,22 @@ class MySQLVarBinary(MySQLBin):
         self.length = length
 
 
-class MySQLTinyBlob(MySQLBin):
+class MySQLTinyBlob(MySQLBinaryBase):
 
     type_name = 'tinyblob'
 
 
-class MySQLBlob(MySQLBin):
+class MySQLBlob(MySQLBinaryBase):
 
     type_name = 'blob'
 
 
-class MySQLMediumBlob(MySQLBin):
+class MySQLMediumBlob(MySQLBinaryBase):
 
     type_name = 'mediumblob'
 
 
-class MySQLLongBlob(MySQLBin):
+class MySQLLongBlob(MySQLBinaryBase):
 
     type_name = 'longblob'
 

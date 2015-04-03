@@ -2,7 +2,8 @@
 import pytest
 
 from schematizer.components.converters import MySQLToAvroConverter
-from schematizer.components.converters.converter_base import MetaDataKeyEnum
+from schematizer.components.converters.converter_base \
+    import AvroMetaDataKeyEnum
 from schematizer.components.converters.converter_base \
     import SchemaConversionException
 from schematizer.components.converters.converter_base \
@@ -70,8 +71,8 @@ class TestMySQLToAvroConverter(object):
             {'name': 'col_double',
              'type': ['null', 'double'],
              'default': None,
-             MetaDataKeyEnum.LENGTH: 10,
-             MetaDataKeyEnum.DECIMAL: 2},
+             AvroMetaDataKeyEnum.PRECISION: 10,
+             AvroMetaDataKeyEnum.SCALE: 2},
         )
 
     def test_convert_with_col_decimal(self, converter):
@@ -81,8 +82,9 @@ class TestMySQLToAvroConverter(object):
             {'name': 'col_decimal',
              'type': ['null', 'double'],
              'default': None,
-             MetaDataKeyEnum.LENGTH: 8,
-             MetaDataKeyEnum.DECIMAL: 0}
+             AvroMetaDataKeyEnum.PRECISION: 8,
+             AvroMetaDataKeyEnum.SCALE: 0,
+             AvroMetaDataKeyEnum.FIXED_POINT: True}
         )
 
     def test_convert_with_col_float(self, converter):
@@ -92,8 +94,8 @@ class TestMySQLToAvroConverter(object):
             {'name': 'col_float',
              'type': ['null', 'float'],
              'default': None,
-             MetaDataKeyEnum.LENGTH: 10,
-             MetaDataKeyEnum.DECIMAL: 2}
+             AvroMetaDataKeyEnum.PRECISION: 10,
+             AvroMetaDataKeyEnum.SCALE: 2}
         )
 
     def test_convert_with_col_char(self, converter):
@@ -103,7 +105,7 @@ class TestMySQLToAvroConverter(object):
             {'name': 'col_char',
              'type': ['null', 'string'],
              'default': None,
-             MetaDataKeyEnum.FIX_LEN: 16}
+             AvroMetaDataKeyEnum.FIX_LEN: 16}
         )
 
     def test_convert_with_col_varchar(self, converter):
@@ -113,7 +115,7 @@ class TestMySQLToAvroConverter(object):
             {'name': 'col_varchar',
              'type': ['null', 'string'],
              'default': None,
-             MetaDataKeyEnum.MAX_LEN: 16}
+             AvroMetaDataKeyEnum.MAX_LEN: 16}
         )
 
     def test_convert_with_col_text(self, converter):
@@ -130,7 +132,7 @@ class TestMySQLToAvroConverter(object):
             {'name': 'col_ts',
              'type': ['null', 'long'],
              'default': None,
-             MetaDataKeyEnum.TIMESTAMP: True}
+             AvroMetaDataKeyEnum.TIMESTAMP: True}
         )
 
     def test_convert_with_col_enum(self, converter):
@@ -165,7 +167,7 @@ class TestMySQLToAvroConverter(object):
             {'name': 'col',
              'type': ['null', 'int'],
              'default': None,
-             MetaDataKeyEnum.PRIMARY_KEY: True}
+             AvroMetaDataKeyEnum.PRIMARY_KEY: True}
         )
 
     def test_convert_with_non_nullable_column(self, converter):
