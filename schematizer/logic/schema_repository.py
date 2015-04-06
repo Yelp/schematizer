@@ -156,7 +156,7 @@ def _lock_topic_and_schemas(topic):
     session.query(
         models.Topic
     ).filter(
-        models.Topic.id == topic
+        models.Topic.id == topic.id
     ).with_for_update()
     session.query(
         models.AvroSchema
