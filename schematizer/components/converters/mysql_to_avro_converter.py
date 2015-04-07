@@ -50,12 +50,6 @@ class MySQLToAvroConverter(BaseConverter):
         return record_json
 
     def _create_avro_field(self, column):
-        if not column.is_nullable and column.default_value is None:
-            raise SchemaConversionException(
-                "Column {0} is not nullable and must have a non-null "
-                "default value.".format(column.name)
-            )
-
         field_type, field_metadata = self._create_avro_field_type(column)
         if column.is_nullable:
             field_type = self._builder.create_optional_type(
@@ -66,7 +60,7 @@ class MySQLToAvroConverter(BaseConverter):
         return self._builder.create_field(
             column.name,
             field_type,
-            has_default=True,
+            has_default=column.default_value is not None or column.is_nullable,
             default_value=column.default_value,
             aliases=column.metadata.get(MetaDataKey.ALIASES),
             doc=column.doc,
@@ -75,9 +69,9 @@ class MySQLToAvroConverter(BaseConverter):
 
     def _create_avro_field_type(self, column):
         type_cls = column.type.__class__
-        converter = self._type_converters.get(type_cls)
-        if converter:
-            return converter(column)
+        convert_func = self._type_converters.get(type_cls)
+        if convert_func:
+            return convert_func(column)
 
         raise UnsupportedTypeException(
             "Unable to convert MySQL data type {0} to Avro schema type."

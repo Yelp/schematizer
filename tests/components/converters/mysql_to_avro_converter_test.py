@@ -177,9 +177,9 @@ class TestMySQLToAvroConverter(object):
                 'col',
                 mysql_data_types.MySQLInt(11),
                 is_nullable=False,
-                default_value=10
+                default_value=0
             ),
-            {'name': 'col', 'type': 'int', 'default': 10}
+            {'name': 'col', 'type': 'int', 'default': 0}
         )
 
     def test_convert_with_column_default_value(self, converter):
@@ -200,14 +200,12 @@ class TestMySQLToAvroConverter(object):
         )
 
     def test_convert_with_non_nullable_without_default_column(self, converter):
-        with pytest.raises(SchemaConversionException):
-            column = SQLColumn(
-                'col',
-                mysql_data_types.MySQLInt(11),
-                is_nullable=False
-            )
-            sql_table = SQLTable(self.table_name, [column])
-            converter.convert(sql_table)
+        self.convert_with_one_column(
+            converter,
+            SQLColumn('col', mysql_data_types.MySQLInt(11), is_nullable=False),
+            {'name': 'col',
+             'type': 'int'}
+        )
 
     def test_convert_with_none_table(self, converter):
         actual_schema = converter.convert(None)
