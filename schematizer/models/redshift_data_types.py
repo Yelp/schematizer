@@ -5,6 +5,7 @@ http://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html
 for data types definition.
 """
 from collections import namedtuple
+
 from schematizer.models.sql_entities import SQLColumnDataType
 
 

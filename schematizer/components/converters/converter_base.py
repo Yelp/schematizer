@@ -28,11 +28,11 @@ class UnsupportedTypeException(SchemaConversionException):
 class AvroMetaDataKeyEnum(object):
     """Valid metadata keys that can be added in the Avro Field type"""
 
-    FIX_LEN = 'fixlen'     # length of char type
-    MAX_LEN = 'maxlen'     # length of varchar type
-    PRIMARY_KEY = 'pkey'   # whether it is primary key
-    TIMESTAMP = 'ts'       # whether it is a timestamp field
-    UNSIGNED = 'unsigned'  # whether the int type is unsigned
-    LENGTH = 'length'      # precision of decimal/numeric type
-    DECIMAL = 'decimal'    # scale of decimal/numeric type
-    FIXED_POINT = 'fixed'  # fixed-point numeric type, such as decimal
+    FIX_LEN = 'fixlen'        # length of char type
+    MAX_LEN = 'maxlen'        # length of varchar type
+    PRIMARY_KEY = 'pkey'      # whether it is primary key
+    TIMESTAMP = 'timestamp'   # whether it is a timestamp field
+    UNSIGNED = 'unsigned'     # whether the int type is unsigned
+    PRECISION = 'precision'   # precision of numeric type
+    SCALE = 'scale'           # scale of numeric type
+    FIXED_POINT = 'fixed_pt'  # fixed-point numeric type

@@ -87,8 +87,8 @@ class TestAvroToRedshiftConverter(object):
             {'name': self.col_name,
              'type': ['null', 'double'],
              'default': None,
-             AvroMetaDataKeyEnum.LENGTH: 10,
-             AvroMetaDataKeyEnum.DECIMAL: 2},
+             AvroMetaDataKeyEnum.PRECISION: 10,
+             AvroMetaDataKeyEnum.SCALE: 2},
             SQLColumn(self.col_name, redshift_types.RedshiftDouble()),
         )
 
@@ -98,8 +98,8 @@ class TestAvroToRedshiftConverter(object):
             {'name': self.col_name,
              'type': ['null', 'double'],
              'default': None,
-             AvroMetaDataKeyEnum.LENGTH: 8,
-             AvroMetaDataKeyEnum.DECIMAL: 0,
+             AvroMetaDataKeyEnum.PRECISION: 8,
+             AvroMetaDataKeyEnum.SCALE: 0,
              AvroMetaDataKeyEnum.FIXED_POINT: True},
             SQLColumn(self.col_name, redshift_types.RedshiftDecimal(8, 0))
         )
@@ -110,8 +110,8 @@ class TestAvroToRedshiftConverter(object):
             {'name': self.col_name,
              'type': ['null', 'float'],
              'default': None,
-             AvroMetaDataKeyEnum.LENGTH: 10,
-             AvroMetaDataKeyEnum.DECIMAL: 2},
+             AvroMetaDataKeyEnum.PRECISION: 10,
+             AvroMetaDataKeyEnum.SCALE: 2},
             SQLColumn(self.col_name, redshift_types.RedshiftReal())
         )
 
@@ -122,7 +122,7 @@ class TestAvroToRedshiftConverter(object):
              'type': ['null', 'string'],
              'default': None,
              AvroMetaDataKeyEnum.FIX_LEN: 16},
-            SQLColumn(self.col_name, redshift_types.RedshiftChar(32))
+            SQLColumn(self.col_name, redshift_types.RedshiftChar(16))
         )
 
     def test_convert_with_field_string_with_max_len(self, converter):

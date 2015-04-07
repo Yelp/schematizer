@@ -58,7 +58,8 @@ class AvroToRedshiftConverter(BaseConverter):
         )
 
     def _create_column(self, field):
-        column_type, is_nullable = self._create_column_type(field)
+        column_type = self._create_column_type(field)
+        is_nullable = self._is_column_nullable(field)
         metadata = self._get_column_metadata(field)
         return SQLColumn(
             field.name,
@@ -72,19 +73,21 @@ class AvroToRedshiftConverter(BaseConverter):
         )
 
     def _create_column_type(self, field):
-        field_type, is_nullable = self._get_field_type(field)
+        field_type = self._get_field_type(field)
         column_type = self._convert_field_type(field_type, field)
-        return column_type, is_nullable
+        return column_type
 
     def _get_field_type(self, field):
-        field_type = field.type
-        is_nullable = self._is_null_type(field_type)
-        if self._is_union_schema(field_type):
-            field_type = next((sub_type for sub_type in field.type.schemas
-                               if not self._is_null_type(sub_type)), None)
-            is_nullable = any(self._is_null_type(sub_type)
-                              for sub_type in field.type.schemas)
-        return field_type, is_nullable
+        if self._is_union_schema(field.type):
+            return next((sub_type for sub_type in field.type.schemas
+                         if not self._is_null_type(sub_type)), None)
+        return field.type
+
+    def _is_column_nullable(self, field):
+        types_to_exam = (field.type.schemas
+                         if self._is_union_schema(field.type)
+                         else (field.type,))
+        return any(self._is_null_type(typ) for typ in types_to_exam)
 
     def _is_null_type(self, avro_schema):
         return (self._is_primitive_schema(avro_schema)
@@ -144,9 +147,12 @@ class AvroToRedshiftConverter(BaseConverter):
         return redshift_data_types.RedshiftDouble()
 
     def _get_precision_metadata(self, field):
-        return (field.props.get(AvroMetaDataKeyEnum.LENGTH),
-                field.props.get(AvroMetaDataKeyEnum.DECIMAL))
+        return (field.props.get(AvroMetaDataKeyEnum.PRECISION),
+                field.props.get(AvroMetaDataKeyEnum.SCALE))
 
+    # 2 bytes per char is currently chosen as the trade-off between
+    # support multi-byte char in Redshift and performance/space usage.
+    # It is also the current settings used in the datawarehouse.
     CHAR_BYTES = 2
 
     def _convert_string_type(self, field):
@@ -155,7 +161,7 @@ class AvroToRedshiftConverter(BaseConverter):
         """
         fix_len = field.props.get(AvroMetaDataKeyEnum.FIX_LEN)
         if fix_len:
-            return redshift_data_types.RedshiftChar(fix_len*self.CHAR_BYTES)
+            return redshift_data_types.RedshiftChar(fix_len)
 
         max_len = field.props.get(AvroMetaDataKeyEnum.MAX_LEN)
         if max_len:
