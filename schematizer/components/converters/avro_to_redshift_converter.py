@@ -102,9 +102,9 @@ class AvroToRedshiftConverter(BaseConverter):
     def _convert_field_type(self, field_type, field):
         typ = (field_type.fullname if self._is_primitive_schema(field_type)
                else field_type)
-        converter = self._type_converters.get(typ)
-        if converter:
-            return converter(field)
+        converter_func = self._type_converters.get(typ)
+        if converter_func:
+            return converter_func(field)
 
         raise UnsupportedTypeException(
             "Unable to convert field {0} type {1} to Redshift column type."
