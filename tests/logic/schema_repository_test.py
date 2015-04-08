@@ -306,6 +306,14 @@ class TestSchemaRepository(DBTestCase):
         actual = schema_repo.get_latest_schema_by_topic_id(topic.id)
         assert actual is None
 
+    def test_get_latest_schema_by_topic_name(self, topic, rw_avro_schema):
+        actual = schema_repo.get_latest_schema_by_topic_name(topic.topic)
+        self.verify_avro_schema(rw_avro_schema, actual)
+
+    def test_get_latest_schema_by_topic_name_with_nonexisted_topic(self):
+        actual = schema_repo.get_latest_schema_by_topic_name('_bad.topic')
+        assert actual is None
+
     def test_is_schema_compatible(self, avro_schemas):
         with mock.patch.object(
             schema_repo,

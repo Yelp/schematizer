@@ -274,6 +274,23 @@ def get_latest_schema_by_topic_id(topic_id):
     ).first()
 
 
+def get_latest_schema_by_topic_name(topic_name):
+    """Get the latest enabled (Read-Write or Read-Only) schema of given topic.
+    It returns None if no such schema can be found.
+    """
+    return session.query(
+        models.AvroSchema
+    ).join(
+        models.Topic
+    ).filter(
+        models.AvroSchema.topic_id == models.Topic.id,
+        models.Topic.topic == topic_name,
+        models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
+    ).order_by(
+        models.AvroSchema.id.desc()
+    ).first()
+
+
 def is_schema_compatible(target_schema, namespace, source):
     """Check whether given schema is a valid Avro schema. It then determines
     the topic of given Avro schema belongs to and checks the compatibility
