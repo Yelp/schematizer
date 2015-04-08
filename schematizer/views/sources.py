@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from pyramid.httpexceptions import exception_response
 from pyramid.view import view_config
-from sqlalchemy.orm.exc import NoResultFound
 
-from schematizer import models
-from schematizer.utils.decorators import handle_view_exception
+from schematizer.logic import schema_repository
+from schematizer.utils.decorators import transform_response
+from schematizer.views import constants
 
 
 @view_config(
@@ -12,10 +12,10 @@ from schematizer.utils.decorators import handle_view_exception
     request_method='GET',
     renderer='json'
 )
-@handle_view_exception(Exception, 500, None)
+@transform_response()
 def list_sources(request):
-        domains = models.domain.list_all_sources()
-        return [domain.to_dict() for domain in domains]
+    domains = schema_repository.get_domains()
+    return [domain.to_dict() for domain in domains]
 
 
 @view_config(
@@ -23,11 +23,15 @@ def list_sources(request):
     request_method='GET',
     renderer='json'
 )
-@handle_view_exception(Exception, 500, None)
-@handle_view_exception(NoResultFound, 404, "Source is not found.")
+@transform_response()
 def get_source_by_id(request):
     source_id = request.matchdict.get('source_id')
-    source = models.domain.get_source_by_source_id(int(source_id))
+    source = schema_repository.get_domain_by_domain_id(int(source_id))
+    if not source:
+        raise exception_response(
+            404,
+            detail=constants.SOURCE_NOT_FOUND_ERROR_MESSAGE
+        )
     return source.to_dict()
 
 
@@ -36,12 +40,17 @@ def get_source_by_id(request):
     request_method='GET',
     renderer='json'
 )
-@handle_view_exception(Exception, 500, None)
+@transform_response()
 def list_topics_by_source_id(request):
     source_id = request.matchdict.get('source_id')
-    topics = models.topic.list_topics_by_source_id(int(source_id))
-    if len(topics) == 0:
-        raise exception_response(404, detail="Topics are not found")
+    topics = schema_repository.get_topics_by_domain_id(int(source_id))
+    if (len(topics) == 0 and
+            not schema_repository.is_domain_id_existing(source_id)):
+        raise exception_response(
+            404,
+            detail=constants.SOURCE_NOT_FOUND_ERROR_MESSAGE
+        )
+
     return [topic.to_dict() for topic in topics]
 
 
@@ -50,10 +59,21 @@ def list_topics_by_source_id(request):
     request_method='GET',
     renderer='json'
 )
-@handle_view_exception(Exception, 500, None)
+@transform_response()
 def get_latest_topic_by_source_id(request):
     source_id = request.matchdict.get('source_id')
-    latest_topic = models.topic.get_latest_topic_by_source_id(int(source_id))
+    latest_topic = schema_repository.get_latest_topic_of_domain_id(
+        int(source_id)
+    )
     if latest_topic is None:
-        raise exception_response(404, detail="Latest topic is not found.")
+        if not schema_repository.is_domain_id_existing(source_id):
+            raise exception_response(
+                404,
+                detail=constants.SOURCE_NOT_FOUND_ERROR_MESSAGE
+            )
+
+        raise exception_response(
+            404,
+            detail=constants.LATEST_TOPIC_NOT_FOUND_ERROR_MESSAGE
+        )
     return latest_topic.to_dict()

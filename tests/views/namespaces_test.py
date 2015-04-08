@@ -1,101 +1,88 @@
 # -*- coding: utf-8 -*-
-import unittest
-from cached_property import cached_property
+import pytest
 from mock import Mock
 from mock import patch
 from pyramid.httpexceptions import HTTPNotFound
-from pyramid.httpexceptions import HTTPServerError
 
+from schematizer.utils.decorators import
+from schematizer.views import constants
 from schematizer.views.namespaces import list_namespaces
 from schematizer.views.namespaces import list_sources_by_namespace
-from tests.models.domain_test import DomainFactory
+from testing import factories
 
 
-class TestListSourcesByNamespace(unittest.TestCase):
+class TestListSourcesByNamespace(object):
 
-    @cached_property
+    @property
     def default_sources(self):
-        return [DomainFactory.create_domain_object()]
+        return [
+            factories.DomainFactory.create(
+                factories.fake_namespace,
+                factories.fake_source
+            )
+        ]
 
-    @cached_property
+    @property
     def request_mock(self):
         dummy_request = Mock()
         dummy_request.matchdict = {'namespace': 'yelp'}
         return dummy_request
 
     @patch(
-        'schematizer.models.domain.list_sources_by_namespace',
+        'schematizer.logic.schema_repository.get_domains_by_namespace',
         return_value=[]
     )
     def test_none_existing_namespace(
-            self,
-            list_sources_by_namespace_mock
+        self,
+        get_domains_by_namespace_mock
     ):
-        self.assertRaises(
-            HTTPNotFound,
-            list_sources_by_namespace,
-            self.request_mock
-        )
-
-    @patch(
-        'schematizer.models.domain.list_sources_by_namespace',
-        side_effect=Exception()
-    )
-    def test_unknown_exception(
-            self,
-            list_sources_by_namespace_mock
-    ):
-        self.assertRaises(
-            HTTPServerError,
-            list_sources_by_namespace,
-            self.request_mock
-        )
+        with pytest.raises(HTTPNotFound) as e:
+            list_sources_by_namespace(
+                self.request_mock
+            )
+            assert e.value.code == 404
+            assert str(e.value) == constants.SOURCE_NOT_FOUND_ERROR_MESSAGE
 
     def test_happy_case(self):
         with patch(
-            'schematizer.models.domain.list_sources_by_namespace',
+            'schematizer.logic.schema_repository.get_domains_by_namespace',
             return_value=self.default_sources
         ):
             sources = list_sources_by_namespace(
                 self.request_mock
             )
-            self.assertEqual(
-                sources,
-                [source.to_dict() for source in self.default_sources]
-            )
+            assert sources == [
+                source.to_dict() for source in self.default_sources
+            ]
 
 
-class TestListNamespaces(unittest.TestCase):
+class TestListNamespaces(object):
 
-    @cached_property
+    @property
     def default_namespaces(self):
-        return ["yelp"]
+        return [factories.fake_namespace]
 
-    @cached_property
+    @property
     def request_mock(self):
         dummy_request = Mock()
         return dummy_request
 
-    @patch(
-        'schematizer.models.domain.list_all_namespaces',
-        side_effect=Exception()
-    )
-    def test_unknown_exception(
-            self,
-            list_namespaces_mock
-    ):
-        self.assertRaises(
-            HTTPServerError,
-            list_namespaces,
-            self.request_mock
-        )
+    def test_no_namespaces(self):
+        with patch(
+            'schematizer.logic.schema_repository.get_namespaces',
+            return_value=[]
+        ):
+            namespaces = list_namespaces(
+                self.request_mock
+            )
+            assert namespaces == []
 
     def test_happy_case(self):
         with patch(
-            'schematizer.models.domain.list_all_namespaces',
+            'schematizer.logic.schema_repository.get_namespaces',
             return_value=self.default_namespaces
         ):
             namespaces = list_namespaces(
                 self.request_mock
             )
-            self.assertEqual(namespaces, self.default_namespaces)
+            assert namespaces == self.default_namespaces

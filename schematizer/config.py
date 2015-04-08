@@ -43,10 +43,8 @@ def routes(config):
         'api.get_latest_schema_by_topic_name',
         '/v1/topics/{topic_name}/schemas/latest'
     )
-    config.add_route(
-        'api.get_latest_schema_by_namespace_and_source',
-        '/v1/schemas/latest'
-    )
+    # The REST URI matches in order, so please consider the
+    # potential conflicts when you make changes.
     config.add_route(
         'api.register_avro_schema_from_mysql_statements',
         '/v1/schemas/mysql'

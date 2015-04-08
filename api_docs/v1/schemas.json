@@ -11,42 +11,6 @@
     ],
     "apis": [
         {
-            "path": "/v1/schemas/latest",
-            "operations": [
-                {
-                    "method": "GET",
-                    "summary": "Get latest schema from the latest topic of the specified namespace and source.",
-                    "type": "Schema",
-                    "nickname": "get_latest_schema_by_namespace_and_source",
-                    "authorizations": {},
-                    "parameters": [
-                        {
-                            "name": "namespace",
-                            "required": true,
-                            "type": "string",
-                            "paramType": "query"
-                        },
-                        {
-                            "name": "source",
-                            "required": true,
-                            "type": "string",
-                            "paramType": "query"
-                        }
-                    ],
-                    "responseMessages": [
-                        {
-                            "code": 400,
-                            "message": "Invalid request"
-                        },
-                        {
-                            "code": 500,
-                            "message": "Server side error"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
             "path": "/v1/schemas/mysql",
             "operations": [
                 {
@@ -219,6 +183,64 @@
                 }
             }
         },
+        "Source": {
+            "id": "Source",
+            "properties": {
+                "source_id": {
+                    "type": "integer",
+                    "description": "Source ID"
+                },
+                "namespace": {
+                    "type": "string",
+                    "description": "Namespace of the source, such as yelpmain.db, etc"
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
+                },
+                "source_owner_email": {
+                    "type": "string",
+                    "description": "Email address of the source owner"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the entry is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the entry is last updated"
+                }
+            }
+        },
+        "Topic": {
+            "id": "Topic",
+            "properties": {
+                "topic_id": {
+                    "type": "integer",
+                    "description": "Topic ID"
+                },
+                "topic": {
+                    "type": "string",
+                    "description": "The Kafka topic name."
+                },
+                "source": {
+                    "$ref": "Source",
+                    "description": "Source of the Avro schema."
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the entry is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the entry is last updated"
+                }
+            }
+        },
         "Schema": {
             "id": "Schema",
             "properties": {
@@ -228,31 +250,11 @@
                 },
                 "schema": {
                     "type": "string",
-                    "description": "The stored Avro schema"
-                },
-                "namespace": {
-                    "type": "string",
-                    "description": "Namespace of the source, such as yelpmain.db, etc"
-                },
-                "source_id": {
-                    "type": "integer",
-                    "description": "Source ID"
-                },
-                "source": {
-                    "type": "string",
-                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
-                },
-                "topic_id": {
-                    "type": "integer",
-                    "description": "Topic ID"
+                    "description": "This is the json formatted avro schema."
                 },
                 "topic": {
-                    "type": "string",
-                    "description": "The kafka topic name."
-                },
-                "source_owner_email": {
-                    "type": "string",
-                    "description": "Email address of the source owner"
+                    "$ref": "Topic",
+                    "description": "Topic object of the schema."
                 },
                 "base_schema_id": {
                     "type": "integer",

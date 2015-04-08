@@ -2,8 +2,9 @@
 from pyramid.httpexceptions import exception_response
 from pyramid.view import view_config
 
-from schematizer import models
-from schematizer.utils.decorators import handle_view_exception
+from schematizer.logic import schema_repository
+from schematizer.utils.decorators import transform_response
+from schematizer.views import constants
 
 
 @view_config(
@@ -11,9 +12,8 @@ from schematizer.utils.decorators import handle_view_exception
     request_method='GET',
     renderer='json'
 )
-@handle_view_exception(Exception, 500, None)
 def list_namespaces(request):
-    namespaces = models.domain.list_all_namespaces()
+    namespaces = schema_repository.get_namespaces()
     return namespaces
 
 
@@ -22,10 +22,16 @@ def list_namespaces(request):
     request_method='GET',
     renderer='json'
 )
-@handle_view_exception(Exception, 500, None)
+@transform_response()
 def list_sources_by_namespace(request):
     namespace = request.matchdict.get('namespace')
-    sources = models.domain.list_sources_by_namespace(namespace)
+    sources = schema_repository.get_domains_by_namespace(namespace)
+    # Since we store namespace and source in the same table, so
+    # if there is no domain records, it means there is no namespace.
+    # So we just throw namespace not found error.
     if len(sources) == 0:
-        raise exception_response(404, detail="Namespace is not found.")
+        raise exception_response(
+            404,
+            detail=constants.NAMESPACE_NOT_FOUND_ERROR_MESSAGE
+        )
     return [source.to_dict() for source in sources]

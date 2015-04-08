@@ -389,3 +389,26 @@ def get_topics_by_domain_id(domain_id):
     ).order_by(
         models.Topic.id
     ).all()
+
+
+def get_domain_by_domain_id(domain_id):
+    return session.query(
+        models.Domain
+    ).filter(models.Domain.id == domain_id).first()
+
+
+def is_domain_id_existing(domain_id):
+    return get_domain_by_domain_id(domain_id) is not None
+
+
+def get_latest_topic_of_domain_id(domain_id):
+    """Get the latest topic of given domain_id. The latest one is
+    the one created most recently. It returns None if no such topic exists.
+    """
+    return session.query(
+        models.Topic
+    ).filter(
+        models.Domain.id == domain_id
+    ).order_by(
+        models.Topic.id.desc()
+    ).first()

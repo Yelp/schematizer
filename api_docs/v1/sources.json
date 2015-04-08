@@ -133,6 +133,10 @@
                             "message": "Latest topic is not found."
                         },
                         {
+                            "code": 404,
+                            "message": "Source is not found."
+                        },
+                        {
                             "code": 500,
                             "message": "Server side error."
                         }
@@ -182,23 +186,11 @@
                 },
                 "topic": {
                     "type": "string",
-                    "description": "The kafka topic name."
-                },
-                "namespace": {
-                    "type": "string",
-                    "description": "Namespace of the source, such as yelpmain.db, etc"
-                },
-                "source_id": {
-                    "type": "integer",
-                    "description": "Source ID"
+                    "description": "The Kafka topic name."
                 },
                 "source": {
-                    "type": "string",
-                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
-                },
-                "source_owner_email": {
-                    "type": "string",
-                    "description": "Email address of the source owner"
+                    "$ref": "Source",
+                    "description": "Source of the Avro schema."
                 },
                 "created_at": {
                     "type": "string",

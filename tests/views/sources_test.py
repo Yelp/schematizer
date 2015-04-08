@@ -1,210 +1,213 @@
 # -*- coding: utf-8 -*-
-import unittest
-from cached_property import cached_property
+import contextlib
+import pytest
 from mock import Mock
 from mock import patch
 from pyramid.httpexceptions import HTTPNotFound
-from pyramid.httpexceptions import HTTPServerError
-from sqlalchemy.orm.exc import NoResultFound
 
+from schematizer.views import constants
 from schematizer.views.sources import get_latest_topic_by_source_id
 from schematizer.views.sources import get_source_by_id
 from schematizer.views.sources import list_sources
 from schematizer.views.sources import list_topics_by_source_id
-from tests.models.domain_test import DomainFactory
-from tests.models.topic_test import TopicFactory
+from testing import factories
 
 
-class TestListSources(unittest.TestCase):
+class TestSourcesBase(object):
 
-    @cached_property
-    def default_sources(self):
-        return [DomainFactory.create_domain_object()]
-
-    @cached_property
-    def request_mock(self):
-        dummy_request = Mock()
-        return dummy_request
-
-    @patch(
-        'schematizer.models.domain.list_all_sources',
-        side_effect=Exception()
-    )
-    def test_unknown_exception(
-            self,
-            list_sources_mock
-    ):
-        self.assertRaises(
-            HTTPServerError,
-            list_sources,
-            self.request_mock
+    @property
+    def default_source(self):
+        return factories.DomainFactory.create(
+            factories.fake_namespace,
+            factories.fake_source,
+            created_at=None,
+            updated_at=None
         )
 
-    def test_happy_case(self):
-        with patch(
-            'schematizer.models.domain.list_all_sources',
-            return_value=self.default_sources
-        ):
-            sources = list_sources(
-                self.request_mock
-            )
-            self.assertEqual(
-                sources,
-                [source.to_dict() for source in self.default_sources]
-            )
+    @property
+    def default_topic(self):
+        return factories.TopicFactory.create(
+            factories.fake_topic_name,
+            self.default_source.id,
+            created_at=None,
+            updated_at=None
+        )
 
-
-class TestGetSourceByID(unittest.TestCase):
-
-    @cached_property
-    def default_source(self):
-        return DomainFactory.create_domain_object()
-
-    @cached_property
+    @property
     def request_mock(self):
         dummy_request = Mock()
         dummy_request.matchdict = {'source_id': '1'}
         return dummy_request
 
-    @patch(
-        'schematizer.models.domain.get_source_by_source_id',
-        side_effect=NoResultFound()
-    )
-    def test_none_existing_source_id(
-            self,
-            get_source_by_source_id_mock
-    ):
-        self.assertRaises(
-            HTTPNotFound,
-            get_source_by_id,
-            self.request_mock
-        )
 
-    @patch(
-        'schematizer.models.domain.get_source_by_source_id',
-        side_effect=Exception()
-    )
-    def test_unknown_exception(
-            self,
-            list_sources_by_namespace_mock
-    ):
-        self.assertRaises(
-            HTTPServerError,
-            get_source_by_id,
-            self.request_mock
-        )
+class TestListSources(TestSourcesBase):
+
+    def test_no_sources(self):
+        with patch(
+            'schematizer.logic.schema_repository.get_domains',
+            return_value=[]
+        ):
+            sources = list_sources(
+                self.request_mock
+            )
+            assert sources == []
 
     def test_happy_case(self):
         with patch(
-            'schematizer.models.domain.get_source_by_source_id',
+            'schematizer.logic.schema_repository.get_domains',
+            return_value=[self.default_source]
+        ):
+            sources = list_sources(
+                self.request_mock
+            )
+            assert sources == [self.default_source.to_dict()]
+
+
+class TestGetSourceByID(TestSourcesBase):
+
+    @patch(
+        'schematizer.logic.schema_repository.get_domain_by_domain_id',
+        return_value=None
+    )
+    def test_none_existing_source_id(
+        self,
+        get_domain_by_domain_id_mock
+    ):
+        with pytest.raises(HTTPNotFound) as e:
+            get_source_by_id(
+                self.request_mock
+            )
+            assert e.value.code == 404
+            assert str(e.value) == constants.SOURCE_NOT_FOUND_ERROR_MESSAGE
+
+    def test_happy_case(self):
+        with patch(
+            'schematizer.logic.schema_repository.get_domain_by_domain_id',
             return_value=self.default_source
         ):
             source = get_source_by_id(
                 self.request_mock
             )
-            self.assertEqual(source, self.default_source.to_dict())
+            assert source == self.default_source.to_dict()
 
 
-class TestListTopicsBySourceID(unittest.TestCase):
-
-    @cached_property
-    def default_topics(self):
-        return [TopicFactory.create_topic_object(1)]
-
-    @cached_property
-    def request_mock(self):
-        dummy_request = Mock()
-        dummy_request.matchdict = {'source_id': '1'}
-        return dummy_request
+class TestListTopicsBySourceID(TestSourcesBase):
 
     @patch(
-        'schematizer.models.topic.list_topics_by_source_id',
+        'schematizer.logic.schema_repository.is_domain_id_existing',
+        return_value=False
+    )
+    @patch(
+        'schematizer.logic.schema_repository.get_topics_by_domain_id',
         return_value=[]
     )
-    def test_list_topics_by_source_id_with_none_existing_source_id(
-            self,
-            list_topics_by_source_id_mock
+    def test_none_existing_source_id(
+        self,
+        is_domain_id_existing_mock,
+        get_topics_by_domain_id_mock
     ):
-        self.assertRaises(
-            HTTPNotFound,
-            list_topics_by_source_id,
-            self.request_mock
-        )
+        with pytest.raises(HTTPNotFound) as e:
+            list_topics_by_source_id(
+                self.request_mock
+            )
+            assert e.value.code == 404
+            assert str(e.value) == constants.SOURCE_NOT_FOUND_ERROR_MESSAGE
 
     @patch(
-        'schematizer.models.topic.list_topics_by_source_id',
-        side_effect=Exception()
+        'schematizer.logic.schema_repository.is_domain_id_existing',
+        return_value=True
     )
-    def test_unknown_exception(
-            self,
-            list_topics_by_source_id_mock
+    def test_no_topics(
+        self,
+        is_domain_id_existing_mock
     ):
-        self.assertRaises(
-            HTTPServerError,
-            list_topics_by_source_id,
-            self.request_mock
-        )
-
-    def test_happy_case(self):
         with patch(
-            'schematizer.models.topic.list_topics_by_source_id',
-            return_value=self.default_topics
+            'schematizer.logic.schema_repository.get_topics_by_domain_id',
+            return_value=[]
         ):
             topics = list_topics_by_source_id(
                 self.request_mock
             )
-            self.assertEqual(
-                topics,
-                [topic.to_dict() for topic in self.default_topics]
-            )
-
-
-class TestGetLatestTopicBySourceID(unittest.TestCase):
-
-    @cached_property
-    def default_topic(self):
-        return TopicFactory.create_topic_object(1)
-
-    @cached_property
-    def request_mock(self):
-        dummy_request = Mock()
-        dummy_request.matchdict = {'source_id': '1'}
-        return dummy_request
+            assert topics == []
 
     @patch(
-        'schematizer.models.topic.get_latest_topic_by_source_id',
+        'schematizer.logic.schema_repository.is_domain_id_existing',
+        return_value=True
+    )
+    def test_happy_case(
+        self,
+        is_domain_id_existing_mock
+    ):
+        with patch(
+            'schematizer.logic.schema_repository.get_topics_by_domain_id',
+            return_value=[self.default_topic]
+        ):
+            topics = list_topics_by_source_id(
+                self.request_mock
+            )
+            assert topics == [self.default_topic.to_dict()]
+
+
+class TestGetLatestTopicBySourceID(TestSourcesBase):
+
+    @patch(
+        'schematizer.logic.schema_repository.is_domain_id_existing',
+        return_value=False
+    )
+    @patch(
+        'schematizer.logic.schema_repository.'
+        'get_latest_topic_of_domain_id',
         return_value=None
     )
     def test_none_existing_source_id(
-            self,
-            get_latest_topic_by_source_id_mock
+        self,
+        is_domain_id_existing_mock,
+        get_latest_topic_of_domain_id_mock
     ):
-        self.assertRaises(
-            HTTPNotFound,
-            get_latest_topic_by_source_id,
-            self.request_mock
-        )
+        with pytest.raises(HTTPNotFound) as e:
+            get_latest_topic_by_source_id(
+                self.request_mock
+            )
+            assert e.value.code == 404
+            assert str(e.value) == constants.SOURCE_NOT_FOUND_ERROR_MESSAGE
 
     @patch(
-        'schematizer.models.topic.get_latest_topic_by_source_id',
-        side_effect=Exception()
+        'schematizer.logic.schema_repository.is_domain_id_existing',
+        return_value=True
     )
-    def test_unknown_exception(
-            self,
-            get_latest_topic_by_source_id_mock
+    def test_no_latest_topic(
+        self,
+        is_domain_id_existing_mock
     ):
-        self.assertRaises(
-            HTTPServerError,
-            list_topics_by_source_id,
-            self.request_mock
-        )
+        with contextlib.nested(
+            patch(
+                'schematizer.logic.schema_repository.'
+                'get_latest_topic_of_domain_id',
+                return_value=None
+            ),
+            pytest.raises(HTTPNotFound)
+        ) as (_, e):
+            get_latest_topic_by_source_id(
+                self.request_mock
+            )
+            assert e.value.code == 404
+            assert str(e.value) \
+                == constants.LATEST_TOPIC_NOT_FOUND_ERROR_MESSAGE
 
-    def test_happy_case(self):
+    @patch(
+        'schematizer.logic.schema_repository.is_domain_id_existing',
+        return_value=True
+    )
+    def test_happy_case(
+        self,
+        is_domain_id_existing_mock
+    ):
         with patch(
-            'schematizer.models.topic.get_latest_topic_by_source_id',
+            'schematizer.logic.schema_repository.'
+            'get_latest_topic_of_domain_id',
             return_value=self.default_topic
         ):
             topic = get_latest_topic_by_source_id(
                 self.request_mock
             )
-            self.assertEqual(topic, self.default_topic.to_dict())
+            assert topic == self.default_topic.to_dict()

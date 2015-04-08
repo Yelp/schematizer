@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from pyramid.httpexceptions import exception_response
 from pyramid.view import view_config
-from sqlalchemy.orm.exc import NoResultFound
 
-from schematizer import models
-from schematizer.utils.decorators import handle_view_exception
+from schematizer.logic import schema_repository
+from schematizer.utils.decorators import transform_response
+from schematizer.views import constants
 
 
 @view_config(
@@ -12,11 +12,15 @@ from schematizer.utils.decorators import handle_view_exception
     request_method='GET',
     renderer='json'
 )
-@handle_view_exception(Exception, 500, None)
-@handle_view_exception(NoResultFound, 404, "Topic is not found.")
+@transform_response()
 def get_topic_by_topic_name(request):
     topic_name = request.matchdict.get('topic_name')
-    topic = models.topic.get_topic_by_topic_name(topic_name)
+    topic = schema_repository.get_topic_by_name(topic_name)
+    if topic is None:
+        raise exception_response(
+            404,
+            detail=constants.TOPIC_NOT_FOUND_ERROR_MESSAGE
+        )
     return topic.to_dict()
 
 
@@ -25,14 +29,17 @@ def get_topic_by_topic_name(request):
     request_method='GET',
     renderer='json'
 )
-@handle_view_exception(Exception, 500, None)
-@handle_view_exception(NoResultFound, 404, "Topic_name is not found.")
+@transform_response()
 def list_schemas_by_topic_name(request):
     topic_name = request.matchdict.get('topic_name')
-    topic_id = models.topic.get_topic_by_topic_name(topic_name).id
-    schemas = models.avro_schema.list_schemas_by_topic_id(topic_id)
+    schemas = schema_repository.get_schemas_by_topic_name(topic_name)
     if len(schemas) == 0:
-        raise exception_response(404, detail="Schemas is not found.")
+        topic = schema_repository.get_topic_by_name(topic_name)
+        if topic is None:
+            raise exception_response(
+                404,
+                detail=constants.TOPIC_NOT_FOUND_ERROR_MESSAGE
+            )
     return [schema.to_dict() for schema in schemas]
 
 
@@ -41,12 +48,20 @@ def list_schemas_by_topic_name(request):
     request_method='GET',
     renderer='json'
 )
-@handle_view_exception(Exception, 500, None)
-@handle_view_exception(NoResultFound, 404, "Topic_name is not found.")
+@transform_response()
 def get_latest_schema_by_topic_name(request):
     topic_name = request.matchdict.get('topic_name')
-    topic_id = models.topic.get_topic_by_topic_name(topic_name).id
-    schema = models.avro_schema.get_latest_schema_by_topic_id(topic_id)
+    schema = schema_repository.get_latest_schema_by_topic_name(topic_name)
     if schema is None:
-        raise exception_response(404, detail="Latest schema is not found.")
+        topic = schema_repository.get_topic_by_name(topic_name)
+        if topic is None:
+            raise exception_response(
+                404,
+                detail=constants.TOPIC_NOT_FOUND_ERROR_MESSAGE
+            )
+
+        raise exception_response(
+            404,
+            detail=constants.LATEST_SCHEMA_NOT_FOUND_ERROR_MESSAGE
+        )
     return schema.to_dict()

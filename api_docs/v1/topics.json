@@ -61,7 +61,7 @@
                     "parameters": [
                         {
                             "name": "topic_name",
-                            "description": "Kafka topic name that we use to fetch schemas. Compatible schemas are associated with one kafka topic.",
+                            "description": "Kafka topic name that we use to fetch schemas. Compatible schemas are associated with one Kafka topic.",
                             "required": true,
                             "type": "string",
                             "paramType": "path",
@@ -114,6 +114,10 @@
                             "message": "Topic not found"
                         },
                         {
+                            "code": 404,
+                            "message": "Latest schema is not found"
+                        },
+                        {
                             "code": 500,
                             "message": "Server side error"
                         }
@@ -123,6 +127,37 @@
         }
     ],
     "models": {
+        "Source": {
+            "id": "Source",
+            "properties": {
+                "source_id": {
+                    "type": "integer",
+                    "description": "Source ID"
+                },
+                "namespace": {
+                    "type": "string",
+                    "description": "Namespace of the source, such as yelpmain.db, etc"
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
+                },
+                "source_owner_email": {
+                    "type": "string",
+                    "description": "Email address of the source owner"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the entry is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When the entry is last updated"
+                }
+            }
+        },
         "Topic": {
             "id": "Topic",
             "properties": {
@@ -134,21 +169,9 @@
                     "type": "string",
                     "description": "The Kafka topic name."
                 },
-                "namespace": {
-                    "type": "string",
-                    "description": "Namespace of the source, such as yelpmain.db, etc"
-                },
-                "source_id": {
-                    "type": "integer",
-                    "description": "Source ID"
-                },
                 "source": {
-                    "type": "string",
-                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
-                },
-                "source_owner_email": {
-                    "type": "string",
-                    "description": "Email address of the source owner"
+                    "$ref": "Source",
+                    "description": "Source of the Avro schema."
                 },
                 "created_at": {
                     "type": "string",
@@ -171,31 +194,11 @@
                 },
                 "schema": {
                     "type": "string",
-                    "description": "The stored schema which can be in Mysql, Redshift or Avro format"
-                },
-                "namespace": {
-                    "type": "string",
-                    "description": "Namespace of the source, such as yelpmain.db, etc"
-                },
-                "source_id": {
-                    "type": "integer",
-                    "description": "Source ID"
-                },
-                "source": {
-                    "type": "string",
-                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
-                },
-                "topic_id": {
-                    "type": "integer",
-                    "description": "Topic ID"
+                    "description": "This is the json formatted avro schema."
                 },
                 "topic": {
-                    "type": "string",
-                    "description": "The Kafka topic name."
-                },
-                "source_owner_email": {
-                    "type": "string",
-                    "description": "Email address of the source owner"
+                    "$ref": "Topic",
+                    "description": "Topic object of the schema."
                 },
                 "base_schema_id": {
                     "type": "integer",

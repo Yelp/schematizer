@@ -3,33 +3,13 @@ from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import Text
-from sqlalchemy import desc
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Enum
 
-from yelp_lib.containers import dicts
-
 from schematizer.models.consumer import Consumer
 from schematizer.models.database import Base
-from schematizer.models.database import session
 from schematizer.models.producer import Producer
 from schematizer.models.types.time import build_time_column
-
-
-def get_latest_schema_by_topic_id(topic_id):
-    return session.query(AvroSchema).filter(
-        AvroSchema.topic_id == topic_id
-    ).order_by(desc(AvroSchema.created_at)).first()
-
-
-def get_schema_by_schema_id(schema_id):
-    return session.query(AvroSchema).filter(AvroSchema.id == schema_id).one()
-
-
-def list_schemas_by_topic_id(topic_id):
-    return session.query(AvroSchema).filter(
-        AvroSchema.topic_id == topic_id
-    ).all()
 
 
 class AvroSchemaStatus(object):
@@ -89,17 +69,16 @@ class AvroSchema(Base):
     )
 
     def to_dict(self):
-        topic_dict = self.topic.to_dict() if self.topic else {}
         avro_schema_dict = {
             'schema_id': self.id,
             'schema': self.avro_schema,
             'status': self.status,
-            'topic_id': self.topic_id,
-            'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat()
+            'topic': None if self.topic is None else self.topic.to_dict(),
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
         }
         # Since swagger cannot take null or None value for integer type,
         # here we just simply strip out this field.
         if self.base_schema_id is not None:
             avro_schema_dict['base_schema_id'] = self.base_schema_id,
-        return dicts.dict_merge(topic_dict, avro_schema_dict)
+        return avro_schema_dict

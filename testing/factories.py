@@ -17,13 +17,20 @@ fake_updated_at = datetime(2015, 1, 1, 17, 0, 1)
 class DomainFactory(object):
 
     @classmethod
-    def create(cls, namespace, source):
+    def create(
+        cls,
+        namespace,
+        source,
+        owner_email=fake_owner_email,
+        created_at=fake_created_at,
+        updated_at=fake_updated_at
+    ):
         return models.Domain(
             namespace=namespace,
             source=source,
-            owner_email=fake_owner_email,
-            created_at=fake_created_at,
-            updated_at=fake_updated_at
+            owner_email=owner_email,
+            created_at=created_at,
+            updated_at=updated_at
         )
 
     @classmethod
@@ -48,12 +55,18 @@ class DomainFactory(object):
 class TopicFactory(object):
 
     @classmethod
-    def create(cls, topic_name, domain_id):
+    def create(
+        cls,
+        topic_name,
+        domain_id,
+        created_at=fake_created_at,
+        updated_at=fake_updated_at
+    ):
         return models.Topic(
             topic=topic_name,
             domain_id=domain_id,
-            created_at=fake_created_at,
-            updated_at=fake_updated_at
+            created_at=created_at,
+            updated_at=updated_at
         )
 
     @classmethod
@@ -83,15 +96,17 @@ class AvroSchemaFactory(object):
             avro_schema,
             topic_id,
             base_schema_id=None,
-            status=models.AvroSchemaStatus.READ_AND_WRITE
+            status=models.AvroSchemaStatus.READ_AND_WRITE,
+            created_at=fake_created_at,
+            updated_at=fake_updated_at
     ):
         return models.AvroSchema(
             topic_id=topic_id,
             avro_schema=avro_schema,
             base_schema_id=base_schema_id,
             status=status,
-            created_at=fake_created_at,
-            updated_at=fake_updated_at
+            created_at=created_at,
+            updated_at=updated_at
         )
 
     @classmethod
