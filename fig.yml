@@ -1,0 +1,12 @@
+schematizerdatabase:
+    build: schema/
+
+schematizerconfigs:
+    build: acceptance/configs/
+
+schematizerservice:
+    build: .
+    links:
+        - schematizerdatabase
+    volumes_from:
+        - schematizerconfigs
