@@ -4,7 +4,6 @@ from mock import Mock
 from mock import patch
 from pyramid.httpexceptions import HTTPNotFound
 
-from schematizer.utils.decorators import
 from schematizer.views import constants
 from schematizer.views.namespaces import list_namespaces
 from schematizer.views.namespaces import list_sources_by_namespace
