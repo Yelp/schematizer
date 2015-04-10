@@ -17,7 +17,9 @@ class TestListSourcesByNamespace(object):
         return [
             factories.DomainFactory.create(
                 factories.fake_namespace,
-                factories.fake_source
+                factories.fake_source,
+                created_at=None,
+                updated_at=None
             )
         ]
 
