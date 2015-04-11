@@ -47,12 +47,16 @@ class TestListSourcesByNamespace(object):
             'schematizer.logic.schema_repository.get_domains_by_namespace',
             return_value=self.default_sources
         ):
-            sources = list_sources_by_namespace(
-                self.request_mock
-            )
-            assert sources == [
-                source.to_dict() for source in self.default_sources
-            ]
+            sources = list_sources_by_namespace(self.request_mock)
+            expected_response = [{
+                'source_id': None,
+                'namespace': factories.fake_namespace,
+                'source': factories.fake_source,
+                'source_owner_email': factories.fake_owner_email,
+                'created_at': factories.fake_created_at.isoformat(),
+                'updated_at': factories.fake_updated_at.isoformat()
+            }]
+            assert expected_response == sources
 
 
 class TestListNamespaces(object):

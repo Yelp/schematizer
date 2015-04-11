@@ -474,7 +474,9 @@ class TestSchemaRepository(DBTestCase):
     def test_available_converters(self):
         expected = {
             (models.SchemaKindEnum.MySQL, models.SchemaKindEnum.Avro):
-                converters.MySqlConverter,
+                converters.MySQLToAvroConverter,
+            (models.SchemaKindEnum.Avro, models.SchemaKindEnum.Redshift):
+                converters.AvroToRedshiftConverter
         }
         for key, value in expected.iteritems():
             actual = schema_repo.converters[key]
