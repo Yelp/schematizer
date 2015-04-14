@@ -156,6 +156,47 @@ class TestSchemaRepository(DBTestCase):
             ).one()
             assert expected_domain.id == created_topic.domain_id
 
+    def test_create_schema_from_avro_json_with_same_schema(
+            self,
+            rw_avro_schema
+    ):
+        with mock.patch.object(
+            schema_repo,
+            'is_schema_compatible_in_topic',
+            return_value=True
+        ):
+            actual = schema_repo.create_avro_schema_from_avro_json(
+                self.rw_avro_schema_json,
+                self.namespace,
+                self.source,
+                self.domain_owner_email,
+            )
+            assert rw_avro_schema.id == actual.id
+
+    def test_create_schema_from_avro_json_with_diff_base_schema(
+            self,
+            topic,
+            rw_avro_schema
+    ):
+        with mock.patch.object(
+            schema_repo,
+            'is_schema_compatible_in_topic',
+            return_value=True
+        ):
+            expected_base_schema_id = 100
+            actual = schema_repo.create_avro_schema_from_avro_json(
+                self.rw_avro_schema_json,
+                self.namespace,
+                self.source,
+                self.domain_owner_email,
+                base_schema_id=expected_base_schema_id
+            )
+            actual_schema_json = simplejson.loads(actual.avro_schema)
+            assert rw_avro_schema.id != actual.id
+            assert self.rw_avro_schema_json == actual_schema_json
+            assert topic.id == actual.topic_id
+            assert expected_base_schema_id == actual.base_schema_id
+
     def test_get_latest_topic_of_domain(self, domain, topic):
         actual = schema_repo.get_latest_topic_of_domain(
             domain.namespace,
@@ -185,7 +226,7 @@ class TestSchemaRepository(DBTestCase):
         )
         assert actual is None
 
-    def test_get_latest_topic_of_domain_with_nonexsited_domain(self):
+    def test_get_latest_topic_of_domain_with_nonexistent_domain(self):
         actual = schema_repo.get_latest_topic_of_domain('foo', 'bar')
         assert actual is None
 
@@ -484,3 +525,23 @@ class TestSchemaRepository(DBTestCase):
             assert source_type == actual.source_type
             assert target_type == actual.target_type
             assert value == actual
+
+    def test_convert_schema(self):
+        with mock.patch.object(
+                converters.MySQLToAvroConverter,
+                'convert'
+        ) as mock_converter:
+            schema_repo.convert_schema(
+                models.SchemaKindEnum.MySQL,
+                models.SchemaKindEnum.Avro,
+                self.rw_avro_schema_json
+            )
+            mock_converter.assert_called_once_with(self.rw_avro_schema_json)
+
+    def test_convert_schema_with_no_suitable_converter(self):
+        with pytest.raises(Exception):
+            schema_repo.convert_schema(
+                mock.Mock,
+                mock.Mock,
+                self.rw_avro_schema_json
+            )
