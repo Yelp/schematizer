@@ -541,7 +541,7 @@ class TestSchemaRepository(DBTestCase):
     def test_convert_schema_with_no_suitable_converter(self):
         with pytest.raises(Exception):
             schema_repo.convert_schema(
-                mock.Mock,
-                mock.Mock,
+                mock.Mock(),
+                mock.Mock(),
                 self.rw_avro_schema_json
             )
