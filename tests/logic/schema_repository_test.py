@@ -515,9 +515,9 @@ class TestSchemaRepository(DBTestCase):
     def test_available_converters(self):
         expected = {
             (models.SchemaKindEnum.MySQL, models.SchemaKindEnum.Avro):
-                converters.MySQLToAvroConverter,
+            converters.MySQLToAvroConverter,
             (models.SchemaKindEnum.Avro, models.SchemaKindEnum.Redshift):
-                converters.AvroToRedshiftConverter
+            converters.AvroToRedshiftConverter
         }
         for key, value in expected.iteritems():
             actual = schema_repo.converters[key]
@@ -528,8 +528,8 @@ class TestSchemaRepository(DBTestCase):
 
     def test_convert_schema(self):
         with mock.patch.object(
-                converters.MySQLToAvroConverter,
-                'convert'
+            converters.MySQLToAvroConverter,
+            'convert'
         ) as mock_converter:
             schema_repo.convert_schema(
                 models.SchemaKindEnum.MySQL,
