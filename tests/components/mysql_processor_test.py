@@ -40,7 +40,7 @@ class TestMySQLProcessor(object):
         # mock_cls is the mock class of derived MySQLProcessor class
         mock_cls = mock.Mock(return_value=mock_instance)
         type(mock_cls).enabled = True
-        type(mock_cls).priority = mock.PropertyMock(return_value=priority)
+        type(mock_cls).priority = priority
         return mock_cls
 
     @pytest.yield_fixture

@@ -58,8 +58,8 @@ class TestMySQLSchemaCompatibility(TestCompatibilityViewBase):
         }
         return simplejson.dumps(request_json)
 
-    def test_compatible_schema(self, mock_request, mock_repo,
-                               mock_mysql_processor):
+    @pytest.mark.usefixtures('mock_mysql_processor')
+    def test_compatible_schema(self, mock_request, mock_repo):
         mock_request.body = self.request_string
         avro_schema_to_check = mock.Mock()
         mock_repo.convert_schema.return_value = avro_schema_to_check
