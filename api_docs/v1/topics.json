@@ -15,14 +15,14 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Get topic by topic name",
+                    "summary": "Get the topic of specified topic name",
                     "type": "Topic",
                     "nickname": "get_topic_by_topic_name",
                     "authorizations": {},
                     "parameters": [
                         {
                             "name": "topic_name",
-                            "description": "Kafka topic name that needs to be fetched",
+                            "description": "Kafka topic name of the topic to be fetched",
                             "required": true,
                             "type": "string",
                             "paramType": "path",
@@ -51,7 +51,7 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "List all schemas by topic name",
+                    "summary": "List all the schemas of specified topic. These schemas are full compatible to each other.",
                     "type": "array",
                     "items": {
                         "$ref": "Schema"
@@ -61,7 +61,7 @@
                     "parameters": [
                         {
                             "name": "topic_name",
-                            "description": "Kafka topic name that we use to fetch schemas. Compatible schemas are associated with one Kafka topic.",
+                            "description": "Kafka topic name of the requested topic",
                             "required": true,
                             "type": "string",
                             "paramType": "path",
@@ -90,14 +90,14 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Get latest schema by topic name",
+                    "summary": "Get the latest schema of specified topic",
                     "type": "Schema",
                     "nickname": "get_latest_schema_by_topic_name",
                     "authorizations": {},
                     "parameters": [
                         {
                             "name": "topic_name",
-                            "description": "This is the Kafka topic name from which we would like to fetch the latest Avro schema. Compatible schemas are associated with one Kafka topic.",
+                            "description": "Kafka topic name of the requested topic",
                             "required": true,
                             "type": "string",
                             "paramType": "path",
@@ -149,12 +149,12 @@
                 "created_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When the entry is created"
+                    "description": "When this source is created"
                 },
                 "updated_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When the entry is last updated"
+                    "description": "When this source is last updated"
                 }
             }
         },
@@ -176,12 +176,12 @@
                 "created_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When the entry is created"
+                    "description": "When this topic is created"
                 },
                 "updated_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When the entry is last updated"
+                    "description": "When this topic is last updated"
                 }
             }
         },
@@ -190,19 +190,19 @@
             "properties": {
                 "schema_id": {
                     "type": "integer",
-                    "description": "System automatically generated id. It is unique for each registered schema"
+                    "description": "Avro schema ID"
                 },
                 "schema": {
                     "type": "string",
-                    "description": "This is the json formatted avro schema."
+                    "description": "Json formatted avro schema string."
                 },
                 "topic": {
                     "$ref": "Topic",
-                    "description": "Topic object of the schema."
+                    "description": "Topic that this schema is associated to"
                 },
                 "base_schema_id": {
                     "type": "integer",
-                    "description": "This is the original schema which the transformer uses to apply transformation on."
+                    "description": "The original Avro schema that this schema is transformed from"
                 },
                 "status": {
                     "type": "string",
@@ -211,17 +211,17 @@
                         "R",
                         "Disabled"
                     ],
-                    "description": "Schema status: RW (read/write), R (read-only), Disabled"
+                    "description": "Schema status: RW (read/write), R (read-only), Disabled. `Read` status means this schema can be used to deserialize messages, and `Write` status means this schema can be used to serialize messages. Disabled schemas cannot be used for either."
                 },
                 "created_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When the entry is created"
+                    "description": "When this schema is created"
                 },
                 "updated_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When the entry is last updated"
+                    "description": "When this schema is last updated"
                 }
             }
         }

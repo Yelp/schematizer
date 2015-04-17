@@ -15,7 +15,7 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "List all sources",
+                    "summary": "List all the sources",
                     "type": "array",
                     "items": {
                         "$ref": "Source"
@@ -37,7 +37,7 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Get source by id",
+                    "summary": "Get the source of specified ID",
                     "type": "Source",
                     "nickname": "get_source_by_id",
                     "authorizations": {},
@@ -72,7 +72,7 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "List all topics by source_id",
+                    "summary": "List all the topics of specified source",
                     "type": "array",
                     "items": {
                         "$ref": "Topic"
@@ -110,7 +110,7 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Get latest topic by source_id",
+                    "summary": "Get the latest topic of specified source",
                     "type": "Topic",
                     "nickname": "get_latest_topic_by_source_id",
                     "authorizations": {},
@@ -168,12 +168,12 @@
                 "created_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When the entry is created"
+                    "description": "When this source is created"
                 },
                 "updated_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When the entry is last updated"
+                    "description": "When this source is last updated"
                 }
             }
         },
@@ -195,12 +195,12 @@
                 "created_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When the entry is created"
+                    "description": "When this topic is created"
                 },
                 "updated_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When the entry is last updated"
+                    "description": "When this topic is last updated"
                 }
             }
         }

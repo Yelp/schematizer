@@ -2,13 +2,13 @@
 from pyramid.httpexceptions import exception_response
 from pyramid.view import view_config
 
+from schematizer.api.decorators import transform_response
 from schematizer.logic import schema_repository
-from schematizer.utils.decorators import transform_response
 from schematizer.views import constants
 
 
 @view_config(
-    route_name='api.list_sources',
+    route_name='api.v1.list_sources',
     request_method='GET',
     renderer='json'
 )
@@ -19,14 +19,14 @@ def list_sources(request):
 
 
 @view_config(
-    route_name='api.get_source_by_id',
+    route_name='api.v1.get_source_by_id',
     request_method='GET',
     renderer='json'
 )
 @transform_response()
 def get_source_by_id(request):
     source_id = request.matchdict.get('source_id')
-    source = schema_repository.get_domain_by_domain_id(int(source_id))
+    source = schema_repository.get_domain_by_id(int(source_id))
     if not source:
         raise exception_response(
             404,
@@ -36,7 +36,7 @@ def get_source_by_id(request):
 
 
 @view_config(
-    route_name='api.list_topics_by_source_id',
+    route_name='api.v1.list_topics_by_source_id',
     request_method='GET',
     renderer='json'
 )
@@ -45,7 +45,7 @@ def list_topics_by_source_id(request):
     source_id = request.matchdict.get('source_id')
     topics = schema_repository.get_topics_by_domain_id(int(source_id))
     if (len(topics) == 0 and
-            not schema_repository.is_domain_id_existing(source_id)):
+            not schema_repository.get_domain_by_id(source_id)):
         raise exception_response(
             404,
             detail=constants.SOURCE_NOT_FOUND_ERROR_MESSAGE
@@ -55,7 +55,7 @@ def list_topics_by_source_id(request):
 
 
 @view_config(
-    route_name='api.get_latest_topic_by_source_id',
+    route_name='api.v1.get_latest_topic_by_source_id',
     request_method='GET',
     renderer='json'
 )
@@ -66,7 +66,7 @@ def get_latest_topic_by_source_id(request):
         int(source_id)
     )
     if latest_topic is None:
-        if not schema_repository.is_domain_id_existing(source_id):
+        if schema_repository.get_domain_by_id(source_id) is None:
             raise exception_response(
                 404,
                 detail=constants.SOURCE_NOT_FOUND_ERROR_MESSAGE

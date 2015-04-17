@@ -1,91 +1,50 @@
 # -*- coding: utf-8 -*-
 import pytest
-from mock import Mock
-from mock import patch
 from pyramid.httpexceptions import HTTPNotFound
 
 from schematizer.views import constants
 from schematizer.views.namespaces import list_namespaces
 from schematizer.views.namespaces import list_sources_by_namespace
-from testing import factories
+from tests.views.api_test_base import TestApiBase
 
 
-class TestListSourcesByNamespace(object):
+class TestNamespaceViewBase(TestApiBase):
 
-    @property
-    def default_sources(self):
-        return [
-            factories.DomainFactory.create(
-                factories.fake_namespace,
-                factories.fake_source
-            )
-        ]
+    test_view_module = 'schematizer.views.namespaces'
 
-    @property
-    def request_mock(self):
-        dummy_request = Mock()
-        dummy_request.matchdict = {'namespace': 'yelp'}
-        return dummy_request
 
-    @patch(
-        'schematizer.logic.schema_repository.get_domains_by_namespace',
-        return_value=[]
-    )
-    def test_none_existing_namespace(
-        self,
-        get_domains_by_namespace_mock
-    ):
+class TestListSourcesByNamespace(TestNamespaceViewBase):
+
+    test_view_module = 'schematizer.views.namespaces'
+
+    def test_non_existing_namespace(self, mock_request, mock_repo):
         with pytest.raises(HTTPNotFound) as e:
-            list_sources_by_namespace(
-                self.request_mock
-            )
-            assert e.value.code == 404
-            assert str(e.value) == constants.SOURCE_NOT_FOUND_ERROR_MESSAGE
+            mock_repo.get_domains_by_namespace.return_value = []
+            mock_request.matchdict = self.get_mock_dict({'namespace': 'foo'})
+            list_sources_by_namespace(mock_request)
 
-    def test_happy_case(self):
-        with patch(
-            'schematizer.logic.schema_repository.get_domains_by_namespace',
-            return_value=self.default_sources
-        ):
-            sources = list_sources_by_namespace(self.request_mock)
-            expected_response = [{
-                'source_id': None,
-                'namespace': factories.fake_namespace,
-                'source': factories.fake_source,
-                'source_owner_email': factories.fake_owner_email,
-                'created_at': factories.fake_created_at.isoformat(),
-                'updated_at': factories.fake_updated_at.isoformat()
-            }]
-            assert expected_response == sources
+        assert e.value.code == 404
+        assert str(e.value) == constants.NAMESPACE_NOT_FOUND_ERROR_MESSAGE
+        mock_repo.get_domains_by_namespace.assert_called_once_with('foo')
+
+    def test_happy_case(self, mock_request, mock_repo):
+        mock_repo.get_domains_by_namespace.return_value = self.sources
+        mock_request.matchdict = self.get_mock_dict({'namespace': 'yelp'})
+
+        sources = list_sources_by_namespace(mock_request)
+
+        assert self.sources_response == sources
+        mock_repo.get_domains_by_namespace.assert_called_once_with('yelp')
 
 
-class TestListNamespaces(object):
+class TestListNamespaces(TestNamespaceViewBase):
 
-    @property
-    def default_namespaces(self):
-        return [factories.fake_namespace]
+    def test_no_namespaces(self, mock_request, mock_repo):
+        mock_repo.get_namespaces.return_value = []
+        actual = list_namespaces(mock_request)
+        assert actual == []
 
-    @property
-    def request_mock(self):
-        dummy_request = Mock()
-        return dummy_request
-
-    def test_no_namespaces(self):
-        with patch(
-            'schematizer.logic.schema_repository.get_namespaces',
-            return_value=[]
-        ):
-            namespaces = list_namespaces(
-                self.request_mock
-            )
-            assert namespaces == []
-
-    def test_happy_case(self):
-        with patch(
-            'schematizer.logic.schema_repository.get_namespaces',
-            return_value=self.default_namespaces
-        ):
-            namespaces = list_namespaces(
-                self.request_mock
-            )
-            assert namespaces == self.default_namespaces
+    def test_happy_case(self, mock_request, mock_repo):
+        mock_repo.get_namespaces.return_value = self.namespaces
+        actual = list_namespaces(mock_request)
+        assert self.namespaces_response == actual

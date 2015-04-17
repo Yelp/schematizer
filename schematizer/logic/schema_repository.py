@@ -82,13 +82,13 @@ def create_avro_schema_from_avro_json(
     """
     domain = _get_domain_or_create(namespace, source, domain_email_owner)
 
-    # Lock the domain so that no other transaction can query or join Domain.
+    # Lock the domain so that no other transaction can add new topic to it.
     _lock_domain(domain)
 
     topic = get_latest_topic_of_domain(namespace, source)
 
-    # Lock topic and its schemas so that no other transaction can query,
-    # join or modify (such as changing schema status).
+    # Lock topic and its schemas so that no other transaction can add new
+    # schema to the topic or change schema status.
     _lock_topic_and_schemas(topic)
 
     if (not topic or not is_schema_compatible_in_topic(
@@ -391,14 +391,12 @@ def get_topics_by_domain_id(domain_id):
     ).all()
 
 
-def get_domain_by_domain_id(domain_id):
+def get_domain_by_id(domain_id):
     return session.query(
         models.Domain
-    ).filter(models.Domain.id == domain_id).first()
-
-
-def is_domain_id_existing(domain_id):
-    return get_domain_by_domain_id(domain_id) is not None
+    ).filter(
+        models.Domain.id == domain_id
+    ).first()
 
 
 def get_latest_topic_of_domain_id(domain_id):

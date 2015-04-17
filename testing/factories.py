@@ -9,21 +9,26 @@ fake_namespace = 'yelp'
 fake_source = 'business'
 fake_owner_email = 'business@yelp.com'
 fake_topic_name = 'yelp.business.v1'
-fake_avro_schema = "{'name': 'business'}"
+fake_avro_schema = '{"name": "business"}'
 fake_created_at = datetime(2015, 1, 1, 17, 0, 0)
 fake_updated_at = datetime(2015, 1, 1, 17, 0, 1)
+fake_base_schema_id = 10
+fake_mysql_create_stmts = ['create table foo']
+fake_mysql_alter_stmts = ['create table foo',
+                          'alter table foo',
+                          'create table foo']
 
 
 class DomainFactory(object):
 
     @classmethod
     def create(
-        cls,
-        namespace,
-        source,
-        owner_email=fake_owner_email,
-        created_at=fake_created_at,
-        updated_at=fake_updated_at
+            cls,
+            namespace,
+            source,
+            owner_email=fake_owner_email,
+            created_at=fake_created_at,
+            updated_at=fake_updated_at
     ):
         return models.Domain(
             namespace=namespace,
@@ -56,22 +61,23 @@ class TopicFactory(object):
 
     @classmethod
     def create(
-        cls,
-        topic_name,
-        domain_id,
-        created_at=fake_created_at,
-        updated_at=fake_updated_at
+            cls,
+            topic_name,
+            domain,
+            created_at=fake_created_at,
+            updated_at=fake_updated_at
     ):
         return models.Topic(
             topic=topic_name,
-            domain_id=domain_id,
+            domain_id=domain.id,
             created_at=created_at,
-            updated_at=updated_at
+            updated_at=updated_at,
+            domain=domain
         )
 
     @classmethod
-    def create_in_db(cls, topic_name, domain_id):
-        topic = cls.create(topic_name, domain_id)
+    def create_in_db(cls, topic_name, domain):
+        topic = cls.create(topic_name, domain)
         session.add(topic)
         session.flush()
         return topic
@@ -94,30 +100,31 @@ class AvroSchemaFactory(object):
     def create(
             cls,
             avro_schema,
-            topic_id,
+            topic,
             base_schema_id=None,
             status=models.AvroSchemaStatus.READ_AND_WRITE,
             created_at=fake_created_at,
             updated_at=fake_updated_at
     ):
         return models.AvroSchema(
-            topic_id=topic_id,
+            topic_id=topic.id,
             avro_schema=avro_schema,
             base_schema_id=base_schema_id,
             status=status,
             created_at=created_at,
-            updated_at=updated_at
+            updated_at=updated_at,
+            topic=topic
         )
 
     @classmethod
     def create_in_db(
             cls,
             avro_schema,
-            topic_id,
+            topic,
             base_schema_id=None,
             status=models.AvroSchemaStatus.READ_AND_WRITE
     ):
-        avro_schema = cls.create(avro_schema, topic_id, base_schema_id, status)
+        avro_schema = cls.create(avro_schema, topic, base_schema_id, status)
         session.add(avro_schema)
         session.flush()
         return avro_schema

@@ -15,7 +15,7 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "List all namespaces",
+                    "summary": "List all the namespaces",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -37,7 +37,7 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "List all source records by namespace",
+                    "summary": "List all the sources of specified namespace",
                     "type": "array",
                     "items": {
                         "$ref": "Source"
@@ -94,12 +94,12 @@
                 "created_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When the entry is created"
+                    "description": "When this source is created"
                 },
                 "updated_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When the entry is last updated"
+                    "description": "When this source is last updated"
                 }
             }
         }

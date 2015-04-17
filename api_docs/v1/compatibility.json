@@ -15,8 +15,8 @@
             "operations": [
                 {
                     "method": "POST",
-                    "summary": "This API is for checking input Avro schema's full compatibility.",
-                    "notes": "If the schema is compatible with the topic's schemas, it return status 200, otherwise return status 409. Compatibility means the input schema should be able to deserialize data serialized by existing schemas within the same topic and vice versa.",
+                    "summary": "Check if given Avro schema is both backward and forward compatible with all the enabled schemas of the same topic.",
+                    "notes": "Compatibility means the input schema should be able to deserialize data serialized by existing schemas within the same topic and vice versa.",
                     "type": "void",
                     "nickname": "is_avro_schema_compatible",
                     "authorizations": {},
@@ -32,10 +32,6 @@
                         {
                             "code": 400,
                             "message": "Invalid input supplied"
-                        },
-                        {
-                            "code": 409,
-                            "message": "Incompatible schema"
                         },
                         {
                             "code": 422,
@@ -54,8 +50,8 @@
             "operations": [
                 {
                     "method": "POST",
-                    "summary": "This API is for checking the full compatibility of the Avro schema derived from Mysql statements.",
-                    "notes": "If the schema is compatible with the topic's schemas, it return status 200, otherwise return status 409. Compatibility means the input schema should be able to deserialize data serialized by existing schemas within the same topic and vice versa.",
+                    "summary": "Check if the Avro schema derived from the given MySQL statements is both backward and forward compatible with all the enabled schemas of the same topic.",
+                    "notes": "Compatibility means the input schema should be able to deserialize data serialized by existing schemas within the same topic and vice versa.",
                     "type": "void",
                     "nickname": "is_mysql_schema_compatible",
                     "authorizations": {},
@@ -71,10 +67,6 @@
                         {
                             "code": 400,
                             "message": "Invalid input supplied"
-                        },
-                        {
-                            "code": 409,
-                            "message": "Incompatible schema"
                         },
                         {
                             "code": 422,
@@ -112,10 +104,6 @@
                 "source": {
                     "type": "string",
                     "description": "Source of the Avro schema, such as table User, or log service.foo etc"
-                },
-                "owner_email": {
-                    "type": "string",
-                    "description": "Email address of the source owner"
                 }
             }
         },
@@ -129,7 +117,7 @@
             "properties": {
                 "schema": {
                     "type": "string",
-                    "description": "This is the json formatted avro schema."
+                    "description": "The json formatted string of the Avro schema"
                 },
                 "namespace": {
                     "type": "string",

@@ -8,60 +8,60 @@ log = logging.getLogger('schematizer.config')
 def routes(config):
     """Add routes to the configuration."""
     config.add_route(
-        'api.list_namespaces',
+        'api.v1.list_namespaces',
         '/v1/namespaces'
     )
     config.add_route(
-        'api.list_sources_by_namespace',
+        'api.v1.list_sources_by_namespace',
         '/v1/namespaces/{namespace}/sources'
     )
     config.add_route(
-        'api.list_sources',
+        'api.v1.list_sources',
         '/v1/sources'
     )
     config.add_route(
-        'api.get_source_by_id',
+        'api.v1.get_source_by_id',
         '/v1/sources/{source_id}'
     )
     config.add_route(
-        'api.list_topics_by_source_id',
+        'api.v1.list_topics_by_source_id',
         '/v1/sources/{source_id}/topics'
     )
     config.add_route(
-        'api.get_latest_topic_by_source_id',
+        'api.v1.get_latest_topic_by_source_id',
         '/v1/sources/{source_id}/topics/latest'
     )
     config.add_route(
-        'api.get_topic_by_topic_name',
+        'api.v1.get_topic_by_topic_name',
         '/v1/topics/{topic_name}'
     )
     config.add_route(
-        'api.list_schemas_by_topic_name',
+        'api.v1.list_schemas_by_topic_name',
         '/v1/topics/{topic_name}/schemas'
     )
     config.add_route(
-        'api.get_latest_schema_by_topic_name',
+        'api.v1.get_latest_schema_by_topic_name',
         '/v1/topics/{topic_name}/schemas/latest'
     )
     # The REST URI matches in order, so please consider the
     # potential conflicts when you make changes.
     config.add_route(
-        'api.register_avro_schema_from_mysql_statements',
+        'api.v1.register_avro_schema_from_mysql_stmts',
         '/v1/schemas/mysql'
     )
     config.add_route(
-        'api.register_avro_schema',
+        'api.v1.register_avro_schema',
         '/v1/schemas/avro'
     )
     config.add_route(
-        'api.get_schema_by_id',
+        'api.v1.get_schema_by_id',
         '/v1/schemas/{schema_id}'
     )
     config.add_route(
-        'api.is_avro_schema_compatible',
+        'api.v1.is_avro_schema_compatible',
         '/v1/compatibility/schemas/avro'
     )
     config.add_route(
-        'api.is_mysql_schema_compatible',
+        'api.v1.is_mysql_schema_compatible',
         '/v1/compatibility/schemas/mysql'
     )

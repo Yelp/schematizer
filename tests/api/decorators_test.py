@@ -8,8 +8,8 @@ from pyramid.httpexceptions import HTTPNotFound
 from pyramid.httpexceptions import HTTPServerError
 from sqlalchemy.orm.exc import NoResultFound
 
-from schematizer.utils.decorators import transform_response
-from schematizer.utils.decorators import handle_view_exception
+from schematizer.api.decorators import transform_response
+from schematizer.api.decorators import handle_view_exception
 from testing import factories
 
 

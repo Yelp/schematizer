@@ -2,13 +2,13 @@
 from pyramid.httpexceptions import exception_response
 from pyramid.view import view_config
 
+from schematizer.api.decorators import transform_response
 from schematizer.logic import schema_repository
-from schematizer.utils.decorators import transform_response
 from schematizer.views import constants
 
 
 @view_config(
-    route_name='api.list_namespaces',
+    route_name='api.v1.list_namespaces',
     request_method='GET',
     renderer='json'
 )
@@ -18,7 +18,7 @@ def list_namespaces(request):
 
 
 @view_config(
-    route_name='api.list_sources_by_namespace',
+    route_name='api.v1.list_sources_by_namespace',
     request_method='GET',
     renderer='json'
 )

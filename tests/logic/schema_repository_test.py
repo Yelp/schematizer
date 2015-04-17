@@ -38,7 +38,7 @@ class TestSchemaRepository(DBTestCase):
 
     @pytest.fixture
     def topic(self, domain):
-        return factories.TopicFactory.create_in_db(self.topic_name, domain.id)
+        return factories.TopicFactory.create_in_db(self.topic_name, domain)
 
     @property
     def disabled_avro_schema_string(self):
@@ -57,12 +57,12 @@ class TestSchemaRepository(DBTestCase):
     def avro_schemas(self, topic):
         disabled_schema = factories.AvroSchemaFactory.create_in_db(
             self.disabled_avro_schema_string,
-            topic.id,
+            topic,
             status=models.AvroSchemaStatus.DISABLED
         )
         enabled_schema = factories.AvroSchemaFactory.create_in_db(
             self.rw_avro_schema_string,
-            topic.id,
+            topic,
             status=models.AvroSchemaStatus.READ_AND_WRITE
         )
         return [disabled_schema, enabled_schema]
@@ -163,7 +163,7 @@ class TestSchemaRepository(DBTestCase):
         )
         self.verify_topic(topic, actual)
 
-        new_topic = factories.TopicFactory.create_in_db('newtopic', domain.id)
+        new_topic = factories.TopicFactory.create_in_db('newtopic', domain)
         actual = schema_repo.get_latest_topic_of_domain(
             domain.namespace,
             domain.source
@@ -462,7 +462,7 @@ class TestSchemaRepository(DBTestCase):
         assert 1 == len(actual)
         self.verify_domain(domain, actual[0])
 
-    def test_get_domains_by_namespace_with_nonexisted_namespace(self, domain):
+    def test_get_domains_by_namespace_with_nonexistent_namespace(self, domain):
         actual = schema_repo.get_domains_by_namespace('foo')
         assert 0 == len(actual)
 
@@ -474,9 +474,9 @@ class TestSchemaRepository(DBTestCase):
     def test_available_converters(self):
         expected = {
             (models.SchemaKindEnum.MySQL, models.SchemaKindEnum.Avro):
-                converters.MySQLToAvroConverter,
+            converters.MySQLToAvroConverter,
             (models.SchemaKindEnum.Avro, models.SchemaKindEnum.Redshift):
-                converters.AvroToRedshiftConverter
+            converters.AvroToRedshiftConverter
         }
         for key, value in expected.iteritems():
             actual = schema_repo.converters[key]

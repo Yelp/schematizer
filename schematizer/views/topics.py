@@ -2,13 +2,13 @@
 from pyramid.httpexceptions import exception_response
 from pyramid.view import view_config
 
+from schematizer.api.decorators import transform_response
 from schematizer.logic import schema_repository
-from schematizer.utils.decorators import transform_response
 from schematizer.views import constants
 
 
 @view_config(
-    route_name='api.get_topic_by_topic_name',
+    route_name='api.v1.get_topic_by_topic_name',
     request_method='GET',
     renderer='json'
 )
@@ -25,7 +25,7 @@ def get_topic_by_topic_name(request):
 
 
 @view_config(
-    route_name='api.list_schemas_by_topic_name',
+    route_name='api.v1.list_schemas_by_topic_name',
     request_method='GET',
     renderer='json'
 )
@@ -44,7 +44,7 @@ def list_schemas_by_topic_name(request):
 
 
 @view_config(
-    route_name='api.get_latest_schema_by_topic_name',
+    route_name='api.v1.get_latest_schema_by_topic_name',
     request_method='GET',
     renderer='json'
 )
