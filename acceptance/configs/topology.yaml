@@ -1,0 +1,22 @@
+topology:
+-   cluster: schematizer
+    replica: master
+    entries:
+    -   db: yelp_schematizer
+        host: schematizerdatabase
+        passwd: ""
+        user: schematizerdev
+-   cluster: schematizer
+    replica: slave
+    entries:
+    -   db: yelp_schematizer
+        host: schematizerdatabase
+        passwd: ""
+        user: schematizerro
+-   cluster: schematizer
+    replica: reporting
+    entries:
+    -   db: yelp_schematizer
+        host: schematizerdatabase
+        passwd: ""
+        user: schematizerro
