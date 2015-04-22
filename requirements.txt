@@ -4,7 +4,8 @@ PyStaticConfiguration==0.9.0
 PyYAML==3.11
 SQLAlchemy==0.9.8
 WebOb==1.4
-avro==1.7.6
+-e git://github.com/Yelp/avro.git@ca54b665f4f0ae3e59ba1f574bc628349dd6f0a1#egg=avro
+#avro==1.7.6
 colander==0.9.9
 future==0.14.3
 geogrid==1.0.8
