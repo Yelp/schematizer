@@ -101,6 +101,13 @@ def create_avro_schema_from_avro_json(
         topic_name = _construct_topic_name(namespace, source)
         topic = _create_topic(topic_name, domain)
 
+    # Do not create the schema if it is the same as the latest one
+    latest_schema = get_latest_schema_by_topic_id(topic.id)
+    if (latest_schema
+            and simplejson.loads(latest_schema.avro_schema) == avro_schema_json
+            and latest_schema.base_schema_id == base_schema_id):
+        return latest_schema
+
     avro_schema = _create_avro_schema(
         avro_schema_json,
         topic.id,

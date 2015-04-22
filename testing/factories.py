@@ -70,8 +70,8 @@ class TopicFactory(object):
         )
 
     @classmethod
-    def create_in_db(cls, topic_name, domain_id):
-        topic = cls.create(topic_name, domain_id)
+    def create_in_db(cls, topic_name, domain):
+        topic = cls.create(topic_name, domain.id)
         session.add(topic)
         session.flush()
         return topic
@@ -113,11 +113,11 @@ class AvroSchemaFactory(object):
     def create_in_db(
             cls,
             avro_schema,
-            topic_id,
+            topic,
             base_schema_id=None,
             status=models.AvroSchemaStatus.READ_AND_WRITE
     ):
-        avro_schema = cls.create(avro_schema, topic_id, base_schema_id, status)
+        avro_schema = cls.create(avro_schema, topic.id, base_schema_id, status)
         session.add(avro_schema)
         session.flush()
         return avro_schema
