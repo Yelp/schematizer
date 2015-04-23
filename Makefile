@@ -13,7 +13,7 @@ test:
 	tox
 
 itest:
-	# Replace this with a real integration test at some point
+	# TODO(DATAPIPE-134|justinc) This should run real integration tests
 	true
 
 clean:
