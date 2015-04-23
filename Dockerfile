@@ -28,4 +28,4 @@ ADD     . /code
 WORKDIR /code
 ENV     BASEPATH /code
 CMD     /code/virtualenv_run/bin/python /code/serviceinit.d/schematizer start-dev
-EXPOSE  1210
+EXPOSE  8888
