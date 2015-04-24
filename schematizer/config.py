@@ -46,11 +46,11 @@ def routes(config):
     # The REST URI matches in order, so please consider the
     # potential conflicts when you make changes.
     config.add_route(
-        'api.v1.register_avro_schema_from_mysql_stmts',
+        'api.v1.register_schema_from_mysql_stmts',
         '/v1/schemas/mysql'
     )
     config.add_route(
-        'api.v1.register_avro_schema',
+        'api.v1.register_schema',
         '/v1/schemas/avro'
     )
     config.add_route(

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-from pyramid.httpexceptions import exception_response
 from pyramid.view import view_config
 
 from schematizer.api.decorators import transform_response
+from schematizer.api.exceptions import exceptions_v1
 from schematizer.logic import schema_repository
-from schematizer.views import constants
 
 
 @view_config(
@@ -17,10 +16,7 @@ def get_topic_by_topic_name(request):
     topic_name = request.matchdict.get('topic_name')
     topic = schema_repository.get_topic_by_name(topic_name)
     if topic is None:
-        raise exception_response(
-            404,
-            detail=constants.TOPIC_NOT_FOUND_ERROR_MESSAGE
-        )
+        raise exceptions_v1.topic_not_found_exception()
     return topic.to_dict()
 
 
@@ -33,13 +29,8 @@ def get_topic_by_topic_name(request):
 def list_schemas_by_topic_name(request):
     topic_name = request.matchdict.get('topic_name')
     schemas = schema_repository.get_schemas_by_topic_name(topic_name)
-    if len(schemas) == 0:
-        topic = schema_repository.get_topic_by_name(topic_name)
-        if topic is None:
-            raise exception_response(
-                404,
-                detail=constants.TOPIC_NOT_FOUND_ERROR_MESSAGE
-            )
+    if not schemas and not schema_repository.get_topic_by_name(topic_name):
+        raise exceptions_v1.topic_not_found_exception()
     return [schema.to_dict() for schema in schemas]
 
 
@@ -54,14 +45,7 @@ def get_latest_schema_by_topic_name(request):
     schema = schema_repository.get_latest_schema_by_topic_name(topic_name)
     if schema is None:
         topic = schema_repository.get_topic_by_name(topic_name)
-        if topic is None:
-            raise exception_response(
-                404,
-                detail=constants.TOPIC_NOT_FOUND_ERROR_MESSAGE
-            )
-
-        raise exception_response(
-            404,
-            detail=constants.LATEST_SCHEMA_NOT_FOUND_ERROR_MESSAGE
-        )
+        if not topic:
+            raise exceptions_v1.topic_not_found_exception()
+        raise exceptions_v1.latest_schema_not_found_exception()
     return schema.to_dict()

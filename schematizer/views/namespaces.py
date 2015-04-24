@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-from pyramid.httpexceptions import exception_response
 from pyramid.view import view_config
 
 from schematizer.api.decorators import transform_response
+from schematizer.api.exceptions import exceptions_v1
 from schematizer.logic import schema_repository
-from schematizer.views import constants
 
 
 @view_config(
@@ -30,8 +29,5 @@ def list_sources_by_namespace(request):
     # if there is no domain records, it means there is no namespace.
     # So we just throw namespace not found error.
     if len(sources) == 0:
-        raise exception_response(
-            404,
-            detail=constants.NAMESPACE_NOT_FOUND_ERROR_MESSAGE
-        )
+        raise exceptions_v1.namespace_not_found_exception()
     return [source.to_dict() for source in sources]

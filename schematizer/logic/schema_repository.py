@@ -345,25 +345,22 @@ def get_schemas_by_topic_id(topic_id, include_disabled=False):
 def mark_schema_disabled(schema_id):
     """Disable the Avro schema of specified id.
     """
-    session.query(
-        models.AvroSchema
-    ).filter(
-        models.AvroSchema.id == schema_id
-    ).update(
-        {'status': models.AvroSchemaStatus.DISABLED}
-    )
-    session.flush()
+    _update_schema_status(schema_id, models.AvroSchemaStatus.DISABLED)
 
 
 def mark_schema_readonly(schema_id):
     """Mark the Avro schema of specified id as read-only.
     """
+    _update_schema_status(schema_id, models.AvroSchemaStatus.READ_ONLY)
+
+
+def _update_schema_status(schema_id, status):
     session.query(
         models.AvroSchema
     ).filter(
         models.AvroSchema.id == schema_id
     ).update(
-        {'status': models.AvroSchemaStatus.READ_ONLY}
+        {'status': status}
     )
     session.flush()
 
@@ -407,8 +404,8 @@ def get_domain_by_id(domain_id):
 
 
 def get_latest_topic_of_domain_id(domain_id):
-    """Get the latest topic of given domain_id. The latest one is
-    the one created most recently. It returns None if no such topic exists.
+    """Get the latest topic of given domain_id. The latest one is the one
+    created most recently. It returns None if no such topic exists.
     """
     return session.query(
         models.Topic

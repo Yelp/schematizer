@@ -18,7 +18,7 @@
                     "summary": "Register an Avro Schema derived from Mysql statements to the latest topic of specified namespace and source.",
                     "notes": "If the namespace and source do not exist, Schematizer will create it automatically.",
                     "type": "Schema",
-                    "nickname": "register_avro_schema_from_mysql_statements",
+                    "nickname": "register_schema_from_mysql_stmts",
                     "authorizations": {},
                     "parameters": [
                         {
@@ -49,7 +49,7 @@
                     "summary": "Register given Avro schema to the latest topic of specified namespace and source.",
                     "notes": "If the namespace and source do not exist, Schematizer will create it automatically.",
                     "type": "Schema",
-                    "nickname": "register_avro_schema",
+                    "nickname": "register_schema",
                     "authorizations": {},
                     "parameters": [
                         {

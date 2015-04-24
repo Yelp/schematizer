@@ -23,12 +23,12 @@ class DomainFactory(object):
 
     @classmethod
     def create(
-            cls,
-            namespace,
-            source,
-            owner_email=fake_owner_email,
-            created_at=fake_created_at,
-            updated_at=fake_updated_at
+        cls,
+        namespace,
+        source,
+        owner_email=fake_owner_email,
+        created_at=fake_created_at,
+        updated_at=fake_updated_at
     ):
         return models.Domain(
             namespace=namespace,
@@ -61,11 +61,11 @@ class TopicFactory(object):
 
     @classmethod
     def create(
-            cls,
-            topic_name,
-            domain,
-            created_at=fake_created_at,
-            updated_at=fake_updated_at
+        cls,
+        topic_name,
+        domain,
+        created_at=fake_created_at,
+        updated_at=fake_updated_at
     ):
         return models.Topic(
             topic=topic_name,
@@ -98,13 +98,13 @@ class AvroSchemaFactory(object):
 
     @classmethod
     def create(
-            cls,
-            avro_schema,
-            topic,
-            base_schema_id=None,
-            status=models.AvroSchemaStatus.READ_AND_WRITE,
-            created_at=fake_created_at,
-            updated_at=fake_updated_at
+        cls,
+        avro_schema,
+        topic,
+        base_schema_id=None,
+        status=models.AvroSchemaStatus.READ_AND_WRITE,
+        created_at=fake_created_at,
+        updated_at=fake_updated_at
     ):
         return models.AvroSchema(
             topic_id=topic.id,
@@ -118,11 +118,11 @@ class AvroSchemaFactory(object):
 
     @classmethod
     def create_in_db(
-            cls,
-            avro_schema,
-            topic,
-            base_schema_id=None,
-            status=models.AvroSchemaStatus.READ_AND_WRITE
+        cls,
+        avro_schema,
+        topic,
+        base_schema_id=None,
+        status=models.AvroSchemaStatus.READ_AND_WRITE
     ):
         avro_schema = cls.create(avro_schema, topic, base_schema_id, status)
         session.add(avro_schema)

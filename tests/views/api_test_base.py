@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import mock
 import pytest
+from pyramid import httpexceptions
 
 from testing import factories
 
@@ -116,11 +117,11 @@ class TestApiBase(object):
             yield mock_repo
 
     @pytest.yield_fixture
-    def mock_mysql_processor(self):
-        with mock.patch(
-            self.test_view_module + '.mysql_processor'
-        ) as mock_processor:
-            yield mock_processor
+    def mock_create_sql_table_from_mysql_stmts(self):
+        patch_name = (self.test_view_module +
+                      '.mysql_handlers.create_sql_table_from_mysql_stmts')
+        with mock.patch(patch_name) as mock_func:
+            yield mock_func
 
     @classmethod
     def get_mock_dict(cls, dict_value):
@@ -128,3 +129,7 @@ class TestApiBase(object):
         mock_dict.get.side_effect = lambda k: dict_value.get(k)
         mock_dict.__getitem__.side_effect = lambda k: dict_value[k]
         return mock_dict
+
+    @classmethod
+    def get_http_exception(cls, http_status_code):
+        return httpexceptions.status_map[http_status_code]

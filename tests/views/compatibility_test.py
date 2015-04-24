@@ -2,9 +2,11 @@
 import mock
 import pytest
 import simplejson
+from avro import schema
 
-from schematizer.views.compatibility import is_avro_schema_compatible
-from schematizer.views.compatibility import is_mysql_schema_compatible
+from schematizer.components.converters import converter_base
+from schematizer.components.mysql_handlers import MySQLHandlerException
+from schematizer.views import compatibility as compatibility_views
 from testing import factories
 from tests.views.api_test_base import TestApiBase
 
@@ -25,19 +27,18 @@ class TestCompatibilityViewBase(TestApiBase):
 class TestAvroSchemaCompatibility(TestCompatibilityViewBase):
 
     @property
-    def request_string(self):
-        request_json = {
+    def request_json(self):
+        return {
             "schema": factories.fake_avro_schema,
             "namespace": factories.fake_namespace,
             "source": factories.fake_source
         }
-        return simplejson.dumps(request_json)
 
     def test_compatible_schema(self, mock_request, mock_repo):
-        mock_request.body = self.request_string
+        mock_request.json_body = self.request_json
         mock_repo.is_schema_compatible.return_value = True
 
-        actual = is_avro_schema_compatible(mock_request)
+        actual = compatibility_views.is_avro_schema_compatible(mock_request)
 
         assert True == actual
         mock_repo.is_schema_compatible.assert_called_once_with(
@@ -46,30 +47,119 @@ class TestAvroSchemaCompatibility(TestCompatibilityViewBase):
             factories.fake_source
         )
 
+    def test_compatible_schema_with_avro_exception(
+        self,
+        mock_request,
+        mock_repo
+    ):
+        mock_request.json_body = self.request_json
+        mock_repo.is_schema_compatible.side_effect = schema.AvroException('ex')
+        expected_exception = self.get_http_exception(422)
+
+        with pytest.raises(expected_exception) as e:
+            compatibility_views.is_avro_schema_compatible(mock_request)
+
+        assert expected_exception.code == e.value.code
+        assert 'ex' == str(e.value)
+
 
 class TestMySQLSchemaCompatibility(TestCompatibilityViewBase):
 
     @property
-    def request_string(self):
-        request_json = {
+    def request_json(self):
+        return {
             "mysql_statements": factories.fake_mysql_create_stmts,
             "namespace": factories.fake_namespace,
             "source": factories.fake_source
         }
-        return simplejson.dumps(request_json)
 
-    @pytest.mark.usefixtures('mock_mysql_processor')
+    @pytest.fixture
+    def setup_mock_request_json_body(self, mock_request):
+        mock_request.json_body = self.request_json
+
+    @property
+    def converted_schema(self):
+        return 'converted avro schema'
+
+    @pytest.fixture
+    def setup_mock_convert_schema_func(self, mock_repo):
+        mock_repo.convert_schema.return_value = self.converted_schema
+
+    @property
+    def compatible_value(self):
+        return True
+
+    @pytest.fixture
+    def setup_mock_is_schema_compatible_func(self, mock_repo):
+        mock_repo.is_schema_compatible.return_value = self.compatible_value
+
+    @pytest.mark.usefixtures(
+        'setup_mock_request_json_body',
+        'mock_create_sql_table_from_mysql_stmts',
+        'setup_mock_convert_schema_func',
+        'setup_mock_is_schema_compatible_func',
+    )
     def test_compatible_schema(self, mock_request, mock_repo):
-        mock_request.body = self.request_string
-        avro_schema_to_check = mock.Mock()
-        mock_repo.convert_schema.return_value = avro_schema_to_check
-        mock_repo.is_schema_compatible.return_value = True
+        actual = compatibility_views.is_mysql_schema_compatible(mock_request)
 
-        actual = is_mysql_schema_compatible(mock_request)
-
-        assert True == actual
+        assert self.compatible_value == actual
         mock_repo.is_schema_compatible.assert_called_once_with(
-            avro_schema_to_check,
+            self.converted_schema,
             factories.fake_namespace,
             factories.fake_source
         )
+
+    @pytest.mark.usefixtures('setup_mock_request_json_body')
+    def test_compatible_schema_with_mysql_handler_exception(
+        self,
+        mock_request,
+        mock_create_sql_table_from_mysql_stmts
+    ):
+        mock_create_sql_table_from_mysql_stmts.side_effect = \
+            MySQLHandlerException('oops')
+        expected_exception = self.get_http_exception(422)
+
+        with pytest.raises(expected_exception) as e:
+            compatibility_views.is_mysql_schema_compatible(mock_request)
+
+        assert expected_exception.code == e.value.code
+        assert 'oops' == str(e.value)
+
+    @pytest.mark.usefixtures(
+        'setup_mock_request_json_body',
+        'mock_create_sql_table_from_mysql_stmts',
+        'setup_mock_is_schema_compatible_func',
+    )
+    def test_compatible_schema_with_conversion_exception(
+        self,
+        mock_request,
+        mock_repo
+    ):
+        mock_repo.convert_schema.side_effect = \
+            converter_base.SchemaConversionException('oops')
+        expected_exception = self.get_http_exception(422)
+
+        with pytest.raises(expected_exception) as e:
+            compatibility_views.is_mysql_schema_compatible(mock_request)
+
+        assert expected_exception.code == e.value.code
+        assert 'oops' == str(e.value)
+
+    @pytest.mark.usefixtures(
+        'setup_mock_request_json_body',
+        'mock_create_sql_table_from_mysql_stmts',
+        'setup_mock_convert_schema_func',
+    )
+    def test_compatible_schema_with_avro_exception(
+        self,
+        mock_request,
+        mock_repo
+    ):
+        mock_repo.is_schema_compatible.side_effect = schema.AvroException('ex')
+        expected_exception = self.get_http_exception(422)
+
+        with pytest.raises(expected_exception) as e:
+            compatibility_views.is_mysql_schema_compatible(mock_request)
+
+        assert expected_exception.code == e.value.code
+        assert 'ex' == str(e.value)
