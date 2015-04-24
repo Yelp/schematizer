@@ -5,17 +5,35 @@ import os
 import pyramid_uwsgi_metrics
 import uwsgi_metrics
 import yelp_pyramid
+import yelp_pyramid.healthcheck
 from yelp_servlib import logging_util
 from yelp_servlib import config_util
 from pyramid.config import Configurator
 
 import schematizer.config
 import schematizer.models.database
+from schematizer import healthchecks
 
 SERVICE_CONFIG_PATH = os.environ.get('SERVICE_CONFIG_PATH')
 SERVICE_ENV_CONFIG_PATH = os.environ.get('SERVICE_ENV_CONFIG_PATH')
 
 uwsgi_metrics.initialize()
+
+
+def initialize_application():
+    config_util.load_default_config(
+        SERVICE_CONFIG_PATH,
+        SERVICE_ENV_CONFIG_PATH
+    )
+
+
+yelp_pyramid.healthcheck.install_healthcheck(
+    'mysql',
+    healthchecks.mysql_healthcheck,
+    unhealthy_threshold=5,
+    healthy_threshold=2,
+    init=initialize_application
+)
 
 
 def _create_application():
@@ -35,9 +53,7 @@ def _create_application():
         ],
     })
 
-    config_util.load_default_config(
-        SERVICE_CONFIG_PATH,
-        SERVICE_ENV_CONFIG_PATH)
+    initialize_application()
 
     # Add the service's custom configuration, routes, etc.
     config.include(schematizer.config.routes)
