@@ -193,7 +193,7 @@ class TestSchemaRepository(DBTestCase):
         )
         self.verify_topic(topic, actual)
 
-        new_topic = factories.TopicFactory.create_in_db('newtopic', domain)
+        new_topic = factories.TopicFactory.create_in_db('new_topic', domain)
         actual = schema_repo.get_latest_topic_of_domain(
             domain.namespace,
             domain.source
