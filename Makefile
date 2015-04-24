@@ -10,11 +10,10 @@ docs:
 
 test:
 	docker pull docker-dev.yelpcorp.com/mysql-testing:latest
-	tox
+	tox -e py
 
 itest:
-	# TODO(DATAPIPE-134|justinc) This should run real integration tests
-	true
+	tox -e acceptance
 
 clean:
 	rm -rf docs/build
