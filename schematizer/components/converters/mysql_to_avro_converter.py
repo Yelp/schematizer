@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from schematizer.avro_builder import AvroSchemaBuilder
+from avro.avro_builder import AvroSchemaBuilder
+
 from schematizer.components.converters.converter_base \
     import AvroMetaDataKeyEnum
 from schematizer.components.converters.converter_base import BaseConverter
@@ -38,24 +39,26 @@ class MySQLToAvroConverter(BaseConverter):
         namespace = table.metadata.get(MetaDataKey.NAMESPACE, '')
         aliases = table.metadata.get(MetaDataKey.ALIASES)
 
-        record_json = self._builder.create_record(
+        self._builder.begin_record(
             table.name,
-            [self._create_avro_field(col) for col in table.columns],
             namespace=namespace,
             aliases=aliases,
             doc=table.doc
         )
+        for column in table.columns:
+            self._create_avro_field(column)
+        record_json = self._builder.end()
         return record_json
 
     def _create_avro_field(self, column):
         field_type, field_metadata = self._create_avro_field_type(column)
         if column.is_nullable:
-            field_type = self._builder.create_optional_type(
+            field_type = self._builder.begin_nullable_type(
                 field_type,
                 column.default_value
-            )
+            ).end()
 
-        return self._builder.create_field(
+        self._builder.add_field(
             column.name,
             field_type,
             has_default=column.default_value is not None or column.is_nullable,
@@ -168,10 +171,10 @@ class MySQLToAvroConverter(BaseConverter):
         return self._builder.create_long(), metadata
 
     def _convert_enum_type(self, column):
-        return self._builder.create_enum(
+        return self._builder.begin_enum(
             self.get_enum_type_name(column),
             column.type.values
-        ), {}
+        ).end(), {}
 
     @classmethod
     def get_enum_type_name(cls, column):
