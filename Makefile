@@ -1,4 +1,4 @@
-.PHONY: all production test docs clean
+.PHONY: all production test itest docs clean
 
 all: production
 
@@ -10,7 +10,10 @@ docs:
 
 test:
 	docker pull docker-dev.yelpcorp.com/mysql-testing:latest
-	tox
+	tox -e py
+
+itest:
+	tox -e acceptance
 
 clean:
 	rm -rf docs/build

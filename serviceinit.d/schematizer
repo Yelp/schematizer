@@ -6,7 +6,7 @@ from yelp_servlib import serviceinitlib, uwsgi_serviceinit
 if __name__ == "__main__":
     config = serviceinitlib.load_config(
         SERVICE='schematizer',
-        PORT=1210,
+        PORT=8888,
         STATS_PORT=1211,
         NUM_WORKERS=4)
 

@@ -18,3 +18,4 @@ virtualenv_run
 .tox
 *.egg-info/
 __pycache__
+VENV
