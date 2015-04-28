@@ -66,7 +66,7 @@ def convert_schema(source_type, target_type, source_schema):
     if not converter:
         raise Exception("Unable to find converter to convert from {0} to {1}."
                         .format(source_type, target_type))
-    return converter.convert(source_schema)
+    return converter().convert(source_schema)
 
 
 def create_avro_schema_from_avro_json(

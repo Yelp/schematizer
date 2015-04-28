@@ -144,17 +144,14 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
     def converted_schema(self):
         return 'converted avro schema'
 
-    @pytest.fixture
-    def setup_mock_convert_schema_func(self, mock_repo):
-        mock_repo.convert_schema.return_value = self.converted_schema
-
     @pytest.mark.usefixtures(
         'setup_mock_request_json_body',
-        'mock_create_sql_table_from_mysql_stmts',
-        'setup_mock_convert_schema_func',
-        'setup_mock_create_schema_func',
+        'mock_create_sql_table_from_mysql_stmts'
     )
     def test_register_schema(self, mock_request, mock_repo):
+        mock_repo.convert_schema.return_value = self.converted_schema
+        mock_repo.create_avro_schema_from_avro_json.return_value = self.schema
+
         actual = schema_views.register_schema_from_mysql_stmts(mock_request)
 
         assert self.schema_response == actual
@@ -182,8 +179,7 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
 
     @pytest.mark.usefixtures(
         'setup_mock_request_json_body',
-        'mock_create_sql_table_from_mysql_stmts',
-        'setup_mock_create_schema_func',
+        'mock_create_sql_table_from_mysql_stmts'
     )
     def test_register_schema_with_conversion_exception(
         self,
@@ -202,8 +198,7 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
 
     @pytest.mark.usefixtures(
         'setup_mock_request_json_body',
-        'mock_create_sql_table_from_mysql_stmts',
-        'setup_mock_convert_schema_func',
+        'mock_create_sql_table_from_mysql_stmts'
     )
     def test_register_schema_with_avro_exception(
         self,

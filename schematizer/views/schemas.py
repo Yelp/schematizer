@@ -2,13 +2,11 @@
 from avro import schema
 from pyramid.view import view_config
 
-from schematizer import models
 from schematizer.api.decorators import transform_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.requests import requests_v1
-from schematizer.components import mysql_handlers
-from schematizer.components.converters import converter_base
 from schematizer.logic import schema_repository
+from schematizer.views import view_common
 
 
 @view_config(
@@ -44,7 +42,10 @@ def register_schema(request):
 @transform_response()
 def register_schema_from_mysql_stmts(request):
     req = requests_v1.RegisterSchemaFromMySqlRequest(**request.json_body)
-    avro_schema_json = _convert_to_avro_from_mysql(req.mysql_statements)
+    avro_schema_json = view_common.convert_to_avro_from_mysql(
+        req.mysql_statements,
+        schema_repository
+    )
     return _register_avro_schema(requests_v1.RegisterSchemaRequest(
         schema=avro_schema_json,
         namespace=req.namespace,
@@ -63,19 +64,4 @@ def _register_avro_schema(req):
             base_schema_id=req.base_schema_id
         ).to_dict()
     except schema.AvroException as e:
-        raise exceptions_v1.invalid_schema_exception(e.message)
-
-
-def _convert_to_avro_from_mysql(mysql_statements):
-    try:
-        sql_table = mysql_handlers.create_sql_table_from_mysql_stmts(
-            mysql_statements
-        )
-        return schema_repository.convert_schema(
-            models.SchemaKindEnum.MySQL,
-            models.SchemaKindEnum.Avro,
-            sql_table
-        )
-    except (mysql_handlers.MySQLHandlerException,
-            converter_base.SchemaConversionException) as e:
         raise exceptions_v1.invalid_schema_exception(e.message)

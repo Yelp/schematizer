@@ -81,25 +81,22 @@ class TestMySQLSchemaCompatibility(TestCompatibilityViewBase):
     def converted_schema(self):
         return 'converted avro schema'
 
-    @pytest.fixture
-    def setup_mock_convert_schema_func(self, mock_repo):
-        mock_repo.convert_schema.return_value = self.converted_schema
-
     @property
     def compatible_value(self):
         return True
 
-    @pytest.fixture
-    def setup_mock_is_schema_compatible_func(self, mock_repo):
-        mock_repo.is_schema_compatible.return_value = self.compatible_value
-
     @pytest.mark.usefixtures(
         'setup_mock_request_json_body',
-        'mock_create_sql_table_from_mysql_stmts',
-        'setup_mock_convert_schema_func',
-        'setup_mock_is_schema_compatible_func',
+        'mock_create_sql_table_from_mysql_stmts'
     )
-    def test_compatible_schema(self, mock_request, mock_repo):
+    def test_compatible_schema(
+        self,
+        mock_request,
+        mock_repo
+    ):
+        mock_repo.convert_schema.return_value = self.converted_schema
+        mock_repo.is_schema_compatible.return_value = self.compatible_value
+
         actual = compatibility_views.is_mysql_schema_compatible(mock_request)
 
         assert self.compatible_value == actual
@@ -128,7 +125,6 @@ class TestMySQLSchemaCompatibility(TestCompatibilityViewBase):
     @pytest.mark.usefixtures(
         'setup_mock_request_json_body',
         'mock_create_sql_table_from_mysql_stmts',
-        'setup_mock_is_schema_compatible_func',
     )
     def test_compatible_schema_with_conversion_exception(
         self,
@@ -147,8 +143,7 @@ class TestMySQLSchemaCompatibility(TestCompatibilityViewBase):
 
     @pytest.mark.usefixtures(
         'setup_mock_request_json_body',
-        'mock_create_sql_table_from_mysql_stmts',
-        'setup_mock_convert_schema_func',
+        'mock_create_sql_table_from_mysql_stmts'
     )
     def test_compatible_schema_with_avro_exception(
         self,
