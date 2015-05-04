@@ -138,7 +138,7 @@ class TestSchemaRepository(DBTestCase):
             ).filter(
                 models.Topic.id == actual.topic_id
             ).one()
-            assert created_topic.topic != topic.topic
+            assert created_topic.name != topic.name
             assert created_topic.id != topic.id
             assert created_topic.domain_id == topic.domain_id
 
@@ -202,7 +202,7 @@ class TestSchemaRepository(DBTestCase):
 
     def verify_topic(self, expected, actual):
         assert expected.id == actual.id
-        assert expected.topic == actual.topic
+        assert expected.name == actual.name
         assert expected.domain_id == actual.domain_id
         assert expected.created_at == actual.created_at
         assert expected.updated_at == actual.updated_at
@@ -223,7 +223,7 @@ class TestSchemaRepository(DBTestCase):
     def test_is_schema_compatible_in_topic(self, topic, mock_compatible_func):
         actual = schema_repo.is_schema_compatible_in_topic(
             self.rw_avro_schema_json,
-            topic.topic
+            topic.name
         )
         expected = mock_compatible_func.return_value
         assert expected == actual
@@ -234,7 +234,7 @@ class TestSchemaRepository(DBTestCase):
             rw_avro_schema
     ):
         factories.AvroSchemaFactory.delete(rw_avro_schema.id)
-        actual = schema_repo.is_schema_compatible_in_topic('avro', topic.topic)
+        actual = schema_repo.is_schema_compatible_in_topic('avro', topic.name)
         assert True == actual
 
     @pytest.mark.usefixtures('avro_schemas')
@@ -245,7 +245,7 @@ class TestSchemaRepository(DBTestCase):
     def test_get_topic_by_name(self, topic):
         actual = schema_repo.get_topic_by_name(self.topic_name)
         assert topic.id == actual.id
-        assert topic.topic == actual.topic
+        assert topic.name == actual.name
         assert topic.domain_id == actual.domain_id
         assert topic.created_at == actual.created_at
         assert topic.updated_at == actual.updated_at
@@ -309,7 +309,7 @@ class TestSchemaRepository(DBTestCase):
         assert actual is None
 
     def test_get_latest_schema_by_topic_name(self, topic, rw_avro_schema):
-        actual = schema_repo.get_latest_schema_by_topic_name(topic.topic)
+        actual = schema_repo.get_latest_schema_by_topic_name(topic.name)
         self.verify_avro_schema(rw_avro_schema, actual)
 
     def test_get_latest_schema_by_topic_name_with_nonexistent_topic(self):
@@ -340,7 +340,7 @@ class TestSchemaRepository(DBTestCase):
         assert True == actual
 
     def test_get_schemas_by_topic_name(self, topic, rw_avro_schema):
-        actual = schema_repo.get_schemas_by_topic_name(topic.topic)
+        actual = schema_repo.get_schemas_by_topic_name(topic.name)
         assert 1 == len(actual)
         self.verify_avro_schema(rw_avro_schema, actual[0])
 
@@ -350,7 +350,7 @@ class TestSchemaRepository(DBTestCase):
             rw_avro_schema,
             disabled_avro_schema
     ):
-        actual = schema_repo.get_schemas_by_topic_name(topic.topic, True)
+        actual = schema_repo.get_schemas_by_topic_name(topic.name, True)
         assert 2 == len(actual)
         self.verify_avro_schema(disabled_avro_schema, actual[0])
         self.verify_avro_schema(rw_avro_schema, actual[1])

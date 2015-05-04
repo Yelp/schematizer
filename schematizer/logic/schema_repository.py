@@ -93,7 +93,7 @@ def create_avro_schema_from_avro_json(
 
     if (not topic or not is_schema_compatible_in_topic(
             avro_schema_json,
-            topic.topic
+            topic.name
     )):
         # Note that creating duplicate topic names will throw a sqlalchemy
         # IntegrityError exception. When it occurs, it indicates the uuid
@@ -211,7 +211,7 @@ def _create_topic(topic_name, domain):
     and source. It returns newly created topic. If a topic with same name
     already exists, an exception is thrown.
     """
-    topic = models.Topic(topic=topic_name, domain_id=domain.id)
+    topic = models.Topic(name=topic_name, domain_id=domain.id)
     session.add(topic)
     session.flush()
     return topic
@@ -224,7 +224,7 @@ def get_topic_by_name(topic_name):
     return session.query(
         models.Topic
     ).filter(
-        models.Topic.topic == topic_name
+        models.Topic.name == topic_name
     ).first()
 
 
@@ -291,7 +291,7 @@ def get_latest_schema_by_topic_name(topic_name):
         models.Topic
     ).filter(
         models.AvroSchema.topic_id == models.Topic.id,
-        models.Topic.topic == topic_name,
+        models.Topic.name == topic_name,
         models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
     ).order_by(
         models.AvroSchema.id.desc()
@@ -307,7 +307,7 @@ def is_schema_compatible(target_schema, namespace, source):
     topic = get_latest_topic_of_domain(namespace, source)
     if not topic:
         return True
-    return is_schema_compatible_in_topic(target_schema, topic.topic)
+    return is_schema_compatible_in_topic(target_schema, topic.name)
 
 
 def get_schemas_by_topic_name(topic_name, include_disabled=False):
@@ -317,7 +317,7 @@ def get_schemas_by_topic_name(topic_name, include_disabled=False):
         models.Topic
     ).filter(
         models.Topic.id == models.AvroSchema.topic_id,
-        models.Topic.topic == topic_name
+        models.Topic.name == topic_name
     )
     if not include_disabled:
         qry = qry.filter(

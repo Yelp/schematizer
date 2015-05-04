@@ -16,7 +16,7 @@ class Topic(Base):
     __tablename__ = 'topic'
     __table_args__ = (
         UniqueConstraint(
-            'topic',
+            'name',
             name='topic_unique_constraint'
         ),
     )
@@ -24,7 +24,7 @@ class Topic(Base):
     id = Column(Integer, primary_key=True)
 
     # Topic name.
-    topic = Column(String, nullable=False)
+    name = Column(String, nullable=False)
 
     # The associated domain_id for this topic.
     domain_id = Column(
@@ -51,7 +51,7 @@ class Topic(Base):
     def to_dict(self):
         topic_dict = {
             'topic_id': self.id,
-            'topic': self.topic,
+            'name': self.name,
             'source': None if self.domain is None else self.domain.to_dict(),
             'created_at': self.created_at,
             'updated_at': self.updated_at

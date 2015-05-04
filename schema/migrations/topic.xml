@@ -5,7 +5,7 @@
       <column autoIncrement="true" name="id" type="INT(11)">
         <constraints primaryKey="true"/>
       </column>
-      <column name="topic" type="VARCHAR(255)">
+      <column name="name" type="VARCHAR(255)">
         <constraints nullable="false" unique="true"/>
       </column>
       <column name="domain_id" type="INT(11)">

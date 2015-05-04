@@ -184,7 +184,7 @@
                     "type": "integer",
                     "description": "Topic ID"
                 },
-                "topic": {
+                "name": {
                     "type": "string",
                     "description": "The Kafka topic name."
                 },

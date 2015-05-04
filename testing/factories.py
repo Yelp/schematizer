@@ -68,7 +68,7 @@ class TopicFactory(object):
         updated_at=fake_updated_at
     ):
         return models.Topic(
-            topic=topic_name,
+            name=topic_name,
             domain_id=domain.id,
             created_at=created_at,
             updated_at=updated_at,

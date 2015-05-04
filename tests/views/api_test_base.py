@@ -63,7 +63,7 @@ class TestApiBase(object):
     def topic_response(self):
         return {
             'topic_id': None,
-            'topic': factories.fake_topic_name,
+            'name': factories.fake_topic_name,
             'source': self.source_response,
             'created_at': factories.fake_created_at.isoformat(),
             'updated_at': factories.fake_updated_at.isoformat()
