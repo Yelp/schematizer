@@ -7,7 +7,8 @@ RUN     apt-get update && \
             python-pkg-resources \
             python-setuptools \
             python-virtualenv \
-            python-pip
+            python-pip \
+            git
 
 # uwsgi deps
 RUN     apt-get install -y libyaml-0-2 libxml2 libpython2.6
