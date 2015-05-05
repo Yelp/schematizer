@@ -1,4 +1,6 @@
-.PHONY: all production test itest docs clean
+.PHONY: all production test itest docs clean build-image
+
+DOCKER_TAG ?= schematizer-dev-$(USER)
 
 all: production
 
@@ -12,8 +14,11 @@ test:
 	docker pull docker-dev.yelpcorp.com/mysql-testing:latest
 	tox -e py
 
-itest:
+itest: build-image
 	tox -e acceptance
+
+build-image:
+	docker build -t $(DOCKER_TAG) .
 
 clean:
 	rm -rf docs/build
