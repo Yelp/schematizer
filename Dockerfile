@@ -28,5 +28,5 @@ ADD     . /code
 
 WORKDIR /code
 ENV     BASEPATH /code
-CMD     /code/virtualenv_run/bin/python /code/serviceinit.d/schematizer start-dev
+CMD     PORT=8888 /code/virtualenv_run/bin/python /code/serviceinit.d/schematizer start-no-daemon
 EXPOSE  8888
