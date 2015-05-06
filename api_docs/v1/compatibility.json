@@ -50,7 +50,7 @@
             "operations": [
                 {
                     "method": "POST",
-                    "summary": "Check if the Avro schema derived from the given MySQL statements is both backward and forward compatible with all the enabled schemas of the same topic.",
+                    "summary": "Check if the Avro schema derived from the MySQL statements is compatible with all the enabled schemas of the same topic.",
                     "notes": "Compatibility means the input schema should be able to deserialize data serialized by existing schemas within the same topic and vice versa.",
                     "type": "boolean",
                     "nickname": "is_mysql_schema_compatible",
