@@ -114,9 +114,6 @@ class RedshiftChar(RedshiftString):
 
     type_name = 'char'
 
-    def __init__(self, length):
-        super(RedshiftChar, self).__init__(length)
-
 
 class RedshiftCharacter(RedshiftChar):
 
@@ -139,9 +136,6 @@ class RedshiftBPChar(RedshiftChar):
 class RedshiftVarChar(RedshiftString):
 
     type_name = 'varchar'
-
-    def __init__(self, length):
-        super(RedshiftVarChar, self).__init__(length)
 
 
 class RedshiftCharacterVarying(RedshiftVarChar):
