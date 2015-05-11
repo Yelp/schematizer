@@ -8,7 +8,7 @@ class RedshiftSchemaMigration(object):
     Generate push plans that update Redshift schemas. The push plans
     are not actually ran.
 
-    TODO: does it need to validate if schema is compatible?
+    TODO[clin|DATAPIPE-160]: check schema compatibility
     """
 
     def create_simple_push_plan(self, old_table, new_table):
