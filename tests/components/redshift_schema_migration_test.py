@@ -135,7 +135,7 @@ class TestRedshiftSchemaMigration(object):
         assert expected == actual
 
     def test_insert_table_sql_with_no_src_table(self, migration):
-        actual = migration.insert_table_sql(None, self.new_table)
+        actual = migration.insert_table_sql(self.new_table)
         assert '' == actual
 
     def test_insert_table_sql(self, migration):
@@ -146,8 +146,8 @@ class TestRedshiftSchemaMigration(object):
             self.another_old_table.name
         ))
         actual = migration.insert_table_sql(
-            self.another_old_table,
-            self.new_table
+            self.new_table,
+            self.another_old_table
         )
         assert expected == actual
 

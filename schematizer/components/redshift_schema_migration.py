@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import copy
+
 from schematizer.models import redshift_data_types as data_types
 from schematizer.models.sql_entities import MetaDataKey
 
@@ -18,41 +20,48 @@ class RedshiftSchemaMigration(object):
         If the new table name is different from the old table name, the new
         table is created but the old table remains after the data is copied.
 
-        :param old_table: SQLTable object that represents existing Redshift
-        table. None if the table does not exist yet.
-        :param new_table: SQLTable object that represents new Redshift table
+        :param old_table: SQLTable object that represents an existing Redshift
+        table. None if the table does not exist.
+        :param new_table: SQLTable object that represents a new Redshift table
         :return List of Redshift SQL commands
         """
-        update_exist_table = (old_table
-                              and old_table.name == new_table.name)
+        update_existing_table = (old_table
+                                 and old_table.name == new_table.name)
         return (self.get_update_existing_table_push_plan(old_table, new_table)
-                if update_exist_table
-                else self.get_create_new_table_push_plan(old_table, new_table))
+                if update_existing_table
+                else self.get_create_new_table_push_plan(new_table, old_table))
 
-    def get_create_new_table_push_plan(self, old_table, new_table):
+    def get_create_new_table_push_plan(self, new_table, old_table=None):
         """Push plan that either creates the new table when old table does
         not exist, or create the new table and copy data from the old table
         when new table has a different name from the old table.
         """
+        permissions = self.get_permissions(new_table)
+
         plan = list()
         plan.append(self.begin_transaction_sql())
         plan.append(self.create_table_sql(new_table))
-        plan.append(self.insert_table_sql(old_table, new_table))
-        plan.extend(self.grant_permission_sqls(new_table))
+        plan.append(self.insert_table_sql(new_table, old_table))
+        plan.extend(self.grant_permission_sqls(permissions))
         plan.append(self.commit_cmd_sql())
         return plan
 
     def get_update_existing_table_push_plan(self, old_table, new_table):
-        new_table_name = new_table.name
+        permissions = self.get_permissions(new_table)
+        # cloning the object is mainly for code readability; if performance
+        # is affected, temporarily changing new_table.name and reverting it
+        # back will work as well.
+        tmp_table = copy.deepcopy(new_table)
+        tmp_table.name += '_tmp'
         drop_table_name = old_table.name + '_old'
-        new_table.name += '_tmp'
+
         plan = list()
         plan.append(self.begin_transaction_sql())
-        plan.append(self.create_table_sql(new_table))
-        plan.append(self.insert_table_sql(old_table, new_table))
+        plan.append(self.create_table_sql(tmp_table))
+        plan.append(self.insert_table_sql(tmp_table, old_table))
         plan.append(self.rename_table_sql(old_table.name, drop_table_name))
-        plan.append(self.rename_table_sql(new_table.name, new_table_name))
-        plan.extend(self.grant_permission_sqls(new_table))
+        plan.append(self.rename_table_sql(tmp_table.name, new_table.name))
+        plan.extend(self.grant_permission_sqls(permissions))
         plan.append(self.drop_table_sql(drop_table_name))
         plan.append(self.commit_cmd_sql())
         return plan
@@ -124,7 +133,7 @@ class RedshiftSchemaMigration(object):
                 if primary_keys else '')
 
     @classmethod
-    def insert_table_sql(cls, src_table, new_table):
+    def insert_table_sql(cls, new_table, src_table=None):
         if not src_table:
             return ''
 
@@ -161,10 +170,13 @@ class RedshiftSchemaMigration(object):
         )
 
     @classmethod
-    def grant_permission_sqls(cls, table):
+    def get_permissions(cls, table):
+        return table.metadata.get(MetaDataKey.PERMISSION) or []
+
+    @classmethod
+    def grant_permission_sqls(cls, permissions):
         return [cls.grant_permission_sql(permission)
-                for permission
-                in table.metadata.get(MetaDataKey.PERMISSION) or []]
+                for permission in permissions or []]
 
     @classmethod
     def grant_permission_sql(cls, permission):
