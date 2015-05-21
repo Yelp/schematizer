@@ -264,7 +264,7 @@ class TestRedshiftSchemaMigration(object):
         mock_grant_permission
     ):
         expected = ['BEGIN;', 'create', '', 'grant', 'grant', 'COMMIT;']
-        actual = migration.create_simple_push_plan(None, self.new_table)
+        actual = migration.create_simple_push_plan(self.new_table)
 
         assert expected == actual
         assert 1 == mock_create_table.call_count
@@ -281,8 +281,8 @@ class TestRedshiftSchemaMigration(object):
     ):
         expected = ['BEGIN;', 'create', 'insert', 'grant', 'grant', 'COMMIT;']
         actual = migration.create_simple_push_plan(
-            self.another_old_table,
-            self.new_table
+            self.new_table,
+            self.another_old_table
         )
 
         assert expected == actual
@@ -304,8 +304,8 @@ class TestRedshiftSchemaMigration(object):
         expected = ['BEGIN;', 'create', 'insert', 'rename', 'rename',
                     'grant', 'grant', 'drop', 'COMMIT;']
         actual = migration.create_simple_push_plan(
-            self.old_table,
-            self.new_table
+            self.new_table,
+            self.old_table
         )
 
         assert expected == actual

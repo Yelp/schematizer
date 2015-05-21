@@ -11,20 +11,24 @@ class RedshiftSchemaMigration(object):
     are not actually ran.
 
     TODO[clin|DATAPIPE-160]: check schema compatibility
-    TODO[clin|DATAPIPE-174]: handle dropping old table
     """
 
-    def create_simple_push_plan(self, old_table, new_table):
+    def create_simple_push_plan(self, new_table, old_table=None):
         """The generated Redshift table migration push plan will create a new
-        table, copy data from the old table, and drop the old table.
+        table, and when there is an old table, copy data from the old table,
+        and drop the old table.
 
         If the new table name is different from the old table name, the new
         table is created but the old table remains after the data is copied.
 
-        :param old_table: SQLTable object that represents an existing Redshift
-        table. None if the table does not exist.
         :param new_table: SQLTable object that represents a new Redshift table
         :return List of Redshift SQL commands
+        :param old_table: SQLTable object that represents an existing Redshift
+        table. None if the table does not exist.
+
+        Currently the dropping table is left out from the push plan. It is
+        tracked in DATAPIPE-174.
+        TODO[clin|DATAPIPE-174]: handle dropping old table
         """
         update_existing_table = (old_table
                                  and old_table.name == new_table.name)
