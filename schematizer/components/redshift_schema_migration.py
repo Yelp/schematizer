@@ -11,6 +11,7 @@ class RedshiftSchemaMigration(object):
     are not actually ran.
 
     TODO[clin|DATAPIPE-160]: check schema compatibility
+    TODO[clin|DATAPIPE-174]: handle dropping old table
     """
 
     def create_simple_push_plan(self, old_table, new_table):
@@ -86,7 +87,7 @@ class RedshiftSchemaMigration(object):
         default = ''
         if column.default_value is not None:
             default = ' default {0}'.format(
-                cls.convert_none_or_empty_string(column.default_value)
+                cls.convert_none_or_string(column.default_value)
             )
         constraints = cls.concatenate_attributes(column.attributes)
         return '{name} {data_type}{nullable}{default}{attributes}'.format(
@@ -113,16 +114,17 @@ class RedshiftSchemaMigration(object):
     def concatenate_attributes(cls, attributes, delimiter=' '):
         str_list = (('{name} {value}' if attr.has_value else '{name}').format(
             name=attr.name,
-            value=cls.convert_none_or_empty_string(attr.value)
+            value=cls.convert_none_or_string(attr.value)
         ) for attr in attributes)
         return delimiter.join(str_list)
 
     @classmethod
-    def convert_none_or_empty_string(cls, value):
+    def convert_none_or_string(cls, value):
         if value is None:
             return 'null'
-        if value == '':
-            return '\'\''
+        if isinstance(value, basestring):
+            new_value = value.replace('\'', '\\\'')
+            return '\'{0}\''.format(new_value)
         return value
 
     @classmethod

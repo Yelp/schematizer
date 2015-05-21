@@ -128,9 +128,10 @@ class TestRedshiftSchemaMigration(object):
             SQLAttribute('attr1', None, False),
             SQLAttribute('attr2', '', True),
             SQLAttribute('attr3', None, True),
-            SQLAttribute('attr4', 1.2, True)
+            SQLAttribute('attr4', 1.2, True),
+            SQLAttribute('attr5', "let's test", True)
         ]
-        expected = 'attr1 attr2 \'\' attr3 null attr4 1.2'
+        expected = "attr1 attr2 '' attr3 null attr4 1.2 attr5 'let\\'s test'"
         actual = migration.concatenate_attributes(attributes)
         assert expected == actual
 
