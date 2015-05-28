@@ -126,7 +126,8 @@ class TestRegisterSchema(TestSchemasViewBase):
             schema_views.register_schema(mock_request)
 
         assert expected_exception.code == e.value.code
-        assert "JSONDecodeError('Expecting value: line 1 column 1 (char 0)',)" == str(e.value)
+        assert "JSONDecodeError('Expecting value: line 1 column 1 (char 0)',)"\
+               == str(e.value)
 
     def test_register_schema_with_avro_exception(
         self,
