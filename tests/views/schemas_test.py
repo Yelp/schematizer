@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
+import simplejson
 from avro import schema
 
 from schematizer.api.exceptions import exceptions_v1
@@ -93,7 +94,8 @@ class TestRegisterSchema(TestSchemasViewBase):
         assert self.schema_response == actual
         self.assert_mock_create_schema_func_call(
             mock_repo,
-            base_schema_id=None
+            base_schema_id=None,
+            avro_schema_json=simplejson.loads(factories.fake_avro_schema),
         )
 
     @pytest.mark.usefixtures('setup_mock_create_schema_func')
@@ -106,7 +108,25 @@ class TestRegisterSchema(TestSchemasViewBase):
             {'base_schema_id': factories.fake_base_schema_id}
         )
         assert self.schema_response == actual
-        self.assert_mock_create_schema_func_call(mock_repo)
+        self.assert_mock_create_schema_func_call(
+            mock_repo,
+            avro_schema_json=simplejson.loads(factories.fake_avro_schema),
+        )
+
+    def test_register_schema_with_json_exception(
+        self,
+        mock_request,
+        mock_repo
+    ):
+        mock_request.json_body = self.request_json
+        mock_request.json_body['schema'] = 'Not valid json!%#!#$#'
+        expected_exception = self.get_http_exception(422)
+
+        with pytest.raises(expected_exception) as e:
+            schema_views.register_schema(mock_request)
+
+        assert expected_exception.code == e.value.code
+        assert "JSONDecodeError('Expecting value: line 1 column 1 (char 0)',)" == str(e.value)
 
     def test_register_schema_with_avro_exception(
         self,
