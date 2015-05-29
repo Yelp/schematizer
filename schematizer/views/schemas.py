@@ -31,13 +31,8 @@ def get_schema_by_id(request):
 )
 @transform_response()
 def register_schema(request):
-    req = requests_v1.RegisterSchemaRequest(**request.json_body)
-
-    # _register_avro_schema expects req.schema to be a json object, but this
-    # route specifies req.schema to be a json object dumped as a string so
-    # first we must load the json object from the string
     try:
-        req.schema = simplejson.loads(req.schema)
+        req = requests_v1.RegisterSchemaRequest(**request.json_body)
     except simplejson.JSONDecodeError as e:
         raise exceptions_v1.invalid_schema_exception(repr(e))
     return _register_avro_schema(req)

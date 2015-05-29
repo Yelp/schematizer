@@ -15,7 +15,10 @@ class RegisterSchemaRequest(RequestBase):
     def __init__(self, schema, namespace, source, source_owner_email,
                  base_schema_id=None):
         super(RegisterSchemaRequest, self).__init__()
-        self.schema = schema
+        if isinstance(schema, basestring):
+            self.schema = simplejson.loads(schema)
+        else:
+            self.schema = schema
         self.namespace = namespace
         self.source = source
         self.source_owner_email = source_owner_email

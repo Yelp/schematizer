@@ -47,6 +47,22 @@ class TestAvroSchemaCompatibility(TestCompatibilityViewBase):
             factories.fake_source
         )
 
+    def test_compatible_schema_with_json_exception(
+        self,
+        mock_request,
+        mock_repo
+    ):
+        mock_request.json_body = self.request_json
+        mock_request.json_body['schema'] = 'Not valid json!%#!#$#'
+        expected_exception = self.get_http_exception(422)
+
+        with pytest.raises(expected_exception) as e:
+            compatibility_views.is_avro_schema_compatible(mock_request)
+
+        assert expected_exception.code == e.value.code
+        assert "JSONDecodeError('Expecting value: line 1 column 1 (char 0)',)"\
+               == str(e.value)
+
     def test_compatible_schema_with_avro_exception(
         self,
         mock_request,
