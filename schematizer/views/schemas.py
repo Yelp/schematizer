@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import simplejson
 from avro import schema
 from pyramid.view import view_config
-import simplejson
 
 from schematizer.api.decorators import transform_response
 from schematizer.api.exceptions import exceptions_v1

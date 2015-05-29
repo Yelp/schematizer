@@ -21,7 +21,7 @@ class TestSchemasViewBase(TestApiBase):
 
     def assert_mock_create_schema_func_call(self, mock_repo, **param_override):
         expected_call_args = {
-            'avro_schema_json': factories.fake_avro_schema,
+            'avro_schema_json': simplejson.loads(factories.fake_avro_schema),
             'namespace': factories.fake_namespace,
             'source': factories.fake_source,
             'domain_email_owner': factories.fake_owner_email,
@@ -95,7 +95,6 @@ class TestRegisterSchema(TestSchemasViewBase):
         self.assert_mock_create_schema_func_call(
             mock_repo,
             base_schema_id=None,
-            avro_schema_json=simplejson.loads(factories.fake_avro_schema),
         )
 
     @pytest.mark.usefixtures('setup_mock_create_schema_func')
@@ -110,7 +109,6 @@ class TestRegisterSchema(TestSchemasViewBase):
         assert self.schema_response == actual
         self.assert_mock_create_schema_func_call(
             mock_repo,
-            avro_schema_json=simplejson.loads(factories.fake_avro_schema),
         )
 
     def test_register_schema_with_json_exception(
