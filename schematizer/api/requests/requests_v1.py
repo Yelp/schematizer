@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import simplejson
+from yelp_lib.classutil import cached_property
+
+from schematizer.api.exceptions import exceptions_v1
 
 
 class RequestBase(object):
@@ -10,15 +13,25 @@ class RequestBase(object):
         return cls(**request_json)
 
 
-class RegisterSchemaRequest(RequestBase):
+class AvroSchemaRequestBase(RequestBase):
+
+    def __init__(self, schema):
+        super(AvroSchemaRequestBase, self).__init__()
+        self.schema = schema
+
+    @cached_property
+    def schema_json(self):
+        try:
+            return simplejson.loads(self.schema) if self.schema else None
+        except simplejson.JSONDecodeError as e:
+            raise exceptions_v1.invalid_schema_exception(repr(e))
+
+
+class RegisterSchemaRequest(AvroSchemaRequestBase):
 
     def __init__(self, schema, namespace, source, source_owner_email,
                  base_schema_id=None):
-        super(RegisterSchemaRequest, self).__init__()
-        if isinstance(schema, basestring):
-            self.schema = simplejson.loads(schema)
-        else:
-            self.schema = schema
+        super(RegisterSchemaRequest, self).__init__(schema=schema)
         self.namespace = namespace
         self.source = source
         self.source_owner_email = source_owner_email
@@ -36,17 +49,12 @@ class RegisterSchemaFromMySqlRequest(RequestBase):
         self.source_owner_email = source_owner_email
 
 
-class AvroSchemaCompatibilityRequest(RequestBase):
+class AvroSchemaCompatibilityRequest(AvroSchemaRequestBase):
 
     def __init__(self, schema, namespace, source):
-        super(AvroSchemaCompatibilityRequest, self).__init__()
-        self.schema = schema
+        super(AvroSchemaCompatibilityRequest, self).__init__(schema=schema)
         self.namespace = namespace
         self.source = source
-
-    @property
-    def schema_json(self):
-        return simplejson.loads(self.schema) if self.schema else None
 
 
 class MysqlSchemaCompatibilityRequest(RequestBase):

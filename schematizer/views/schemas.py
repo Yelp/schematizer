@@ -31,10 +31,7 @@ def get_schema_by_id(request):
 )
 @transform_response()
 def register_schema(request):
-    try:
-        req = requests_v1.RegisterSchemaRequest(**request.json_body)
-    except simplejson.JSONDecodeError as e:
-        raise exceptions_v1.invalid_schema_exception(repr(e))
+    req = requests_v1.RegisterSchemaRequest(**request.json_body)
     return _register_avro_schema(req)
 
 
@@ -50,8 +47,9 @@ def register_schema_from_mysql_stmts(request):
         req.mysql_statements,
         schema_repository
     )
+    schema = simplejson.dumps(avro_schema_json)
     return _register_avro_schema(requests_v1.RegisterSchemaRequest(
-        schema=avro_schema_json,
+        schema=schema,
         namespace=req.namespace,
         source=req.source,
         source_owner_email=req.source_owner_email
@@ -61,7 +59,7 @@ def register_schema_from_mysql_stmts(request):
 def _register_avro_schema(req):
     try:
         return schema_repository.create_avro_schema_from_avro_json(
-            avro_schema_json=req.schema,
+            avro_schema_json=req.schema_json,
             namespace=req.namespace,
             source=req.source,
             domain_email_owner=req.source_owner_email,

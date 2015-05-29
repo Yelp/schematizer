@@ -49,8 +49,7 @@ class TestAvroSchemaCompatibility(TestCompatibilityViewBase):
 
     def test_compatible_schema_with_json_exception(
         self,
-        mock_request,
-        mock_repo
+        mock_request
     ):
         mock_request.json_body = self.request_json
         mock_request.json_body['schema'] = 'Not valid json!%#!#$#'

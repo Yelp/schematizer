@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import simplejson
 from avro import schema
 from pyramid.view import view_config
 
@@ -17,15 +16,12 @@ from schematizer.views import view_common
 )
 @transform_response()
 def is_avro_schema_compatible(request):
-    try:
-        req = requests_v1.AvroSchemaCompatibilityRequest(**request.json_body)
-        return _is_schema_compatible(
-            req.schema_json,
-            req.namespace,
-            req.source
-        )
-    except simplejson.JSONDecodeError as e:
-        raise exceptions_v1.invalid_schema_exception(repr(e))
+    req = requests_v1.AvroSchemaCompatibilityRequest(**request.json_body)
+    return _is_schema_compatible(
+        req.schema_json,
+        req.namespace,
+        req.source
+    )
 
 
 @view_config(

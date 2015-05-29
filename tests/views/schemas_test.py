@@ -160,7 +160,7 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
 
     @property
     def converted_schema(self):
-        return simplejson.loads(factories.fake_avro_schema)
+        return 'converted avro schema'
 
     @pytest.mark.usefixtures(
         'setup_mock_request_json_body',
