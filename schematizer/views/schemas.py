@@ -41,7 +41,12 @@ def register_schema(request):
             base_schema_id=req.base_schema_id
         )
     except simplejson.JSONDecodeError as e:
-        raise exceptions_v1.invalid_schema_exception(repr(e))
+        raise exceptions_v1.invalid_schema_exception(
+            'Error "{error}" encountered decoding JSON: "{schema}"'.format(
+                error=str(e),
+                schema=request.json_body['schema']
+            )
+        )
 
 
 @view_config(
