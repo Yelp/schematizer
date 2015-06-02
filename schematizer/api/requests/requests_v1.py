@@ -2,8 +2,6 @@
 import simplejson
 from yelp_lib.classutil import cached_property
 
-from schematizer.api.exceptions import exceptions_v1
-
 
 class RequestBase(object):
 
@@ -13,29 +11,20 @@ class RequestBase(object):
         return cls(**request_json)
 
 
-class AvroSchemaRequestBase(RequestBase):
-
-    def __init__(self, schema):
-        super(AvroSchemaRequestBase, self).__init__()
-        self.schema = schema
-
-    @cached_property
-    def schema_json(self):
-        try:
-            return simplejson.loads(self.schema) if self.schema else None
-        except simplejson.JSONDecodeError as e:
-            raise exceptions_v1.invalid_schema_exception(repr(e))
-
-
-class RegisterSchemaRequest(AvroSchemaRequestBase):
+class RegisterSchemaRequest(RequestBase):
 
     def __init__(self, schema, namespace, source, source_owner_email,
                  base_schema_id=None):
-        super(RegisterSchemaRequest, self).__init__(schema=schema)
+        super(RegisterSchemaRequest, self).__init__()
+        self.schema = schema
         self.namespace = namespace
         self.source = source
         self.source_owner_email = source_owner_email
         self.base_schema_id = base_schema_id
+
+    @cached_property
+    def schema_json(self):
+        return simplejson.loads(self.schema) if self.schema else None
 
 
 class RegisterSchemaFromMySqlRequest(RequestBase):
@@ -49,12 +38,17 @@ class RegisterSchemaFromMySqlRequest(RequestBase):
         self.source_owner_email = source_owner_email
 
 
-class AvroSchemaCompatibilityRequest(AvroSchemaRequestBase):
+class AvroSchemaCompatibilityRequest(RequestBase):
 
     def __init__(self, schema, namespace, source):
-        super(AvroSchemaCompatibilityRequest, self).__init__(schema=schema)
+        super(AvroSchemaCompatibilityRequest, self).__init__()
+        self.schema = schema
         self.namespace = namespace
         self.source = source
+
+    @cached_property
+    def schema_json(self):
+        return simplejson.loads(self.schema) if self.schema else None
 
 
 class MysqlSchemaCompatibilityRequest(RequestBase):
