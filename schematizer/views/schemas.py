@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import simplejson
 from avro import schema
 from pyramid.view import view_config
 
@@ -30,8 +31,22 @@ def get_schema_by_id(request):
 )
 @transform_response()
 def register_schema(request):
-    req = requests_v1.RegisterSchemaRequest(**request.json_body)
-    return _register_avro_schema(req)
+    try:
+        req = requests_v1.RegisterSchemaRequest(**request.json_body)
+        return _register_avro_schema(
+            schema_json=req.schema_json,
+            namespace=req.namespace,
+            source=req.source,
+            domain_email_owner=req.source_owner_email,
+            base_schema_id=req.base_schema_id
+        )
+    except simplejson.JSONDecodeError as e:
+        raise exceptions_v1.invalid_schema_exception(
+            'Error "{error}" encountered decoding JSON: "{schema}"'.format(
+                error=str(e),
+                schema=request.json_body['schema']
+            )
+        )
 
 
 @view_config(
@@ -46,22 +61,23 @@ def register_schema_from_mysql_stmts(request):
         req.mysql_statements,
         schema_repository
     )
-    return _register_avro_schema(requests_v1.RegisterSchemaRequest(
-        schema=avro_schema_json,
+    return _register_avro_schema(
+        schema_json=avro_schema_json,
         namespace=req.namespace,
         source=req.source,
-        source_owner_email=req.source_owner_email
-    ))
+        domain_email_owner=req.source_owner_email
+    )
 
 
-def _register_avro_schema(req):
+def _register_avro_schema(schema_json, namespace, source,
+                          domain_email_owner, base_schema_id=None):
     try:
         return schema_repository.create_avro_schema_from_avro_json(
-            avro_schema_json=req.schema,
-            namespace=req.namespace,
-            source=req.source,
-            domain_email_owner=req.source_owner_email,
-            base_schema_id=req.base_schema_id
+            avro_schema_json=schema_json,
+            namespace=namespace,
+            source=source,
+            domain_email_owner=domain_email_owner,
+            base_schema_id=base_schema_id
         ).to_dict()
     except schema.AvroException as e:
         raise exceptions_v1.invalid_schema_exception(e.message)
