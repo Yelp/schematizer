@@ -23,7 +23,8 @@ repoze.lru==0.6
 requests==2.5.1
 simplejson==3.6.5
 six==1.8.0
-sqlparse==0.1.13
+-e git://github.com/changsi/sqlparse.git@e624a6a924d1be5e79db2e855d2774004a767ccf#egg=sqlparse
+#sqlparse==0.1.13
 thriftpy==0.1.15
 tornado==2.4.1
 translationstring==1.3

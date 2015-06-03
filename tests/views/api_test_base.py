@@ -119,8 +119,8 @@ class TestApiBase(object):
     @pytest.yield_fixture
     def mock_create_sql_table_from_mysql_stmts(self):
         patch_name = (self.test_view_module +
-                      '.view_common.mysql_handlers'
-                      '.create_sql_table_from_mysql_stmts')
+                      '.view_common.sql_handler'
+                      '.create_sql_table_from_sql_stmts')
         with mock.patch(patch_name) as mock_func:
             yield mock_func
 
