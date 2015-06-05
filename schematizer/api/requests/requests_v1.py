@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import simplejson
+from yelp_lib.classutil import cached_property
 
 
 class RequestBase(object):
@@ -21,6 +22,10 @@ class RegisterSchemaRequest(RequestBase):
         self.source_owner_email = source_owner_email
         self.base_schema_id = base_schema_id
 
+    @cached_property
+    def schema_json(self):
+        return simplejson.loads(self.schema) if self.schema else None
+
 
 class RegisterSchemaFromMySqlRequest(RequestBase):
 
@@ -41,7 +46,7 @@ class AvroSchemaCompatibilityRequest(RequestBase):
         self.namespace = namespace
         self.source = source
 
-    @property
+    @cached_property
     def schema_json(self):
         return simplejson.loads(self.schema) if self.schema else None
 
