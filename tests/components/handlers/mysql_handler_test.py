@@ -131,20 +131,22 @@ class TestBuildFromFinalCreateTableOnly(object):
         handler._builders = [mysql_handler.BuildFromFinalCreateTableOnly]
         return handler
 
-    def run_type_test(self, handler, create_definitions, expected_columns):
+    def assert_sql_table_equal_with_create_defs(
+        self,
+        handler,
+        create_definitions,
+        expected_columns
+    ):
         sql = self.build_create_table_sql(create_definitions)
-        sql_table = handler.create_sql_table_from_sql_stmts([sql])
-        self.assert_sql_table_equal(expected_columns, sql_table)
+        actual_table = handler.create_sql_table_from_sql_stmts([sql])
+        expected_table = SQLTable(self.table_name, expected_columns)
+        assert expected_table == actual_table
 
     def build_create_table_sql(self, create_definitions):
         return 'CREATE TABLE `{table}` ({definitions});'.format(
             table=self.table_name,
             definitions=','.join(create_definitions)
         )
-
-    def assert_sql_table_equal(self, expected_columns, actual_table):
-        expected_table = SQLTable(self.table_name, expected_columns)
-        assert expected_table == actual_table
 
     def test_run_with_integer_type(self, handler):
         create_definition = '`bar` int(4) not null unsigned'
@@ -153,7 +155,11 @@ class TestBuildFromFinalCreateTableOnly(object):
             data_types.MySQLInt(4, unsigned=True),
             is_nullable=False,
         )
-        self.run_type_test(handler, [create_definition], [expected_column])
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
 
     def test_run_with_real_number_type(self, handler):
         create_definition = 'bar decimal(10, 2) default 0.0 unsigned,'
@@ -162,7 +168,11 @@ class TestBuildFromFinalCreateTableOnly(object):
             data_types.MySQLDecimal(10, 2, unsigned=True),
             default_value='0.0'
         )
-        self.run_type_test(handler, [create_definition], [expected_column])
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
 
     def test_run_with_string_type(self, handler):
         create_definition = 'bar char(3) not null'
@@ -171,11 +181,19 @@ class TestBuildFromFinalCreateTableOnly(object):
             data_types.MySQLChar(3),
             is_nullable=False,
         )
-        self.run_type_test(handler, [create_definition], [expected_column])
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
 
         create_definition = 'bar varchar(255) null'
         expected_column = SQLColumn('bar', data_types.MySQLVarChar(255))
-        self.run_type_test(handler, [create_definition], [expected_column])
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
 
         create_definition = ('bar text CHARACTER SET latin1 '
                              'COLLATE latin1_german1_ci,')
@@ -186,7 +204,11 @@ class TestBuildFromFinalCreateTableOnly(object):
                 collate='latin1_german1_ci'
             ),
         )
-        self.run_type_test(handler, [create_definition], [expected_column])
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
 
     def test_run_with_datetime_type(self, handler):
         create_definition = 'bar timestamp default 10 not null'
@@ -196,20 +218,36 @@ class TestBuildFromFinalCreateTableOnly(object):
             default_value='10',
             is_nullable=False
         )
-        self.run_type_test(handler, [create_definition], [expected_column])
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
 
         create_definition = 'bar datetime null'
         expected_column = SQLColumn('bar', data_types.MySQLDateTime())
-        self.run_type_test(handler, [create_definition], [expected_column])
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
 
     def test_run_with_binary_type(self, handler):
         create_definition = 'bar binary(64)'
         expected_column = SQLColumn('bar', data_types.MySQLBinary(64))
-        self.run_type_test(handler, [create_definition], [expected_column])
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
 
         create_definition = 'bar blob null'
         expected_column = SQLColumn('bar', data_types.MySQLBlob())
-        self.run_type_test(handler, [create_definition], [expected_column])
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
 
     def test_run_with_enum_type(self, handler):
         create_definition = 'bar enum (a1, a2, a3) character set latin1'
@@ -217,7 +255,11 @@ class TestBuildFromFinalCreateTableOnly(object):
             'bar',
             data_types.MySQLEnum(['a1', 'a2', 'a3']),
         )
-        self.run_type_test(handler, [create_definition], [expected_column])
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
 
     def test_run_with_primary_keys(self, handler):
         create_definitions = [
@@ -241,7 +283,11 @@ class TestBuildFromFinalCreateTableOnly(object):
             ),
             SQLColumn('tag', data_types.MySQLChar(3))
         ]
-        self.run_type_test(handler, create_definitions, expected_columns)
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            create_definitions,
+            expected_columns
+        )
 
     def test_run_with_set_type(self, handler):
         create_definition = 'bar set (a1, a2, a3) character set latin1'
@@ -249,7 +295,11 @@ class TestBuildFromFinalCreateTableOnly(object):
             'bar',
             data_types.MySQLSet(['a1', 'a2', 'a3']),
         )
-        self.run_type_test(handler, [create_definition], [expected_column])
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
 
     def test_create_sql_table_from_sql_stmts_with_multi_sqls(self, handler):
         sql_table = handler.create_sql_table_from_sql_stmts(
