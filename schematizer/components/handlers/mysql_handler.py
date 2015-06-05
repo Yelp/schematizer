@@ -193,17 +193,6 @@ class BuildFromFinalCreateTableOnly(SQLTableBuilderBase):
         if not issubclass(col_type_cls, data_types.MySQLDateAndTime):
             return None
 
-        dt_types_with_fsp = (
-            data_types.MySQLTime,
-            data_types.MySQLTimestamp,
-            data_types.MySQLDateTime,
-        )
-        if col_type_cls in dt_types_with_fsp:
-            token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
-            token = (token.token_next_by_type(0, T.Number.Integer)
-                     if token else None)
-            fsp = token.value if token else None
-            return col_type_cls(fsp=fsp)
         return col_type_cls()
 
     def _create_enum_type(self, col_type_cls, col_token):

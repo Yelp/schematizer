@@ -9,12 +9,24 @@ from schematizer.components.handlers import sql_handler_base
 
 class TestSQLHandler(object):
 
-    def test_create_sql_table_from_sql_stmts(self):
+    @pytest.fixture
+    def raw_sql(self):
+        return mock.Mock()
+
+    @pytest.fixture
+    def parsed_sql(self):
+        return mock.Mock()
+
+    def test_create_sql_table_from_sql_stmts_for_mysql_dialect(
+        self,
+        raw_sql,
+        parsed_sql
+    ):
         with contextlib.nested(
             mock.patch.object(
                 sql_handler.MySQLHandler,
                 '_parse',
-                return_value=mock.Mock()
+                return_value=parsed_sql
             ),
             mock.patch.object(
                 sql_handler.MySQLHandler,
@@ -22,15 +34,19 @@ class TestSQLHandler(object):
                 return_value=mock.Mock()
             )
         ) as (mock_parse_func, mock_create_func):
-            sql = mock.Mock()
             sql_handler.create_sql_table_from_sql_stmts(
-                [sql],
+                [raw_sql],
                 sql_handler_base.SQLDialect.MySQL
             )
-            mock_parse_func.assert_called_once_with(sql)
+            mock_parse_func.assert_called_once_with(raw_sql)
+            mock_create_func.assert_called_once_with([parsed_sql])
 
-    def test_create_sql_table_from_sql_stmts_with_unsupported_dialetct(self):
+    def test_create_sql_table_from_sql_stmts_with_unsupported_dialect(
+        self,
+        raw_sql
+    ):
         with pytest.raises(sql_handler_base.SQLHandlerException):
             sql_handler.create_sql_table_from_sql_stmts(
+                [raw_sql],
                 mock.Mock()
             )

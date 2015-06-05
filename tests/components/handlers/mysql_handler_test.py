@@ -6,6 +6,7 @@ from schematizer.components.handlers import mysql_handler
 from schematizer.components.handlers import sql_handler_base
 from schematizer.models import mysql_data_types as data_types
 from schematizer.models.sql_entities import SQLColumn
+from schematizer.models.sql_entities import SQLTable
 
 
 class TestMySQLHandler(object):
@@ -74,8 +75,8 @@ class TestMySQLHandler(object):
             )
 
     @property
-    def create_table_sql(self):
-        return ('CREATE TABLE `foo_tbl` ('
+    def create_table_foo_sql(self):
+        return ('CREATE TABLE `foo` ('
                 '`id` int(11) auto_increment not null, '
                 'name varchar(255) null,'
                 'amount decimal(10, 2) default 0.0 unsigned,'
@@ -83,65 +84,52 @@ class TestMySQLHandler(object):
                 'unique index (pid)'
                 ');')
 
-    def test_create_sql_table_from_sql_stmts(self, handler):
-        sql_table = handler.create_sql_table_from_sql_stmts(
-            [self.create_table_sql]
-        )
-        assert 'foo_tbl' == sql_table.name
-
-        expected_column = SQLColumn(
+    @property
+    def expected_sql_table_foo(self):
+        column_id = SQLColumn(
             'id',
             data_types.MySQLInt(11),
             is_primary_key=True,
             is_nullable=False
         )
-        assert expected_column == sql_table.columns[0]
-
-        expected_column = SQLColumn('name', data_types.MySQLVarChar(255))
-        assert expected_column == sql_table.columns[1]
-
-        expected_column = SQLColumn(
+        column_name = SQLColumn('name', data_types.MySQLVarChar(255))
+        column_amount = SQLColumn(
             'amount',
             data_types.MySQLDecimal(10, 2, unsigned=True),
             default_value='0.0'
         )
-        assert expected_column == sql_table.columns[2]
+        return SQLTable('foo', [column_id, column_name, column_amount])
+
+    def test_create_sql_table_from_sql_stmts(self, handler):
+        sql_table = handler.create_sql_table_from_sql_stmts(
+            [self.create_table_foo_sql]
+        )
+        assert self.expected_sql_table_foo == sql_table
 
 
 class TestBuildFromFinalCreateTableOnly(object):
 
     @property
+    def table_name(self):
+        return 'foo'
+
+    @property
     def create_table_sql(self):
-        return 'CREATE TABLE `foo_tbl` (`id` int(11) not null);'
+        return 'CREATE TABLE `{0}` (`id` int(11) not null);'.format(
+            self.table_name
+        )
 
     @property
     def alter_table_sql(self):
-        return 'ALTER TABLE `foo_tbl` add `color` varchar(16);'
+        return 'ALTER TABLE `{0}` add `color` varchar(16);'.format(
+            self.table_name
+        )
 
     @pytest.fixture
     def handler(self):
         handler = mysql_handler.MySQLHandler()
         handler._builders = [mysql_handler.BuildFromFinalCreateTableOnly]
         return handler
-
-    def test_run(self, handler):
-        sql_table = handler.create_sql_table_from_sql_stmts(
-            [self.create_table_sql]
-        )
-
-        assert 'foo_tbl' == sql_table.name
-        assert 1 == len(sql_table.columns)
-
-        expected_column = SQLColumn(
-            'id',
-            data_types.MySQLInt(11),
-            is_nullable=False
-        )
-        assert expected_column == sql_table.columns[0]
-
-    @property
-    def table_name(self):
-        return 'foo'
 
     def run_type_test(self, handler, create_definitions, expected_columns):
         sql = self.build_create_table_sql(create_definitions)
@@ -155,10 +143,8 @@ class TestBuildFromFinalCreateTableOnly(object):
         )
 
     def assert_sql_table_equal(self, expected_columns, actual_table):
-        assert self.table_name == actual_table.name
-        assert len(expected_columns) == len(actual_table.columns)
-        for i, expected_column in enumerate(expected_columns):
-            assert expected_column == actual_table.columns[i]
+        expected_table = SQLTable(self.table_name, expected_columns)
+        assert expected_table == actual_table
 
     def test_run_with_integer_type(self, handler):
         create_definition = '`bar` int(4) not null unsigned'
@@ -212,11 +198,8 @@ class TestBuildFromFinalCreateTableOnly(object):
         )
         self.run_type_test(handler, [create_definition], [expected_column])
 
-        create_definition = 'bar datetime(3)'
-        expected_column = SQLColumn(
-            'bar',
-            data_types.MySQLDateTime(fsp=3),
-        )
+        create_definition = 'bar datetime null'
+        expected_column = SQLColumn('bar', data_types.MySQLDateTime())
         self.run_type_test(handler, [create_definition], [expected_column])
 
     def test_run_with_binary_type(self, handler):
@@ -268,6 +251,18 @@ class TestBuildFromFinalCreateTableOnly(object):
         )
         self.run_type_test(handler, [create_definition], [expected_column])
 
+    def test_create_sql_table_from_sql_stmts_with_multi_sqls(self, handler):
+        sql_table = handler.create_sql_table_from_sql_stmts(
+            [self.alter_table_sql, self.create_table_sql]
+        )
+        expected_column = SQLColumn(
+            'id',
+            data_types.MySQLInt(11),
+            is_nullable=False
+        )
+        expected_table = SQLTable(self.table_name, [expected_column])
+        assert expected_table == sql_table
+
     def test_create_sql_table_from_sql_stmts_with_non_create_table_sql(
         self,
         handler
@@ -279,9 +274,9 @@ class TestBuildFromFinalCreateTableOnly(object):
 
     def test_create_sql_table_from_sql_stmts_with_invalid_sql(self, handler):
         sql = 'CREATE TABLE `foo_tbl` `id` int(11) auto_increment;'
-        sql_table = handler.create_sql_table_from_sql_stmts([sql])
-        assert 'foo_tbl' == sql_table.name
-        assert 0 == len(sql_table.columns)
+        with pytest.raises(sql_handler_base.SQLHandlerException) as e:
+            handler.create_sql_table_from_sql_stmts([sql])
+        assert str(e.value).startswith('No column exists in the table.')
 
         sql = 'CREATE TABLE `foo_tbl` (id integer(11));'
         with pytest.raises(sql_handler_base.SQLHandlerException) as e:

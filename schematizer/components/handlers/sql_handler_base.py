@@ -19,7 +19,12 @@ class SQLHandlerBase(object):
         SQL dialect, and generate the corresponding SQLTable object.
         """
         parsed_sqls = [self._parse(sql) for sql in sqls]
-        return self._create_sql_table(parsed_sqls)
+        table = self._create_sql_table(parsed_sqls)
+        if not table.columns:
+            raise SQLHandlerException(
+                "No column exists in the table. Raw sqls: {0}".format(sqls)
+            )
+        return table
 
     def _parse(self, sql):
         raise NotImplementedError()
