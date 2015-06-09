@@ -4,7 +4,6 @@ This module contains the Redshift specific column data types. Refer to
 http://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html
 for data types definition.
 """
-from collections import namedtuple
 
 from schematizer.models.sql_entities import SQLColumnDataType
 
@@ -179,9 +178,3 @@ class RedshiftBoolean(SQLColumnDataType):
 class RedshiftBool(RedshiftBoolean):
 
     type_name = 'bool'
-
-
-DbPermission = namedtuple(
-    'DbPermission',
-    'object_name for_user_group user_or_group_name permission'
-)

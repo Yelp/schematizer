@@ -190,7 +190,7 @@ class RedshiftSchemaMigration(object):
             permission=permission.permission,
             object=permission.object_name,
             target=('GROUP {0}'.format(permission.user_or_group_name)
-                    if permission.for_user_group
+                    if permission.for_group
                     else permission.user_or_group_name)
         )
 
