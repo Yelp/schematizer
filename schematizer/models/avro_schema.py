@@ -80,5 +80,5 @@ class AvroSchema(Base):
         # Since swagger cannot take null or None value for integer type,
         # here we just simply strip out this field.
         if self.base_schema_id is not None:
-            avro_schema_dict['base_schema_id'] = self.base_schema_id,
+            avro_schema_dict['base_schema_id'] = self.base_schema_id
         return avro_schema_dict
