@@ -3,7 +3,6 @@
 This module contains the internal data structure to hold the information
 of parsed SQL schemas.
 """
-from collections import namedtuple
 
 
 class SQLTable(object):
@@ -62,7 +61,23 @@ class SQLColumn(object):
                 and self.metadata == other.metadata)
 
 
-SQLAttribute = namedtuple('SQLAttribute', 'name value has_value')
+class SQLAttribute(object):
+    """Class that holds the sql attributes in the table/column definitions,
+    such as column default value, nullable property, character set, etc.
+    """
+
+    def __init__(self, name):
+        self.name = name
+        self.value = None
+        self.has_value = False
+
+    @classmethod
+    def create_with_value(cls, name, value):
+        attribute = SQLAttribute(name)
+        attribute.name = name
+        attribute.value = value
+        attribute.has_value = True
+        return attribute
 
 
 class SQLColumnDataType(object):
@@ -93,3 +108,18 @@ class MetaDataKey(object):
     NAMESPACE = 'namespace'
     ALIASES = 'aliases'
     PERMISSION = 'permission'
+
+
+class DbPermission(object):
+
+    def __init__(
+        self,
+        object_name,
+        user_or_group_name,
+        permission,
+        for_group=False
+    ):
+        self.object_name = object_name
+        self.user_or_group_name = user_or_group_name
+        self.permission = permission
+        self.for_group = for_group

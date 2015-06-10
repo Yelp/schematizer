@@ -12,8 +12,7 @@ class MySQLInteger(SQLColumnDataType):
     """Base class for MySQL integer data type"""
 
     def __init__(self, length, unsigned=False):
-        attributes = ([SQLAttribute('unsigned', None, False)]
-                      if unsigned else None)
+        attributes = ([SQLAttribute('unsigned')] if unsigned else None)
         super(MySQLInteger, self).__init__(attributes)
         self.length = length
 
@@ -51,8 +50,7 @@ class MySQLRealNumber(SQLColumnDataType):
     """Base class for MySQL real number data types"""
 
     def __init__(self, precision, scale, unsigned=False):
-        attributes = ([SQLAttribute('unsigned', None, False)]
-                      if unsigned else None)
+        attributes = ([SQLAttribute('unsigned')] if unsigned else None)
         super(MySQLRealNumber, self).__init__(attributes)
         self.precision = precision
         self.scale = scale
@@ -94,13 +92,17 @@ class MySQLString(SQLColumnDataType):
         attributes = None
         if binary:
             attributes = attributes or []
-            attributes.append(SQLAttribute('binary', None, False))
+            attributes.append(SQLAttribute('binary'))
         if char_set:
             attributes = attributes or []
-            attributes.append(SQLAttribute('character set', char_set, True))
+            attributes.append(
+                SQLAttribute.create_with_value('character set', char_set)
+            )
         if collate:
             attributes = attributes or []
-            attributes.append(SQLAttribute('collate', collate, True))
+            attributes.append(
+                SQLAttribute.create_with_value('collate', collate)
+            )
         super(MySQLString, self).__init__(attributes)
 
 
