@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="docToolApp">
+    <head>
+        <title>Documentation Tool</title>
+        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+        <script src="/static/js/app.js"></script>
+        <link rel="stylesheet" href="/static/css/schematizer.css">
+    </head>
+
+    <body ng-controller="schemaCtrl">
+
+        <!-- Navbar -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                    </button>
+                    <span class="navbar-brand"><a href="./">Data Warehouse Documentation Tool</a></span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <!-- Search box -->
+            <div class="panel panel-primary">
+                <div class="panel-heading">Search</div>
+                <div class="panel-body">
+                    <form class="form-inline" role="form">
+                        <div class="form-group col-md-8">
+                            <label for="schemaID">Schema ID</label>
+                            <input type="text" class="form-control" id="schemaID" ng-model="schemaID"/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <table class="table table-striped table-hover table-bordered" ng-show="showSchema">
+                <tr>
+                    <th>Schema ID</th>
+                    <th>Schema</th>
+                </tr>
+                <tr>
+                    <td>{{schema.id}}</td>
+                    <td>{{schema.rawSchema}}</td>
+                </tr>
+            </table>
+        </div>
+
+
+    </body>
+
+</html>
