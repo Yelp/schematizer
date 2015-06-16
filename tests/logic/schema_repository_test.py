@@ -200,6 +200,14 @@ class TestSchemaRepository(DBTestCase):
         )
         self.verify_topic(new_topic, actual)
 
+    def test_get_latest_topic_of_domain_id(self, domain, topic):
+        actual = schema_repo.get_latest_topic_of_domain_id(domain.id)
+        self.verify_topic(topic, actual)
+
+        new_topic = factories.TopicFactory.create_in_db('new_topic', domain)
+        actual = schema_repo.get_latest_topic_of_domain_id(domain.id)
+        self.verify_topic(new_topic, actual)
+
     def verify_topic(self, expected, actual):
         assert expected.id == actual.id
         assert expected.name == actual.name
@@ -217,6 +225,15 @@ class TestSchemaRepository(DBTestCase):
 
     def test_get_latest_topic_of_domain_with_nonexistent_domain(self):
         actual = schema_repo.get_latest_topic_of_domain('foo', 'bar')
+        assert actual is None
+
+    def test_get_latest_topic_of_domain_id_with_no_topic(self, domain):
+        factories.DomainFactory.delete_topics(domain.id)
+        actual = schema_repo.get_latest_topic_of_domain_id(domain.id)
+        assert actual is None
+
+    def test_get_latest_topic_of_domain_id_with_nonexistent_domain(self):
+        actual = schema_repo.get_latest_topic_of_domain_id(0)
         assert actual is None
 
     @pytest.mark.usefixtures('domain', 'avro_schemas')
