@@ -32,8 +32,12 @@
                 <div class="panel-body">
                     <form ng-submit="searchByID()" class="form-inline" role="form">
                         <div class="form-group col-md-8">
-                            <label for="schemaID">Schema ID</label>
-                            <input type="text" class="form-control" name="schemaID" ng-model="value"/>
+                            <label class="control-label">Search for:</label>
+                            <select class="form-control" id="searchType" ng-model="control">
+                                <option>schema</option>
+                                <option>topic</option>
+                            </select>
+                            <input type="text" class="form-control" ng-model="value"/>
                             <input type="submit" id="submit" value="Submit"/>
                         </div>
                     </form>
@@ -55,7 +59,7 @@
             <!-- Area to display errors, if there are any, when a schema -->
             <div class="row" ng-show="showSchemaError">
                 <div class="col-lg-12">
-                    <div class="alert alert-danger" role="alert">No schemas found</div>
+                    <div class="alert alert-danger" role="alert">No schemas found. Make sure to search by schema ID numbers.</div>
                 </div>
             </div>
 

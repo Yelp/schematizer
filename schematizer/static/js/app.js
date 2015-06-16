@@ -5,6 +5,7 @@ app.controller('schemaCtrl', ['$scope', '$http', function($scope, $http) {
     $scope.showSchema = false;
     $scope.showSchemaError = false;
     $scope.value = '';
+    $scope.control = 'schema';
 
     $scope.searchByID = function() {
         var path = '/v1/schemas/' + $scope.value;
