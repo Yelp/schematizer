@@ -1,36 +1,3 @@
-.top-buffer {
-    margin-top: 40px;
-}
-
-.top-buffer-md {
-    margin-top: 25px;
-}
-
-.top-buffer-small {
-    margin-top: 10px;
-}
-
-.top-ng-margin-small {
-   margin-top: -5px;
-}
-
-.bottom-ng-margin-small {
-    margin-bottom: -10px;
-}
-
-.wrap-words {
-   word-break: break-all;
-}
-
-.panel-title {
-   cursor: pointer;
-}
-
-.font-thick {
-   font-weight: bold;
-}
-
-.to-right {
-   float: right;
-   padding-left: 5px;
+.hover-blue tbody tr:hover td, .hover-blue tbody tr:hover th {
+  background-color: lightblue;
 }

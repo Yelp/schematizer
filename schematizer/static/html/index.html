@@ -4,10 +4,10 @@
         <title>Documentation Tool</title>
         <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
         <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
 
         <script src="/static/js/app.js"></script>
-        <link rel="stylesheet" href="/static/css/schematizer.css">
+        <link rel="stylesheet" type="text/css" href="/static/css/schematizer.css"/>
     </head>
 
     <body ng-controller="docToolCtrl">
@@ -45,15 +45,22 @@
             </div>
 
             <!-- Returned schema -->
-            <table class="table table-striped table-hover table-bordered" ng-show="show==='schema'">
-                <tr>
-                    <th>field</th>
-                    <th>value</th>
-                <tr ng-repeat="(key, field) in data">
-                    <td>{{key}}</td>
-                    <td>{{field}}</td>
-                </tr>
-            </table>
+            <div ng-show="show==='schema'">
+                <table class="table hover-blue table-bordered">
+                    <tr>
+                        <th ng-click="searchTopic(data.topic.name)">Go to Topic: {{data.topic.name}}</th>
+                    </tr>
+                </table>
+                <table class="table table-striped table-hover table-bordered">
+                    <tr>
+                        <th>Field</th>
+                        <th>Value</th>
+                    <tr ng-repeat="(key, field) in data">
+                        <td>{{key}}</td>
+                        <td>{{field}}</td>
+                    </tr>
+                </table>
+            </div>
 
             <!-- Error on requesting schema-->
             <div class="row" ng-show="show==='schemaError'">
@@ -63,23 +70,25 @@
             </div>
 
             <!-- Returned topic -->
-            <table class="table table-striped table-hover table-bordered" ng-show="show==='topic'">
-                <tr>
-                    <th>Schema ID</th>
-                    <th>Status</th>
-                    <th>Created At</th>
-                    <th>Updated At</th>
-                </tr>
-                <tr ng-repeat="schema in data">
-                    <td>{{schema.schema_id}}</td>
-                    <td>{{schema.status}}</td>
-                    <td>{{schema.created_at}}</td>
-                    <td>{{schema.updated_at}}</td>
-                </tr>
-            </table>
+            <div ng-show="show==='topic'">
+                <table class="table table-striped table-hover table-bordered">
+                    <tr>
+                        <th>Schema ID</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Updated At</th>
+                    </tr>
+                    <tr ng-repeat="schema in data" ng-click="searchSchema(schema.schema_id)">
+                        <td>{{schema.schema_id}}</td>
+                        <td>{{schema.status}}</td>
+                        <td>{{schema.created_at}}</td>
+                        <td>{{schema.updated_at}}</td>
+                    </tr>
+                </table>
+            </div>
 
             <!-- Error on requesting topic-->
-            <div class="row" ng-show="show==='topicError'">
+            <div ng-show="show==='topicError'">
                 <div class="col-lg-12">
                     <div class="alert alert-danger" role="alert">No topics found.</div>
                 </div>
