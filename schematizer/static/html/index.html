@@ -10,7 +10,7 @@
         <link rel="stylesheet" href="/static/css/schematizer.css">
     </head>
 
-    <body ng-controller="schemaCtrl">
+    <body ng-controller="docToolCtrl">
 
         <!-- Navbar -->
         <nav class="navbar navbar-default navbar-static-top" role="navigation">
@@ -30,14 +30,14 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">Search</div>
                 <div class="panel-body">
-                    <form ng-submit="searchByID()" class="form-inline" role="form">
+                    <form ng-submit="search()" class="form-inline" role="form">
                         <div class="form-group col-md-8">
                             <label class="control-label">Search for:</label>
                             <select class="form-control" id="searchType" ng-model="control">
                                 <option>schema</option>
                                 <option>topic</option>
                             </select>
-                            <input type="text" class="form-control" ng-model="value"/>
+                            <input type="text" class="form-control" ng-model="text"/>
                             <input type="submit" id="submit" value="Submit"/>
                         </div>
                     </form>
@@ -45,21 +45,43 @@
             </div>
 
             <!-- Returned schema -->
-            <table class="table table-striped table-hover table-bordered" ng-show="showSchema">
+            <table class="table table-striped table-hover table-bordered" ng-show="show==='schema'">
                 <tr>
-                    <th>Schema ID</th>
-                    <th>Schema</th>
-                </tr>
-                <tr>
-                    <td>{{schema.id}}</td>
-                    <td>{{schema.rawSchema}}</td>
+                    <th>field</th>
+                    <th>value</th>
+                <tr ng-repeat="(key, field) in data">
+                    <td>{{key}}</td>
+                    <td>{{field}}</td>
                 </tr>
             </table>
 
-            <!-- Area to display errors, if there are any, when a schema -->
-            <div class="row" ng-show="showSchemaError">
+            <!-- Error on requesting schema-->
+            <div class="row" ng-show="show==='schemaError'">
                 <div class="col-lg-12">
                     <div class="alert alert-danger" role="alert">No schemas found. Make sure to search by schema ID numbers.</div>
+                </div>
+            </div>
+
+            <!-- Returned topic -->
+            <table class="table table-striped table-hover table-bordered" ng-show="show==='topic'">
+                <tr>
+                    <th>Schema ID</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                </tr>
+                <tr ng-repeat="schema in data">
+                    <td>{{schema.schema_id}}</td>
+                    <td>{{schema.status}}</td>
+                    <td>{{schema.created_at}}</td>
+                    <td>{{schema.updated_at}}</td>
+                </tr>
+            </table>
+
+            <!-- Error on requesting topic-->
+            <div class="row" ng-show="show==='topicError'">
+                <div class="col-lg-12">
+                    <div class="alert alert-danger" role="alert">No topics found.</div>
                 </div>
             </div>
 
