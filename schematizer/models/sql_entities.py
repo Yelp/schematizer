@@ -79,6 +79,15 @@ class SQLAttribute(object):
         attribute.has_value = True
         return attribute
 
+    def __eq__(self, other):
+        return (isinstance(other, SQLAttribute)
+                and self.name == other.name
+                and self.value == other.value
+                and self.has_value == other.has_value)
+
+    def __hash__(self):
+        return hash((self.name, self.value, self.has_value))
+
 
 class SQLColumnDataType(object):
     """Internal data structure that contains column data type information.
@@ -123,3 +132,10 @@ class DbPermission(object):
         self.user_or_group_name = user_or_group_name
         self.permission = permission
         self.for_group = for_group
+
+    def __eq__(self, other):
+        return (isinstance(other, DbPermission)
+                and self.object_name == other.object_name
+                and self.user_or_group_name == other.user_or_group_name
+                and self.permission == other.permission
+                and self.for_group == other.for_group)
