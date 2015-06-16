@@ -410,7 +410,7 @@ def get_latest_topic_of_domain_id(domain_id):
     return session.query(
         models.Topic
     ).filter(
-        models.Domain.id == domain_id
+        models.Topic.domain_id == domain_id
     ).order_by(
         models.Topic.id.desc()
     ).first()

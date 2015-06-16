@@ -4,7 +4,7 @@ import simplejson
 from avro import schema
 
 from schematizer.api.exceptions import exceptions_v1
-from schematizer.components.mysql_handlers import MySQLHandlerException
+from schematizer.components.handlers import sql_handler_base
 from schematizer.components.converters import converter_base
 from schematizer.views import schemas as schema_views
 from testing import factories
@@ -186,7 +186,7 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
         mock_create_sql_table_from_mysql_stmts
     ):
         mock_create_sql_table_from_mysql_stmts.side_effect = \
-            MySQLHandlerException('oops')
+            sql_handler_base.SQLHandlerException('oops')
         expected_exception = self.get_http_exception(422)
 
         with pytest.raises(expected_exception) as e:
