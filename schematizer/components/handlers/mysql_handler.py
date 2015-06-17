@@ -9,19 +9,16 @@ from sqlparse import tokens as T
 from schematizer.components.handlers.sql_handler_base import SQLDialect
 from schematizer.components.handlers.sql_handler_base import SQLHandlerBase
 from schematizer.components.handlers.sql_handler_base import SQLHandlerException
-from schematizer.components.handlers.sql_handler_base import SQLTableBuilderBase
 from schematizer.models import mysql_data_types as data_types
 from schematizer.models import sql_entities
 
 
-class BuildFromFinalCreateTableOnly(SQLTableBuilderBase):
-    """Constructs the SQLTable from the last create-table statement in
-    the given sql statements if it is a create-table statement.
+class ParsedMySQLProcessor(object):
+    """This class contains the utility functions to construct SQLTable
+    from parsed MySQL table statements (create or alter).
     """
 
-    def __init__(self, parsed_sqls):
-        super(BuildFromFinalCreateTableOnly, self).__init__(parsed_sqls)
-
+    def __init__(self):
         _mysql_types = inspect.getmembers(
             sys.modules['schematizer.models.mysql_data_types'],
             inspect.isclass
@@ -31,15 +28,16 @@ class BuildFromFinalCreateTableOnly(SQLTableBuilderBase):
             if issubclass(typ, sql_entities.SQLColumnDataType)
         )
 
-    @property
-    def can_handle(self):
-        return (self.parsed_sqls
-                and self.is_create_table_sql(self.parsed_sqls[-1]))
-
-    def run(self):
-        stmt = self.parsed_sqls[-1]
-        table = sql_entities.SQLTable(self._get_table_name(stmt))
-        table.columns.extend(self._get_create_definition(stmt))
+    def create_sql_table_from_create_table_stmt(self, parsed_stmt):
+        """Constructs the SQLTable from the given create-table statement
+        (parsed mysql statement). If the given sql statement is not a
+        create-table statement, it returns None.
+        """
+        if not self.is_create_table_sql(parsed_stmt):
+            raise ValueError("parsed_stmt should be a create-table statement. "
+                             "Value: {0}".format(parsed_stmt))
+        table = sql_entities.SQLTable(self._get_table_name(parsed_stmt))
+        table.columns.extend(self._get_columns(parsed_stmt))
         return table
 
     def is_create_table_sql(self, parsed_sql):
@@ -51,7 +49,7 @@ class BuildFromFinalCreateTableOnly(SQLTableBuilderBase):
     def _get_table_name(self, stmt):
         return stmt.token_next_by_instance(0, sql.TableName).value
 
-    def _get_create_definition(self, stmt):
+    def _get_columns(self, stmt):
         columns = []
         for token in self._get_create_definition_tokens(stmt):
             if isinstance(token, sql.ColumnsDefinition):
@@ -277,18 +275,19 @@ class MySQLHandler(SQLHandlerBase):
 
     dialect = SQLDialect.MySQL
 
-    _builders = [
-        BuildFromFinalCreateTableOnly
-    ]
+    def __init__(self):
+        super(MySQLHandler, self).__init__()
+        self.processor = ParsedMySQLProcessor()
 
     def _parse(self, sql):
         return sqlparse.parse(sql, dialect='mysql')[0]
 
     def _create_sql_table(self, parsed_sqls):
-        for builder_cls in self._builders:
-            builder = builder_cls(parsed_sqls)
-            if builder.can_handle:
-                return builder.run()
+        last_stmt = parsed_sqls[-1] if parsed_sqls else None
+        if last_stmt:
+            return self.processor.create_sql_table_from_create_table_stmt(
+                last_stmt
+            )
         raise SQLHandlerException(
             "Unable to process MySQL statements {0}.".format(parsed_sqls)
         )

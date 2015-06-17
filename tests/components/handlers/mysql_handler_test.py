@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import mock
 import pytest
 
 from schematizer.components.handlers import mysql_handler
@@ -11,68 +10,25 @@ from schematizer.models.sql_entities import SQLTable
 
 class TestMySQLHandler(object):
 
-    @property
-    def mysql_statements(self):
-        return ["stmt_1", "stmt_2"]
-
-    @pytest.yield_fixture
-    def mock_parser(self):
-        with mock.patch(
-            'sqlparse.parse',
-            return_value=(mock.Mock(),)
-        ) as parser:
-            yield parser
-
-    @pytest.fixture
-    def cls_foo(self):
-        return self.create_mock_builder_class('p1', False)
-
-    @pytest.fixture
-    def cls_bar(self):
-        return self.create_mock_builder_class('p2', True)
-
-    @pytest.fixture
-    def cls_baz(self):
-        return self.create_mock_builder_class('p3', True)
-
     @pytest.fixture
     def handler(self):
         return mysql_handler.MySQLHandler()
 
-    def create_mock_builder_class(self, tag, can_handle):
-        mock_instance = mock.Mock(spec=sql_handler_base.SQLTableBuilderBase)
-        type(mock_instance).can_handle = mock.PropertyMock(
-            return_value=can_handle
+    @property
+    def table_name(self):
+        return 'foo'
+
+    @property
+    def create_table_sql(self):
+        return 'CREATE TABLE `{0}` (`id` int(11) not null);'.format(
+            self.table_name
         )
-        mock_instance.run.return_value = mock.Mock(tag=tag)
 
-        # mock_cls is the mock class that implements SQLTableBuilderBase class
-        mock_cls = mock.Mock(return_value=mock_instance)
-        return mock_cls
-
-    @pytest.yield_fixture
-    def patch_multi_sqltble_builders(self, handler, cls_foo, cls_bar, cls_baz):
-        handler._builders = [cls_foo, cls_bar, cls_baz]
-        yield
-
-    @pytest.yield_fixture
-    def patch_one_sqltable_builder(self, handler, cls_foo):
-        handler._builders = [cls_foo]
-        yield
-
-    @pytest.mark.usefixtures('patch_multi_sqltble_builders', 'mock_parser')
-    def test_create_sql_table_from_mysql_stmts_with_builders(self, handler):
-        actual = handler.create_sql_table_from_sql_stmts(
-            self.mysql_statements
+    @property
+    def alter_table_sql(self):
+        return 'ALTER TABLE `{0}` add `color` varchar(16);'.format(
+            self.table_name
         )
-        assert 'p2' == actual.tag
-
-    @pytest.mark.usefixtures('patch_one_sqltable_builder', 'mock_parser')
-    def test_create_sql_table_from_sql_stmts_without_builder(self, handler):
-        with pytest.raises(sql_handler_base.SQLHandlerException):
-            handler.create_sql_table_from_sql_stmts(
-                self.mysql_statements
-            )
 
     @property
     def create_table_foo_sql(self):
@@ -106,49 +62,24 @@ class TestMySQLHandler(object):
         )
         assert self.expected_sql_table_foo == sql_table
 
-
-class TestBuildFromFinalCreateTableOnly(object):
-
-    @property
-    def table_name(self):
-        return 'foo'
-
-    @property
-    def create_table_sql(self):
-        return 'CREATE TABLE `{0}` (`id` int(11) not null);'.format(
-            self.table_name
-        )
-
-    @property
-    def alter_table_sql(self):
-        return 'ALTER TABLE `{0}` add `color` varchar(16);'.format(
-            self.table_name
-        )
-
-    @pytest.fixture
-    def handler(self):
-        handler = mysql_handler.MySQLHandler()
-        handler._builders = [mysql_handler.BuildFromFinalCreateTableOnly]
-        return handler
-
     def assert_sql_table_equal_with_create_defs(
         self,
         handler,
         create_definitions,
         expected_columns
     ):
-        sql = self.build_create_table_sql(create_definitions)
+        sql = self._build_create_table_sql(create_definitions)
         actual_table = handler.create_sql_table_from_sql_stmts([sql])
         expected_table = SQLTable(self.table_name, expected_columns)
         assert expected_table == actual_table
 
-    def build_create_table_sql(self, create_definitions):
+    def _build_create_table_sql(self, create_definitions):
         return 'CREATE TABLE `{table}` ({definitions});'.format(
             table=self.table_name,
             definitions=','.join(create_definitions)
         )
 
-    def test_run_with_integer_type(self, handler):
+    def test_create_sql_table_from_sql_stmts_integer_type(self, handler):
         create_definition = '`bar` int(4) not null unsigned'
         expected_column = SQLColumn(
             'bar',
@@ -161,7 +92,7 @@ class TestBuildFromFinalCreateTableOnly(object):
             [expected_column]
         )
 
-    def test_run_with_real_number_type(self, handler):
+    def test_create_sql_table_from_sql_stmts_real_number_type(self, handler):
         create_definition = 'bar decimal(10, 2) default 0.0 unsigned,'
         expected_column = SQLColumn(
             'bar',
@@ -174,7 +105,7 @@ class TestBuildFromFinalCreateTableOnly(object):
             [expected_column]
         )
 
-    def test_run_with_string_type(self, handler):
+    def test_create_sql_table_from_sql_stmts_string_type(self, handler):
         create_definition = 'bar char(3) not null'
         expected_column = SQLColumn(
             'bar',
@@ -210,7 +141,7 @@ class TestBuildFromFinalCreateTableOnly(object):
             [expected_column]
         )
 
-    def test_run_with_datetime_type(self, handler):
+    def test_create_sql_table_from_sql_stmts_datetime_type(self, handler):
         create_definition = 'bar timestamp default 10 not null'
         expected_column = SQLColumn(
             'bar',
@@ -232,7 +163,7 @@ class TestBuildFromFinalCreateTableOnly(object):
             [expected_column]
         )
 
-    def test_run_with_binary_type(self, handler):
+    def test_create_sql_table_from_sql_stmts_binary_type(self, handler):
         create_definition = 'bar binary(64)'
         expected_column = SQLColumn('bar', data_types.MySQLBinary(64))
         self.assert_sql_table_equal_with_create_defs(
@@ -249,7 +180,7 @@ class TestBuildFromFinalCreateTableOnly(object):
             [expected_column]
         )
 
-    def test_run_with_enum_type(self, handler):
+    def test_create_sql_table_from_sql_stmts_enum_type(self, handler):
         create_definition = 'bar enum (a1, a2, a3) character set latin1'
         expected_column = SQLColumn(
             'bar',
@@ -261,7 +192,7 @@ class TestBuildFromFinalCreateTableOnly(object):
             [expected_column]
         )
 
-    def test_run_with_primary_keys(self, handler):
+    def test_create_sql_table_from_sql_stmts_primary_keys(self, handler):
         create_definitions = [
             'id int(11) not null',
             'pid int(11) not null',
@@ -289,7 +220,7 @@ class TestBuildFromFinalCreateTableOnly(object):
             expected_columns
         )
 
-    def test_run_with_set_type(self, handler):
+    def test_create_sql_table_from_sql_stmts_set_type(self, handler):
         create_definition = 'bar set (a1, a2, a3) character set latin1'
         expected_column = SQLColumn(
             'bar',
@@ -317,17 +248,21 @@ class TestBuildFromFinalCreateTableOnly(object):
         self,
         handler
     ):
-        with pytest.raises(sql_handler_base.SQLHandlerException):
+        with pytest.raises(ValueError) as e:
             handler.create_sql_table_from_sql_stmts(
                 [self.create_table_sql, self.alter_table_sql]
             )
+        assert str(e.value).startswith(
+            'parsed_stmt should be a create-table statement'
+        )
 
-    def test_create_sql_table_from_sql_stmts_with_invalid_sql(self, handler):
+    def test_create_sql_table_from_sql_stmts_with_bad_sql(self, handler):
         sql = 'CREATE TABLE `foo_tbl` `id` int(11) auto_increment;'
         with pytest.raises(sql_handler_base.SQLHandlerException) as e:
             handler.create_sql_table_from_sql_stmts([sql])
         assert str(e.value).startswith('No column exists in the table.')
 
+    def test_create_sql_table_from_sql_stmts_with_bad_col_type(self, handler):
         sql = 'CREATE TABLE `foo_tbl` (id integer(11));'
         with pytest.raises(sql_handler_base.SQLHandlerException) as e:
             handler.create_sql_table_from_sql_stmts([sql])
