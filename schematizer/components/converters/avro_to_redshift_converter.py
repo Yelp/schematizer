@@ -64,7 +64,7 @@ class AvroToRedshiftConverter(BaseConverter):
         return SQLColumn(
             field.name,
             column_type,
-            is_primary_key=self._is_primary_key(field),
+            primary_key_order=self._get_primary_key_order(field),
             is_nullable=is_nullable,
             default_value=field.default if field.has_default else None,
             attributes=None,
@@ -188,5 +188,5 @@ class AvroToRedshiftConverter(BaseConverter):
     def _get_column_metadata(self, field):
         return self._get_aliases_metadata(field.props)
 
-    def _is_primary_key(self, field):
-        return AvroMetaDataKeyEnum.PRIMARY_KEY in field.props
+    def _get_primary_key_order(self, field):
+        return field.props.get(AvroMetaDataKeyEnum.PRIMARY_KEY)

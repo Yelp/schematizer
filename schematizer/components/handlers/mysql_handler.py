@@ -85,7 +85,6 @@ class ParsedMySQLProcessor(object):
         return sql_entities.SQLColumn(
             column_name=name_token.value,
             column_type=self._get_column_type(col_token),
-            is_primary_key=False,
             is_nullable=self._is_column_nullable(col_token),
             default_value=self._get_default_value(col_token),
             attributes=None,
@@ -264,10 +263,10 @@ class ParsedMySQLProcessor(object):
         return []
 
     def _set_column_primary_keys(self, primary_keys, columns):
-        for idx, primary_key in enumerate(primary_keys):
+        for idx, primary_key in enumerate(primary_keys, 1):
             for col in columns:
                 if primary_key == col.name:
-                    col.is_primary_key = True
+                    col.primary_key_order = idx
                     break
 
 

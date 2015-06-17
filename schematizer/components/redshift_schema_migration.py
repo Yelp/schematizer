@@ -133,8 +133,10 @@ class RedshiftSchemaMigration(object):
 
     @classmethod
     def get_primary_key_sql(cls, table):
-        primary_keys = ', '.join(column.name for column in table.columns
-                                 if column.is_primary_key)
+        primary_key_cols = sorted(
+            c for c in table.columns if c.primary_key_order
+        )
+        primary_keys = ', '.join(col.name for col in primary_key_cols)
         return ('PRIMARY KEY ({0})'.format(primary_keys)
                 if primary_keys else '')
 

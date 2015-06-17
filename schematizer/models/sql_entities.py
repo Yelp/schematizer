@@ -30,12 +30,12 @@ class SQLColumn(object):
     column type could be database specific.
     """
 
-    def __init__(self, column_name, column_type, is_primary_key=False,
+    def __init__(self, column_name, column_type, primary_key_order=None,
                  is_nullable=True, default_value=None,
                  attributes=None, doc=None, **metadata):
         self.name = column_name
         self.type = column_type
-        self.is_primary_key = is_primary_key
+        self.primary_key_order = primary_key_order
         self.is_nullable = is_nullable
         self.default_value = default_value
         self.doc = doc
@@ -54,7 +54,7 @@ class SQLColumn(object):
         return (isinstance(other, SQLColumn)
                 and self.name == other.name
                 and self.type == other.type
-                and self.is_primary_key == other.is_primary_key
+                and self.primary_key_order == other.primary_key_order
                 and self.is_nullable == other.is_nullable
                 and self.default_value == other.default_value
                 and self.attributes == other.attributes

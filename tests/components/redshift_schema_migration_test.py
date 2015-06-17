@@ -66,7 +66,7 @@ class TestRedshiftSchemaMigration(object):
         return SQLColumn(
             'primary_key_col',
             data_types.RedshiftInteger(),
-            is_primary_key=True
+            primary_key_order=1
         )
 
     @property
@@ -190,7 +190,6 @@ class TestRedshiftSchemaMigration(object):
         column = SQLColumn(
             'foo',
             data_types.RedshiftInteger(),
-            is_primary_key=False,
             is_nullable=False,
             default_value='',
             attributes=attributes,
@@ -204,7 +203,6 @@ class TestRedshiftSchemaMigration(object):
         column = SQLColumn(
             'foo',
             data_types.RedshiftVarChar(256),
-            is_primary_key=False,
             attributes=[SQLAttribute.create_with_value('attr', '')],
             aliases='bar'
         )

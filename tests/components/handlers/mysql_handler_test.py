@@ -36,8 +36,7 @@ class TestMySQLHandler(object):
                 '`id` int(11) auto_increment not null, '
                 'name varchar(255) null,'
                 'amount decimal(10, 2) default 0.0 unsigned,'
-                'primary key (id, pid), '
-                'unique index (pid)'
+                'primary key (id) '
                 ');')
 
     @property
@@ -45,7 +44,7 @@ class TestMySQLHandler(object):
         column_id = SQLColumn(
             'id',
             data_types.MySQLInt(11),
-            is_primary_key=True,
+            primary_key_order=1,
             is_nullable=False
         )
         column_name = SQLColumn('name', data_types.MySQLVarChar(255))
@@ -204,13 +203,13 @@ class TestMySQLHandler(object):
                 'id',
                 data_types.MySQLInt(11),
                 is_nullable=False,
-                is_primary_key=True
+                primary_key_order=1
             ),
             SQLColumn(
                 'pid',
                 data_types.MySQLInt(11),
                 is_nullable=False,
-                is_primary_key=True
+                primary_key_order=2
             ),
             SQLColumn('tag', data_types.MySQLChar(3))
         ]
