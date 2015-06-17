@@ -36,6 +36,7 @@
                             <select class="form-control" id="searchType" ng-model="control">
                                 <option>schema</option>
                                 <option>topic</option>
+                                <option>source</option>
                             </select>
                             <input type="text" class="form-control" ng-model="text"/>
                             <input type="submit" id="submit" value="Submit"/>
@@ -93,6 +94,41 @@
                     <div class="alert alert-danger" role="alert">No topics found.</div>
                 </div>
             </div>
+
+            <!-- Returned list of sources-->
+            <div ng-show="show==='sources'">
+                <table class="table table-striped table-bordered">
+                    <tr>
+                        <th>Namespace</th>
+                        <th>Source</th>
+                        <th>Source Owner Email</th>
+                        <th>Created At</th>
+                        <th>Updated At</th>
+                    </tr>
+                    <tr class="btn-link" ng-repeat="source in data" ng-click="getTopicsFromSource(source.source_id)">
+                        <td>{{source.namespace}}</td>
+                        <td>{{source.source}}</td>
+                        <td>{{source.source_owner_email}}</td>
+                        <td>{{source.created_at}}</td>
+                        <td>{{source.updated_at}}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Returned list of topics-->
+            <div ng-show="show==='source'">
+                <table class="table table-striped table-bordered">
+                    <tr>
+                        <th>Source Name</th>
+                        <th>Created At</th>
+                        <th>Updated At</th>
+                    </tr>
+                    <tr class = "btn-link" ng-repeat="topic in data" ng-click="searchTopic(topic.name)">
+                        <td>{{topic.name}}</td>
+                        <td>{{topic.created_at}}</td>
+                        <td>{{topic.updated_at}}</td>
+                    </tr>
+                </table>
 
         </div>
     </body>

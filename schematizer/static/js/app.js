@@ -16,6 +16,8 @@ app.controller('docToolCtrl', ['$scope', '$http', function($scope, $http) {
             case 'topic':
                 $scope.searchTopic($scope.text);
                 break;
+            case 'source':
+                $scope.searchSource($scope.text);
             default: // Should never reach here
         }
     }
@@ -37,6 +39,35 @@ app.controller('docToolCtrl', ['$scope', '$http', function($scope, $http) {
             $scope.show = 'topic';
         }).error(function (errorData) {
             $scope.show = 'topicError';
+        });
+    }
+
+    $scope.searchSource = function(sourceName) {
+        var path = '/v1/sources';
+        $http.get(path).success(function (data) {
+            $scope.data = [];
+            for (i in data) {
+                if (data[i].source === sourceName) {
+                    $scope.data.push(data[i]);
+                }
+            }
+            if ($scope.data.length > 0) {
+                $scope.show = 'sources';
+            } else {
+                $scope.show = 'sourceError';
+            }
+        }).error(function (errorData) {
+            $scope.show = 'sourceError';
+        });
+    }
+
+    $scope.getTopicsFromSource = function(source_id) {
+        var path = '/v1/sources/' + source_id + '/topics';
+        $http.get(path).success(function (data) {
+            $scope.data = data;
+            $scope.show = 'source';
+        }).error(function (errorData) {
+            $scope.show = 'sourceError';
         });
     }
 
