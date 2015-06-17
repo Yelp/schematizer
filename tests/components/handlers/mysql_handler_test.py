@@ -79,7 +79,7 @@ class TestMySQLHandler(object):
             definitions=','.join(create_definitions)
         )
 
-    def test_create_sql_table_from_sql_stmts_integer_type(self, handler):
+    def test_create_sql_table_from_sql_stmts_with_integer_type(self, handler):
         create_definition = '`bar` int(4) not null unsigned'
         expected_column = SQLColumn(
             'bar',
@@ -92,7 +92,7 @@ class TestMySQLHandler(object):
             [expected_column]
         )
 
-    def test_create_sql_table_from_sql_stmts_real_number_type(self, handler):
+    def test_create_sql_table_from_sql_stmts_with_real_num_type(self, handler):
         create_definition = 'bar decimal(10, 2) default 0.0 unsigned,'
         expected_column = SQLColumn(
             'bar',
@@ -105,7 +105,7 @@ class TestMySQLHandler(object):
             [expected_column]
         )
 
-    def test_create_sql_table_from_sql_stmts_string_type(self, handler):
+    def test_create_sql_table_from_sql_stmts_with_string_type(self, handler):
         create_definition = 'bar char(3) not null'
         expected_column = SQLColumn(
             'bar',
@@ -141,7 +141,7 @@ class TestMySQLHandler(object):
             [expected_column]
         )
 
-    def test_create_sql_table_from_sql_stmts_datetime_type(self, handler):
+    def test_create_sql_table_from_sql_stmts_with_datetime_type(self, handler):
         create_definition = 'bar timestamp default 10 not null'
         expected_column = SQLColumn(
             'bar',
@@ -163,7 +163,7 @@ class TestMySQLHandler(object):
             [expected_column]
         )
 
-    def test_create_sql_table_from_sql_stmts_binary_type(self, handler):
+    def test_create_sql_table_from_sql_stmts_with_binary_type(self, handler):
         create_definition = 'bar binary(64)'
         expected_column = SQLColumn('bar', data_types.MySQLBinary(64))
         self.assert_sql_table_equal_with_create_defs(
@@ -180,7 +180,7 @@ class TestMySQLHandler(object):
             [expected_column]
         )
 
-    def test_create_sql_table_from_sql_stmts_enum_type(self, handler):
+    def test_create_sql_table_from_sql_stmts_with_enum_type(self, handler):
         create_definition = 'bar enum (a1, a2, a3) character set latin1'
         expected_column = SQLColumn(
             'bar',
@@ -192,7 +192,7 @@ class TestMySQLHandler(object):
             [expected_column]
         )
 
-    def test_create_sql_table_from_sql_stmts_primary_keys(self, handler):
+    def test_create_sql_table_from_sql_stmts_with_primary_keys(self, handler):
         create_definitions = [
             'id int(11) not null',
             'pid int(11) not null',
@@ -220,7 +220,7 @@ class TestMySQLHandler(object):
             expected_columns
         )
 
-    def test_create_sql_table_from_sql_stmts_set_type(self, handler):
+    def test_create_sql_table_from_sql_stmts_with_set_type(self, handler):
         create_definition = 'bar set (a1, a2, a3) character set latin1'
         expected_column = SQLColumn(
             'bar',
