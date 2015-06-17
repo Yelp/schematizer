@@ -28,7 +28,8 @@ app.controller('docToolCtrl', ['$scope', '$http', function($scope, $http) {
             $scope.data = data;
             $scope.show = 'schema';
         }).error(function (errorData) {
-            $scope.show = 'schemaError';
+            $scope.show = 'error';
+            $scope.errorMessage = 'No schema found.'
         });
     }
 
@@ -38,7 +39,8 @@ app.controller('docToolCtrl', ['$scope', '$http', function($scope, $http) {
             $scope.data = data;
             $scope.show = 'topic';
         }).error(function (errorData) {
-            $scope.show = 'topicError';
+            $scope.show = 'error';
+            $scope.errorMessage = 'No topic found.'
         });
     }
 
@@ -47,17 +49,19 @@ app.controller('docToolCtrl', ['$scope', '$http', function($scope, $http) {
         $http.get(path).success(function (data) {
             $scope.data = [];
             for (i in data) {
-                if (data[i].source === sourceName) {
+                if (data[i].source.toLowerCase() === sourceName.toLowerCase()) {
                     $scope.data.push(data[i]);
                 }
             }
             if ($scope.data.length > 0) {
                 $scope.show = 'sources';
             } else {
-                $scope.show = 'sourceError';
+                $scope.show = 'error';
+                $scope.errorMessage = 'No sources found.'
             }
         }).error(function (errorData) {
-            $scope.show = 'sourceError';
+            $scope.show = 'error';
+            $scope.errorMessage = 'No sources found.'
         });
     }
 
@@ -67,7 +71,8 @@ app.controller('docToolCtrl', ['$scope', '$http', function($scope, $http) {
             $scope.data = data;
             $scope.show = 'source';
         }).error(function (errorData) {
-            $scope.show = 'sourceError';
+            $scope.show = 'error';
+            $scope.show = 'No topics found.'
         });
     }
 
