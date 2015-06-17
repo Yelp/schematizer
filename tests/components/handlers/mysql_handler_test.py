@@ -267,3 +267,8 @@ class TestMySQLHandler(object):
         with pytest.raises(sql_handler_base.SQLHandlerException) as e:
             handler.create_sql_table_from_sql_stmts([sql])
         assert 'Unknown MySQL column type integer.' == str(e.value)
+
+    def test_create_sql_table_from_sql_stmts_with_no_stmts(self, handler):
+        with pytest.raises(sql_handler_base.SQLHandlerException) as e:
+            handler.create_sql_table_from_sql_stmts([])
+        assert 'Unable to process MySQL statements [].' == str(e.value)
