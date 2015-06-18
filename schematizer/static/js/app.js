@@ -18,6 +18,8 @@ app.controller('docToolCtrl', ['$scope', '$http', function($scope, $http) {
                 break;
             case 'source':
                 $scope.searchSource($scope.text);
+            case 'namespace':
+                $scope.searchNamespace($scope.text);
             default: // Should never reach here
         }
     }
@@ -29,7 +31,7 @@ app.controller('docToolCtrl', ['$scope', '$http', function($scope, $http) {
             $scope.show = 'schema';
         }).error(function (errorData) {
             $scope.show = 'error';
-            $scope.errorMessage = 'No schema found.'
+            $scope.errorMessage = 'No schema found.';
         });
     }
 
@@ -40,7 +42,7 @@ app.controller('docToolCtrl', ['$scope', '$http', function($scope, $http) {
             $scope.show = 'topic';
         }).error(function (errorData) {
             $scope.show = 'error';
-            $scope.errorMessage = 'No topic found.'
+            $scope.errorMessage = 'No topic found.';
         });
     }
 
@@ -57,11 +59,11 @@ app.controller('docToolCtrl', ['$scope', '$http', function($scope, $http) {
                 $scope.show = 'sources';
             } else {
                 $scope.show = 'error';
-                $scope.errorMessage = 'No sources found.'
+                $scope.errorMessage = 'No sources found.';
             }
         }).error(function (errorData) {
             $scope.show = 'error';
-            $scope.errorMessage = 'No sources found.'
+            $scope.errorMessage = 'No sources found.';
         });
     }
 
@@ -72,7 +74,40 @@ app.controller('docToolCtrl', ['$scope', '$http', function($scope, $http) {
             $scope.show = 'source';
         }).error(function (errorData) {
             $scope.show = 'error';
-            $scope.show = 'No topics found.'
+            $scope.show = 'No topics found.';
+        });
+    }
+
+    $scope.searchNamespace = function(namespace) {
+        var path = '/v1/namespaces';
+        $http.get(path).success(function (data) {
+            $scope.data = [];
+            for (i in data) {
+                // Check if data[i] contains substring namespace
+                if (data[i].indexOf(namespace) >= 0) {
+                    $scope.data.push(data[i]);
+                }
+            }
+            if ($scope.data.length > 0) {
+                $scope.show = 'namespaces';
+            } else {
+                $scope.show = 'error';
+                $scope.errorMessage = 'No namespaces found.';
+            }
+        }).error(function (errorData) {
+            $scope.show = 'error';
+            $scope.show = 'No namespaces found.';
+        });
+    }
+
+    $scope.getSourcesFromNamespace = function(namespace) {
+        var path = '/v1/namespaces/' + namespace + '/sources';
+        $http.get(path).success(function (data) {
+            $scope.data = data;
+            $scope.show = 'namespace';
+        }).error(function (errorData) {
+            $scope.show = 'error';
+            $scope.show = 'No sources found.';
         });
     }
 
