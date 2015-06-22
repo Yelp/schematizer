@@ -35,24 +35,3 @@ class SQLHandlerBase(object):
 
 class SQLHandlerException(Exception):
     pass
-
-
-class SQLTableBuilderBase(object):
-    """Interface that constructs SQLTable from parsed SQL statements
-    """
-
-    __metaclass__ = abc.ABCMeta
-
-    def __init__(self, parsed_sqls):
-        super(SQLTableBuilderBase, self).__init__()
-        self.parsed_sqls = parsed_sqls
-
-    @abc.abstractproperty
-    def can_handle(self):
-        """Whether this handler is able to process given SQL statements
-        """
-        raise NotImplementedError()
-
-    @abc.abstractmethod
-    def run(self):
-        raise NotImplementedError()
