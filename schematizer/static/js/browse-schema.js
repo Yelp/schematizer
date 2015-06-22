@@ -79,11 +79,11 @@
                         $scope.show = 'source';
                     } else {
                         $scope.show = 'error';
-                        $scope.errorMessage = 'No sources found.';
+                        $scope.errorMessage = 'No topics found.';
                     }
                 }).error(function (errorData) {
                     $scope.show = 'error';
-                    $scope.show = 'No topics found.';
+                    $scope.errorMessage = 'No topics found.';
                 });
             }
 
@@ -105,7 +105,7 @@
                     }
                 }).error(function (errorData) {
                     $scope.show = 'error';
-                    $scope.show = 'No namespaces found.';
+                    $scope.errorMessage = 'No namespaces found.';
                 });
             }
 
@@ -116,7 +116,7 @@
                     $scope.show = 'namespace';
                 }).error(function (errorData) {
                     $scope.show = 'error';
-                    $scope.show = 'No sources found.';
+                    $scope.errorMessage = 'No sources found.';
                 });
             }
 
