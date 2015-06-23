@@ -54,3 +54,6 @@ class Consumer(Base):
         onupdate_now=True,
         nullable=False
     )
+
+    # Consumer group that this consumer belongs to
+    consumer_group_id = Column(Integer, nullable=False)
