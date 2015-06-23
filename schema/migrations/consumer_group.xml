@@ -8,7 +8,7 @@
       <column name="group_name" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="type" type="VARCHAR(255)">
+      <column name="group_type" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
       <column name="data_target_id" type="INT(11)">

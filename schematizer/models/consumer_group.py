@@ -12,7 +12,7 @@ class ConsumerGroup(Base):
     __tablename__ = 'consumer_group'
     id = Column(Integer, primary_key=True)
     group_name = Column(String, nullable=False)
-    type = Column(String, nullable=False)
+    group_type = Column(String, nullable=False)
     data_target_id = Column(
         Integer,
         ForeignKey('data_target.id'),

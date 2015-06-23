@@ -10,5 +10,5 @@ class DataTarget(Base):
 
     __tablename__ = 'data_target'
     id = Column(Integer, primary_key=True)
-    type = Column(String, nullable=False)
+    target_type = Column(String, nullable=False)
     destination = Column(String, nullable=False)

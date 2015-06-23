@@ -5,10 +5,10 @@
       <column autoIncrement="true" name="id" type="INT(11)">
         <constraints primaryKey="true"/>
       </column>
-      <column name="type" type="VARCHAR(255)">
+      <column name="target_type" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="destination" type="VARCHAR(255)">
+      <column name="destination" type="VARCHAR(2048)">
         <constraints nullable="false"/>
       </column>
       </createTable>
