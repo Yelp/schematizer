@@ -13,6 +13,8 @@ fake_avro_schema = '{"name": "business"}'
 fake_created_at = datetime(2015, 1, 1, 17, 0, 0)
 fake_updated_at = datetime(2015, 1, 1, 17, 0, 1)
 fake_base_schema_id = 10
+fake_consumer_email = 'consumer@yelp.com'
+fake_frequency = 500
 fake_mysql_create_stmts = ['create table foo']
 fake_mysql_alter_stmts = ['create table foo',
                           'alter table foo',
@@ -139,6 +141,29 @@ class AvroSchemaFactory(object):
         if avro_schema:
             session.delete(avro_schema)
         session.flush()
+
+
+class ConsumerFactory(object):
+
+    @classmethod
+    def create(cls, job_name, schema, consumer_group):
+        return models.Consumer(
+            email=fake_consumer_email,
+            job_name=job_name,
+            expected_frequency=fake_frequency,
+            schema_id=schema.id,
+            last_used_at=None,
+            created_at=fake_created_at,
+            updated_at=fake_updated_at,
+            consumer_group_id=consumer_group.id
+        )
+
+    @classmethod
+    def create_in_db(cls, job_name, schema, consumer_group):
+        consumer = cls.create(job_name, schema, consumer_group)
+        session.add(consumer)
+        session.flush()
+        return consumer
 
 
 class ConsumerGroupFactory(object):

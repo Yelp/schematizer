@@ -31,7 +31,7 @@ class TestConsumerGroupDataSourcesModel(DBTestCase):
         )
 
     @pytest.fixture
-    def fake_c_g_d_s(self, fake_consumer_group):
+    def fake_consumer_group_data_sources(self, fake_consumer_group):
         return factories.ConsumerGroupDataSourcesFactory.create_in_db(
             fake_consumer_group,
             self.fake_data_source_type,
@@ -40,9 +40,12 @@ class TestConsumerGroupDataSourcesModel(DBTestCase):
 
     def test_create_consumer_group_data_sources(
         self,
-        fake_c_g_d_s,
+        fake_consumer_group_data_sources,
         fake_consumer_group
     ):
-        assert fake_c_g_d_s.consumer_group_id == fake_consumer_group.id
-        assert fake_c_g_d_s.data_source_type == self.fake_data_source_type
-        assert fake_c_g_d_s.data_source_id == self.fake_data_source_id
+        assert fake_consumer_group_data_sources.consumer_group_id == \
+            fake_consumer_group.id
+        assert fake_consumer_group_data_sources.data_source_type == \
+            self.fake_data_source_type
+        assert fake_consumer_group_data_sources.data_source_id == \
+            self.fake_data_source_id
