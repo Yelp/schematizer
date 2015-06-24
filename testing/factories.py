@@ -139,3 +139,80 @@ class AvroSchemaFactory(object):
         if avro_schema:
             session.delete(avro_schema)
         session.flush()
+
+
+class ConsumerGroupFactory(object):
+
+    @classmethod
+    def create(
+        cls,
+        group_name,
+        group_type,
+        data_target,
+    ):
+        return models.ConsumerGroup(
+            group_name=group_name,
+            group_type=group_type,
+            data_target_id=data_target.id
+        )
+
+    @classmethod
+    def create_in_db(
+        cls,
+        group_name,
+        group_type,
+        data_target,
+    ):
+        consumer_group = cls.create(group_name, group_type, data_target)
+        session.add(consumer_group)
+        session.flush()
+        return consumer_group
+
+
+class ConsumerGroupDataSourcesFactory(object):
+
+    @classmethod
+    def create(
+        cls,
+        consumer_group,
+        data_source_type,
+        data_source_id
+    ):
+        return models.ConsumerGroupDataSources(
+            consumer_group_id=consumer_group.id,
+            data_source_type=data_source_type,
+            data_source_id=data_source_id
+        )
+
+    @classmethod
+    def create_in_db(
+        cls,
+        consumer_group,
+        data_source_type,
+        data_source_id
+    ):
+        consumer_group_data_sources = cls.create(
+            consumer_group,
+            data_source_type,
+            data_source_id
+        )
+        session.add(consumer_group_data_sources)
+        session.flush()
+        return consumer_group_data_sources
+
+
+class DataTargetFactory(object):
+
+    @classmethod
+    def create(cls, target_type, destination):
+        return models.DataTarget(
+            target_type=target_type,
+            destination=destination
+        )
+
+    @classmethod
+    def create_in_db(cls, target_type, destination):
+        data_target = cls.create(target_type, destination)
+        session.add(data_target)
+        session.flush()
+        return data_target
