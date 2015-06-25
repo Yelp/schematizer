@@ -3,7 +3,6 @@ from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
-from sqlalchemy import UniqueConstraint
 
 from schematizer.models.database import Base
 from schematizer.models.types.time import build_time_column
@@ -12,16 +11,8 @@ from schematizer.models.types.time import build_time_column
 class ConsumerGroup(Base):
 
     __tablename__ = 'consumer_group'
-    __table_args__ = (
-        UniqueConstraint(
-            'group_name',
-            'group_type',
-            name='group_name_group_type_unique_constraint'
-        ),
-    )
     id = Column(Integer, primary_key=True)
-    group_name = Column(String, nullable=False)
-    group_type = Column(String, nullable=False)
+    group_name = Column(String, nullable=False, unique=True)
     data_target_id = Column(
         Integer,
         ForeignKey('data_target.id'),

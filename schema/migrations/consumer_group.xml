@@ -8,9 +8,6 @@
       <column name="group_name" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="group_type" type="VARCHAR(255)">
-        <constraints nullable="false"/>
-      </column>
       <column name="data_target_id" type="INT(11)">
         <constraints nullable="false"/>
       </column>
@@ -27,8 +24,8 @@
   </changeSet>
 
   <changeSet author="wscheng" id="1435017431">
-    <addUniqueConstraint columnNames="group_name, group_type"
-      constraintName="group_name_group_type_unique_constraint"
+    <addUniqueConstraint columnNames="group_name"
+      constraintName="group_name"
       tableName="consumer_group"/>
   </changeSet>
 </databaseChangeLog>
