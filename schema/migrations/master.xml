@@ -3,7 +3,7 @@
   <include file="avro_schema.xml"/>
   <include file="consumer.xml"/>
   <include file="consumer_group.xml"/>
-  <include file="consumer_group_data_sources.xml"/>
+  <include file="consumer_group_data_source.xml"/>
   <include file="data_target.xml"/>
   <include file="domain.xml"/>
   <include file="producer.xml"/>

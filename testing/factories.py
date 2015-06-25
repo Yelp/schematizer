@@ -194,7 +194,7 @@ class ConsumerGroupFactory(object):
         return consumer_group
 
 
-class ConsumerGroupDataSourcesFactory(object):
+class ConsumerGroupDataSourceFactory(object):
 
     @classmethod
     def create(
@@ -203,7 +203,7 @@ class ConsumerGroupDataSourcesFactory(object):
         data_source_type,
         data_source_id
     ):
-        return models.ConsumerGroupDataSources(
+        return models.ConsumerGroupDataSource(
             consumer_group_id=consumer_group.id,
             data_source_type=data_source_type,
             data_source_id=data_source_id
@@ -216,14 +216,14 @@ class ConsumerGroupDataSourcesFactory(object):
         data_source_type,
         data_source_id
     ):
-        consumer_group_data_sources = cls.create(
+        consumer_group_data_source = cls.create(
             consumer_group,
             data_source_type,
             data_source_id
         )
-        session.add(consumer_group_data_sources)
+        session.add(consumer_group_data_source)
         session.flush()
-        return consumer_group_data_sources
+        return consumer_group_data_source
 
 
 class DataTargetFactory(object):

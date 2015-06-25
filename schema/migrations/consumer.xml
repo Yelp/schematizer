@@ -42,6 +42,9 @@
         <constraints nullable="false"/>
       </column>
     </addColumn>
+    <modifySql>
+      <append value=" AFTER expected_frequency"/>
+    </modifySql>
   </changeSet>
 
 </databaseChangeLog>
