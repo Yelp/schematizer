@@ -39,6 +39,13 @@ class Consumer(Base):
         nullable=False
     )
 
+    # Consumer group that this consumer belongs to
+    consumer_group_id = Column(
+        Integer,
+        ForeignKey('consumer_group.id'),
+        nullable=False
+    )
+
     # Timestamp when this consumer uses the schema last time
     last_used_at = build_time_column()
 
@@ -54,6 +61,3 @@ class Consumer(Base):
         onupdate_now=True,
         nullable=False
     )
-
-    # Consumer group that this consumer belongs to
-    consumer_group_id = Column(Integer, nullable=False)

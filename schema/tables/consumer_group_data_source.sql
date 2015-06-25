@@ -1,4 +1,4 @@
-CREATE TABLE `consumer_group_data_sources` (
+CREATE TABLE `consumer_group_data_source` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `consumer_group_id` int(11) NOT NULL,
   `data_source_type` varchar(255) COLLATE utf8_unicode_ci NOT NULL,

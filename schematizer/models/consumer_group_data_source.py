@@ -8,9 +8,9 @@ from schematizer.models.database import Base
 from schematizer.models.types.time import build_time_column
 
 
-class ConsumerGroupDataSources(Base):
+class ConsumerGroupDataSource(Base):
 
-    __tablename__ = 'consumer_group_data_sources'
+    __tablename__ = 'consumer_group_data_source'
     id = Column(Integer, primary_key=True)
     consumer_group_id = Column(
         Integer,

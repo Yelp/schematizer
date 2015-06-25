@@ -25,4 +25,10 @@
       <append value=" ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci"/>
     </modifySql>
   </changeSet>
+
+  <changeSet author="wscheng" id="1435017431">
+    <addUniqueConstraint columnNames="group_name, group_type"
+      constraintName="group_name_group_type_unique_constraint"
+      tableName="consumer_group"/>
+  </changeSet>
 </databaseChangeLog>
