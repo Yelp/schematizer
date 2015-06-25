@@ -14,6 +14,12 @@
       <column name="data_target_id" type="INT(11)">
         <constraints nullable="false"/>
       </column>
+      <column name="created_at" type="INT(11)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="INT(11)">
+        <constraints nullable="false"/>
+      </column>
     </createTable>
     <modifySql dbms="mysql">
       <append value=" ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci"/>
