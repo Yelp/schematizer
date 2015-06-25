@@ -3,6 +3,7 @@ from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy import UniqueConstraint
 
 from schematizer.models.database import Base
 from schematizer.models.types.time import build_time_column
