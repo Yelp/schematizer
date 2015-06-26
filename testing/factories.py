@@ -169,12 +169,7 @@ class ConsumerFactory(object):
 class ConsumerGroupFactory(object):
 
     @classmethod
-    def create(
-        cls,
-        group_name,
-        group_type,
-        data_target,
-    ):
+    def create(cls, group_name, group_type, data_target):
         return models.ConsumerGroup(
             group_name=group_name,
             group_type=group_type,
@@ -182,12 +177,7 @@ class ConsumerGroupFactory(object):
         )
 
     @classmethod
-    def create_in_db(
-        cls,
-        group_name,
-        group_type,
-        data_target,
-    ):
+    def create_in_db(cls, group_name, group_type, data_target):
         consumer_group = cls.create(group_name, group_type, data_target)
         session.add(consumer_group)
         session.flush()
