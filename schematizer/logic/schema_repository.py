@@ -85,6 +85,12 @@ def create_avro_schema_from_avro_json(
     # Lock the domain so that no other transaction can add new topic to it.
     _lock_domain(domain)
 
+    # namespace = _get_namespace_or_create(namespace_name)
+    # _lock_namespace(namespace)
+    # source = _get_source_or_create(source, source_email_owner)
+    # _lock_source(source)
+    # topic = get_latest_topic_of_source_id(source.id)
+
     topic = get_latest_topic_of_domain(namespace, source)
 
     # Lock topic and its schemas so that no other transaction can add new
@@ -100,6 +106,7 @@ def create_avro_schema_from_avro_json(
         # is generating the same value (rarely) and we'd like to know it.
         topic_name = _construct_topic_name(namespace, source)
         topic = _create_topic(topic_name, domain)
+        # topic = _create_topic(topic_name, source)
 
     # Do not create the schema if it is the same as the latest one
     latest_schema = get_latest_schema_by_topic_id(topic.id)
@@ -129,6 +136,30 @@ def _get_domain_or_create(namespace, source, owner_email):
         return _create_domain_if_not_exist(namespace, source, owner_email)
 
 
+def _get_namespace_or_create(namespace):
+    try:
+        return session.query(
+            models.Namespace
+        ).filter(
+            models.Namespace.namespace == namespace
+        ).one()
+    except orm_exc.NoResultFound:
+        return _create_namespace(namespace)
+
+
+def _get_source_or_create(namespace, source, owner_email):
+    try:
+        return session.query(
+            models.Domain
+        ).filter(
+            models.Source.namespace_id == namespace.id,
+            models.Source.source == source
+        ).one()
+    except orm_exc.NoResultFound:
+        return _create_source_if_not_exist(namespace, source, owner_email)
+
+
+
 def _create_domain_if_not_exist(namespace, source, owner_email):
     try:
         # Create a savepoint before trying to create new domain so that
@@ -149,11 +180,48 @@ def _create_domain_if_not_exist(namespace, source, owner_email):
     return domain
 
 
+def _create_namespace(namespace_name):
+    namespace = models.Namespace(namespace=namespace_name)
+    session.add(namespace)
+    session.flush()
+    return namespace
+
+
+def _create_source_if_not_exist(namespace, source, owner_email):
+    try:
+        with session.begin_nested():
+            new_source = models.Source(
+                namespace_id=namespace.id,
+                source=source,
+                owner_email=owner_email
+            )
+            session.add(new_source)
+    except exc.IntegrityError:
+        new_source = _get_source_by_namespace_id(namespace.id, source)
+    return new_source
+
+
 def _lock_domain(domain):
     session.query(
         models.Domain
     ).filter(
         models.Domain.id == domain.id
+    ).with_for_update()
+
+
+def _lock_namespace(namespace):
+    session.query(
+        models.Namespace
+    ).filter(
+        models.Namespace.id == namespace.id
+    ).with_for_update()
+
+
+def _lock_source(source):
+    session.query(
+        models.Source
+    ).filter(
+        models.Source.id == source.id
     ).with_for_update()
 
 
@@ -186,6 +254,23 @@ def get_latest_topic_of_domain(namespace, source):
         models.Domain.source == source
     ).order_by(
         models.Topic.id.desc()
+    ).first()
+
+
+def get_latest_topic_of_namespace_source(namespace_name, source):
+    namespace = get_namespace_by_name(namespace_name)
+    if not namespace:
+        return None
+    return session.query(
+        models.Topic
+    ).join(
+        models.Source
+    ).filter(
+        models.Source.id == models.Topic.source_id,
+        models.Source.namespace_id == namespace.id,
+        models.Source.source == source
+    ).order_by(
+        models.Source.id.desc()
     ).first()
 
 
@@ -237,6 +322,26 @@ def get_domain_by_fullname(namespace, source):
     ).filter(
         models.Domain.namespace == namespace,
         models.Domain.source == source
+    ).first()
+
+
+def get_namespace_by_name(namespace):
+    return session.query(
+        models.Namespace
+    ).filter(
+        models.Namespace.namespace == namespace
+    ).first()
+
+
+def get_source(namespace_name, source):
+    namespace = get_namespace_by_name(namespace_name)
+    if not namespace:
+        return None
+    return session.query(
+        models.Source
+    ).filter(
+        models.Source.namespace_id == namespace.id,
+        models.Source.source == source
     ).first()
 
 
@@ -304,6 +409,7 @@ def is_schema_compatible(target_schema, namespace, source):
     against the existing schemas in this topic. Note that given target_schema
     is expected as Avro json object.
     """
+    # topic = get_latest_topic_of_namespace_source(namespace, source)
     topic = get_latest_topic_of_domain(namespace, source)
     if not topic:
         return True
@@ -369,10 +475,19 @@ def get_domains():
     return session.query(models.Domain).order_by(models.Domain.id).all()
 
 
+def get_sources():
+    return session.query(models.Sources).order_by(models.Sources.id).all()
+
+
 def get_namespaces():
     """Return a list of namespace strings"""
     result = session.query(models.Domain.namespace).distinct().all()
     return [namespace for (namespace,) in result]
+
+
+# def get_namespaces():
+#     result = session.query(models.Namespace.namespace).distinct().all()
+#     return [namespace for (namespace,) in result]
 
 
 def get_domains_by_namespace(namespace):
@@ -382,6 +497,16 @@ def get_domains_by_namespace(namespace):
         models.Domain.namespace == namespace
     ).order_by(
         models.Domain.id
+    ).all()
+
+
+def get_sources_by_namespace(namespace):
+    return session.query(
+        models.Source
+    ).filter(
+        models.Source.namespace == namespace
+    ).order_by(
+        models.Source.id
     ).all()
 
 
@@ -395,11 +520,37 @@ def get_topics_by_domain_id(domain_id):
     ).all()
 
 
+def get_topics_by_source_id(source_id):
+    return session.query(
+        models.Topic
+    ).filter(
+        models.Topic.source_id == source_id
+    ).order_by(
+        models.Topic.id
+    ).all()
+
+
 def get_domain_by_id(domain_id):
     return session.query(
         models.Domain
     ).filter(
         models.Domain.id == domain_id
+    ).first()
+
+
+def get_namespace_by_id(namespace_id):
+    return session.query(
+        models.Namespace
+    ).filter(
+        models.Namespace.id == namespace_id
+    ).first()
+
+
+def get_source_by_id(source_id):
+    return session.query(
+        models.Source
+    ).filter(
+        models.Source.id == source_id
     ).first()
 
 
@@ -411,6 +562,16 @@ def get_latest_topic_of_domain_id(domain_id):
         models.Topic
     ).filter(
         models.Topic.domain_id == domain_id
+    ).order_by(
+        models.Topic.id.desc()
+    ).first()
+
+
+def get_latest_topic_of_source_id(source_id):
+    return session.query(
+        models.Topic
+    ).filter(
+        models.Topic.source_id == source_id
     ).order_by(
         models.Topic.id.desc()
     ).first()

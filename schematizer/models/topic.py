@@ -33,6 +33,13 @@ class Topic(Base):
         nullable=False
     )
 
+    # The associated source_id for this topic.
+    source_id = Column(
+        Integer,
+        ForeignKey('source.id'),
+        nullable=False
+    )
+
     avro_schemas = relationship(AvroSchema, backref="topic")
 
     # Timestamp when the entry is created

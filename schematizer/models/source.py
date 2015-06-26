@@ -3,8 +3,10 @@ from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy.orm import relationship
 
 from schematizer.models.database import Base
+from schematizer.models.topic import Topic
 from schematizer.models.types.time import build_time_column
 
 
@@ -26,6 +28,8 @@ class Source(Base):
         ForeignKey('namespace.id'),
         nullable=False
     )
+
+    topics = relationship(Topic, backref="source")
 
     # Timestamp when the entry is created
     created_at = build_time_column(
