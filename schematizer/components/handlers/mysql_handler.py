@@ -125,9 +125,11 @@ class ParsedMySQLProcessor(object):
         if not issubclass(col_type_cls, data_types.MySQLInteger):
             return None
 
+        length = None
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
-        token = len_token.token_next_by_type(0, T.Number.Integer)
-        length = token.value if token else 11
+        if len_token:
+            token = len_token.token_next_by_type(0, T.Number.Integer)
+            length = token.value
 
         attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
         attr_token = self._get_attribute_token('unsigned', attributes)
@@ -139,13 +141,15 @@ class ParsedMySQLProcessor(object):
         if not issubclass(col_type_cls, data_types.MySQLRealNumber):
             return None
 
+        precision, scale = None, None
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
-        token = len_token.token_next_by_type(0, T.Number.Integer)
-        precision = token.value if token else 10
+        if len_token:
+            token = len_token.token_next_by_type(0, T.Number.Integer)
+            precision = token.value
 
-        index = len_token.token_index(token)
-        token = len_token.token_next_by_type(index + 1, T.Number.Integer)
-        scale = token.value if token else 0
+            index = len_token.token_index(token)
+            token = len_token.token_next_by_type(index + 1, T.Number.Integer)
+            scale = token.value if token else None
 
         attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
         attr_token = self._get_attribute_token('unsigned', attributes)
@@ -280,7 +284,7 @@ class MySQLHandler(SQLHandlerBase):
         self.processor = ParsedMySQLProcessor()
 
     def _parse(self, sql):
-        return sqlparse.parse(sql, dialect='mysql')[0]
+        return sqlparse.parse(sql, dialect='mysql')[0] if sql else None
 
     def _create_sql_table(self, parsed_sqls):
         last_stmt = parsed_sqls[-1] if parsed_sqls else None
