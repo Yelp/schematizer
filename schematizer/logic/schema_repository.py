@@ -201,6 +201,15 @@ def _create_source_if_not_exist(namespace, source, owner_email):
     return new_source
 
 
+def _get_source_by_namespace_id(namespace_id, source):
+    session.query(
+        models.Source
+    ).filter(
+        models.Source.namespace_id == namespace_id,
+        models.Source.source == source
+    ).first()
+
+
 def _lock_domain(domain):
     session.query(
         models.Domain

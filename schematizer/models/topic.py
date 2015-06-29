@@ -37,7 +37,7 @@ class Topic(Base):
     source_id = Column(
         Integer,
         ForeignKey('source.id'),
-        nullable=False
+        nullable=True
     )
 
     avro_schemas = relationship(AvroSchema, backref="topic")
