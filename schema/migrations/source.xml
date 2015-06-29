@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
   <changeSet author="wscheng" id="1435252560">
-  <comment>Adding namespace table as per DATAPIPE-211</comment>
+    <comment>Adding namespace table as per DATAPIPE-211</comment>
     <createTable tableName="source">
       <column autoIncrement="true" name="id" type="INT(11)">
         <constraints primaryKey="true"/>
@@ -25,5 +25,12 @@
     <modifySql dbms="mysql">
       <append value=" ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci"/>
     </modifySql>
+  </changeSet>
+
+  <changeSet author="wscheng" id="1435252561">
+    <comment>Adding unique constraint on source and namespace_id</comment>
+    <addUniqueConstraint columnNames="source, namespace_id"
+      constraintName="source_namespace_id_unique_constraint"
+      tableName="source"/>
   </changeSet>
 </databaseChangeLog>

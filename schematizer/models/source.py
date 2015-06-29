@@ -3,6 +3,7 @@ from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from schematizer.models.database import Base
@@ -13,6 +14,13 @@ from schematizer.models.types.time import build_time_column
 class Source(Base):
 
     __tablename__ = 'source'
+    __table_args__ = (
+        UniqueConstraint(
+            'source',
+            'namespace_id',
+            name='source_namespace_id_unique_constraint'
+        ),
+    )
 
     id = Column(Integer, primary_key=True)
 

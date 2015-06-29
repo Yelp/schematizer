@@ -159,7 +159,6 @@ def _get_source_or_create(namespace, source, owner_email):
         return _create_source_if_not_exist(namespace, source, owner_email)
 
 
-
 def _create_domain_if_not_exist(namespace, source, owner_email):
     try:
         # Create a savepoint before trying to create new domain so that

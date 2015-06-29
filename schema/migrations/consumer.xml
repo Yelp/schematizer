@@ -46,5 +46,10 @@
       <append value=" AFTER expected_frequency"/>
     </modifySql>
   </changeSet>
-
+  <changeSet author="wscheng" id="1435081581">
+    <createIndex indexName="consumer_group_id" tableName="consumer" unique="false">
+      <column name="consumer_group_id"/>
+    </createIndex>
+    <comment>Add index on consumer_group_id column of consumer table.</comment>
+  </changeSet>
 </databaseChangeLog>
