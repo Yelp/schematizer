@@ -59,6 +59,56 @@ class DomainFactory(object):
         session.flush()
 
 
+class NamespaceFactory(object):
+
+    @classmethod
+    def create(
+        cls,
+        namespace,
+        created_at=fake_created_at,
+        updated_at=fake_updated_at
+    ):
+        return models.Namespace(
+            namespace=namespace,
+            created_at=created_at,
+            updated_at=updated_at
+        )
+
+    @classmethod
+    def create_in_db(cls, namespace):
+        namespace = cls.create(namespace)
+        session.add(namespace)
+        session.flush()
+        return namespace
+
+
+class SourceFactory(object):
+
+    @classmethod
+    def create(
+        cls,
+        source,
+        namespace,
+        owner_email=fake_owner_email,
+        created_at=fake_created_at,
+        updated_at=fake_updated_at
+    ):
+        return models.Source(
+            source=source,
+            namespace_id=namespace.id,
+            owner_email=owner_email,
+            created_at=created_at,
+            updated_at=updated_at
+        )
+
+    @classmethod
+    def create_in_db(cls, source, namespace):
+        source = cls.create(source, namespace)
+        session.add(source)
+        session.flush()
+        return source
+
+
 class TopicFactory(object):
 
     @classmethod
