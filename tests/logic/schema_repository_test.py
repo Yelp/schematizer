@@ -83,14 +83,6 @@ class TestSchemaRepository(DBTestCase):
         with mock.patch(target, return_value=request.param) as mock_func:
             yield mock_func
 
-    # def get_domain_by_namespace_and_source_names(self, namespace_name, source_name):
-    #     return session.query(
-    #         models.Domain
-    #     ).filter(
-    #         models.Domain.namespace == namespace,
-    #         models.Domain.source == source
-    #     ).one()
-
     def get_namespace(self, name):
         return session.query(
             models.Namespace
@@ -277,7 +269,7 @@ class TestSchemaRepository(DBTestCase):
         actual = schema_repo.get_topic_by_name(self.topic_name)
         assert topic.id == actual.id
         assert topic.name == actual.name
-        assert topic.domain_id == actual.domain_id
+        assert topic.source_id == actual.source_id
         assert topic.created_at == actual.created_at
         assert topic.updated_at == actual.updated_at
 
@@ -296,223 +288,224 @@ class TestSchemaRepository(DBTestCase):
         assert source.created_at == actual.created_at
         assert source.updated_at == actual.updated_at
 
-    # def test_get_domain_by_fullname_with_nonexistent_domain(self):
-    #     actual = schema_repo.get_domain_by_fullname('foo', 'bar')
-    #     assert actual is None
+    def test_get_source_by_fullname_with_nonexistent_source(self):
+        actual = schema_repo.get_source_by_fullname('foo', 'bar')
+        assert actual is None
 
-    # def test_get_schema_by_id(self, rw_avro_schema):
-    #     actual = schema_repo.get_schema_by_id(rw_avro_schema.id)
-    #     self.verify_avro_schema(rw_avro_schema, actual)
+    def test_get_schema_by_id(self, rw_avro_schema):
+        actual = schema_repo.get_schema_by_id(rw_avro_schema.id)
+        self.verify_avro_schema(rw_avro_schema, actual)
 
-    # def verify_avro_schema(self, expected, actual):
-    #     assert expected.id == actual.id
-    #     assert expected.avro_schema == actual.avro_schema
-    #     assert expected.topic_id == actual.topic_id
-    #     assert expected.base_schema_id == actual.base_schema_id
-    #     assert expected.status == actual.status
-    #     assert expected.created_at == actual.created_at
-    #     assert expected.updated_at == actual.updated_at
+    def verify_avro_schema(self, expected, actual):
+        assert expected.id == actual.id
+        assert expected.avro_schema == actual.avro_schema
+        assert expected.topic_id == actual.topic_id
+        assert expected.base_schema_id == actual.base_schema_id
+        assert expected.status == actual.status
+        assert expected.created_at == actual.created_at
+        assert expected.updated_at == actual.updated_at
 
-    # def test_get_schema_by_id_with_nonexistent_schema(self):
-    #     actual = schema_repo.get_schema_by_id(0)
-    #     assert actual is None
+    def test_get_schema_by_id_with_nonexistent_schema(self):
+        actual = schema_repo.get_schema_by_id(0)
+        assert actual is None
 
-    # def test_get_latest_schema_by_topic_id(self, topic, rw_avro_schema):
-    #     actual = schema_repo.get_latest_schema_by_topic_id(topic.id)
-    #     self.verify_avro_schema(rw_avro_schema, actual)
+    def test_get_latest_schema_by_topic_id(self, topic, rw_avro_schema):
+        actual = schema_repo.get_latest_schema_by_topic_id(topic.id)
+        self.verify_avro_schema(rw_avro_schema, actual)
 
-    # def test_get_latest_schema_by_topic_id_with_nonexistent_topic(self):
-    #     actual = schema_repo.get_latest_schema_by_topic_id(0)
-    #     assert actual is None
+    def test_get_latest_schema_by_topic_id_with_nonexistent_topic(self):
+        actual = schema_repo.get_latest_schema_by_topic_id(0)
+        assert actual is None
 
-    # def test_get_latest_schema_by_topic_id_with_empty_topic(self, topic):
-    #     factories.TopicFactory.delete_avro_schemas(topic.id)
-    #     actual = schema_repo.get_latest_schema_by_topic_id(topic.id)
-    #     assert actual is None
+    def test_get_latest_schema_by_topic_id_with_empty_topic(self, topic):
+        factories.TopicFactory.delete_avro_schemas(topic.id)
+        actual = schema_repo.get_latest_schema_by_topic_id(topic.id)
+        assert actual is None
 
-    # def test_get_latest_schema_by_topic_id_with_all_disabled_schema(
-    #         self,
-    #         topic,
-    #         rw_avro_schema
-    # ):
-    #     factories.AvroSchemaFactory.delete(rw_avro_schema.id)
-    #     actual = schema_repo.get_latest_schema_by_topic_id(topic.id)
-    #     assert actual is None
+    def test_get_latest_schema_by_topic_id_with_all_disabled_schema(
+            self,
+            topic,
+            rw_avro_schema
+    ):
+        factories.AvroSchemaFactory.delete(rw_avro_schema.id)
+        actual = schema_repo.get_latest_schema_by_topic_id(topic.id)
+        assert actual is None
 
-    # def test_get_latest_schema_by_topic_name(self, topic, rw_avro_schema):
-    #     actual = schema_repo.get_latest_schema_by_topic_name(topic.name)
-    #     self.verify_avro_schema(rw_avro_schema, actual)
+    def test_get_latest_schema_by_topic_name(self, topic, rw_avro_schema):
+        actual = schema_repo.get_latest_schema_by_topic_name(topic.name)
+        self.verify_avro_schema(rw_avro_schema, actual)
 
-    # def test_get_latest_schema_by_topic_name_with_nonexistent_topic(self):
-    #     actual = schema_repo.get_latest_schema_by_topic_name('_bad.topic')
-    #     assert actual is None
+    def test_get_latest_schema_by_topic_name_with_nonexistent_topic(self):
+        actual = schema_repo.get_latest_schema_by_topic_name('_bad.topic')
+        assert actual is None
 
-    # @pytest.mark.usefixtures('avro_schemas')
-    # def test_is_schema_compatible(self, mock_compatible_func):
-    #     target_schema = 'avro schema to be validated'
-    #     actual = schema_repo.is_schema_compatible(
-    #         target_schema,
-    #         self.namespace,
-    #         self.source
-    #     )
-    #     expected = mock_compatible_func.return_value
-    #     assert expected == actual
+    @pytest.mark.usefixtures('avro_schemas')
+    def test_is_schema_compatible(self, mock_compatible_func):
+        target_schema = 'avro schema to be validated'
+        actual = schema_repo.is_schema_compatible(
+            target_schema,
+            self.namespace_name,
+            self.source_name
+        )
+        expected = mock_compatible_func.return_value
+        assert expected == actual
 
-    # def test_is_schema_compatible_with_no_topic_in_domain(self, domain):
-    #     factories.DomainFactory.delete_topics(domain.id)
-    #     actual = schema_repo.is_schema_compatible(
-    #         'avro schema to be validated',
-    #         domain.namespace,
-    #         domain.source
-    #     )
-    #     assert True == actual
+    def test_is_schema_compatible_with_no_topic_in_source(self, namespace, source):
+        factories.SourceFactory.delete_topics(source.id)
+        actual = schema_repo.is_schema_compatible(
+            'avro schema to be validated',
+            namespace.name,
+            source.name
+        )
+        assert True == actual
 
-    #     actual = schema_repo.is_schema_compatible('avro schema', 'foo', 'bar')
-    #     assert True == actual
+        actual = schema_repo.is_schema_compatible('avro schema', 'foo', 'bar')
+        assert True == actual
 
-    # def test_get_schemas_by_topic_name(self, topic, rw_avro_schema):
-    #     actual = schema_repo.get_schemas_by_topic_name(topic.name)
-    #     assert 1 == len(actual)
-    #     self.verify_avro_schema(rw_avro_schema, actual[0])
+    def test_get_schemas_by_topic_name(self, topic, rw_avro_schema):
+        actual = schema_repo.get_schemas_by_topic_name(topic.name)
+        assert 1 == len(actual)
+        self.verify_avro_schema(rw_avro_schema, actual[0])
 
-    # def test_get_schemas_by_topic_name_including_disabled(
-    #         self,
-    #         topic,
-    #         rw_avro_schema,
-    #         disabled_avro_schema
-    # ):
-    #     actual = schema_repo.get_schemas_by_topic_name(topic.name, True)
-    #     assert 2 == len(actual)
-    #     self.verify_avro_schema(disabled_avro_schema, actual[0])
-    #     self.verify_avro_schema(rw_avro_schema, actual[1])
+    def test_get_schemas_by_topic_name_including_disabled(
+            self,
+            topic,
+            rw_avro_schema,
+            disabled_avro_schema
+    ):
+        actual = schema_repo.get_schemas_by_topic_name(topic.name, True)
+        assert 2 == len(actual)
+        self.verify_avro_schema(disabled_avro_schema, actual[0])
+        self.verify_avro_schema(rw_avro_schema, actual[1])
 
-    # def test_get_schemas_by_topic_name_with_nonexistent_topic(self):
-    #     actual = schema_repo.get_schemas_by_topic_name('foo')
-    #     assert [] == actual
+    def test_get_schemas_by_topic_name_with_nonexistent_topic(self):
+        actual = schema_repo.get_schemas_by_topic_name('foo')
+        assert [] == actual
 
-    # def test_get_schemas_by_topic_id(self, topic, rw_avro_schema):
-    #     actual = schema_repo.get_schemas_by_topic_id(topic.id)
-    #     assert 1 == len(actual)
-    #     self.verify_avro_schema(rw_avro_schema, actual[0])
+    def test_get_schemas_by_topic_id(self, topic, rw_avro_schema):
+        actual = schema_repo.get_schemas_by_topic_id(topic.id)
+        assert 1 == len(actual)
+        self.verify_avro_schema(rw_avro_schema, actual[0])
 
-    # def test_get_schemas_by_topic_id_including_disabled(
-    #         self,
-    #         topic,
-    #         rw_avro_schema,
-    #         disabled_avro_schema
-    # ):
-    #     actual = schema_repo.get_schemas_by_topic_id(topic.id, True)
-    #     assert 2 == len(actual)
-    #     self.verify_avro_schema(disabled_avro_schema, actual[0])
-    #     self.verify_avro_schema(rw_avro_schema, actual[1])
+    def test_get_schemas_by_topic_id_including_disabled(
+            self,
+            topic,
+            rw_avro_schema,
+            disabled_avro_schema
+    ):
+        actual = schema_repo.get_schemas_by_topic_id(topic.id, True)
+        assert 2 == len(actual)
+        self.verify_avro_schema(disabled_avro_schema, actual[0])
+        self.verify_avro_schema(rw_avro_schema, actual[1])
 
-    # def test_get_schemas_by_topic_id_with_nonexistent_topic(self):
-    #     actual = schema_repo.get_schemas_by_topic_id(0)
-    #     assert [] == actual
+    def test_get_schemas_by_topic_id_with_nonexistent_topic(self):
+        actual = schema_repo.get_schemas_by_topic_id(0)
+        assert [] == actual
 
-    # def test_mark_schema_disabled(self, rw_avro_schema):
-    #     schema_repo.mark_schema_disabled(rw_avro_schema.id)
-    #     actual = session.query(
-    #         models.AvroSchema
-    #     ).filter(
-    #         models.AvroSchema.id == rw_avro_schema.id
-    #     ).one()
-    #     assert models.AvroSchemaStatus.DISABLED == actual.status
+    def test_mark_schema_disabled(self, rw_avro_schema):
+        schema_repo.mark_schema_disabled(rw_avro_schema.id)
+        actual = session.query(
+            models.AvroSchema
+        ).filter(
+            models.AvroSchema.id == rw_avro_schema.id
+        ).one()
+        assert models.AvroSchemaStatus.DISABLED == actual.status
 
-    # def test_mark_schema_disabled_with_nonexisted_schema(self, rw_avro_schema):
-    #     # nothing should happen
-    #     schema_repo.mark_schema_disabled(0)
-    #     actual = session.query(
-    #         models.AvroSchema
-    #     ).filter(
-    #         models.AvroSchema.id == rw_avro_schema.id
-    #     ).one()
-    #     assert models.AvroSchemaStatus.READ_AND_WRITE == actual.status
+    def test_mark_schema_disabled_with_nonexisted_schema(self, rw_avro_schema):
+        # nothing should happen
+        schema_repo.mark_schema_disabled(0)
+        actual = session.query(
+            models.AvroSchema
+        ).filter(
+            models.AvroSchema.id == rw_avro_schema.id
+        ).one()
+        assert models.AvroSchemaStatus.READ_AND_WRITE == actual.status
 
-    # def test_mark_schema_readonly(self, rw_avro_schema):
-    #     schema_repo.mark_schema_readonly(rw_avro_schema.id)
-    #     actual = session.query(
-    #         models.AvroSchema
-    #     ).filter(
-    #         models.AvroSchema.id == rw_avro_schema.id
-    #     ).one()
-    #     assert models.AvroSchemaStatus.READ_ONLY == actual.status
+    def test_mark_schema_readonly(self, rw_avro_schema):
+        schema_repo.mark_schema_readonly(rw_avro_schema.id)
+        actual = session.query(
+            models.AvroSchema
+        ).filter(
+            models.AvroSchema.id == rw_avro_schema.id
+        ).one()
+        assert models.AvroSchemaStatus.READ_ONLY == actual.status
 
-    # def test_mark_schema_readonly_with_nonexisted_schema(self, rw_avro_schema):
-    #     # nothing should happen
-    #     schema_repo.mark_schema_readonly(0)
-    #     actual = session.query(
-    #         models.AvroSchema
-    #     ).filter(
-    #         models.AvroSchema.id == rw_avro_schema.id
-    #     ).one()
-    #     assert models.AvroSchemaStatus.READ_AND_WRITE == actual.status
+    def test_mark_schema_readonly_with_nonexisted_schema(self, rw_avro_schema):
+        # nothing should happen
+        schema_repo.mark_schema_readonly(0)
+        actual = session.query(
+            models.AvroSchema
+        ).filter(
+            models.AvroSchema.id == rw_avro_schema.id
+        ).one()
+        assert models.AvroSchemaStatus.READ_AND_WRITE == actual.status
 
-    # def test_get_domains(self, domain):
-    #     actual = schema_repo.get_domains()
-    #     assert 1 == len(actual)
-    #     self.verify_domain(domain, actual[0])
+    def test_get_sources(self, source):
+        actual = schema_repo.get_sources()
+        assert 1 == len(actual)
+        self.verify_source(source, actual[0])
 
-    # def verify_domain(self, expected, actual):
-    #     assert expected.namespace == actual.namespace
-    #     assert expected.source == actual.source
-    #     assert expected.owner_email == actual.owner_email
-    #     assert expected.created_at == actual.created_at
-    #     assert expected.updated_at == actual.updated_at
+    def verify_source(self, expected, actual):
+        assert expected.namespace_id == actual.namespace_id
+        assert expected.name == actual.name
+        assert expected.owner_email == actual.owner_email
+        assert expected.created_at == actual.created_at
+        assert expected.updated_at == actual.updated_at
 
-    # @pytest.mark.usefixtures('domain')
-    # def test_get_namespaces(self):
-    #     factories.DomainFactory.create(self.namespace, 'another source')
-    #     actual = schema_repo.get_namespaces()
-    #     assert 1 == len(actual)
-    #     assert self.namespace == actual[0]
+    @pytest.mark.usefixtures('source')
+    def test_get_namespaces(self, namespace):
+        factories.SourceFactory.create('another source', namespace)
+        actual = schema_repo.get_namespaces()
+        assert 1 == len(actual)
+        assert self.namespace_name == actual[0]
 
-    # def test_get_domains_by_namespace(self, domain):
-    #     factories.DomainFactory.create('another namespace', 'another source')
-    #     actual = schema_repo.get_domains_by_namespace(self.namespace)
-    #     assert 1 == len(actual)
-    #     self.verify_domain(domain, actual[0])
+    def test_get_sources_by_namespace(self, source):
+        other_namespace = factories.NamespaceFactory.create('another namespace')
+        factories.SourceFactory.create('another source', other_namespace)
+        actual = schema_repo.get_sources_by_namespace(self.namespace_name)
+        assert 1 == len(actual)
+        self.verify_source(source, actual[0])
 
-    # @pytest.mark.usefixtures('domain')
-    # def test_get_domains_by_namespace_with_nonexistent_namespace(self):
-    #     actual = schema_repo.get_domains_by_namespace('foo')
-    #     assert 0 == len(actual)
+    @pytest.mark.usefixtures('source')
+    def test_get_sources_by_namespace_with_nonexistent_namespace(self):
+        actual = schema_repo.get_sources_by_namespace('foo')
+        assert 0 == len(actual)
 
-    # def test_get_topics_by_domain_id(self, domain, topic):
-    #     actual = schema_repo.get_topics_by_domain_id(domain.id)
-    #     assert 1 == len(actual)
-    #     self.verify_topic(topic, actual[0])
+    def test_get_topics_by_source_id(self, source, topic):
+        actual = schema_repo.get_topics_by_source_id(source.id)
+        assert 1 == len(actual)
+        self.verify_topic(topic, actual[0])
 
-    # def test_available_converters(self):
-    #     expected = {
-    #         (models.SchemaKindEnum.MySQL, models.SchemaKindEnum.Avro):
-    #         converters.MySQLToAvroConverter,
-    #         (models.SchemaKindEnum.Avro, models.SchemaKindEnum.Redshift):
-    #         converters.AvroToRedshiftConverter
-    #     }
-    #     for key, value in expected.iteritems():
-    #         actual = schema_repo.converters[key]
-    #         source_type, target_type = key
-    #         assert source_type == actual.source_type
-    #         assert target_type == actual.target_type
-    #         assert value == actual
+    def test_available_converters(self):
+        expected = {
+            (models.SchemaKindEnum.MySQL, models.SchemaKindEnum.Avro):
+            converters.MySQLToAvroConverter,
+            (models.SchemaKindEnum.Avro, models.SchemaKindEnum.Redshift):
+            converters.AvroToRedshiftConverter
+        }
+        for key, value in expected.iteritems():
+            actual = schema_repo.converters[key]
+            source_type, target_type = key
+            assert source_type == actual.source_type
+            assert target_type == actual.target_type
+            assert value == actual
 
-    # def test_convert_schema(self):
-    #     with mock.patch.object(
-    #         converters.MySQLToAvroConverter,
-    #         'convert'
-    #     ) as mock_converter:
-    #         schema_repo.convert_schema(
-    #             models.SchemaKindEnum.MySQL,
-    #             models.SchemaKindEnum.Avro,
-    #             self.rw_avro_schema_json
-    #         )
-    #         mock_converter.assert_called_once_with(self.rw_avro_schema_json)
+    def test_convert_schema(self):
+        with mock.patch.object(
+            converters.MySQLToAvroConverter,
+            'convert'
+        ) as mock_converter:
+            schema_repo.convert_schema(
+                models.SchemaKindEnum.MySQL,
+                models.SchemaKindEnum.Avro,
+                self.rw_avro_schema_json
+            )
+            mock_converter.assert_called_once_with(self.rw_avro_schema_json)
 
-    # def test_convert_schema_with_no_suitable_converter(self):
-    #     with pytest.raises(Exception):
-    #         schema_repo.convert_schema(
-    #             mock.Mock(),
-    #             mock.Mock(),
-    #             self.rw_avro_schema_json
-    #         )
+    def test_convert_schema_with_no_suitable_converter(self):
+        with pytest.raises(Exception):
+            schema_repo.convert_schema(
+                mock.Mock(),
+                mock.Mock(),
+                self.rw_avro_schema_json
+            )

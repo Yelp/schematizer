@@ -485,7 +485,7 @@ def get_domains():
 
 
 def get_sources():
-    return session.query(models.Sources).order_by(models.Sources.id).all()
+    return session.query(models.Source).order_by(models.Source.id).all()
 
 
 # def get_namespaces():
@@ -509,12 +509,13 @@ def get_domains_by_namespace(namespace):
     ).all()
 
 
-# TODO: THIS IS WRONGGFGGGGG
-def get_sources_by_namespace(namespace):
+def get_sources_by_namespace(namespace_name):
     return session.query(
         models.Source
+    ).join(
+        models.Namespace
     ).filter(
-        models.Source.namespace == namespace
+        models.Namespace.name == namespace_name
     ).order_by(
         models.Source.id
     ).all()
