@@ -237,9 +237,9 @@ class TestSchemaRepository(DBTestCase):
         )
         assert actual is None
 
-    # def test_get_latest_topic_of_domain_with_nonexistent_domain(self):
-    #     actual = schema_repo.get_latest_topic_of_domain('foo', 'bar')
-    #     assert actual is None
+    def test_get_latest_topic_of_source_with_nonexistent_source(self):
+        actual = schema_repo.get_latest_topic_of_domain('foo', 'bar') <----
+        assert actual is None
 
     # def test_get_latest_topic_of_domain_id_with_no_topic(self, domain):
     #     factories.DomainFactory.delete_topics(domain.id)
