@@ -30,14 +30,14 @@ class Topic(Base):
     domain_id = Column(
         Integer,
         ForeignKey('domain.id'),
-        nullable=False
+        nullable=True
     )
 
     # The associated source_id for this topic.
     source_id = Column(
         Integer,
         ForeignKey('source.id'),
-        nullable=True
+        nullable=False
     )
 
     avro_schemas = relationship(AvroSchema, backref="topic")

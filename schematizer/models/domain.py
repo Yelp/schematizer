@@ -33,7 +33,7 @@ class Domain(Base):
     # Email address of the source owner.
     owner_email = Column(String, nullable=False)
 
-    topics = relationship(Topic, backref="domain")
+    # topics = relationship(Topic, backref="domain")
 
     # Timestamp when the entry is created
     created_at = build_time_column(
