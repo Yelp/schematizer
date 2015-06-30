@@ -238,63 +238,63 @@ class TestSchemaRepository(DBTestCase):
         assert actual is None
 
     def test_get_latest_topic_of_source_with_nonexistent_source(self):
-        actual = schema_repo.get_latest_topic_of_domain('foo', 'bar') <----
+        actual = schema_repo.get_latest_topic_of_namespace_source('foo', 'bar')
         assert actual is None
 
-    # def test_get_latest_topic_of_domain_id_with_no_topic(self, domain):
-    #     factories.DomainFactory.delete_topics(domain.id)
-    #     actual = schema_repo.get_latest_topic_of_domain_id(domain.id)
-    #     assert actual is None
+    def test_get_latest_topic_of_source_id_with_no_topic(self, source):
+        factories.SourceFactory.delete_topics(source.id)
+        actual = schema_repo.get_latest_topic_of_source_id(source.id)
+        assert actual is None
 
-    # def test_get_latest_topic_of_domain_id_with_nonexistent_domain(self):
-    #     actual = schema_repo.get_latest_topic_of_domain_id(0)
-    #     assert actual is None
+    def test_get_latest_topic_of_source_id_with_nonexistent_source(self):
+        actual = schema_repo.get_latest_topic_of_source_id(0)
+        assert actual is None
 
-    # @pytest.mark.usefixtures('domain', 'avro_schemas')
-    # def test_is_schema_compatible_in_topic(self, topic, mock_compatible_func):
-    #     actual = schema_repo.is_schema_compatible_in_topic(
-    #         self.rw_avro_schema_json,
-    #         topic.name
-    #     )
-    #     expected = mock_compatible_func.return_value
-    #     assert expected == actual
+    @pytest.mark.usefixtures('source', 'avro_schemas')
+    def test_is_schema_compatible_in_topic(self, topic, mock_compatible_func):
+        actual = schema_repo.is_schema_compatible_in_topic(
+            self.rw_avro_schema_json,
+            topic.name
+        )
+        expected = mock_compatible_func.return_value
+        assert expected == actual
 
-    # def test_is_schema_compatible_in_topic_with_no_enabled_schema(
-    #         self,
-    #         topic,
-    #         rw_avro_schema
-    # ):
-    #     factories.AvroSchemaFactory.delete(rw_avro_schema.id)
-    #     actual = schema_repo.is_schema_compatible_in_topic('avro', topic.name)
-    #     assert True == actual
+    def test_is_schema_compatible_in_topic_with_no_enabled_schema(
+            self,
+            topic,
+            rw_avro_schema
+    ):
+        factories.AvroSchemaFactory.delete(rw_avro_schema.id)
+        actual = schema_repo.is_schema_compatible_in_topic('avro', topic.name)
+        assert True == actual
 
-    # @pytest.mark.usefixtures('avro_schemas')
-    # def test_is_schema_compatible_in_topic_with_bad_topic_name(self):
-    #     actual = schema_repo.is_schema_compatible_in_topic('avro', 'foo')
-    #     assert True == actual
+    @pytest.mark.usefixtures('avro_schemas')
+    def test_is_schema_compatible_in_topic_with_bad_topic_name(self):
+        actual = schema_repo.is_schema_compatible_in_topic('avro', 'foo')
+        assert True == actual
 
-    # def test_get_topic_by_name(self, topic):
-    #     actual = schema_repo.get_topic_by_name(self.topic_name)
-    #     assert topic.id == actual.id
-    #     assert topic.name == actual.name
-    #     assert topic.domain_id == actual.domain_id
-    #     assert topic.created_at == actual.created_at
-    #     assert topic.updated_at == actual.updated_at
+    def test_get_topic_by_name(self, topic):
+        actual = schema_repo.get_topic_by_name(self.topic_name)
+        assert topic.id == actual.id
+        assert topic.name == actual.name
+        assert topic.domain_id == actual.domain_id
+        assert topic.created_at == actual.created_at
+        assert topic.updated_at == actual.updated_at
 
-    # def test_get_topic_by_name_with_nonexistent_topic(self):
-    #     actual = schema_repo.get_topic_by_name('foo')
-    #     assert actual is None
+    def test_get_topic_by_name_with_nonexistent_topic(self):
+        actual = schema_repo.get_topic_by_name('foo')
+        assert actual is None
 
-    # def test_get_domain_by_fullname(self, domain):
-    #     actual = schema_repo.get_domain_by_fullname(
-    #         self.namespace,
-    #         self.source
-    #     )
-    #     assert domain.id == actual.id
-    #     assert domain.namespace == actual.namespace
-    #     assert domain.source == actual.source
-    #     assert domain.created_at == actual.created_at
-    #     assert domain.updated_at == actual.updated_at
+    def test_get_source_by_fullname(self, source):
+        actual = schema_repo.get_source_by_fullname(
+            self.namespace_name,
+            self.source_name
+        )
+        assert source.id == actual.id
+        assert source.namespace_id == actual.namespace_id
+        assert source.name == actual.name
+        assert source.created_at == actual.created_at
+        assert source.updated_at == actual.updated_at
 
     # def test_get_domain_by_fullname_with_nonexistent_domain(self):
     #     actual = schema_repo.get_domain_by_fullname('foo', 'bar')
