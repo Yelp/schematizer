@@ -14,9 +14,9 @@ class Source(Base):
     __tablename__ = 'source'
     __table_args__ = (
         UniqueConstraint(
-            'source',
+            'name',
             'namespace_id',
-            name='source_namespace_id_unique_constraint'
+            name='name_namespace_id_unique_constraint'
         ),
     )
 
@@ -24,7 +24,7 @@ class Source(Base):
 
     # Source of the Avro schema, such as table "User",
     # or log "service.foo" etc.
-    source = Column(String, nullable=False)
+    name = Column(String, nullable=False)
 
     # Email address of the source owner.
     owner_email = Column(String, nullable=False)
@@ -51,7 +51,7 @@ class Source(Base):
     def to_dict(self):
         return {
             'source_id': self.id,
-            'source': self.source,
+            'name': self.name,
             'source_owner_email': self.owner_email,
             'namespace_id': self.namespace_id,
             'created_at': self.created_at,
