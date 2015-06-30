@@ -6,8 +6,21 @@ from schematizer.components.handlers import sql_handler
 from schematizer.components.handlers import sql_handler_base
 
 
-def convert_to_avro_from_mysql(mysql_statements, schema_repo):
+def convert_to_avro_from_mysql(
+    schema_repo,
+    new_create_table_stmt,
+    old_create_table_stmt=None,
+    alter_table_stmt=None
+):
+    if bool(old_create_table_stmt) ^ bool(alter_table_stmt):
+        raise exceptions_v1.invalid_request_exception(
+            'Both old_create_table_stmt and alter_table_stmt must be provided.'
+        )
+
     try:
+        mysql_statements = [
+            old_create_table_stmt, alter_table_stmt, new_create_table_stmt
+        ]
         sql_table = sql_handler.create_sql_table_from_sql_stmts(
             mysql_statements,
             sql_handler_base.SQLDialect.MySQL

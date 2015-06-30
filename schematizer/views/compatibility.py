@@ -42,8 +42,10 @@ def is_avro_schema_compatible(request):
 def is_mysql_schema_compatible(request):
     req = requests_v1.MysqlSchemaCompatibilityRequest(**request.json_body)
     avro_schema_json = view_common.convert_to_avro_from_mysql(
-        req.mysql_statements,
-        schema_repo
+        schema_repo,
+        req.new_create_table_stmt,
+        req.old_create_table_stmt,
+        req.alter_table_stmt
     )
     return _is_schema_compatible(avro_schema_json, req.namespace, req.source)
 

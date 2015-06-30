@@ -7,6 +7,7 @@ from avro import schema
 from schematizer.components.converters import converter_base
 from schematizer.components.handlers import sql_handler_base
 from schematizer.views import compatibility as compatibility_views
+from schematizer.views import view_common
 from testing import factories
 from tests.views.api_test_base import TestApiBase
 
@@ -81,16 +82,20 @@ class TestAvroSchemaCompatibility(TestCompatibilityViewBase):
 class TestMySQLSchemaCompatibility(TestCompatibilityViewBase):
 
     @property
-    def request_json(self):
-        return {
-            "mysql_statements": factories.fake_mysql_create_stmts,
+    def new_create_table_stmt(self):
+        return 'create new table'
+
+    @property
+    def old_create_table_stmt(self):
+        return 'create old table'
+
+    @pytest.fixture
+    def setup_mock_request_for_new_table(self, mock_request):
+        mock_request.json_body = {
+            "new_create_table_stmt": self.new_create_table_stmt,
             "namespace": factories.fake_namespace,
             "source": factories.fake_source
         }
-
-    @pytest.fixture
-    def setup_mock_request_json_body(self, mock_request):
-        mock_request.json_body = self.request_json
 
     @property
     def converted_schema(self):
@@ -100,15 +105,38 @@ class TestMySQLSchemaCompatibility(TestCompatibilityViewBase):
     def compatible_value(self):
         return True
 
+    @pytest.yield_fixture
+    def mock_create_sql_table_from_mysql_stmts(self):
+        with mock.patch.object(
+            view_common.sql_handler,
+            'create_sql_table_from_sql_stmts',
+        ) as mock_func:
+            yield mock_func
+
+    @pytest.mark.parametrize("request_body", [
+        {
+            "new_create_table_stmt": 'create new table',
+            "namespace": factories.fake_namespace,
+            "source": factories.fake_source,
+        },
+        {
+            "new_create_table_stmt": 'create new table',
+            "old_create_table_stmt": 'create old table',
+            "alter_table_stmt": 'update existing table',
+            "namespace": factories.fake_namespace,
+            "source": factories.fake_source,
+        },
+    ])
     @pytest.mark.usefixtures(
-        'setup_mock_request_json_body',
         'mock_create_sql_table_from_mysql_stmts'
     )
     def test_compatible_schema(
         self,
         mock_request,
-        mock_repo
+        mock_repo,
+        request_body
     ):
+        mock_request.json_body = request_body
         mock_repo.convert_schema.return_value = self.converted_schema
         mock_repo.is_schema_compatible.return_value = self.compatible_value
 
@@ -121,7 +149,7 @@ class TestMySQLSchemaCompatibility(TestCompatibilityViewBase):
             factories.fake_source
         )
 
-    @pytest.mark.usefixtures('setup_mock_request_json_body')
+    @pytest.mark.usefixtures('setup_mock_request_for_new_table')
     def test_compatible_schema_with_mysql_handler_exception(
         self,
         mock_request,
@@ -138,7 +166,7 @@ class TestMySQLSchemaCompatibility(TestCompatibilityViewBase):
         assert 'oops' == str(e.value)
 
     @pytest.mark.usefixtures(
-        'setup_mock_request_json_body',
+        'setup_mock_request_for_new_table',
         'mock_create_sql_table_from_mysql_stmts',
     )
     def test_compatible_schema_with_conversion_exception(
@@ -157,7 +185,7 @@ class TestMySQLSchemaCompatibility(TestCompatibilityViewBase):
         assert 'oops' == str(e.value)
 
     @pytest.mark.usefixtures(
-        'setup_mock_request_json_body',
+        'setup_mock_request_for_new_table',
         'mock_create_sql_table_from_mysql_stmts'
     )
     def test_compatible_schema_with_avro_exception(
@@ -173,3 +201,25 @@ class TestMySQLSchemaCompatibility(TestCompatibilityViewBase):
 
         assert expected_exception.code == e.value.code
         assert 'ex' == str(e.value)
+
+    def test_compatible_schema_with_invalid_request(
+        self,
+        mock_request,
+        mock_repo
+    ):
+        mock_request.json_body = {
+            "new_create_table_stmt": self.new_create_table_stmt,
+            "old_create_table_stmt": self.old_create_table_stmt,
+            "alter_table_stmt": None,
+            "namespace": factories.fake_namespace,
+            "source": factories.fake_source,
+        }
+        expected_exception = self.get_http_exception(400)
+
+        with pytest.raises(expected_exception) as e:
+            compatibility_views.is_mysql_schema_compatible(mock_request)
+
+        expected_err = 'Both old_create_table_stmt and alter_table_stmt ' \
+                       'must be provided.'
+        assert expected_exception.code == e.value.code
+        assert expected_err == str(e.value)
