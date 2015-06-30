@@ -104,7 +104,7 @@ def create_avro_schema_from_avro_json(
     # Do not create the schema if it is the same as the latest one
     latest_schema = get_latest_schema_by_topic_id(topic.id)
     if (latest_schema
-            and simplejson.loads(latest_schema.avro_schema) == avro_schema_json
+            and latest_schema.avro_schema_json == avro_schema_json
             and latest_schema.base_schema_id == base_schema_id):
         return latest_schema
 
@@ -247,12 +247,15 @@ def _create_avro_schema(
         base_schema_id=None
 ):
     avro_schema = models.AvroSchema(
-        avro_schema=simplejson.dumps(avro_schema_json),
+        avro_schema_json=avro_schema_json,
         topic_id=topic_id,
         status=status,
         base_schema_id=base_schema_id
     )
     session.add(avro_schema)
+
+    # TODO[clin|DATAPIPE-224]: create schema elements of new Avro schema
+
     session.flush()
     return avro_schema
 
