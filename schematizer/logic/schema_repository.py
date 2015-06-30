@@ -133,7 +133,7 @@ def _get_namespace_or_create(namespace):
         return session.query(
             models.Namespace
         ).filter(
-            models.Namespace.namespace == namespace
+            models.Namespace.name == namespace
         ).one()
     except orm_exc.NoResultFound:
         return _create_namespace(namespace)
@@ -145,7 +145,7 @@ def _get_source_or_create(namespace, source, owner_email):
             models.Source
         ).filter(
             models.Source.namespace_id == namespace.id,
-            models.Source.source == source
+            models.Source.name == source
         ).one()
     except orm_exc.NoResultFound:
         return _create_source_if_not_exist(namespace, source, owner_email)
@@ -172,23 +172,23 @@ def _create_domain_if_not_exist(namespace, source, owner_email):
 
 
 def _create_namespace(namespace_name):
-    namespace = models.Namespace(namespace=namespace_name)
+    namespace = models.Namespace(name=namespace_name)
     session.add(namespace)
     session.flush()
     return namespace
 
 
-def _create_source_if_not_exist(namespace, source, owner_email):
+def _create_source_if_not_exist(namespace, source_name, owner_email):
     try:
         with session.begin_nested():
             new_source = models.Source(
                 namespace_id=namespace.id,
-                source=source,
+                name=source_name,
                 owner_email=owner_email
             )
             session.add(new_source)
     except exc.IntegrityError:
-        new_source = _get_source_by_namespace_id(namespace.id, source)
+        new_source = _get_source_by_namespace_id(namespace.id, source_name)
     return new_source
 
 
@@ -197,7 +197,7 @@ def _get_source_by_namespace_id(namespace_id, source):
         models.Source
     ).filter(
         models.Source.namespace_id == namespace_id,
-        models.Source.source == source
+        models.Source.name == source
     ).first()
 
 
@@ -268,7 +268,7 @@ def get_latest_topic_of_namespace_source(namespace_name, source):
     ).filter(
         models.Source.id == models.Topic.source_id,
         models.Source.namespace_id == namespace.id,
-        models.Source.source == source
+        models.Source.name == source
     ).order_by(
         models.Topic.id.desc()
     ).first()
@@ -335,7 +335,7 @@ def get_namespace_by_name(namespace):
     return session.query(
         models.Namespace
     ).filter(
-        models.Namespace.namespace == namespace
+        models.Namespace.name == namespace
     ).first()
 
 
@@ -347,7 +347,7 @@ def get_source(namespace_name, source):
         models.Source
     ).filter(
         models.Source.namespace_id == namespace.id,
-        models.Source.source == source
+        models.Source.name == source
     ).first()
 
 
@@ -485,15 +485,15 @@ def get_sources():
     return session.query(models.Sources).order_by(models.Sources.id).all()
 
 
-def get_namespaces():
-    """Return a list of namespace strings"""
-    result = session.query(models.Domain.namespace).distinct().all()
-    return [namespace for (namespace,) in result]
-
-
 # def get_namespaces():
-#     result = session.query(models.Namespace.namespace).distinct().all()
+#     """Return a list of namespace strings"""
+#     result = session.query(models.Domain.namespace).distinct().all()
 #     return [namespace for (namespace,) in result]
+
+
+def get_namespaces():
+    result = session.query(models.Namespace.name).distinct().all()
+    return [namespace for (namespace,) in result]
 
 
 def get_domains_by_namespace(namespace):
@@ -506,6 +506,7 @@ def get_domains_by_namespace(namespace):
     ).all()
 
 
+# TODO: THIS IS WRONGGFGGGGG
 def get_sources_by_namespace(namespace):
     return session.query(
         models.Source

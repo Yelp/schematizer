@@ -91,19 +91,19 @@ class TestSchemaRepository(DBTestCase):
     #         models.Domain.source == source
     #     ).one()
 
-    def get_namespace(self, namespace):
+    def get_namespace(self, name):
         return session.query(
             models.Namespace
         ).filter(
-            models.Namespace.namespace == namespace
+            models.Namespace.name == name
         ).one()
 
-    def get_source(self, namespace, source):
+    def get_source(self, namespace, name):
         return session.query(
             models.Source
         ).filter(
             models.Source.namespace_id == namespace.id,
-            models.Source.source == source
+            models.Source.name == name
         ).one()
 
     def test_create_schema_from_avro_json(self):
@@ -202,15 +202,15 @@ class TestSchemaRepository(DBTestCase):
 
     def test_get_latest_topic_of_namespace_source(self, namespace, source, topic):
         actual = schema_repo.get_latest_topic_of_namespace_source(
-            namespace.namespace,
-            source.source
+            namespace.name,
+            source.name
         )
         self.verify_topic(topic, actual)
 
         new_topic = factories.TopicFactory.create_in_db('new_topic', source)
         actual = schema_repo.get_latest_topic_of_namespace_source(
-            namespace.namespace,
-            source.source
+            namespace.name,
+            source.name
         )
         self.verify_topic(new_topic, actual)
 
@@ -229,11 +229,11 @@ class TestSchemaRepository(DBTestCase):
         assert expected.created_at == actual.created_at
         assert expected.updated_at == actual.updated_at
 
-    def test_get_latest_topic_of_source_with_no_topic(self, source):
+    def test_get_latest_topic_of_source_with_no_topic(self, namespace, source):
         factories.SourceFactory.delete_topics(source.id)
         actual = schema_repo.get_latest_topic_of_namespace_source(
-            self.namespace_name,
-            self.source_name
+            namespace.name,
+            source.name
         )
         assert actual is None
 

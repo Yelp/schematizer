@@ -29,8 +29,8 @@
 
   <changeSet author="wscheng" id="1435252561">
     <comment>Adding unique constraint on source and namespace_id</comment>
-    <addUniqueConstraint columnNames="source, namespace_id"
-      constraintName="source_namespace_id_unique_constraint"
+    <addUniqueConstraint columnNames="name, namespace_id"
+      constraintName="name_namespace_id_unique_constraint"
       tableName="source"/>
   </changeSet>
 </databaseChangeLog>
