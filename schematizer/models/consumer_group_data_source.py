@@ -8,7 +8,7 @@ from schematizer.models.database import Base
 from schematizer.models.types.time import build_time_column
 
 
-class ConsumerGroupType(object):
+class DataSourceTypeEnum(object):
 
     NAMESPACE = 'Namespace'
     SOURCE = 'Source'
@@ -29,11 +29,12 @@ class ConsumerGroupDataSource(Base):
     # Value from ConsumerGroupType.
     data_source_type = Column(
         Enum(
-            ConsumerGroupType.NAMESPACE,
-            ConsumerGroupType.SOURCE,
-            ConsumerGroupType.SCHEMA,
-            name='consumer_group_type'
-        )
+            DataSourceTypeEnum.NAMESPACE,
+            DataSourceTypeEnum.SOURCE,
+            DataSourceTypeEnum.SCHEMA,
+            name='data_source_type_enum',
+        ),
+        nullable=False
     )
 
     # The id of the data_source_type entry in its corresponding table.
