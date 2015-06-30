@@ -108,6 +108,17 @@ class SourceFactory(object):
         session.flush()
         return source
 
+    @classmethod
+    def delete_topics(cls, source_id):
+        topics = session.query(
+            models.Topic
+        ).filter(
+            models.Topic.source_id == source_id
+        ).all()
+        for topic in topics:
+            session.delete(topic)
+        session.flush()
+        
 
 class TopicFactory(object):
 
@@ -115,21 +126,21 @@ class TopicFactory(object):
     def create(
         cls,
         topic_name,
-        domain,
+        source,
         created_at=fake_created_at,
         updated_at=fake_updated_at
     ):
         return models.Topic(
             name=topic_name,
-            domain_id=domain.id,
+            source_id=source.id,
             created_at=created_at,
             updated_at=updated_at,
-            domain=domain
+            source=source
         )
 
     @classmethod
-    def create_in_db(cls, topic_name, domain):
-        topic = cls.create(topic_name, domain)
+    def create_in_db(cls, topic_name, source):
+        topic = cls.create(topic_name, source)
         session.add(topic)
         session.flush()
         return topic

@@ -71,27 +71,20 @@ def convert_schema(source_type, target_type, source_schema):
 
 def create_avro_schema_from_avro_json(
         avro_schema_json,
-        namespace,
-        source,
-        domain_email_owner,
+        namespace_name,
+        source_name,
+        source_email_owner,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
         base_schema_id=None
 ):
     """Add an Avro schema of given schema json object into schema store.
     The steps from checking compatibility to create new topic should be atomic.
     """
-    domain = _get_domain_or_create(namespace, source, domain_email_owner)
-
-    # Lock the domain so that no other transaction can add new topic to it.
-    _lock_domain(domain)
-
-    # namespace = _get_namespace_or_create(namespace_name)
-    # _lock_namespace(namespace)
-    # source = _get_source_or_create(source, source_email_owner)
-    # _lock_source(source)
-    # topic = get_latest_topic_of_source_id(source.id)
-
-    topic = get_latest_topic_of_domain(namespace, source)
+    namespace = _get_namespace_or_create(namespace_name)
+    _lock_namespace(namespace)
+    source = _get_source_or_create(namespace, source_name, source_email_owner)
+    _lock_source(source)
+    topic = get_latest_topic_of_source_id(source.id)
 
     # Lock topic and its schemas so that no other transaction can add new
     # schema to the topic or change schema status.
@@ -104,9 +97,8 @@ def create_avro_schema_from_avro_json(
         # Note that creating duplicate topic names will throw a sqlalchemy
         # IntegrityError exception. When it occurs, it indicates the uuid
         # is generating the same value (rarely) and we'd like to know it.
-        topic_name = _construct_topic_name(namespace, source)
-        topic = _create_topic(topic_name, domain)
-        # topic = _create_topic(topic_name, source)
+        topic_name = _construct_topic_name(namespace_name, source_name)
+        topic = _create_topic(topic_name, source)
 
     # Do not create the schema if it is the same as the latest one
     latest_schema = get_latest_schema_by_topic_id(topic.id)
@@ -150,7 +142,7 @@ def _get_namespace_or_create(namespace):
 def _get_source_or_create(namespace, source, owner_email):
     try:
         return session.query(
-            models.Domain
+            models.Source
         ).filter(
             models.Source.namespace_id == namespace.id,
             models.Source.source == source
@@ -248,21 +240,21 @@ def _lock_topic_and_schemas(topic):
     ).with_for_update()
 
 
-def get_latest_topic_of_domain(namespace, source):
-    """Get the latest topic of given namespace and source. The latest one is
-    the one created most recently. It returns None if no such topic exists.
-    """
-    return session.query(
-        models.Topic
-    ).join(
-        models.Domain
-    ).filter(
-        models.Domain.id == models.Topic.domain_id,
-        models.Domain.namespace == namespace,
-        models.Domain.source == source
-    ).order_by(
-        models.Topic.id.desc()
-    ).first()
+# def get_latest_topic_of_domain(namespace, source):
+#     """Get the latest topic of given namespace and source. The latest one is
+#     the one created most recently. It returns None if no such topic exists.
+#     """
+#     return session.query(
+#         models.Topic
+#     ).join(
+#         models.Domain
+#     ).filter(
+#         models.Domain.id == models.Topic.domain_id,
+#         models.Domain.namespace == namespace,
+#         models.Domain.source == source
+#     ).order_by(
+#         models.Topic.id.desc()
+#     ).first()
 
 
 def get_latest_topic_of_namespace_source(namespace_name, source):
@@ -278,7 +270,7 @@ def get_latest_topic_of_namespace_source(namespace_name, source):
         models.Source.namespace_id == namespace.id,
         models.Source.source == source
     ).order_by(
-        models.Source.id.desc()
+        models.Topic.id.desc()
     ).first()
 
 
@@ -299,12 +291,18 @@ def _construct_topic_name(namespace, source):
     return '.'.join((namespace, source, uuid.uuid4().hex))
 
 
-def _create_topic(topic_name, domain):
-    """Create a topic named `topic_name` in the domain of given namespace
-    and source. It returns newly created topic. If a topic with same name
-    already exists, an exception is thrown.
-    """
-    topic = models.Topic(name=topic_name, domain_id=domain.id)
+# def _create_topic(topic_name, domain):
+#     """Create a topic named `topic_name` in the domain of given namespace
+#     and source. It returns newly created topic. If a topic with same name
+#     already exists, an exception is thrown.
+#     """
+#     topic = models.Topic(name=topic_name, domain_id=domain.id)
+#     session.add(topic)
+#     session.flush()
+#     return topic
+
+def _create_topic(topic_name, source):
+    topic = models.Topic(name=topic_name, source_id=source.id)
     session.add(topic)
     session.flush()
     return topic
@@ -562,17 +560,17 @@ def get_source_by_id(source_id):
     ).first()
 
 
-def get_latest_topic_of_domain_id(domain_id):
-    """Get the latest topic of given domain_id. The latest one is the one
-    created most recently. It returns None if no such topic exists.
-    """
-    return session.query(
-        models.Topic
-    ).filter(
-        models.Topic.domain_id == domain_id
-    ).order_by(
-        models.Topic.id.desc()
-    ).first()
+# def get_latest_topic_of_domain_id(domain_id):
+#     """Get the latest topic of given domain_id. The latest one is the one
+#     created most recently. It returns None if no such topic exists.
+#     """
+#     return session.query(
+#         models.Topic
+#     ).filter(
+#         models.Topic.domain_id == domain_id
+#     ).order_by(
+#         models.Topic.id.desc()
+#     ).first()
 
 
 def get_latest_topic_of_source_id(source_id):
