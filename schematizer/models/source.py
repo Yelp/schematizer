@@ -26,7 +26,7 @@ class Source(Base):
 
     # Source of the Avro schema, such as table "User",
     # or log "service.foo" etc.
-    source = Column(String, nullable=False)
+    name = Column(String, nullable=False)
 
     # Email address of the source owner.
     owner_email = Column(String, nullable=False)

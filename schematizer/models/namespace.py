@@ -16,7 +16,7 @@ class Namespace(Base):
     id = Column(Integer, primary_key=True)
 
     # Namespace, such as "yelpmain.db", etc
-    namespace = Column(String, nullable=False)
+    name = Column(String, nullable=False)
 
     sources = relationship(Source, backref="namespace")
 
