@@ -59,7 +59,7 @@ class Topic(Base):
         topic_dict = {
             'topic_id': self.id,
             'name': self.name,
-            'source': None if self.domain is None else self.domain.to_dict(),
+            'source': None if self.source is None else self.source.to_dict(),
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }

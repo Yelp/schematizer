@@ -55,9 +55,9 @@ class Source(Base):
     def to_dict(self):
         return {
             'source_id': self.id,
-            'name': self.name,
+            'source': self.name,
             'source_owner_email': self.owner_email,
-            'namespace_id': self.namespace_id,
+            'namespace': None if self.namespace is None else self.namespace.to_dict(),
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
