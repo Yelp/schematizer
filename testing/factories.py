@@ -98,7 +98,8 @@ class SourceFactory(object):
             namespace_id=namespace.id,
             owner_email=owner_email,
             created_at=created_at,
-            updated_at=updated_at
+            updated_at=updated_at,
+            namespace=namespace
         )
 
     @classmethod
@@ -118,7 +119,7 @@ class SourceFactory(object):
         for topic in topics:
             session.delete(topic)
         session.flush()
-        
+
 
 class TopicFactory(object):
 

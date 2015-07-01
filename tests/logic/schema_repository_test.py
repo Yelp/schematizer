@@ -31,7 +31,10 @@ class TestSchemaRepository(DBTestCase):
 
     @pytest.fixture
     def source(self, namespace):
-        return factories.SourceFactory.create_in_db(self.source_name, namespace)
+        return factories.SourceFactory.create_in_db(
+            self.source_name,
+            namespace
+        )
 
     @property
     def topic_name(self):
@@ -151,7 +154,10 @@ class TestSchemaRepository(DBTestCase):
             assert created_topic.source_id == topic.source_id
 
             expected_namespace = self.get_namespace(self.namespace_name)
-            expected_source = self.get_source(expected_namespace, self.source_name)
+            expected_source = self.get_source(
+                expected_namespace,
+                self.source_name
+            )
             assert expected_source.id == created_topic.source_id
             assert expected_source.id == actual.topic.source.id
 
@@ -192,7 +198,12 @@ class TestSchemaRepository(DBTestCase):
             assert topic.id == actual.topic_id
             assert expected_base_schema_id == actual.base_schema_id
 
-    def test_get_latest_topic_of_namespace_source(self, namespace, source, topic):
+    def test_get_latest_topic_of_namespace_source(
+        self,
+        namespace,
+        source,
+        topic
+    ):
         actual = schema_repo.get_latest_topic_of_namespace_source(
             namespace.name,
             source.name
@@ -350,7 +361,11 @@ class TestSchemaRepository(DBTestCase):
         expected = mock_compatible_func.return_value
         assert expected == actual
 
-    def test_is_schema_compatible_with_no_topic_in_source(self, namespace, source):
+    def test_is_schema_compatible_with_no_topic_in_source(
+        self,
+        namespace,
+        source
+    ):
         factories.SourceFactory.delete_topics(source.id)
         actual = schema_repo.is_schema_compatible(
             'avro schema to be validated',
@@ -460,8 +475,8 @@ class TestSchemaRepository(DBTestCase):
         assert self.namespace_name == actual[0]
 
     def test_get_sources_by_namespace(self, source):
-        other_namespace = factories.NamespaceFactory.create('another namespace')
-        factories.SourceFactory.create('another source', other_namespace)
+        namespace = factories.NamespaceFactory.create('another namespace')
+        factories.SourceFactory.create('another source', namespace)
         actual = schema_repo.get_sources_by_namespace(self.namespace_name)
         assert 1 == len(actual)
         self.verify_source(source, actual[0])

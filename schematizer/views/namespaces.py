@@ -23,11 +23,10 @@ def list_namespaces(request):
 )
 @transform_response()
 def list_sources_by_namespace(request):
-    namespace = request.matchdict.get('namespace')
-    sources = schema_repository.get_sources_by_namespace(namespace)
-    # Since we store namespace and source in the same table, so
-    # if there is no domain records, it means there is no namespace.
-    # So we just throw namespace not found error.
-    if len(sources) == 0:
+    namespace_name = request.matchdict.get('namespace')
+    namespace = schema_repository.get_namespace_by_name(namespace_name)
+    # Raise an exception if this namespace does not exist
+    if namespace is None:
         raise exceptions_v1.namespace_not_found_exception()
+    sources = schema_repository.get_sources_by_namespace(namespace_name)
     return [source.to_dict() for source in sources]

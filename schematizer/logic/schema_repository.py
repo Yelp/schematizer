@@ -515,6 +515,7 @@ def get_sources_by_namespace(namespace_name):
     ).join(
         models.Namespace
     ).filter(
+        models.Source.namespace_id == models.Namespace.id,
         models.Namespace.name == namespace_name
     ).order_by(
         models.Source.id
