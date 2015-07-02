@@ -15,7 +15,7 @@
         <constraints nullable="false"/>
       </column>
       <column name="doc" type="TEXT">
-        <constraints nullable="false"/>
+        <constraints nullable="true"/>
       </column>
       <column name="created_at" type="INT(11)">
         <constraints nullable="false"/>

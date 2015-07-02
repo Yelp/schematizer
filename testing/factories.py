@@ -21,6 +21,80 @@ fake_mysql_alter_stmts = ['create table foo',
                           'create table foo']
 
 
+def create_domain(namespace, source, owner_email=fake_owner_email):
+    domain = models.Domain(
+        namespace=namespace,
+        source=source,
+        owner_email=owner_email
+    )
+    session.add(domain)
+    session.flush()
+    return domain
+
+
+def get_or_create_domain(namespace, source, owner_email=fake_owner_email):
+    domain = session.query(
+        models.Domain
+    ).filter(
+        models.Domain.namespace == namespace,
+        models.Domain.source == source
+    ).first()
+    return domain or create_domain(namespace, source, owner_email=owner_email)
+
+
+def create_topic(topic_name, namespace=fake_namespace, source=fake_source):
+    domain = get_or_create_domain(namespace, source)
+    topic = models.Topic(name=topic_name, domain_id=domain.id)
+    session.add(topic)
+    session.flush()
+    return topic
+
+
+def get_or_create_topic(
+        topic_name,
+        namespace=fake_namespace,
+        source=fake_source
+):
+    topic = session.query(
+        models.Topic
+    ).filter(
+        models.Topic.name == topic_name
+    ).first()
+    return topic or create_topic(
+        topic_name,
+        namespace=namespace,
+        source=source
+    )
+
+
+def create_avro_schema(
+        schema_json,
+        schema_elements,
+        topic_name=fake_topic_name,
+        namespace=fake_namespace,
+        source=fake_source,
+        status=models.AvroSchemaStatus.READ_AND_WRITE,
+        base_schema_id=None
+):
+    topic = get_or_create_topic(topic_name, namespace=namespace, source=source)
+
+    avro_schema = models.AvroSchema(
+        avro_schema_json=schema_json,
+        topic_id=topic.id,
+        status=status,
+        base_schema_id=base_schema_id
+    )
+    session.add(avro_schema)
+    session.flush()
+
+    for schema_element in schema_elements:
+        schema_element.avro_schema_id = avro_schema.id
+        session.add(schema_element)
+    session.flush()
+
+    return avro_schema
+
+
 class DomainFactory(object):
 
     @classmethod

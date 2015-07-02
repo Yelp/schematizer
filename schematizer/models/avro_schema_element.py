@@ -12,15 +12,15 @@ from schematizer.models.types.time import build_time_column
 
 class AvroSchemaElement(Base, BaseModel):
     """The key to a schema element of enclosing avro schema and the
-    associated documentation of the element. Each key of same Avro
+    associated documentation of the element. Each key in the same Avro
     schema must be unique.
 
-    If the element is a named Avro schema, the key of the element is
-    its fullname because it should be unique in the entire schema. If
-    the element is non-named complex Avro schema, including array and
-    map, the key is the key of their enclosing schema followed by their
-    type ("array" or "map"). For the field in a Record schema, the key
-    is the the fullname of the record followed by the field name.
+    If an element is a named Avro schema, the key of the element is its
+    fullname because it should be unique in the entire schema. If an
+    element is a non-named complex Avro schema, including array and map,
+    the key is the key of their enclosing schema followed by their type
+    ("array" or "map"). For the field in a Record schema, the key is the
+    fullname of the record followed by the field name.
 
     For example, here is a record schema:
     {
@@ -65,7 +65,7 @@ class AvroSchemaElement(Base, BaseModel):
     element_type = Column(String, nullable=False)
 
     # Documentation of this element
-    doc = Column(String, nullable=False)
+    doc = Column(String)
 
     # Timestamp when the entry is created
     created_at = build_time_column(

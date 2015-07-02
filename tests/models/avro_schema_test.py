@@ -292,3 +292,36 @@ class TestAvroSchemaModel(DBTestCase):
                 None
             )
             assert expected.element_type == actual_element.element_type
+
+    @pytest.mark.parametrize("avro_schema", [
+        {
+            "name": "foo",
+            "type": "record",
+            "fields": [{"type": "int", "name": "col"}]
+        },
+        {"name": "foo", "type": "enum", "symbols": ["a"]},
+        {"name": "foo", "type": "fixed", "size": 16},
+        {"type": "array", "items": "int"},
+        {"type": "map", "values": "long"},
+        "int",
+        ["int", "null"],
+    ])
+    def test_verify_avro_schema_with_valid_schema_json(self, avro_schema):
+        is_valid, error = models.AvroSchema.verify_avro_schema(avro_schema)
+        assert is_valid
+        assert error is None
+
+    @pytest.mark.parametrize("avro_schema", [
+        {"name": "foo", "type": "record", "fields": ["bar"]},
+        {"name": "", "type": "enum", "symbols": ["a"]},
+        {"name": "foo", "type": "fixed"},
+        {"type": "array"},
+        {"values": "long"},
+        "str",
+        ["null", "null"],
+        100
+    ])
+    def test_verify_avro_schema_with_invalid_schema_json(self, avro_schema):
+        is_valid, error = models.AvroSchema.verify_avro_schema(avro_schema)
+        assert not is_valid
+        assert error

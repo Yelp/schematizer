@@ -73,14 +73,28 @@ def create_avro_schema_from_avro_json(
         avro_schema_json,
         namespace,
         source,
-        domain_email_owner,
+        domain_owner_email,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
         base_schema_id=None
 ):
     """Add an Avro schema of given schema json object into schema store.
     The steps from checking compatibility to create new topic should be atomic.
+
+    :param avro_schema_json: JSON representation of Avro schema
+    :param namespace: namespace string
+    :param source: source name string
+    :param domain_owner_email: email of the schema owner
+    :param status: AvroStatusEnum: RW/R/Disabled
+    :param base_schema_id: Id of the Avro schema from which the new schema is
+    derived from
+    :return: New created AvroSchema object.
     """
-    domain = _get_domain_or_create(namespace, source, domain_email_owner)
+    is_valid, error = models.AvroSchema.verify_avro_schema(avro_schema_json)
+    if not is_valid:
+        raise ValueError("Invalid Avro schema JSON. Value: {0}. Error: {1}"
+                         .format(avro_schema_json, error))
+
+    domain = _get_domain_or_create(namespace, source, domain_owner_email)
 
     # Lock the domain so that no other transaction can add new topic to it.
     _lock_domain(domain)
@@ -176,14 +190,16 @@ def get_latest_topic_of_domain(namespace, source):
     """Get the latest topic of given namespace and source. The latest one is
     the one created most recently. It returns None if no such topic exists.
     """
+    domain = get_domain_by_fullname(namespace, source)
+    if not domain:
+        raise EntityNotFoundException(
+            "Cannot find namespace {0} source {1}.".format(namespace, source)
+        )
+
     return session.query(
         models.Topic
-    ).join(
-        models.Domain
     ).filter(
-        models.Domain.id == models.Topic.domain_id,
-        models.Domain.namespace == namespace,
-        models.Domain.source == source
+        models.Topic.domain_id == domain.id
     ).order_by(
         models.Topic.id.desc()
     ).first()
@@ -253,8 +269,14 @@ def _create_avro_schema(
         base_schema_id=base_schema_id
     )
     session.add(avro_schema)
+    session.flush()
 
-    # TODO[clin|DATAPIPE-224]: create schema elements of new Avro schema
+    avro_schema_elements = models.AvroSchema.create_schema_elements_from_json(
+        avro_schema_json
+    )
+    for avro_schema_element in avro_schema_elements:
+        avro_schema_element.avro_schema_id = avro_schema.id
+        session.add(avro_schema_element)
 
     session.flush()
     return avro_schema
@@ -288,13 +310,16 @@ def get_latest_schema_by_topic_name(topic_name):
     """Get the latest enabled (Read-Write or Read-Only) schema of given topic.
     It returns None if no such schema can be found.
     """
+    topic = get_topic_by_name(topic_name)
+    if not topic:
+        raise EntityNotFoundException(
+            "Cannot find topic {0}.".format(topic_name)
+        )
+
     return session.query(
         models.AvroSchema
-    ).join(
-        models.Topic
     ).filter(
-        models.AvroSchema.topic_id == models.Topic.id,
-        models.Topic.name == topic_name,
+        models.AvroSchema.topic_id == topic.id,
         models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
     ).order_by(
         models.AvroSchema.id.desc()
@@ -314,13 +339,14 @@ def is_schema_compatible(target_schema, namespace, source):
 
 
 def get_schemas_by_topic_name(topic_name, include_disabled=False):
+    topic = get_topic_by_name(topic_name)
+    if not topic:
+        raise EntityNotFoundException('{0} not found.'.format(topic_name))
+
     qry = session.query(
         models.AvroSchema
-    ).join(
-        models.Topic
     ).filter(
-        models.Topic.id == models.AvroSchema.topic_id,
-        models.Topic.name == topic_name
+        models.AvroSchema.topic_id == topic.id
     )
     if not include_disabled:
         qry = qry.filter(

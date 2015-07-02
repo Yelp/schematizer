@@ -37,7 +37,7 @@ def register_schema(request):
             schema_json=req.schema_json,
             namespace=req.namespace,
             source=req.source,
-            domain_email_owner=req.source_owner_email,
+            domain_owner_email=req.source_owner_email,
             base_schema_id=req.base_schema_id
         )
     except simplejson.JSONDecodeError as e:
@@ -65,18 +65,23 @@ def register_schema_from_mysql_stmts(request):
         schema_json=avro_schema_json,
         namespace=req.namespace,
         source=req.source,
-        domain_email_owner=req.source_owner_email
+        domain_owner_email=req.source_owner_email
     )
 
 
-def _register_avro_schema(schema_json, namespace, source,
-                          domain_email_owner, base_schema_id=None):
+def _register_avro_schema(
+        schema_json,
+        namespace,
+        source,
+        domain_owner_email,
+        base_schema_id=None
+):
     try:
         return schema_repository.create_avro_schema_from_avro_json(
             avro_schema_json=schema_json,
             namespace=namespace,
             source=source,
-            domain_email_owner=domain_email_owner,
+            domain_owner_email=domain_owner_email,
             base_schema_id=base_schema_id
         ).to_dict()
     except schema.AvroException as e:

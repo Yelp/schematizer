@@ -24,7 +24,7 @@ class TestSchemasViewBase(TestApiBase):
             'avro_schema_json': simplejson.loads(factories.fake_avro_schema),
             'namespace': factories.fake_namespace,
             'source': factories.fake_source,
-            'domain_email_owner': factories.fake_owner_email,
+            'domain_owner_email': factories.fake_owner_email,
             'base_schema_id': factories.fake_base_schema_id
         }
         expected_call_args.update(param_override)
