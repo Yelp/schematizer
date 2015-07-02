@@ -8,7 +8,8 @@ from sqlparse import tokens as T
 
 from schematizer.components.handlers.sql_handler_base import SQLDialect
 from schematizer.components.handlers.sql_handler_base import SQLHandlerBase
-from schematizer.components.handlers.sql_handler_base import SQLHandlerException
+from schematizer.components.handlers.sql_handler_base import \
+    SQLHandlerException
 from schematizer.models import mysql_data_types as data_types
 from schematizer.models import sql_entities
 
