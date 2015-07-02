@@ -142,6 +142,13 @@ class ParsedMySQLProcessor(object):
         if not issubclass(col_type_cls, data_types.MySQLRealNumber):
             return None
 
+        # The floating-point types have optional precision and scale settings,
+        # i.e., double, float(10), double(10, 2) are all valid column types.
+        # The fixed-point types have optional scale setting, i.e. decimal(10),
+        # numeric(10, 2) are valid column types.
+        # If the precision and/or scale is not specified, None is used to
+        # indicate no specific value is provided, and let the users of this
+        # object to decide what to do with it.
         precision, scale = None, None
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
         if len_token:
