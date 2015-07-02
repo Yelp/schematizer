@@ -88,8 +88,6 @@ class TestRegisterSchema(TestSchemasViewBase):
     @pytest.mark.usefixtures('setup_mock_create_schema_func')
     def test_register_schema(self, mock_request, mock_repo):
         mock_request.json_body = self.request_json
-
-        print("STARTING MOCK REGISTER")
         actual = schema_views.register_schema(mock_request)
 
         assert self.schema_response == actual
