@@ -32,24 +32,26 @@ def _view_mock_raise_no_result_found_exception(request):
 current_time = datetime.now()
 
 
-source_response = factories.DomainFactory.create(
-    factories.fake_namespace,
+namespace = factories.NamespaceFactory.create(factories.fake_namespace)
+
+source_response = factories.SourceFactory.create(
     factories.fake_source,
+    namespace,
     created_at=current_time,
     updated_at=current_time
 ).to_dict()
 
 
 list_of_source_response = [
-    factories.DomainFactory.create(
-        factories.fake_namespace,
+    factories.SourceFactory.create(
         factories.fake_source,
+        namespace,
         created_at=current_time,
         updated_at=current_time
     ).to_dict(),
-    factories.DomainFactory.create(
-        factories.fake_namespace,
+    factories.SourceFactory.create(
         factories.fake_source,
+        namespace,
         created_at=current_time,
         updated_at=current_time
     ).to_dict()

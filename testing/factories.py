@@ -21,44 +21,6 @@ fake_mysql_alter_stmts = ['create table foo',
                           'create table foo']
 
 
-class DomainFactory(object):
-
-    @classmethod
-    def create(
-        cls,
-        namespace,
-        source,
-        owner_email=fake_owner_email,
-        created_at=fake_created_at,
-        updated_at=fake_updated_at
-    ):
-        return models.Domain(
-            namespace=namespace,
-            source=source,
-            owner_email=owner_email,
-            created_at=created_at,
-            updated_at=updated_at
-        )
-
-    @classmethod
-    def create_in_db(cls, namespace, source):
-        domain = cls.create(namespace, source)
-        session.add(domain)
-        session.flush()
-        return domain
-
-    @classmethod
-    def delete_topics(cls, domain_id):
-        topics = session.query(
-            models.Topic
-        ).filter(
-            models.Topic.domain_id == domain_id
-        ).all()
-        for topic in topics:
-            session.delete(topic)
-        session.flush()
-
-
 class NamespaceFactory(object):
 
     @classmethod
