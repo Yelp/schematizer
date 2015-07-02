@@ -46,14 +46,23 @@ class TestSchemaRepository(DBTestCase):
             "name": "foo",
             "namespace": "yelp",
             "type": "record",
-            "fields": [{"name": "bar", "type": "int"}]
+            "fields": [{"name": "bar", "type": "int", "doc": "bar"}],
+            "doc": "table foo"
         }
 
     @property
     def rw_schema_elements(self):
         return [
-            models.AvroSchemaElement(key="yelp.foo", element_type="record"),
-            models.AvroSchemaElement(key="yelp.foo|bar", element_type="field"),
+            models.AvroSchemaElement(
+                key="yelp.foo",
+                element_type="record",
+                doc="table foo"
+            ),
+            models.AvroSchemaElement(
+                key="yelp.foo|bar",
+                element_type="field",
+                doc="bar"
+            ),
         ]
 
     @pytest.fixture
@@ -70,14 +79,23 @@ class TestSchemaRepository(DBTestCase):
             "name": "foo",
             "namespace": "yelp",
             "type": "record",
-            "fields": [{"name": "baz", "type": "int"}]
+            "fields": [{"name": "baz", "type": "int", "doc": "baz"}],
+            "doc": "table foo"
         }
 
     @property
     def another_rw_schema_elements(self):
         return [
-            models.AvroSchemaElement(key="yelp.foo", element_type="record"),
-            models.AvroSchemaElement(key="yelp.foo|baz", element_type="field"),
+            models.AvroSchemaElement(
+                key="yelp.foo",
+                element_type="record",
+                doc='table foo'
+            ),
+            models.AvroSchemaElement(
+                key="yelp.foo|baz",
+                element_type="field",
+                doc="baz"
+            ),
         ]
 
     @pytest.fixture
@@ -90,12 +108,21 @@ class TestSchemaRepository(DBTestCase):
 
     @property
     def disabled_schema_json(self):
-        return {"type": "record", "name": "disabled", "fields": []}
+        return {
+            "type": "record",
+            "name": "disabled",
+            "fields": [],
+            "doc": "I am disabled!"
+        }
 
     @property
     def disabled_schema_elements(self):
         return [
-            models.AvroSchemaElement(key="disabled", element_type="record")
+            models.AvroSchemaElement(
+                key="disabled",
+                element_type="record",
+                doc="I am disabled!"
+            )
         ]
 
     @pytest.fixture
@@ -237,6 +264,41 @@ class TestSchemaRepository(DBTestCase):
             status=models.AvroSchemaStatus.READ_AND_WRITE,
             avro_schema_elements=self.rw_schema_elements,
             base_schema_id=expected_base_schema_id
+        )
+        self.assert_equal_avro_schema_partial(expected, actual)
+
+    def test_create_schema_from_avro_json_with_missing_doc(self, topic):
+        schema_json = {
+            "type": "record",
+            "name": "foo",
+            "fields": [{"name": "bar", "type": "int"}],
+            "doc": "table foo"
+        }
+        with pytest.raises(schema_repo.MissingDocException):
+            schema_repo.create_avro_schema_from_avro_json(
+                schema_json,
+                topic.domain.namespace,
+                topic.domain.source,
+                topic.domain.owner_email
+            )
+
+    def test_create_schema_from_avro_json_with_missing_doc_but_not_required(
+            self,
+            topic
+    ):
+        schema_json = {"type": "enum", "name": "foo", "symbols": ["a"]}
+        actual = schema_repo.create_avro_schema_from_avro_json(
+            schema_json,
+            topic.domain.namespace,
+            topic.domain.source,
+            topic.domain.owner_email
+        )
+        expected = models.AvroSchema(
+            avro_schema_json=schema_json,
+            status=models.AvroSchemaStatus.READ_AND_WRITE,
+            avro_schema_elements=[
+                models.AvroSchemaElement(key="foo", element_type="enum")
+            ]
         )
         self.assert_equal_avro_schema_partial(expected, actual)
 

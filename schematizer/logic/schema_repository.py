@@ -47,6 +47,10 @@ class IncompatibleSchemaException(Exception):
     pass
 
 
+class MissingDocException(Exception):
+    pass
+
+
 def load_converters():
     __import__('schematizer.components.converters', fromlist=['converters'])
     _converters = dict()
@@ -262,6 +266,20 @@ def _create_avro_schema(
         status=models.AvroSchemaStatus.READ_AND_WRITE,
         base_schema_id=None
 ):
+    avro_schema_elements = models.AvroSchema.create_schema_elements_from_json(
+        avro_schema_json
+    )
+
+    required_doc_element_types = ['record', 'field']
+
+    if any(o for o in avro_schema_elements
+           if o.element_type in required_doc_element_types and not o.doc):
+        raise MissingDocException(
+            "Avro type {0} must provide `doc` value.".format(
+                ', '.join(required_doc_element_types)
+            )
+        )
+
     avro_schema = models.AvroSchema(
         avro_schema_json=avro_schema_json,
         topic_id=topic_id,
@@ -271,9 +289,6 @@ def _create_avro_schema(
     session.add(avro_schema)
     session.flush()
 
-    avro_schema_elements = models.AvroSchema.create_schema_elements_from_json(
-        avro_schema_json
-    )
     for avro_schema_element in avro_schema_elements:
         avro_schema_element.avro_schema_id = avro_schema.id
         session.add(avro_schema_element)
