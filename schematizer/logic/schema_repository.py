@@ -35,8 +35,8 @@ def is_full_compatible(old_schema_json, new_schema_json):
     """Whether the data serialized using specified old_schema_json can be
     deserialized using specified new_schema_json, and vice versa.
     """
-    return (is_backward_compatible(old_schema_json, new_schema_json)
-            and is_forward_compatible(old_schema_json, new_schema_json))
+    return (is_backward_compatible(old_schema_json, new_schema_json) and
+            is_forward_compatible(old_schema_json, new_schema_json))
 
 
 class EntityNotFoundException(Exception):
@@ -103,9 +103,9 @@ def create_avro_schema_from_avro_json(
 
     # Do not create the schema if it is the same as the latest one
     latest_schema = get_latest_schema_by_topic_id(topic.id)
-    if (latest_schema
-            and latest_schema.avro_schema_json == avro_schema_json
-            and latest_schema.base_schema_id == base_schema_id):
+    if (latest_schema and
+            latest_schema.avro_schema_json == avro_schema_json and
+            latest_schema.base_schema_id == base_schema_id):
         return latest_schema
 
     avro_schema = _create_avro_schema(

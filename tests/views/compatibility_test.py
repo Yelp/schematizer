@@ -41,7 +41,7 @@ class TestAvroSchemaCompatibility(TestCompatibilityViewBase):
 
         actual = compatibility_views.is_avro_schema_compatible(mock_request)
 
-        assert True == actual
+        assert actual is True
         mock_repo.is_schema_compatible.assert_called_once_with(
             simplejson.loads(factories.fake_avro_schema),
             factories.fake_namespace,

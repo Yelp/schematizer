@@ -68,8 +68,8 @@ class SchemaResolution(object):
 
         # Either writer schema type is the same as reader schema type or
         # writer schema type can be promoted to reader schema type.
-        return (writer_schema.fullname == reader_schema.fullname
-                or self.is_promotable(writer_schema, reader_schema))
+        return (writer_schema.fullname == reader_schema.fullname or
+                self.is_promotable(writer_schema, reader_schema))
 
     def is_promotable(self, writer_schema, reader_schema):
         if not self._base_resolve(
@@ -179,9 +179,9 @@ class SchemaResolution(object):
 
             if not writer_field and not reader_field.has_default:
                 return False
-            if (writer_field
-                    and not self.resolve_schema(writer_field.type,
-                                                reader_field.type)):
+            if (writer_field and
+                    not self.resolve_schema(writer_field.type,
+                                            reader_field.type)):
                 return False
         return True
 
@@ -220,8 +220,8 @@ class SchemaResolution(object):
     def resolve_schema(self, writer_schema, reader_schema):
         """Check if writer schema can be resolved to the reader schema"""
         resolver = self.resolvers.get(writer_schema.__class__)
-        if (isinstance(writer_schema.type, schema.UnionSchema)
-                or isinstance(reader_schema, schema.UnionSchema)):
+        if (isinstance(writer_schema.type, schema.UnionSchema) or
+                isinstance(reader_schema, schema.UnionSchema)):
             resolver = self.resolvers.get(schema.UnionSchema)
 
         key = self._create_key(writer_schema, reader_schema)

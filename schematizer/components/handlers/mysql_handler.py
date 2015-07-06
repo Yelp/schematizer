@@ -224,8 +224,8 @@ class ParsedMySQLProcessor(object):
 
     def _get_attribute_token(self, attribute_name, attributes):
         return next((attr for attr in attributes.tokens
-                     if isinstance(attr, sql.Attribute)
-                     and attr.tokens[0].normalized == attribute_name.upper()),
+                     if isinstance(attr, sql.Attribute) and
+                     attr.tokens[0].normalized == attribute_name.upper()),
                     None)
 
     def _get_attribute_value(self, attribute_name, attributes):
