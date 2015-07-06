@@ -8,7 +8,8 @@ from sqlparse import tokens as T
 
 from schematizer.components.handlers.sql_handler_base import SQLDialect
 from schematizer.components.handlers.sql_handler_base import SQLHandlerBase
-from schematizer.components.handlers.sql_handler_base import SQLHandlerException
+from schematizer.components.handlers.sql_handler_base import \
+    SQLHandlerException
 from schematizer.models import mysql_data_types as data_types
 from schematizer.models import sql_entities
 
@@ -125,9 +126,11 @@ class ParsedMySQLProcessor(object):
         if not issubclass(col_type_cls, data_types.MySQLInteger):
             return None
 
+        length = None
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
-        token = len_token.token_next_by_type(0, T.Number.Integer)
-        length = token.value if token else 11
+        if len_token:
+            token = len_token.token_next_by_type(0, T.Number.Integer)
+            length = token.value
 
         attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
         attr_token = self._get_attribute_token('unsigned', attributes)
@@ -139,13 +142,22 @@ class ParsedMySQLProcessor(object):
         if not issubclass(col_type_cls, data_types.MySQLRealNumber):
             return None
 
+        # The floating-point types have optional precision and scale settings,
+        # i.e., double, float(10), double(10, 2) are all valid column types.
+        # The fixed-point types have optional scale setting, i.e. decimal(10),
+        # numeric(10, 2) are valid column types.
+        # If the precision and/or scale is not specified, None is used to
+        # indicate no specific value is provided, and let the users of this
+        # object to decide what to do with it.
+        precision, scale = None, None
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
-        token = len_token.token_next_by_type(0, T.Number.Integer)
-        precision = token.value if token else 10
+        if len_token:
+            token = len_token.token_next_by_type(0, T.Number.Integer)
+            precision = token.value
 
-        index = len_token.token_index(token)
-        token = len_token.token_next_by_type(index + 1, T.Number.Integer)
-        scale = token.value if token else 0
+            index = len_token.token_index(token)
+            token = len_token.token_next_by_type(index + 1, T.Number.Integer)
+            scale = token.value if token else None
 
         attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
         attr_token = self._get_attribute_token('unsigned', attributes)
@@ -280,7 +292,7 @@ class MySQLHandler(SQLHandlerBase):
         self.processor = ParsedMySQLProcessor()
 
     def _parse(self, sql):
-        return sqlparse.parse(sql, dialect='mysql')[0]
+        return sqlparse.parse(sql, dialect='mysql')[0] if sql else None
 
     def _create_sql_table(self, parsed_sqls):
         last_stmt = parsed_sqls[-1] if parsed_sqls else None

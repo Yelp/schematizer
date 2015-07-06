@@ -13,6 +13,8 @@ fake_avro_schema = '{"name": "business"}'
 fake_created_at = datetime(2015, 1, 1, 17, 0, 0)
 fake_updated_at = datetime(2015, 1, 1, 17, 0, 1)
 fake_base_schema_id = 10
+fake_consumer_email = 'consumer@yelp.com'
+fake_frequency = 500
 fake_mysql_create_stmts = ['create table foo']
 fake_mysql_alter_stmts = ['create table foo',
                           'alter table foo',
@@ -139,3 +141,93 @@ class AvroSchemaFactory(object):
         if avro_schema:
             session.delete(avro_schema)
         session.flush()
+
+
+class ConsumerFactory(object):
+
+    @classmethod
+    def create(cls, job_name, schema, consumer_group):
+        return models.Consumer(
+            email=fake_consumer_email,
+            job_name=job_name,
+            expected_frequency=fake_frequency,
+            schema_id=schema.id,
+            last_used_at=None,
+            created_at=fake_created_at,
+            updated_at=fake_updated_at,
+            consumer_group_id=consumer_group.id
+        )
+
+    @classmethod
+    def create_in_db(cls, job_name, schema, consumer_group):
+        consumer = cls.create(job_name, schema, consumer_group)
+        session.add(consumer)
+        session.flush()
+        return consumer
+
+
+class ConsumerGroupFactory(object):
+
+    @classmethod
+    def create(cls, group_name, group_type, data_target):
+        return models.ConsumerGroup(
+            group_name=group_name,
+            group_type=group_type,
+            data_target_id=data_target.id
+        )
+
+    @classmethod
+    def create_in_db(cls, group_name, group_type, data_target):
+        consumer_group = cls.create(group_name, group_type, data_target)
+        session.add(consumer_group)
+        session.flush()
+        return consumer_group
+
+
+class ConsumerGroupDataSourceFactory(object):
+
+    @classmethod
+    def create(
+        cls,
+        consumer_group,
+        data_source_type,
+        data_source_id
+    ):
+        return models.ConsumerGroupDataSource(
+            consumer_group_id=consumer_group.id,
+            data_source_type=data_source_type,
+            data_source_id=data_source_id
+        )
+
+    @classmethod
+    def create_in_db(
+        cls,
+        consumer_group,
+        data_source_type,
+        data_source_id
+    ):
+        consumer_group_data_source = cls.create(
+            consumer_group,
+            data_source_type,
+            data_source_id
+        )
+        session.add(consumer_group_data_source)
+        session.flush()
+        return consumer_group_data_source
+
+
+class DataTargetFactory(object):
+
+    @classmethod
+    def create(cls, target_type, destination):
+        return models.DataTarget(
+            target_type=target_type,
+            destination=destination
+        )
+
+    @classmethod
+    def create_in_db(cls, target_type, destination):
+        data_target = cls.create(target_type, destination)
+        session.add(data_target)
+        session.flush()
+        return data_target
