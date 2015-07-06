@@ -92,7 +92,7 @@
             "properties": {
                 "new_create_table_stmt": {
                     "type": "string",
-                    "description": "The CREATE TABLE statement of the updated table."
+                    "description": "The CREATE TABLE statement of a new table or the updated table."
                 },
                 "old_create_table_stmt": {
                     "type": "string",
