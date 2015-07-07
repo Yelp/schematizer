@@ -32,3 +32,11 @@ class Namespace(Base):
         onupdate_now=True,
         nullable=False
     )
+
+    def to_dict(self):
+        return {
+            'namespace_id': self.id,
+            'name': self.name,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }

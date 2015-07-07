@@ -13,7 +13,7 @@ from schematizer.logic import schema_repository
 )
 def list_namespaces(request):
     namespaces = schema_repository.get_namespaces()
-    return namespaces
+    return [namespace.get("name") for namespace in namespaces]
 
 
 @view_config(

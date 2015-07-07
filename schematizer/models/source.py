@@ -57,9 +57,7 @@ class Source(Base):
             'source_id': self.id,
             'source': self.name,
             'source_owner_email': self.owner_email,
-            'namespace': (
-                None if self.namespace is None else self.namespace.name
-            ),
+            'namespace': self.namespace.to_dict(),
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }

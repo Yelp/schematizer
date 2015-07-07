@@ -472,7 +472,14 @@ class TestSchemaRepository(DBTestCase):
         factories.SourceFactory.create('another source', namespace)
         actual = schema_repo.get_namespaces()
         assert 1 == len(actual)
-        assert self.namespace_name == actual[0]
+        self.verify_namespace(namespace, actual[0])
+
+    def verify_namespace(self, expected, actual):
+        print(expected)
+        print(actual)
+        assert expected.name == actual.name
+        assert expected.created_at == actual.created_at
+        assert expected.updated_at == actual.updated_at
 
     def test_get_sources_by_namespace(self, source):
         namespace = factories.NamespaceFactory.create('another namespace')

@@ -432,8 +432,7 @@ def get_sources():
 
 
 def get_namespaces():
-    result = session.query(models.Namespace.name).distinct().all()
-    return [namespace for (namespace,) in result]
+    return session.query(models.Namespace).order_by(models.Namespace.id).all()
 
 
 def get_sources_by_namespace(namespace_name):

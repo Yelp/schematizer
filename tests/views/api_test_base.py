@@ -16,7 +16,12 @@ class TestApiBase(object):
 
     @property
     def namespace_response(self):
-        return factories.fake_namespace
+        return {
+            'namespace_id': None,
+            'name': factories.fake_namespace,
+            'created_at': factories.fake_created_at.isoformat(),
+            'updated_at': factories.fake_updated_at.isoformat()
+        }
 
     @property
     def namespaces(self):
@@ -45,7 +50,7 @@ class TestApiBase(object):
     def source_response(self):
         return {
             'source_id': None,
-            'namespace': factories.fake_namespace,
+            'namespace': self.namespace_response,
             'source': factories.fake_source,
             'source_owner_email': factories.fake_owner_email,
             'created_at': factories.fake_created_at.isoformat(),

@@ -43,6 +43,6 @@ class TestListNamespaces(TestNamespaceViewBase):
         assert actual == []
 
     def test_happy_case(self, mock_request, mock_repo):
-        mock_repo.get_namespaces.return_value = self.namespaces
+        mock_repo.get_namespaces.return_value = self.namespaces_response
         actual = list_namespaces(mock_request)
-        assert self.namespaces_response == actual
+        assert self.namespaces == actual
