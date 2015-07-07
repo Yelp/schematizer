@@ -58,8 +58,10 @@ def register_schema(request):
 def register_schema_from_mysql_stmts(request):
     req = requests_v1.RegisterSchemaFromMySqlRequest(**request.json_body)
     avro_schema_json = view_common.convert_to_avro_from_mysql(
-        req.mysql_statements,
-        schema_repository
+        schema_repository,
+        req.new_create_table_stmt,
+        req.old_create_table_stmt,
+        req.alter_table_stmt
     )
     return _register_avro_schema(
         schema_json=avro_schema_json,

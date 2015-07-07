@@ -90,8 +90,8 @@ class AvroToRedshiftConverter(BaseConverter):
         return any(self._is_null_type(typ) for typ in types_to_exam)
 
     def _is_null_type(self, avro_schema):
-        return (self._is_primitive_schema(avro_schema)
-                and avro_schema.fullname == 'null')
+        return (self._is_primitive_schema(avro_schema) and
+                avro_schema.fullname == 'null')
 
     def _is_primitive_schema(self, avro_schema):
         return isinstance(avro_schema, schema.PrimitiveSchema)

@@ -30,8 +30,8 @@ class RedshiftSchemaMigration(object):
         tracked in DATAPIPE-174.
         TODO[clin|DATAPIPE-174]: handle dropping old table
         """
-        update_existing_table = (old_table
-                                 and old_table.name == new_table.name)
+        update_existing_table = (old_table and
+                                 old_table.name == new_table.name)
         return (self.get_update_existing_table_push_plan(old_table, new_table)
                 if update_existing_table
                 else self.get_create_new_table_push_plan(new_table, old_table))

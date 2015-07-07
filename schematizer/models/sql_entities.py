@@ -18,10 +18,10 @@ class SQLTable(object):
         self.metadata = metadata
 
     def __eq__(self, other):
-        return (isinstance(other, SQLTable)
-                and self.name == other.name
-                and self.columns == other.columns
-                and self.metadata == other.metadata)
+        return (isinstance(other, SQLTable) and
+                self.name == other.name and
+                self.columns == other.columns and
+                self.metadata == other.metadata)
 
 
 class SQLColumn(object):
@@ -51,14 +51,14 @@ class SQLColumn(object):
         return self._attributes_lookup.get(key)
 
     def __eq__(self, other):
-        return (isinstance(other, SQLColumn)
-                and self.name == other.name
-                and self.type == other.type
-                and self.is_primary_key == other.is_primary_key
-                and self.is_nullable == other.is_nullable
-                and self.default_value == other.default_value
-                and self.attributes == other.attributes
-                and self.metadata == other.metadata)
+        return (isinstance(other, SQLColumn) and
+                self.name == other.name and
+                self.type == other.type and
+                self.is_primary_key == other.is_primary_key and
+                self.is_nullable == other.is_nullable and
+                self.default_value == other.default_value and
+                self.attributes == other.attributes and
+                self.metadata == other.metadata)
 
 
 class SQLAttribute(object):
@@ -80,10 +80,10 @@ class SQLAttribute(object):
         return attribute
 
     def __eq__(self, other):
-        return (isinstance(other, SQLAttribute)
-                and self.name == other.name
-                and self.value == other.value
-                and self.has_value == other.has_value)
+        return (isinstance(other, SQLAttribute) and
+                self.name == other.name and
+                self.value == other.value and
+                self.has_value == other.has_value)
 
     def __hash__(self):
         return hash((self.name, self.value, self.has_value))
@@ -107,8 +107,8 @@ class SQLColumnDataType(object):
         return self._attributes_lookup.get(name)
 
     def __eq__(self, other):
-        return (isinstance(other, SQLColumnDataType)
-                and self.attributes == other.attributes)
+        return (isinstance(other, SQLColumnDataType) and
+                self.attributes == other.attributes)
 
 
 class MetaDataKey(object):
@@ -134,8 +134,8 @@ class DbPermission(object):
         self.for_group = for_group
 
     def __eq__(self, other):
-        return (isinstance(other, DbPermission)
-                and self.object_name == other.object_name
-                and self.user_or_group_name == other.user_or_group_name
-                and self.permission == other.permission
-                and self.for_group == other.for_group)
+        return (isinstance(other, DbPermission) and
+                self.object_name == other.object_name and
+                self.user_or_group_name == other.user_or_group_name and
+                self.permission == other.permission and
+                self.for_group == other.for_group)
