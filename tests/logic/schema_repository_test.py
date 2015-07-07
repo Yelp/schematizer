@@ -267,41 +267,6 @@ class TestSchemaRepository(DBTestCase):
         )
         self.assert_equal_avro_schema_partial(expected, actual)
 
-    def test_create_schema_from_avro_json_with_missing_doc(self, topic):
-        schema_json = {
-            "type": "record",
-            "name": "foo",
-            "fields": [{"name": "bar", "type": "int"}],
-            "doc": "table foo"
-        }
-        with pytest.raises(schema_repo.MissingDocException):
-            schema_repo.create_avro_schema_from_avro_json(
-                schema_json,
-                topic.domain.namespace,
-                topic.domain.source,
-                topic.domain.owner_email
-            )
-
-    def test_create_schema_from_avro_json_with_missing_doc_but_not_required(
-            self,
-            topic
-    ):
-        schema_json = {"type": "enum", "name": "foo", "symbols": ["a"]}
-        actual = schema_repo.create_avro_schema_from_avro_json(
-            schema_json,
-            topic.domain.namespace,
-            topic.domain.source,
-            topic.domain.owner_email
-        )
-        expected = models.AvroSchema(
-            avro_schema_json=schema_json,
-            status=models.AvroSchemaStatus.READ_AND_WRITE,
-            avro_schema_elements=[
-                models.AvroSchemaElement(key="foo", element_type="enum")
-            ]
-        )
-        self.assert_equal_avro_schema_partial(expected, actual)
-
     def test_get_latest_topic_of_domain(self, domain, topic):
         actual = schema_repo.get_latest_topic_of_domain(
             domain.namespace,
@@ -369,7 +334,7 @@ class TestSchemaRepository(DBTestCase):
     @pytest.mark.usefixtures('disabled_schema')
     def test_is_schema_compatible_in_topic_with_no_enabled_schema(self, topic):
         actual = schema_repo.is_schema_compatible_in_topic('int', topic.name)
-        assert True == actual
+        assert actual is True
 
     @pytest.mark.usefixtures('disabled_schema', 'rw_schema')
     def test_is_schema_compatible_in_topic_with_bad_topic_name(self):
