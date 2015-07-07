@@ -26,13 +26,6 @@ class Topic(Base):
     # Topic name.
     name = Column(String, nullable=False)
 
-    # The associated domain_id for this topic.
-    domain_id = Column(
-        Integer,
-        ForeignKey('domain.id'),
-        nullable=True
-    )
-
     # The associated source_id for this topic.
     source_id = Column(
         Integer,
@@ -59,7 +52,7 @@ class Topic(Base):
         topic_dict = {
             'topic_id': self.id,
             'name': self.name,
-            'source': None if self.source is None else self.source.to_dict(),
+            'source': self.source.to_dict(),
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }

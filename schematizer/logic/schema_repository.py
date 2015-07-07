@@ -82,8 +82,13 @@ def create_avro_schema_from_avro_json(
     """
     namespace = _get_namespace_or_create(namespace_name)
     _lock_namespace(namespace)
-    source = _get_source_or_create(namespace, source_name, source_email_owner)
+    source = _get_source_or_create(
+        namespace.id,
+        source_name,
+        source_email_owner
+    )
     _lock_source(source)
+
     topic = get_latest_topic_of_source_id(source.id)
 
     # Lock topic and its schemas so that no other transaction can add new
@@ -98,7 +103,7 @@ def create_avro_schema_from_avro_json(
         # IntegrityError exception. When it occurs, it indicates the uuid
         # is generating the same value (rarely) and we'd like to know it.
         topic_name = _construct_topic_name(namespace_name, source_name)
-        topic = _create_topic(topic_name, source)
+        topic = _create_topic(topic_name, source.id)
 
     # Do not create the schema if it is the same as the latest one
     latest_schema = get_latest_schema_by_topic_id(topic.id)
@@ -116,51 +121,71 @@ def create_avro_schema_from_avro_json(
     return avro_schema
 
 
-def _get_namespace_or_create(namespace):
+def _get_namespace_or_create(namespace_name):
     try:
         return session.query(
             models.Namespace
         ).filter(
-            models.Namespace.name == namespace
+            models.Namespace.name == namespace_name
         ).one()
     except orm_exc.NoResultFound:
-        return _create_namespace(namespace)
+        return _create_namespace_if_not_exist(namespace_name)
 
 
-def _get_source_or_create(namespace, source, owner_email):
+def _get_source_or_create(namespace_id, source_name, owner_email):
     try:
         return session.query(
             models.Source
         ).filter(
-            models.Source.namespace_id == namespace.id,
-            models.Source.name == source
+            models.Source.namespace_id == namespace_id,
+            models.Source.name == source_name
         ).one()
     except orm_exc.NoResultFound:
-        return _create_source_if_not_exist(namespace, source, owner_email)
+        return _create_source_if_not_exist(
+            namespace_id,
+            source_name,
+            owner_email
+        )
 
 
-def _create_namespace(namespace_name):
-    namespace = models.Namespace(name=namespace_name)
-    session.add(namespace)
-    session.flush()
-    return namespace
-
-
-def _create_source_if_not_exist(namespace, source_name, owner_email):
+def _create_namespace_if_not_exist(namespace_name):
     try:
+        # Create a savepoint before trying to create new namespace so that
+        # in the case which the IntegrityError occurs, the session will
+        # rollback to savepoint. Upon exiting the nested Context, commit/
+        # rollback is automatically issued and no need to add it explicitly
+        with session.begin_nested():
+            new_namespace = models.Namespace(name=namespace_name)
+            session.add(new_namespace)
+    except exc.IntegrityError:
+        # Ignore this error due to trying to create a duplicate namespace
+        new_namespace = get_namespace_by_name(namespace_name)
+    return new_namespace
+
+
+def _create_source_if_not_exist(namespace_id, source_name, owner_email):
+    try:
+        # Create a savepoint before trying to create new source so that
+        # in the case which the IntegrityError occurs, the session will
+        # rollback to savepoint. Upon exiting the nested Context, commit/
+        # rollback is automatically issued and no need to add it explicitly
         with session.begin_nested():
             new_source = models.Source(
-                namespace_id=namespace.id,
+                namespace_id=namespace_id,
                 name=source_name,
                 owner_email=owner_email
             )
             session.add(new_source)
     except exc.IntegrityError:
-        new_source = _get_source_by_namespace_id(namespace.id, source_name)
+        # Ignore this error due to trying to create a duplicate source
+        new_source = _get_source_by_namespace_id_and_src_name(
+            namespace_id,
+            source_name
+        )
     return new_source
 
 
-def _get_source_by_namespace_id(namespace_id, source):
+def _get_source_by_namespace_id_and_src_name(namespace_id, source):
     session.query(
         models.Source
     ).filter(
@@ -200,18 +225,17 @@ def _lock_topic_and_schemas(topic):
     ).with_for_update()
 
 
-def get_latest_topic_of_namespace_source(namespace_name, source):
-    namespace = get_namespace_by_name(namespace_name)
-    if not namespace:
-        return None
+def get_latest_topic_of_namespace_source(namespace_name, source_name):
     return session.query(
         models.Topic
     ).join(
-        models.Source
+        models.Source,
+        models.Namespace
     ).filter(
+        models.Namespace.id == models.Source.namespace_id,
         models.Source.id == models.Topic.source_id,
-        models.Source.namespace_id == namespace.id,
-        models.Source.name == source
+        models.Namespace.name == namespace_name,
+        models.Source.name == source_name
     ).order_by(
         models.Topic.id.desc()
     ).first()
@@ -234,8 +258,12 @@ def _construct_topic_name(namespace, source):
     return '.'.join((namespace, source, uuid.uuid4().hex))
 
 
-def _create_topic(topic_name, source):
-    topic = models.Topic(name=topic_name, source_id=source.id)
+def _create_topic(topic_name, source_id):
+    """Create a topic named `topic_name` in the given source.
+    It returns a newly created topic. If a topic with the same
+    name already exists, an exception is thrown
+    """
+    topic = models.Topic(name=topic_name, source_id=source_id)
     session.add(topic)
     session.flush()
     return topic
@@ -261,13 +289,12 @@ def get_namespace_by_name(namespace):
 
 
 def get_source_by_fullname(namespace_name, source_name):
-    namespace = get_namespace_by_name(namespace_name)
-    if not namespace:
-        return None
     return session.query(
         models.Source
+    ).join(
+        models.Namespace
     ).filter(
-        models.Source.namespace_id == namespace.id,
+        models.Namespace.name == namespace_name,
         models.Source.name == source_name
     ).first()
 
