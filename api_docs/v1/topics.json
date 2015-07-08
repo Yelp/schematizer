@@ -158,7 +158,7 @@
                     "description": "Source ID"
                 },
                 "namespace": {
-                    "$ref": "Source",
+                    "$ref": "Namespace",
                     "description": "Namespace of the source"
                 },
                 "source": {
