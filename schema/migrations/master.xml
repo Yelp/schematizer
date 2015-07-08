@@ -8,6 +8,7 @@
   <include file="data_target.xml"/>
   <include file="domain.xml"/>
   <include file="namespace.xml"/>
+  <include file="note.xml"/>
   <include file="producer.xml"/>
   <include file="source.xml"/>
   <include file="topic.xml"/>
