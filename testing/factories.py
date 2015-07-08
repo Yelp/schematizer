@@ -21,6 +21,107 @@ fake_mysql_alter_stmts = ['create table foo',
                           'create table foo']
 
 
+def create_namespace(namespace_name):
+    namespace = models.Namespace(name=namespace_name)
+    session.add(namespace)
+    session.flush()
+    return namespace
+
+
+def get_or_create_namespace(namespace_name):
+    namespace = session.query(
+        models.Namespace
+    ).filter(
+        models.Namespace.name == namespace_name
+    ).first()
+    return namespace or create_namespace(namespace_name)
+
+
+def create_source(namespace_name, source_name, owner_email=fake_owner_email):
+    namespace = get_or_create_namespace(namespace_name)
+    source = models.Source(
+        namespace_id=namespace.id,
+        name=source_name,
+        owner_email=owner_email
+    )
+    session.add(source)
+    session.flush()
+    return source
+
+
+def get_or_create_source(
+    namespace_name,
+    source_name,
+    owner_email=fake_owner_email
+):
+    source = session.query(
+        models.Source
+    ).join(
+        models.Namespace
+    ).filter(
+        models.Namespace.name == namespace_name,
+        models.Source.name == source_name
+    ).first()
+    return source or create_source(
+        namespace_name,
+        source_name,
+        owner_email=owner_email
+    )
+
+
+def create_topic(topic_name, namespace=fake_namespace, source=fake_source):
+    source = get_or_create_source(namespace, source)
+    topic = models.Topic(name=topic_name, source_id=source.id)
+    session.add(topic)
+    session.flush()
+    return topic
+
+
+def get_or_create_topic(
+        topic_name,
+        namespace=fake_namespace,
+        source=fake_source
+):
+    topic = session.query(
+        models.Topic
+    ).filter(
+        models.Topic.name == topic_name
+    ).first()
+    return topic or create_topic(
+        topic_name,
+        namespace=namespace,
+        source=source
+    )
+
+
+def create_avro_schema(
+        schema_json,
+        schema_elements,
+        topic_name=fake_topic_name,
+        namespace=fake_namespace,
+        source=fake_source,
+        status=models.AvroSchemaStatus.READ_AND_WRITE,
+        base_schema_id=None
+):
+    topic = get_or_create_topic(topic_name, namespace=namespace, source=source)
+
+    avro_schema = models.AvroSchema(
+        avro_schema_json=schema_json,
+        topic_id=topic.id,
+        status=status,
+        base_schema_id=base_schema_id
+    )
+    session.add(avro_schema)
+    session.flush()
+
+    for schema_element in schema_elements:
+        schema_element.avro_schema_id = avro_schema.id
+        session.add(schema_element)
+    session.flush()
+
+    return avro_schema
+
+
 class NamespaceFactory(object):
 
     @classmethod

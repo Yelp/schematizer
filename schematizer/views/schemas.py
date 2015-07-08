@@ -71,8 +71,13 @@ def register_schema_from_mysql_stmts(request):
     )
 
 
-def _register_avro_schema(schema_json, namespace, source,
-                          source_email_owner, base_schema_id=None):
+def _register_avro_schema(
+    schema_json,
+    namespace,
+    source,
+    source_email_owner,
+    base_schema_id=None
+):
     try:
         return schema_repository.create_avro_schema_from_avro_json(
             avro_schema_json=schema_json,
