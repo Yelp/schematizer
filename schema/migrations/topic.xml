@@ -25,6 +25,6 @@
 
   <changeSet author="wscheng" id="1436301100">
     <comment>Changing domain_id to source_id</comment>
-    <renameColumn oldColumnName="domain_id" newColumnName="source_id" tableName="topic"/>
+    <renameColumn oldColumnName="domain_id" newColumnName="source_id" tableName="topic" columnDataType="INT(11)"/>
   </changeSet>
 </databaseChangeLog>
