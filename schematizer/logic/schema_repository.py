@@ -244,7 +244,10 @@ def get_latest_topic_of_namespace_source(namespace_name, source_name):
     source = get_source_by_fullname(namespace_name, source_name)
     if not source:
         raise EntityNotFoundException(
-            "Cannot find namespace {0} source {1}.".format(namespace_name, source_name)
+            "Cannot find namespace {0} source {1}.".format(
+                namespace_name,
+                source_name
+            )
         )
     return session.query(
         models.Topic

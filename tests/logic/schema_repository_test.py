@@ -26,14 +26,11 @@ class TestSchemaRepository(DBTestCase):
 
     @pytest.fixture
     def namespace(self):
-        return factories.NamespaceFactory.create_in_db(self.namespace_name)
+        return factories.create_namespace(self.namespace_name)
 
     @pytest.fixture
     def source(self, namespace):
-        return factories.SourceFactory.create_in_db(
-            self.source_name,
-            namespace
-        )
+        return factories.create_source(self.namespace_name, self.source_name)
 
     @property
     def topic_name(self):

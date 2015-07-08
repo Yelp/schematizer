@@ -49,7 +49,11 @@ def create_source(namespace_name, source_name, owner_email=fake_owner_email):
     return source
 
 
-def get_or_create_source(namespace_name, source_name, owner_email=fake_owner_email):
+def get_or_create_source(
+    namespace_name,
+    source_name,
+    owner_email=fake_owner_email
+):
     source = session.query(
         models.Source
     ).join(
@@ -58,7 +62,11 @@ def get_or_create_source(namespace_name, source_name, owner_email=fake_owner_ema
         models.Namespace.name == namespace_name,
         models.Source.name == source_name
     ).first()
-    return source or create_source(namespace_name, source_name, owner_email=owner_email)
+    return source or create_source(
+        namespace_name,
+        source_name,
+        owner_email=owner_email
+    )
 
 
 def create_topic(topic_name, namespace=fake_namespace, source=fake_source):
