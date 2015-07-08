@@ -29,7 +29,7 @@ class TestApiBase(object):
 
     @property
     def namespaces_response(self):
-        return [self.namespace_response]
+        return [self.namespace]
 
     @property
     def source_name(self):
