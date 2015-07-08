@@ -167,6 +167,21 @@ class AvroSchema(Base, BaseModel):
 
         return avro_schema_elements
 
+    @classmethod
+    def verify_avro_schema(cls, avro_schema_json):
+        """Verify whether the given JSON representation is a valid Avro schema.
+
+        :param avro_schema_json: JSON representation of the Avro schema
+        :return: A tuple (is_valid, error) in which the first element
+        indicates whether the given JSON is a valid Avro schema, and the
+        second element is the error if it is not valid.
+        """
+        try:
+            schema.make_avsc_object(avro_schema_json)
+            return True, None
+        except Exception as e:
+            return False, repr(e)
+
 
 class _SchemaElement(object):
     """Helper class that wraps the avro schema object and its corresponding
@@ -178,11 +193,10 @@ class _SchemaElement(object):
 
     def __init__(self, schema_obj, parent_key):
         if not isinstance(schema_obj, self.target_schema_type):
-            raise ValueError(
-                "record_schema must be RecordSchema. Value: {0}".format(
-                    schema_obj
-                )
-            )
+            raise ValueError("schema_obj must be {0}. Value: {1}".format(
+                self.target_schema_type.__class__.__name__,
+                schema_obj
+            ))
         self.schema_obj = schema_obj
         self.parent_key = parent_key
 
