@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import mock
 import pytest
 import simplejson
 from avro import schema
@@ -7,6 +8,7 @@ from schematizer.api.exceptions import exceptions_v1
 from schematizer.components.handlers import sql_handler_base
 from schematizer.components.converters import converter_base
 from schematizer.views import schemas as schema_views
+from schematizer.views import view_common
 from testing import factories
 from tests.views.api_test_base import TestApiBase
 
@@ -145,28 +147,61 @@ class TestRegisterSchema(TestSchemasViewBase):
 class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
 
     @property
-    def request_json(self):
-        return {
-            "mysql_statements": factories.fake_mysql_create_stmts,
+    def new_create_table_stmt(self):
+        return 'create new table'
+
+    @property
+    def old_create_table_stmt(self):
+        return 'create old table'
+
+    @pytest.fixture
+    def setup_mock_request_for_new_table(self, mock_request):
+        mock_request.json_body = {
+            "new_create_table_stmt": self.new_create_table_stmt,
             "namespace": factories.fake_namespace,
             "source": factories.fake_source,
             "source_owner_email": factories.fake_owner_email
         }
 
-    @pytest.fixture
-    def setup_mock_request_json_body(self, mock_request):
-        mock_request.json_body = self.request_json
+    @pytest.yield_fixture
+    def mock_create_sql_table_from_mysql_stmts(self):
+        with mock.patch.object(
+            view_common.sql_handler,
+            'create_sql_table_from_sql_stmts',
+        ) as mock_func:
+            yield mock_func
 
     @property
-    def converted_schema(self):
+    def converted_schema_json(self):
         return 'converted avro schema'
 
+    @pytest.mark.parametrize("request_body", [
+        {
+            "new_create_table_stmt": 'create new table',
+            "namespace": factories.fake_namespace,
+            "source": factories.fake_source,
+            "source_owner_email": factories.fake_owner_email
+        },
+        {
+            "new_create_table_stmt": 'create new table',
+            "old_create_table_stmt": 'create old table',
+            "alter_table_stmt": 'update existing table',
+            "namespace": factories.fake_namespace,
+            "source": factories.fake_source,
+            "source_owner_email": factories.fake_owner_email
+        },
+    ])
     @pytest.mark.usefixtures(
-        'setup_mock_request_json_body',
-        'mock_create_sql_table_from_mysql_stmts'
+        'mock_create_sql_table_from_mysql_stmts',
     )
-    def test_register_schema(self, mock_request, mock_repo):
-        mock_repo.convert_schema.return_value = self.converted_schema
+    def test_register_schema_with_new_table(
+        self,
+        mock_request,
+        mock_repo,
+        request_body
+    ):
+        mock_request.json_body = request_body
+        mock_repo.convert_schema.return_value = self.converted_schema_json
         mock_repo.create_avro_schema_from_avro_json.return_value = self.schema
 
         actual = schema_views.register_schema_from_mysql_stmts(mock_request)
@@ -174,11 +209,11 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
         assert self.schema_response == actual
         self.assert_mock_create_schema_func_call(
             mock_repo,
-            avro_schema_json=self.converted_schema,
+            avro_schema_json=self.converted_schema_json,
             base_schema_id=None
         )
 
-    @pytest.mark.usefixtures('setup_mock_request_json_body')
+    @pytest.mark.usefixtures('setup_mock_request_for_new_table')
     def test_register_schema_with_mysql_handler_exception(
         self,
         mock_request,
@@ -195,7 +230,7 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
         assert 'oops' == str(e.value)
 
     @pytest.mark.usefixtures(
-        'setup_mock_request_json_body',
+        'setup_mock_request_for_new_table',
         'mock_create_sql_table_from_mysql_stmts'
     )
     def test_register_schema_with_conversion_exception(
@@ -214,7 +249,7 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
         assert 'oops' == str(e.value)
 
     @pytest.mark.usefixtures(
-        'setup_mock_request_json_body',
+        'setup_mock_request_for_new_table',
         'mock_create_sql_table_from_mysql_stmts'
     )
     def test_register_schema_with_avro_exception(
@@ -231,3 +266,26 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
 
         assert expected_exception.code == e.value.code
         assert 'oops' == str(e.value)
+
+    def test_register_schema_with_invalid_request(
+        self,
+        mock_request,
+        mock_repo
+    ):
+        mock_request.json_body = {
+            "new_create_table_stmt": self.new_create_table_stmt,
+            "old_create_table_stmt": self.old_create_table_stmt,
+            "alter_table_stmt": None,
+            "namespace": factories.fake_namespace,
+            "source": factories.fake_source,
+            "source_owner_email": factories.fake_owner_email
+        }
+        expected_exception = self.get_http_exception(400)
+
+        with pytest.raises(expected_exception) as e:
+            schema_views.register_schema_from_mysql_stmts(mock_request)
+
+        expected_err = 'Both old_create_table_stmt and alter_table_stmt ' \
+                       'must be provided.'
+        assert expected_exception.code == e.value.code
+        assert expected_err == str(e.value)

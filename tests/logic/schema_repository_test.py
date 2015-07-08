@@ -269,12 +269,12 @@ class TestSchemaRepository(DBTestCase):
     ):
         factories.AvroSchemaFactory.delete(rw_avro_schema.id)
         actual = schema_repo.is_schema_compatible_in_topic('avro', topic.name)
-        assert True == actual
+        assert actual is True
 
     @pytest.mark.usefixtures('avro_schemas')
     def test_is_schema_compatible_in_topic_with_bad_topic_name(self):
         actual = schema_repo.is_schema_compatible_in_topic('avro', 'foo')
-        assert True == actual
+        assert actual is True
 
     def test_get_topic_by_name(self, topic):
         actual = schema_repo.get_topic_by_name(self.topic_name)
@@ -372,10 +372,10 @@ class TestSchemaRepository(DBTestCase):
             namespace.name,
             source.name
         )
-        assert True == actual
+        assert actual is True
 
         actual = schema_repo.is_schema_compatible('avro schema', 'foo', 'bar')
-        assert True == actual
+        assert actual is True
 
     def test_get_schemas_by_topic_name(self, topic, rw_avro_schema):
         actual = schema_repo.get_schemas_by_topic_name(topic.name)

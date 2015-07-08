@@ -129,14 +129,6 @@ class TestApiBase(object):
         ) as mock_repo:
             yield mock_repo
 
-    @pytest.yield_fixture
-    def mock_create_sql_table_from_mysql_stmts(self):
-        patch_name = (self.test_view_module +
-                      '.view_common.sql_handler'
-                      '.create_sql_table_from_sql_stmts')
-        with mock.patch(patch_name) as mock_func:
-            yield mock_func
-
     @classmethod
     def get_mock_dict(cls, dict_value):
         mock_dict = mock.MagicMock(spec=dict)
