@@ -93,8 +93,8 @@ def _update_schema_element_chains(identity_to_element_chain_map, elements):
     the corresponding element chain.
 
     Note that if the element with same identity appear in two schemas and
-    these two schemas are not next to each other, this element still will
-    be added to the chain.
+    one of the schemas is not the immediate next version of the other, this
+    element will still be added to the chain.
     """
     for element in elements:
         identity = _get_schema_element_identity(element)
