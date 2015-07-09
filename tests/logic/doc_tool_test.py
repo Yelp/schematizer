@@ -9,16 +9,13 @@ from tests.models.testing_db import DBTestCase
 
 class TestDocTool(DBTestCase):
 
-    @pytest.fixture
+    @property
     def note_text(self):
         return "qwer<3"
 
-    @pytest.fixture
-    def source(self):
-        return factories.create_source(
-            factories.fake_namespace,
-            factories.fake_source
-        )
+    @property
+    def user(self):
+        return factories.fake_user_email
 
     @pytest.fixture
     def topic(self):
@@ -61,10 +58,10 @@ class TestDocTool(DBTestCase):
         return schema.avro_schema_elements[0]
 
     @pytest.fixture
-    def table_note(self, source):
+    def table_note(self, schema):
         return factories.create_note(
             models.NoteTypeEnum.TABLE,
-            source.id,
+            schema.id,
             self.note_text,
             factories.fake_user_email
         )
@@ -94,11 +91,76 @@ class TestDocTool(DBTestCase):
         note = doc_tool.get_note_by_schema_element_id(1)
         assert note is None
 
+    def test_create_and_update_table_note(self, schema):
+        # Test table note creation
+        actual_note = doc_tool.create_or_update_table_note(
+            schema.id,
+            self.note_text,
+            self.user
+        )
+        expected_note = models.Note(
+            note_type=models.NoteTypeEnum.TABLE,
+            reference_id=schema.id,
+            note=self.note_text,
+            last_updated_by=self.user,
+        )
+        self.assert_equal_note_partial(expected_note, actual_note)
+
+        # Test table note update
+        new_text = "This is new text"
+        new_user = "user2@yelp.com"
+        actual_note = doc_tool.create_or_update_table_note(
+            schema.id,
+            "This is new text",
+            "user2@yelp.com"
+        )
+        expected_note = models.Note(
+            note_type=models.NoteTypeEnum.TABLE,
+            reference_id=schema.id,
+            note=new_text,
+            last_updated_by=new_user,
+        )
+        self.assert_equal_note_partial(expected_note, actual_note)
+
+    def test_create_and_update_field_note(self, schema_element):
+        # Test field note creation
+        actual_note = doc_tool.create_or_update_field_note(
+            schema_element.id,
+            self.note_text,
+            self.user
+        )
+        expected_note = models.Note(
+            note_type=models.NoteTypeEnum.FIELD,
+            reference_id=schema_element.id,
+            note=self.note_text,
+            last_updated_by=self.user,
+        )
+        self.assert_equal_note_partial(expected_note, actual_note)
+
+        # Test field note update
+        new_text = "This is new text"
+        new_user = "user2@yelp.com"
+        actual_note = doc_tool.create_or_update_field_note(
+            schema_element.id,
+            "This is new text",
+            "user2@yelp.com"
+        )
+        expected_note = models.Note(
+            note_type=models.NoteTypeEnum.FIELD,
+            reference_id=schema_element.id,
+            note=new_text,
+            last_updated_by=new_user,
+        )
+        self.assert_equal_note_partial(expected_note, actual_note)
+
     def assert_equal_note(self, expected, actual):
         assert expected.id == actual.id
+        assert expected.created_at == actual.created_at
+        assert expected.updated_at == actual.updated_at
+        self.assert_equal_note_partial(expected, actual)
+
+    def assert_equal_note_partial(self, expected, actual):
         assert expected.note_type == actual.note_type
         assert expected.reference_id == actual.reference_id
         assert expected.note == actual.note
         assert expected.last_updated_by == actual.last_updated_by
-        assert expected.created_at == actual.created_at
-        assert expected.updated_at == actual.updated_at

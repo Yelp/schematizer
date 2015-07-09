@@ -13,7 +13,7 @@ from schematizer.models.types.time import build_time_column
 class NoteTypeEnum(object):
 
     # Table level note in the doc tool.
-    # Note references an object in the source table
+    # Note references an object in the avro_schema table
     TABLE = 'table'
     # Field level note in the doc tool.
     # Note references an object in the avro_schema_element table

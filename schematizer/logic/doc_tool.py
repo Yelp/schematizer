@@ -74,7 +74,8 @@ def _create_note(note_type, reference_id, note_text, user_email):
     note = models.Note(
         note_type=note_type,
         reference_id=reference_id,
-        note=note_text
+        note=note_text,
+        last_updated_by=user_email
     )
     session.add(note)
     session.flush()
