@@ -1,39 +1,31 @@
 # -*- coding: utf-8 -*-
 from sqlalchemy import Column
-from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 
-from schematizer.models.avro_schema import AvroSchema
 from schematizer.models.database import Base
+from schematizer.models.source import Source
 from schematizer.models.types.time import build_time_column
 
 
-class Topic(Base):
+class Namespace(Base):
 
-    __tablename__ = 'topic'
+    __tablename__ = 'namespace'
     __table_args__ = (
         UniqueConstraint(
             'name',
-            name='topic_unique_constraint'
+            name='namespace_unique_constraint'
         ),
     )
 
     id = Column(Integer, primary_key=True)
 
-    # Topic name.
+    # Namespace, such as "yelpmain.db", etc
     name = Column(String, nullable=False)
 
-    # The associated source_id for this topic.
-    source_id = Column(
-        Integer,
-        ForeignKey('source.id'),
-        nullable=False
-    )
-
-    avro_schemas = relationship(AvroSchema, backref="topic")
+    sources = relationship(Source, backref="namespace")
 
     # Timestamp when the entry is created
     created_at = build_time_column(
@@ -49,11 +41,9 @@ class Topic(Base):
     )
 
     def to_dict(self):
-        topic_dict = {
-            'topic_id': self.id,
+        return {
+            'namespace_id': self.id,
             'name': self.name,
-            'source': self.source.to_dict(),
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
-        return topic_dict

@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
-  <changeSet author="sichang" id="1424474764">
-    <createTable tableName="topic">
+  <changeSet author="clin" id="1435112458">
+    <createTable tableName="avro_schema_element">
       <column autoIncrement="true" name="id" type="INT(11)">
         <constraints primaryKey="true"/>
       </column>
-      <column name="name" type="VARCHAR(255)">
-        <constraints nullable="false" unique="true"/>
-      </column>
-      <column name="domain_id" type="INT(11)">
+      <column name="avro_schema_id" type="INT(11)">
         <constraints nullable="false"/>
+      </column>
+      <column name="key" type="VARCHAR(512)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="element_type" type="VARCHAR(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="doc" type="TEXT">
+        <constraints nullable="true"/>
       </column>
       <column name="created_at" type="INT(11)">
         <constraints nullable="false"/>
@@ -18,13 +24,15 @@
         <constraints nullable="false"/>
       </column>
     </createTable>
+    <comment>[2015-06-23] Create avro_schema_element table.</comment>
     <modifySql dbms="mysql">
       <append value=" ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci"/>
     </modifySql>
   </changeSet>
-
-  <changeSet author="wscheng" id="1436301100">
-    <comment>Changing domain_id to source_id</comment>
-    <renameColumn oldColumnName="domain_id" newColumnName="source_id" tableName="topic" columnDataType="INT(11) NOT NULL"/>
+  <changeSet author="clin" id="1435113799">
+    <createIndex indexName="avro_schema_id" tableName="avro_schema_element" unique="false">
+      <column name="avro_schema_id"/>
+    </createIndex>
+    <comment>[2015-06-23] Add index on avro_schema_id column of avro_schema_element table.</comment>
   </changeSet>
 </databaseChangeLog>

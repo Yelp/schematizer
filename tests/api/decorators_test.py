@@ -32,24 +32,30 @@ def _view_mock_raise_no_result_found_exception(request):
 current_time = datetime.now()
 
 
-source_response = factories.DomainFactory.create(
+namespace = factories.NamespaceFactory.create(
     factories.fake_namespace,
+    created_at=current_time,
+    updated_at=current_time
+)
+
+source_response = factories.SourceFactory.create(
     factories.fake_source,
+    namespace,
     created_at=current_time,
     updated_at=current_time
 ).to_dict()
 
 
 list_of_source_response = [
-    factories.DomainFactory.create(
-        factories.fake_namespace,
+    factories.SourceFactory.create(
         factories.fake_source,
+        namespace,
         created_at=current_time,
         updated_at=current_time
     ).to_dict(),
-    factories.DomainFactory.create(
-        factories.fake_namespace,
+    factories.SourceFactory.create(
         factories.fake_source,
+        namespace,
         created_at=current_time,
         updated_at=current_time
     ).to_dict()
@@ -97,10 +103,19 @@ class TestDecorators(object):
 
     def assert_source_response(self, source, expected_source):
         assert source['source_id'] == expected_source['source_id']
-        assert source['namespace'] == expected_source['namespace']
         assert source['source'] == expected_source['source']
         assert source['source_owner_email'] == expected_source[
             'source_owner_email'
         ]
         assert source['created_at'] == current_time.isoformat()
         assert source['updated_at'] == current_time.isoformat()
+        self.assert_namespace_response(
+            source['namespace'],
+            expected_source['namespace']
+        )
+
+    def assert_namespace_response(self, namespace, expected_namespace):
+        assert namespace['namespace_id'] == expected_namespace['namespace_id']
+        assert namespace['name'] == expected_namespace['name']
+        assert namespace['created_at'] == current_time.isoformat()
+        assert namespace['updated_at'] == current_time.isoformat()

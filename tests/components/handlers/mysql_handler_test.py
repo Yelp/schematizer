@@ -34,7 +34,7 @@ class TestMySQLHandler(object):
     def create_table_foo_sql(self):
         return ('CREATE TABLE `foo` ('
                 '`id` int(11) auto_increment not null, '
-                'name varchar(255) null,'
+                'name varchar(255),'
                 'amount decimal(10, 2) default 0.0 unsigned,'
                 'primary key (id) '
                 ');')
@@ -78,113 +78,139 @@ class TestMySQLHandler(object):
             definitions=','.join(create_definitions)
         )
 
-    def test_create_sql_table_from_sql_stmts_with_integer_type(self, handler):
-        create_definition = '`bar` int(4) not null unsigned'
-        expected_column = SQLColumn(
-            'bar',
-            data_types.MySQLInt(4, unsigned=True),
-            is_nullable=False,
-        )
+    @pytest.mark.parametrize(("create_definition", "expected_column"), [
+        ('`bar` int(4) not null unsigned',
+         SQLColumn(
+             'bar',
+             data_types.MySQLInt(4, unsigned=True),
+             is_nullable=False
+         )),
+        ('bar bigint null',
+         SQLColumn('bar', data_types.MySQLBigInt(None))),
+    ])
+    def test_create_sql_table_from_sql_stmts_with_integer_type(
+        self,
+        handler,
+        create_definition,
+        expected_column
+    ):
         self.assert_sql_table_equal_with_create_defs(
             handler,
             [create_definition],
             [expected_column]
         )
 
-    def test_create_sql_table_from_sql_stmts_with_real_num_type(self, handler):
-        create_definition = 'bar decimal(10, 2) default 0.0 unsigned,'
-        expected_column = SQLColumn(
-            'bar',
-            data_types.MySQLDecimal(10, 2, unsigned=True),
-            default_value='0.0'
-        )
+    @pytest.mark.parametrize(("create_definition", "expected_column"), [
+        ('bar decimal(10, 2) default 0.0 unsigned',
+         SQLColumn(
+             'bar',
+             data_types.MySQLDecimal(10, 2, unsigned=True),
+             default_value='0.0'
+         )),
+        ('bar double null',
+         SQLColumn('bar', data_types.MySQLDouble(None, None))),
+        ('bar numeric(10) null',
+         SQLColumn('bar', data_types.MySQLNumeric(10, None))),
+    ])
+    def test_create_sql_table_from_sql_stmts_with_real_num_type(
+        self,
+        handler,
+        create_definition,
+        expected_column
+    ):
         self.assert_sql_table_equal_with_create_defs(
             handler,
             [create_definition],
             [expected_column]
         )
 
-    def test_create_sql_table_from_sql_stmts_with_string_type(self, handler):
-        create_definition = 'bar char(3) not null'
-        expected_column = SQLColumn(
-            'bar',
-            data_types.MySQLChar(3),
-            is_nullable=False,
-        )
+    @pytest.mark.parametrize(("create_definition", "expected_column"), [
+        ('bar char(3) not null',
+         SQLColumn('bar', data_types.MySQLChar(3), is_nullable=False)),
+        ('bar varchar(255) null',
+         SQLColumn('bar', data_types.MySQLVarChar(255))),
+        ('bar text CHARACTER SET latin1 COLLATE latin1_german1_ci',
+         SQLColumn('bar', data_types.MySQLText(
+             char_set='latin1',
+             collate='latin1_german1_ci'
+         ))),
+    ])
+    def test_create_sql_table_from_sql_stmts_with_string_type(
+        self,
+        handler,
+        create_definition,
+        expected_column
+    ):
         self.assert_sql_table_equal_with_create_defs(
             handler,
             [create_definition],
             [expected_column]
         )
 
-        create_definition = 'bar varchar(255) null'
-        expected_column = SQLColumn('bar', data_types.MySQLVarChar(255))
+    @pytest.mark.parametrize(("create_definition", "expected_column"), [
+        ('bar timestamp default 10 not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLTimestamp(),
+             default_value='10',
+             is_nullable=False
+         )),
+        ('bar datetime null', SQLColumn('bar', data_types.MySQLDateTime())),
+    ])
+    def test_create_sql_table_from_sql_stmts_with_datetime_type(
+        self,
+        handler,
+        create_definition,
+        expected_column
+    ):
         self.assert_sql_table_equal_with_create_defs(
             handler,
             [create_definition],
             [expected_column]
         )
 
-        create_definition = ('bar text CHARACTER SET latin1 '
-                             'COLLATE latin1_german1_ci,')
-        expected_column = SQLColumn(
-            'bar',
-            data_types.MySQLText(
-                char_set='latin1',
-                collate='latin1_german1_ci'
-            ),
-        )
+    @pytest.mark.parametrize(("create_definition", "expected_column"), [
+        ('bar binary(64)', SQLColumn('bar', data_types.MySQLBinary(64))),
+        ('bar blob null', SQLColumn('bar', data_types.MySQLBlob())),
+    ])
+    def test_create_sql_table_from_sql_stmts_with_binary_type(
+        self,
+        handler,
+        create_definition,
+        expected_column
+    ):
         self.assert_sql_table_equal_with_create_defs(
             handler,
             [create_definition],
             [expected_column]
         )
 
-    def test_create_sql_table_from_sql_stmts_with_datetime_type(self, handler):
-        create_definition = 'bar timestamp default 10 not null'
-        expected_column = SQLColumn(
-            'bar',
-            data_types.MySQLTimestamp(),
-            default_value='10',
-            is_nullable=False
-        )
+    @pytest.mark.parametrize(("create_definition", "expected_column"), [
+        ('bar enum (a1, a2, a3) character set latin1',
+         SQLColumn('bar', data_types.MySQLEnum(['a1', 'a2', 'a3']))),
+    ])
+    def test_create_sql_table_from_sql_stmts_with_enum_type(
+        self,
+        handler,
+        create_definition,
+        expected_column
+    ):
         self.assert_sql_table_equal_with_create_defs(
             handler,
             [create_definition],
             [expected_column]
         )
 
-        create_definition = 'bar datetime null'
-        expected_column = SQLColumn('bar', data_types.MySQLDateTime())
-        self.assert_sql_table_equal_with_create_defs(
-            handler,
-            [create_definition],
-            [expected_column]
-        )
-
-    def test_create_sql_table_from_sql_stmts_with_binary_type(self, handler):
-        create_definition = 'bar binary(64)'
-        expected_column = SQLColumn('bar', data_types.MySQLBinary(64))
-        self.assert_sql_table_equal_with_create_defs(
-            handler,
-            [create_definition],
-            [expected_column]
-        )
-
-        create_definition = 'bar blob null'
-        expected_column = SQLColumn('bar', data_types.MySQLBlob())
-        self.assert_sql_table_equal_with_create_defs(
-            handler,
-            [create_definition],
-            [expected_column]
-        )
-
-    def test_create_sql_table_from_sql_stmts_with_enum_type(self, handler):
-        create_definition = 'bar enum (a1, a2, a3) character set latin1'
-        expected_column = SQLColumn(
-            'bar',
-            data_types.MySQLEnum(['a1', 'a2', 'a3']),
-        )
+    @pytest.mark.parametrize(("create_definition", "expected_column"), [
+        ('bar set (a1, a2, a3) character set latin1',
+         SQLColumn('bar', data_types.MySQLSet(['a1', 'a2', 'a3']))),
+    ])
+    def test_create_sql_table_from_sql_stmts_with_set_type(
+        self,
+        handler,
+        create_definition,
+        expected_column
+    ):
         self.assert_sql_table_equal_with_create_defs(
             handler,
             [create_definition],
@@ -217,18 +243,6 @@ class TestMySQLHandler(object):
             handler,
             create_definitions,
             expected_columns
-        )
-
-    def test_create_sql_table_from_sql_stmts_with_set_type(self, handler):
-        create_definition = 'bar set (a1, a2, a3) character set latin1'
-        expected_column = SQLColumn(
-            'bar',
-            data_types.MySQLSet(['a1', 'a2', 'a3']),
-        )
-        self.assert_sql_table_equal_with_create_defs(
-            handler,
-            [create_definition],
-            [expected_column]
         )
 
     def test_create_sql_table_from_sql_stmts_with_multi_sqls(self, handler):

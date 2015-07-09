@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from sqlalchemy import Column
+from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
@@ -10,30 +11,33 @@ from schematizer.models.topic import Topic
 from schematizer.models.types.time import build_time_column
 
 
-class Domain(Base):
+class Source(Base):
 
-    __tablename__ = 'domain'
+    __tablename__ = 'source'
     __table_args__ = (
         UniqueConstraint(
-            'namespace',
-            'source',
-            name='namespace_source_unique_constraint'
+            'name',
+            'namespace_id',
+            name='name_namespace_id_unique_constraint'
         ),
     )
 
     id = Column(Integer, primary_key=True)
 
-    # Namespace of the source, such as "yelpmain.db", etc
-    namespace = Column(String, nullable=False)
-
     # Source of the Avro schema, such as table "User",
     # or log "service.foo" etc.
-    source = Column(String, nullable=False)
+    name = Column(String, nullable=False)
 
     # Email address of the source owner.
     owner_email = Column(String, nullable=False)
 
-    topics = relationship(Topic, backref="domain")
+    namespace_id = Column(
+        Integer,
+        ForeignKey('namespace.id'),
+        nullable=False
+    )
+
+    topics = relationship(Topic, backref="source")
 
     # Timestamp when the entry is created
     created_at = build_time_column(
@@ -51,9 +55,9 @@ class Domain(Base):
     def to_dict(self):
         return {
             'source_id': self.id,
-            'namespace': self.namespace,
-            'source': self.source,
+            'source': self.name,
             'source_owner_email': self.owner_email,
+            'namespace': self.namespace.to_dict(),
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }

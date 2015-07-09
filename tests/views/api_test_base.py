@@ -11,33 +11,46 @@ class TestApiBase(object):
     test_view_module = None
 
     @property
-    def namespace(self):
+    def namespace_name(self):
         return factories.fake_namespace
 
     @property
     def namespace_response(self):
-        return factories.fake_namespace
+        return {
+            'namespace_id': None,
+            'name': factories.fake_namespace,
+            'created_at': factories.fake_created_at.isoformat(),
+            'updated_at': factories.fake_updated_at.isoformat()
+        }
 
     @property
     def namespaces(self):
-        return [self.namespace]
+        return [self.namespace_name]
 
     @property
     def namespaces_response(self):
-        return [self.namespace_response]
+        return [self.namespace]
+
+    @property
+    def source_name(self):
+        return factories.fake_source
+
+    @property
+    def namespace(self):
+        return factories.NamespaceFactory.create(factories.fake_namespace)
 
     @property
     def source(self):
-        return factories.DomainFactory.create(
-            factories.fake_namespace,
+        return factories.SourceFactory.create(
             factories.fake_source,
+            self.namespace
         )
 
     @property
     def source_response(self):
         return {
             'source_id': None,
-            'namespace': factories.fake_namespace,
+            'namespace': self.namespace_response,
             'source': factories.fake_source,
             'source_owner_email': factories.fake_owner_email,
             'created_at': factories.fake_created_at.isoformat(),
@@ -115,14 +128,6 @@ class TestApiBase(object):
             autospec=True
         ) as mock_repo:
             yield mock_repo
-
-    @pytest.yield_fixture
-    def mock_create_sql_table_from_mysql_stmts(self):
-        patch_name = (self.test_view_module +
-                      '.view_common.sql_handler'
-                      '.create_sql_table_from_sql_stmts')
-        with mock.patch(patch_name) as mock_func:
-            yield mock_func
 
     @classmethod
     def get_mock_dict(cls, dict_value):

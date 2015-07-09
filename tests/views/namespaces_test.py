@@ -17,22 +17,22 @@ class TestListSourcesByNamespace(TestNamespaceViewBase):
     def test_non_existing_namespace(self, mock_request, mock_repo):
         expected_exception = self.get_http_exception(404)
         with pytest.raises(expected_exception) as e:
-            mock_repo.get_domains_by_namespace.return_value = []
+            mock_repo.get_namespace_by_name.return_value = None
             mock_request.matchdict = self.get_mock_dict({'namespace': 'foo'})
             namespace_views.list_sources_by_namespace(mock_request)
 
         assert expected_exception.code == e.value.code
         assert str(e.value) == exceptions_v1.NAMESPACE_NOT_FOUND_ERROR_MESSAGE
-        mock_repo.get_domains_by_namespace.assert_called_once_with('foo')
+        mock_repo.get_namespace_by_name.assert_called_once_with('foo')
 
     def test_happy_case(self, mock_request, mock_repo):
-        mock_repo.get_domains_by_namespace.return_value = self.sources
+        mock_repo.get_sources_by_namespace.return_value = self.sources
         mock_request.matchdict = self.get_mock_dict({'namespace': 'yelp'})
 
         sources = namespace_views.list_sources_by_namespace(mock_request)
 
         assert self.sources_response == sources
-        mock_repo.get_domains_by_namespace.assert_called_once_with('yelp')
+        mock_repo.get_sources_by_namespace.assert_called_once_with('yelp')
 
 
 class TestListNamespaces(TestNamespaceViewBase):
@@ -43,6 +43,6 @@ class TestListNamespaces(TestNamespaceViewBase):
         assert actual == []
 
     def test_happy_case(self, mock_request, mock_repo):
-        mock_repo.get_namespaces.return_value = self.namespaces
+        mock_repo.get_namespaces.return_value = self.namespaces_response
         actual = list_namespaces(mock_request)
-        assert self.namespaces_response == actual
+        assert self.namespaces == actual

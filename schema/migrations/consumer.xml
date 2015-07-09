@@ -17,6 +17,9 @@
       <column name="expected_frequency" type="INT(11)">
         <constraints nullable="false"/>
       </column>
+      <column name="consumer_group_id" type="INT(11)">
+        <constraints nullable="false"/>
+      </column>
       <column name="last_used_at" type="INT(11)" defaultValue="NULL"/>
       <column name="created_at" type="INT(11)">
         <constraints nullable="false"/>
@@ -34,5 +37,12 @@
       <addUniqueConstraint columnNames="job_name, schema_id"
             constraintName="job_schema_unique_constraint"
             tableName="consumer"/>
+  </changeSet>
+
+  <changeSet author="wscheng" id="1435081581">
+    <createIndex indexName="consumer_group_id" tableName="consumer" unique="false">
+      <column name="consumer_group_id"/>
+    </createIndex>
+    <comment>Add index on consumer_group_id column of consumer table.</comment>
   </changeSet>
 </databaseChangeLog>

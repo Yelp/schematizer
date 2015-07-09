@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
-  <changeSet author="sichang" id="1424474764">
-    <createTable tableName="topic">
+  <changeSet author="wscheng" id="1435017430">
+    <createTable tableName="consumer_group">
       <column autoIncrement="true" name="id" type="INT(11)">
         <constraints primaryKey="true"/>
       </column>
-      <column name="name" type="VARCHAR(255)">
-        <constraints nullable="false" unique="true"/>
+      <column name="group_name" type="VARCHAR(255)">
+        <constraints nullable="false"/>
       </column>
-      <column name="domain_id" type="INT(11)">
+      <column name="data_target_id" type="INT(11)">
         <constraints nullable="false"/>
       </column>
       <column name="created_at" type="INT(11)">
@@ -23,8 +23,9 @@
     </modifySql>
   </changeSet>
 
-  <changeSet author="wscheng" id="1436301100">
-    <comment>Changing domain_id to source_id</comment>
-    <renameColumn oldColumnName="domain_id" newColumnName="source_id" tableName="topic" columnDataType="INT(11) NOT NULL"/>
+  <changeSet author="wscheng" id="1435017431">
+    <addUniqueConstraint columnNames="group_name"
+      constraintName="group_name"
+      tableName="consumer_group"/>
   </changeSet>
 </databaseChangeLog>

@@ -13,44 +13,171 @@ fake_avro_schema = '{"name": "business"}'
 fake_created_at = datetime(2015, 1, 1, 17, 0, 0)
 fake_updated_at = datetime(2015, 1, 1, 17, 0, 1)
 fake_base_schema_id = 10
+fake_consumer_email = 'consumer@yelp.com'
+fake_frequency = 500
 fake_mysql_create_stmts = ['create table foo']
 fake_mysql_alter_stmts = ['create table foo',
                           'alter table foo',
                           'create table foo']
 
 
-class DomainFactory(object):
+def create_namespace(namespace_name):
+    namespace = models.Namespace(name=namespace_name)
+    session.add(namespace)
+    session.flush()
+    return namespace
+
+
+def get_or_create_namespace(namespace_name):
+    namespace = session.query(
+        models.Namespace
+    ).filter(
+        models.Namespace.name == namespace_name
+    ).first()
+    return namespace or create_namespace(namespace_name)
+
+
+def create_source(namespace_name, source_name, owner_email=fake_owner_email):
+    namespace = get_or_create_namespace(namespace_name)
+    source = models.Source(
+        namespace_id=namespace.id,
+        name=source_name,
+        owner_email=owner_email
+    )
+    session.add(source)
+    session.flush()
+    return source
+
+
+def get_or_create_source(
+    namespace_name,
+    source_name,
+    owner_email=fake_owner_email
+):
+    source = session.query(
+        models.Source
+    ).join(
+        models.Namespace
+    ).filter(
+        models.Namespace.name == namespace_name,
+        models.Source.name == source_name
+    ).first()
+    return source or create_source(
+        namespace_name,
+        source_name,
+        owner_email=owner_email
+    )
+
+
+def create_topic(topic_name, namespace=fake_namespace, source=fake_source):
+    source = get_or_create_source(namespace, source)
+    topic = models.Topic(name=topic_name, source_id=source.id)
+    session.add(topic)
+    session.flush()
+    return topic
+
+
+def get_or_create_topic(
+        topic_name,
+        namespace=fake_namespace,
+        source=fake_source
+):
+    topic = session.query(
+        models.Topic
+    ).filter(
+        models.Topic.name == topic_name
+    ).first()
+    return topic or create_topic(
+        topic_name,
+        namespace=namespace,
+        source=source
+    )
+
+
+def create_avro_schema(
+        schema_json,
+        schema_elements,
+        topic_name=fake_topic_name,
+        namespace=fake_namespace,
+        source=fake_source,
+        status=models.AvroSchemaStatus.READ_AND_WRITE,
+        base_schema_id=None
+):
+    topic = get_or_create_topic(topic_name, namespace=namespace, source=source)
+
+    avro_schema = models.AvroSchema(
+        avro_schema_json=schema_json,
+        topic_id=topic.id,
+        status=status,
+        base_schema_id=base_schema_id
+    )
+    session.add(avro_schema)
+    session.flush()
+
+    for schema_element in schema_elements:
+        schema_element.avro_schema_id = avro_schema.id
+        session.add(schema_element)
+    session.flush()
+
+    return avro_schema
+
+
+class NamespaceFactory(object):
 
     @classmethod
     def create(
         cls,
-        namespace,
-        source,
-        owner_email=fake_owner_email,
+        name,
         created_at=fake_created_at,
         updated_at=fake_updated_at
     ):
-        return models.Domain(
-            namespace=namespace,
-            source=source,
-            owner_email=owner_email,
+        return models.Namespace(
+            name=name,
             created_at=created_at,
             updated_at=updated_at
         )
 
     @classmethod
-    def create_in_db(cls, namespace, source):
-        domain = cls.create(namespace, source)
-        session.add(domain)
+    def create_in_db(cls, name):
+        namespace = cls.create(name)
+        session.add(namespace)
         session.flush()
-        return domain
+        return namespace
+
+
+class SourceFactory(object):
 
     @classmethod
-    def delete_topics(cls, domain_id):
+    def create(
+        cls,
+        name,
+        namespace,
+        owner_email=fake_owner_email,
+        created_at=fake_created_at,
+        updated_at=fake_updated_at
+    ):
+        return models.Source(
+            name=name,
+            namespace_id=namespace.id,
+            owner_email=owner_email,
+            created_at=created_at,
+            updated_at=updated_at,
+            namespace=namespace
+        )
+
+    @classmethod
+    def create_in_db(cls, name, namespace):
+        source = cls.create(name, namespace)
+        session.add(source)
+        session.flush()
+        return source
+
+    @classmethod
+    def delete_topics(cls, source_id):
         topics = session.query(
             models.Topic
         ).filter(
-            models.Topic.domain_id == domain_id
+            models.Topic.source_id == source_id
         ).all()
         for topic in topics:
             session.delete(topic)
@@ -63,21 +190,21 @@ class TopicFactory(object):
     def create(
         cls,
         topic_name,
-        domain,
+        source,
         created_at=fake_created_at,
         updated_at=fake_updated_at
     ):
         return models.Topic(
             name=topic_name,
-            domain_id=domain.id,
+            source_id=source.id,
             created_at=created_at,
             updated_at=updated_at,
-            domain=domain
+            source=source
         )
 
     @classmethod
-    def create_in_db(cls, topic_name, domain):
-        topic = cls.create(topic_name, domain)
+    def create_in_db(cls, topic_name, source):
+        topic = cls.create(topic_name, source)
         session.add(topic)
         session.flush()
         return topic
@@ -139,3 +266,93 @@ class AvroSchemaFactory(object):
         if avro_schema:
             session.delete(avro_schema)
         session.flush()
+
+
+class ConsumerFactory(object):
+
+    @classmethod
+    def create(cls, job_name, schema, consumer_group):
+        return models.Consumer(
+            email=fake_consumer_email,
+            job_name=job_name,
+            expected_frequency=fake_frequency,
+            schema_id=schema.id,
+            last_used_at=None,
+            created_at=fake_created_at,
+            updated_at=fake_updated_at,
+            consumer_group_id=consumer_group.id
+        )
+
+    @classmethod
+    def create_in_db(cls, job_name, schema, consumer_group):
+        consumer = cls.create(job_name, schema, consumer_group)
+        session.add(consumer)
+        session.flush()
+        return consumer
+
+
+class ConsumerGroupFactory(object):
+
+    @classmethod
+    def create(cls, group_name, group_type, data_target):
+        return models.ConsumerGroup(
+            group_name=group_name,
+            group_type=group_type,
+            data_target_id=data_target.id
+        )
+
+    @classmethod
+    def create_in_db(cls, group_name, group_type, data_target):
+        consumer_group = cls.create(group_name, group_type, data_target)
+        session.add(consumer_group)
+        session.flush()
+        return consumer_group
+
+
+class ConsumerGroupDataSourceFactory(object):
+
+    @classmethod
+    def create(
+        cls,
+        consumer_group,
+        data_source_type,
+        data_source_id
+    ):
+        return models.ConsumerGroupDataSource(
+            consumer_group_id=consumer_group.id,
+            data_source_type=data_source_type,
+            data_source_id=data_source_id
+        )
+
+    @classmethod
+    def create_in_db(
+        cls,
+        consumer_group,
+        data_source_type,
+        data_source_id
+    ):
+        consumer_group_data_source = cls.create(
+            consumer_group,
+            data_source_type,
+            data_source_id
+        )
+        session.add(consumer_group_data_source)
+        session.flush()
+        return consumer_group_data_source
+
+
+class DataTargetFactory(object):
+
+    @classmethod
+    def create(cls, target_type, destination):
+        return models.DataTarget(
+            target_type=target_type,
+            destination=destination
+        )
+
+    @classmethod
+    def create_in_db(cls, target_type, destination):
+        data_target = cls.create(target_type, destination)
+        session.add(data_target)
+        session.flush()
+        return data_target

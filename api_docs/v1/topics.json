@@ -127,6 +127,29 @@
         }
     ],
     "models": {
+        "Namespace": {
+            "id": "Namespace",
+            "properties": {
+                "namespace_id": {
+                    "type": "integer",
+                    "description": "Namespace ID"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Namespace, such as yelpmain.db, etc"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this namespace is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this namespace is last updated"
+                }
+            }
+        },
         "Source": {
             "id": "Source",
             "properties": {
@@ -135,8 +158,8 @@
                     "description": "Source ID"
                 },
                 "namespace": {
-                    "type": "string",
-                    "description": "Namespace of the source, such as yelpmain.db, etc"
+                    "$ref": "Namespace",
+                    "description": "Namespace of the source"
                 },
                 "source": {
                     "type": "string",

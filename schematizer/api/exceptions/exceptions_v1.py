@@ -9,6 +9,7 @@ SCHEMA_NOT_FOUND_ERROR_MESSAGE = 'Schema is not found.'
 SOURCE_NOT_FOUND_ERROR_MESSAGE = 'Source is not found.'
 TOPIC_NOT_FOUND_ERROR_MESSAGE = 'Topic is not found.'
 INVALID_AVRO_SCHEMA_ERROR = 'Invalid Avro schema.'
+INVALID_REQUEST_ERROR = 'Invalid request.'
 
 
 def invalid_schema_exception(err_message=INVALID_AVRO_SCHEMA_ERROR):
@@ -43,3 +44,7 @@ def latest_schema_not_found_exception(
     err_message=LATEST_SCHEMA_NOT_FOUND_ERROR_MESSAGE
 ):
     return httpexceptions.exception_response(404, detail=err_message)
+
+
+def invalid_request_exception(err_message=INVALID_REQUEST_ERROR):
+    return httpexceptions.exception_response(400, detail=err_message)

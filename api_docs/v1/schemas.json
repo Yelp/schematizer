@@ -114,18 +114,23 @@
         "RegisterSchemaFromMySqlRequest": {
             "id": "RegisterSchemaFromMySqlRequest",
             "required": [
-                "mysql_statements",
+                "new_create_table_stmt",
                 "namespace",
                 "source",
                 "source_owner_email"
             ],
             "properties": {
-                "mysql_statements": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "description": "A list of MySQL statements. For new created table, the list is expected to have one CREATE TABLE statement. For the table updated, it is expected to have CREATE TABLE statement from old table, ALTER TABLE statement for the change, and the CREATE TABLE statement from the updated table."
+                "new_create_table_stmt": {
+                    "type": "string",
+                    "description": "The CREATE TABLE statement of a new table or the updated table."
+                },
+                "old_create_table_stmt": {
+                    "type": "string",
+                    "description": "The CREATE TABLE statement of the old table. For the change in the existing table, both old_create_table_stmt and alter_table_stmt must be provided."
+                },
+                "alter_table_stmt": {
+                    "type": "string",
+                    "description": "The ALTER TABLE statement from the table schema change. For the change in the existing table, both old_create_table_stmt and alter_table_stmt must be provided."
                 },
                 "namespace": {
                     "type": "string",
@@ -172,6 +177,29 @@
                 }
             }
         },
+        "Namespace": {
+            "id": "Namespace",
+            "properties": {
+                "namespace_id": {
+                    "type": "integer",
+                    "description": "Namespace ID"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Namespace, such as yelpmain.db, etc"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this namespace is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this namespace is last updated"
+                }
+            }
+        },
         "Source": {
             "id": "Source",
             "properties": {
@@ -180,8 +208,8 @@
                     "description": "Source ID"
                 },
                 "namespace": {
-                    "type": "string",
-                    "description": "Namespace of the source, such as yelpmain.db, etc"
+                    "$ref": "Namespace",
+                    "description": "Namespace of the source"
                 },
                 "source": {
                     "type": "string",
