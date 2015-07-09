@@ -8,6 +8,7 @@ from schematizer.models.database import session
 fake_namespace = 'yelp'
 fake_source = 'business'
 fake_owner_email = 'business@yelp.com'
+fake_user_email = 'user@yelp.com'
 fake_topic_name = 'yelp.business.v1'
 fake_avro_schema = '{"name": "business"}'
 fake_created_at = datetime(2015, 1, 1, 17, 0, 0)
@@ -120,6 +121,23 @@ def create_avro_schema(
     session.flush()
 
     return avro_schema
+
+
+def create_note(
+    note_type,
+    reference_id,
+    note_text,
+    last_updated_by=fake_user_email
+):
+    note = models.Note(
+        note_type=note_type,
+        reference_id=reference_id,
+        note=note_text,
+        last_updated_by=last_updated_by
+    )
+    session.add(note)
+    session.flush
+    return note
 
 
 class NamespaceFactory(object):

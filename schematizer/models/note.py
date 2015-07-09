@@ -22,7 +22,7 @@ class NoteTypeEnum(object):
 
 class Note(Base):
 
-    __tablename__ = 'source'
+    __tablename__ = 'note'
     __table_args__ = (
         UniqueConstraint(
             'note_type',

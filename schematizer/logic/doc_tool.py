@@ -7,22 +7,18 @@ from schematizer.models.database import session
 def get_note_by_schema_id(schema_id):
     return session.query(
         models.Note
-    ).join(
-        models.AvroSchema
     ).filter(
-        models.Note.type == models.NoteTypeEnum.TABLE,
-        models.AvroSchema.id == models.Note.reference_id,
+        models.Note.note_type == models.NoteTypeEnum.TABLE,
+        models.Note.reference_id == schema_id,
     ).first()
 
 
 def get_note_by_schema_element_id(schema_element_id):
     return session.query(
         models.Note
-    ).join(
-        models.AvroSchemaElement
     ).filter(
-        models.Note.type == models.NoteTypeEnum.FIELD,
-        models.AvroSchemaElement.id == models.Note.reference_id,
+        models.Note.note_type == models.NoteTypeEnum.FIELD,
+        models.Note.reference_id == schema_element_id,
     ).first()
 
 
