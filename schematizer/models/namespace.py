@@ -2,6 +2,7 @@
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from schematizer.models.database import Base
@@ -12,6 +13,12 @@ from schematizer.models.types.time import build_time_column
 class Namespace(Base):
 
     __tablename__ = 'namespace'
+    __table_args__ = (
+        UniqueConstraint(
+            'name',
+            name='namespace_unique_constraint'
+        ),
+    )
 
     id = Column(Integer, primary_key=True)
 

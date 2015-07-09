@@ -238,7 +238,7 @@ class TestSchemaRepository(DBTestCase):
         assert topic.id != actual_schema.topic_id
         assert topic.name != actual_schema.topic.name
 
-        # the new topic should still be under the same namespace and domain
+        # the new topic should still be under the same source
         assert topic.source_id == actual_schema.topic.source_id
 
     def test_create_schema_from_avro_json_with_same_schema(

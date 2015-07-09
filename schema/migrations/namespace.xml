@@ -7,7 +7,7 @@
         <constraints primaryKey="true"/>
       </column>
       <column name="name" type="VARCHAR(255)">
-        <constraints nullable="false"/>
+        <constraints nullable="false" unique="true"/>
       </column>
       <column name="created_at" type="INT(11)">
         <constraints nullable="false"/>
