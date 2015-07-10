@@ -187,9 +187,48 @@ class TestAvroToRedshiftConverter(object):
             SQLColumn(
                 self.col_name,
                 redshift_types.RedshiftInteger(),
-                is_primary_key=True
+                primary_key_order=1
             ),
         )
+
+    def test_convert_with_composite_priamry_keys(self, converter):
+        record_schema = {
+            'type': 'record',
+            'name': self.schema_name,
+            'namespace': None,
+            'fields': [
+                {
+                    'name': self.col_name,
+                    'type': 'int',
+                    AvroMetaDataKeyEnum.PRIMARY_KEY: 2
+                },
+                {
+                    'name': 'bar',
+                    'type': 'int',
+                    AvroMetaDataKeyEnum.PRIMARY_KEY: 1
+                }
+            ],
+            'doc': 'sample doc',
+        }
+        expected_column_col = SQLColumn(
+            self.col_name,
+            redshift_types.RedshiftInteger(),
+            is_nullable=False,
+            primary_key_order=2
+        )
+        expected_column_bar = SQLColumn(
+            'bar',
+            redshift_types.RedshiftInteger(),
+            is_nullable=False,
+            primary_key_order=1
+        )
+        expected_table = SQLTable(
+            self.schema_name,
+            columns=[expected_column_col, expected_column_bar],
+            doc=record_schema.get('doc')
+        )
+        actual_table = converter.convert(record_schema)
+        assert expected_table == actual_table
 
     def test_convert_with_non_nullable_column(self, converter):
         self.convert_with_one_column(

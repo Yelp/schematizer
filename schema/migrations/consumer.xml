@@ -17,6 +17,9 @@
       <column name="expected_frequency" type="INT(11)">
         <constraints nullable="false"/>
       </column>
+      <column name="consumer_group_id" type="INT(11)">
+        <constraints nullable="false"/>
+      </column>
       <column name="last_used_at" type="INT(11)" defaultValue="NULL"/>
       <column name="created_at" type="INT(11)">
         <constraints nullable="false"/>
@@ -36,16 +39,6 @@
             tableName="consumer"/>
   </changeSet>
 
-  <changeSet author="wscheng" id="1435081580">
-    <addColumn tableName="consumer">
-      <column name="consumer_group_id" type="INT(11)">
-        <constraints nullable="false"/>
-      </column>
-    </addColumn>
-    <modifySql>
-      <append value=" AFTER expected_frequency"/>
-    </modifySql>
-  </changeSet>
   <changeSet author="wscheng" id="1435081581">
     <createIndex indexName="consumer_group_id" tableName="consumer" unique="false">
       <column name="consumer_group_id"/>
