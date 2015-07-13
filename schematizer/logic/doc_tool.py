@@ -4,53 +4,30 @@ from schematizer import models
 from schematizer.models.database import session
 
 
-def get_note_by_schema_id(schema_id):
+def get_note_by_reference_id_and_type(reference_id, reference_type):
     return session.query(
         models.Note
     ).filter(
-        models.Note.note_type == models.NoteTypeEnum.TABLE,
-        models.Note.reference_id == schema_id,
+        models.Note.reference_type == reference_type,
+        models.Note.reference_id == reference_id
     ).first()
 
 
-def get_note_by_schema_element_id(schema_element_id):
-    return session.query(
-        models.Note
-    ).filter(
-        models.Note.note_type == models.NoteTypeEnum.FIELD,
-        models.Note.reference_id == schema_element_id,
-    ).first()
-
-
-def create_or_update_table_note(schema_id, note_text, user_email):
-    note = get_note_by_schema_id(schema_id)
-    # update the note if one already exists, and return it
-    if note is not None:
-        _update_note(note.id, note_text, user_email)
-        return note
-    # create a new note if it does not exist
-    return _create_note(
-        models.NoteTypeEnum.TABLE,
-        schema_id,
-        note_text,
-        user_email
-    )
-
-
-def create_or_update_field_note(
-    schema_element_id,
+def upsert_note(
+    reference_id,
+    reference_type,
     note_text,
     user_email
 ):
-    note = get_note_by_schema_element_id(schema_element_id)
+    note = get_note_by_reference_id_and_type(reference_id, reference_type)
     # update the note if one already exists, and return it
     if note is not None:
         _update_note(note.id, note_text, user_email)
         return note
     # create a new note if it does not exist
     return _create_note(
-        models.NoteTypeEnum.FIELD,
-        schema_element_id,
+        reference_type,
+        reference_id,
         note_text,
         user_email
     )
@@ -70,9 +47,9 @@ def _update_note(note_id, note_text, user_email):
     )
 
 
-def _create_note(note_type, reference_id, note_text, user_email):
+def _create_note(reference_type, reference_id, note_text, user_email):
     note = models.Note(
-        note_type=note_type,
+        reference_type=reference_type,
         reference_id=reference_id,
         note=note_text,
         last_updated_by=user_email

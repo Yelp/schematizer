@@ -124,13 +124,13 @@ def create_avro_schema(
 
 
 def create_note(
-    note_type,
+    reference_type,
     reference_id,
     note_text,
     last_updated_by=fake_user_email
 ):
     note = models.Note(
-        note_type=note_type,
+        reference_type=reference_type,
         reference_id=reference_id,
         note=note_text,
         last_updated_by=last_updated_by

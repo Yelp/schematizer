@@ -6,14 +6,18 @@
       <column autoIncrement="true" name="id" type="INT(11)">
         <constraints primaryKey="true"/>
       </column>
-      <column name="note_type" type="VARCHAR(255)">
+      <column name="reference_type" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
       <column name="reference_id" type="INT(11)">
         <constraints nullable="false"/>
       </column>
-      <column name="note" type="TEXT" defaultValue="NULL"/>
-      <column name="last_updated_by" type="VARCHAR(255)"/>
+      <column name="note" type="TEXT" defaultValue="NULL">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_updated_by" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
       <column name="created_at" type="INT(11)">
         <constraints nullable="false"/>
       </column>
@@ -28,8 +32,8 @@
 
   <changeSet author="wscheng" id="1436226971">
     <comment>Add unique constraint to note table"</comment>
-    <addUniqueConstraint columnNames="note_type, reference_id"
-      constraintName="note_type_reference_id_unique_constraint"
+    <addUniqueConstraint columnNames="reference_type, reference_id"
+      constraintName="ref_type_ref_id_unique_constraint"
       tableName="note"/>
   </changeSet>
 </databaseChangeLog>
