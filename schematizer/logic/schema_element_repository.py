@@ -14,9 +14,10 @@ def get_element_chains_by_schema_id(schema_id):
     element chains will not include the elements from the newer schema.
 
     :param schema_id: the Avro schema Id.
-    :return: A list of element chains; each element chain is a list of schema
-    elements sorted by their timestamp reversely: the list starts with the
-    most recent schema element, i.e. the element of given schema.
+    :return: List of element chains ([[schematizer.models.AvroSchemaElement]].
+    Each element chain is a list of schema elements sorted by their timestamp
+    reversely: the list starts with the most recent schema element, i.e. the
+    element of given schema.
     """
     avro_schema = models.AvroSchema.get_by_id(schema_id)
     if not avro_schema:
@@ -29,13 +30,12 @@ def get_element_chains_by_schema_id(schema_id):
     )
     elements = _get_schema_elements_by_source(
         avro_schema.topic.source_id,
-        avro_schema.id
+        no_later_than_schema_id=schema_id
     )
 
-    current_schema_id = 0
     start_index = 0
     for i, element in enumerate(elements):
-        if element.avro_schema_id != current_schema_id:
+        if element.avro_schema_id != elements[start_index].avro_schema_id:
             _update_schema_element_chains(
                 identity_to_element_chain_map,
                 elements[start_index:i]

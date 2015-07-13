@@ -23,7 +23,7 @@ class TestSchemaElementRepository(DBTestCase):
         return factories.create_source(namespace.name, source_name='src_two')
 
     @pytest.fixture
-    def topic(self, source):
+    def topic_one(self, source):
         return factories.create_topic(
             topic_name='some.topic',
             namespace=source.namespace.name,
@@ -39,7 +39,7 @@ class TestSchemaElementRepository(DBTestCase):
         )
 
     @pytest.fixture
-    def another_topic(self, another_source):
+    def topic_of_another_src(self, another_source):
         return factories.create_topic(
             topic_name='another.topic.name',
             namespace=another_source.namespace.name,
@@ -47,7 +47,7 @@ class TestSchemaElementRepository(DBTestCase):
         )
 
     @property
-    def rw_schema_json(self):
+    def schema_with_bar_fld_json(self):
         return {
             "name": "foo",
             "namespace": "yelp",
@@ -57,7 +57,7 @@ class TestSchemaElementRepository(DBTestCase):
         }
 
     @property
-    def rw_schema_elements(self):
+    def schema_with_bar_fld_elements(self):
         return [
             models.AvroSchemaElement(
                 key="yelp.foo",
@@ -72,15 +72,15 @@ class TestSchemaElementRepository(DBTestCase):
         ]
 
     @pytest.fixture
-    def rw_schema(self, topic):
+    def schema_with_bar_fld(self, topic_one):
         return factories.create_avro_schema(
-            self.rw_schema_json,
-            self.rw_schema_elements,
-            topic_name=topic.name
+            self.schema_with_bar_fld_json,
+            self.schema_with_bar_fld_elements,
+            topic_name=topic_one.name
         )
 
     @property
-    def another_schema_json(self):
+    def schema_with_baz_fld_json(self):
         return {
             "name": "foo",
             "namespace": "yelp",
@@ -90,7 +90,7 @@ class TestSchemaElementRepository(DBTestCase):
         }
 
     @property
-    def another_schema_elements(self):
+    def schema_with_baz_fld_elements(self):
         return [
             models.AvroSchemaElement(
                 key="yelp.foo",
@@ -105,27 +105,27 @@ class TestSchemaElementRepository(DBTestCase):
         ]
 
     @pytest.fixture
-    def another_schema(self, topic):
+    def schema_with_baz_fld(self, topic_one):
         return factories.create_avro_schema(
-            self.another_schema_json,
-            self.another_schema_elements,
-            topic_name=topic.name
+            self.schema_with_baz_fld_json,
+            self.schema_with_baz_fld_elements,
+            topic_name=topic_one.name
         )
 
     @pytest.fixture
     def schema_in_topic_two(self, topic_two):
         return factories.create_avro_schema(
-            self.rw_schema_json,
-            self.rw_schema_elements,
+            self.schema_with_bar_fld_json,
+            self.schema_with_bar_fld_elements,
             topic_name=topic_two.name
         )
 
     @pytest.fixture
-    def schema_of_another_src(self, another_topic):
+    def schema_of_another_src(self, topic_of_another_src):
         return factories.create_avro_schema(
-            self.rw_schema_json,
-            self.rw_schema_elements,
-            topic_name=another_topic.name
+            self.schema_with_bar_fld_json,
+            self.schema_with_bar_fld_elements,
+            topic_name=topic_of_another_src.name
         )
 
     @property
@@ -133,11 +133,11 @@ class TestSchemaElementRepository(DBTestCase):
         return 'int'
 
     @pytest.fixture
-    def schema_with_no_element(self, topic):
+    def schema_with_no_element(self, topic_one):
         return factories.create_avro_schema(
             self.schema_with_no_element_json,
             schema_elements=[],
-            topic_name=topic.name
+            topic_name=topic_one.name
         )
 
     def test_get_element_chains_by_schema_id_with_nonexistent_schema(self):
@@ -153,19 +153,22 @@ class TestSchemaElementRepository(DBTestCase):
         )
         assert [] == actual
 
-    def test_get_element_chains_by_schema_id_with_one_schema(self, rw_schema):
-        actual = repo.get_element_chains_by_schema_id(rw_schema.id)
-        self.assert_equal_schema_element_chains(actual, rw_schema)
+    def test_get_element_chains_by_schema_id_with_one_schema(
+            self,
+            schema_with_bar_fld
+    ):
+        actual = repo.get_element_chains_by_schema_id(schema_with_bar_fld.id)
+        self.assert_equal_schema_element_chains(actual, schema_with_bar_fld)
 
     def test_get_element_chains_by_schema_id_with_multi_same_src_schemas(
             self,
-            rw_schema,
-            another_schema,
+            schema_with_bar_fld,
+            schema_with_baz_fld,
             schema_in_topic_two,
             schema_of_another_src
     ):
         first_schema, second_schema, third_schema = sorted(
-            (rw_schema, another_schema, schema_in_topic_two),
+            (schema_with_bar_fld, schema_with_baz_fld, schema_in_topic_two),
             key=lambda o: o.id
         )
         actual = repo.get_element_chains_by_schema_id(third_schema.id)
@@ -178,12 +181,12 @@ class TestSchemaElementRepository(DBTestCase):
 
     def test_get_element_chains_by_schema_id_with_newer_schema(
             self,
-            rw_schema,
-            another_schema,
+            schema_with_bar_fld,
+            schema_with_baz_fld,
             schema_in_topic_two
     ):
         first_schema, second_schema, third_schema = sorted(
-            (rw_schema, another_schema, schema_in_topic_two),
+            (schema_with_bar_fld, schema_with_baz_fld, schema_in_topic_two),
             key=lambda o: o.id
         )
         actual = repo.get_element_chains_by_schema_id(second_schema.id)
@@ -210,8 +213,10 @@ class TestSchemaElementRepository(DBTestCase):
     ):
         actual = dict((chain[0].key, chain) for chain in actual_chains)
 
-        # the chain count should match the schema element count of the latest
-        # expected schema (the first schema)
+        # The chain count should match the schema element count of the latest
+        # expected schema (the first schema). The expected_schemas are the
+        # schemas of which the schema elements are expected in the chain,
+        # starting with the latest schema.
         latest_schema = expected_schemas[0]
         assert len(actual_chains) == len(latest_schema.avro_schema_elements)
 
@@ -224,6 +229,6 @@ class TestSchemaElementRepository(DBTestCase):
                 actual_element = chain.pop(0)
                 self.assert_equal_avro_schema_element(element, actual_element)
 
-        # There should be no element in chains
+        # There should be no element left in chains
         for chain in actual.values():
             assert 0 == len(chain)
