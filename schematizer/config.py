@@ -58,6 +58,10 @@ def routes(config):
         '/v1/schemas/{schema_id}'
     )
     config.add_route(
+        'api.v1.get_schema_elements_by_schema_id',
+        '/v1/schemas/{schema_id}/elements'
+    )
+    config.add_route(
         'api.v1.is_avro_schema_compatible',
         '/v1/compatibility/schemas/avro'
     )

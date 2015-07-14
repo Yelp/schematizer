@@ -108,6 +108,46 @@
                     ]
                 }
             ]
+        },
+        {
+            "path": "/v1/schemas/{schema_id}/elements",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get the schema elements of specified schema id.",
+                    "notes": "",
+                    "type": "array",
+                    "items": {
+                        "$ref": "SchemaElement"
+                    },
+                    "nickname": "get_schema_elements_by_schema_id",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "schema_id",
+                            "description": "ID of schema that will be fetched",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid schema ID supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Schema not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "models": {
@@ -285,6 +325,41 @@
                         "Disabled"
                     ],
                     "description": "Schema status: RW (read/write), R (read-only), Disabled. `Read` status means this schema can be used to deserialize messages, and `Write` status means this schema can be used to serialize messages. Disabled schemas cannot be used for either."
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this schema is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this schema is last updated"
+                }
+            }
+        },
+        "SchemaElement": {
+            "id": "SchemaElement",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "Avro schema element ID"
+                },
+                "schema_id": {
+                    "type": "integer",
+                    "description": "Avro schema ID this element belongs to"
+                },
+                "key": {
+                    "type": "string",
+                    "description": "Unique key to avro schema element of the enclosing avro schema"
+                },
+                "element_type": {
+                    "type": "string",
+                    "description": "Avro type of the element, such as record, field, etc."
+                },
+                "doc": {
+                    "type": "string",
+                    "description": "Documentation of this element"
                 },
                 "created_at": {
                     "type": "string",
