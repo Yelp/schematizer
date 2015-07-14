@@ -106,25 +106,25 @@ class MySQLToAvroConverter(BaseConverter):
         }
 
     def _convert_integer_type(self, column):
-        metadata = self._get_primary_key_metadata(column.is_primary_key)
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         return self._builder.create_int(), metadata
 
-    def _get_primary_key_metadata(self, is_primary_key):
-        return ({AvroMetaDataKeyEnum.PRIMARY_KEY: True}
-                if is_primary_key else {})
+    def _get_primary_key_metadata(self, primary_key_order):
+        return ({AvroMetaDataKeyEnum.PRIMARY_KEY: primary_key_order}
+                if primary_key_order else {})
 
     def _get_unsigned_metadata(self, is_unsigned):
         return ({AvroMetaDataKeyEnum.UNSIGNED: is_unsigned}
                 if is_unsigned else {})
 
     def _convert_bigint_type(self, column):
-        metadata = self._get_primary_key_metadata(column.is_primary_key)
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         return self._builder.create_long(), metadata
 
     def _convert_double_type(self, column):
-        metadata = self._get_primary_key_metadata(column.is_primary_key)
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata.update(self._get_precision_metadata(column))
         metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         return self._builder.create_double(), metadata
@@ -136,29 +136,29 @@ class MySQLToAvroConverter(BaseConverter):
         }
 
     def _convert_float_type(self, column):
-        metadata = self._get_primary_key_metadata(column.is_primary_key)
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata.update(self._get_precision_metadata(column))
         metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         return self._builder.create_float(), metadata
 
     def _convert_decimal_type(self, column):
-        metadata = self._get_primary_key_metadata(column.is_primary_key)
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata.update(self._get_precision_metadata(column))
         metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         metadata.update({AvroMetaDataKeyEnum.FIXED_POINT: True})
         return self._builder.create_double(), metadata
 
     def _convert_string_type(self, column):
-        metadata = self._get_primary_key_metadata(column.is_primary_key)
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
         return self._builder.create_string(), metadata
 
     def _convert_char_type(self, column):
-        metadata = self._get_primary_key_metadata(column.is_primary_key)
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeyEnum.FIX_LEN] = column.type.length
         return self._builder.create_string(), metadata
 
     def _convert_varchar_type(self, column):
-        metadata = self._get_primary_key_metadata(column.is_primary_key)
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeyEnum.MAX_LEN] = column.type.length
         return self._builder.create_string(), metadata
 
@@ -166,7 +166,7 @@ class MySQLToAvroConverter(BaseConverter):
         """Avro currently doesn't support timestamp, so map the
         timestamp sql column type to long (unix timestamp)
         """
-        metadata = self._get_primary_key_metadata(column.is_primary_key)
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeyEnum.TIMESTAMP] = True
         return self._builder.create_long(), metadata
 

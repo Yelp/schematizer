@@ -118,8 +118,8 @@ class TestApiBase(object):
 
     @pytest.yield_fixture
     def mock_request(self):
-        with mock.patch('pyramid.request.Request', autospec=True) as mock_repo:
-            yield mock_repo
+        with mock.patch('pyramid.request.Request', autospec=True) as mock_req:
+            yield mock_req
 
     @pytest.yield_fixture
     def mock_repo(self):

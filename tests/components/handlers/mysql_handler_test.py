@@ -36,24 +36,24 @@ class TestMySQLHandler(object):
                 '`id` int(11) auto_increment not null, '
                 'name varchar(255),'
                 'amount decimal(10, 2) default 0.0 unsigned,'
-                'primary key (id, pid)'
+                'primary key (id) '
                 ');')
 
     @property
     def expected_sql_table_foo(self):
-        col_id = SQLColumn(
+        column_id = SQLColumn(
             'id',
             data_types.MySQLInt(11),
-            is_primary_key=True,
+            primary_key_order=1,
             is_nullable=False
         )
-        col_name = SQLColumn('name', data_types.MySQLVarChar(255))
-        col_amount = SQLColumn(
+        column_name = SQLColumn('name', data_types.MySQLVarChar(255))
+        column_amount = SQLColumn(
             'amount',
             data_types.MySQLDecimal(10, 2, unsigned=True),
             default_value='0.0'
         )
-        return SQLTable('foo', [col_id, col_name, col_amount])
+        return SQLTable('foo', [column_id, column_name, column_amount])
 
     def test_create_sql_table_from_sql_stmts(self, handler):
         sql_table = handler.create_sql_table_from_sql_stmts(
@@ -229,13 +229,13 @@ class TestMySQLHandler(object):
                 'id',
                 data_types.MySQLInt(11),
                 is_nullable=False,
-                is_primary_key=True
+                primary_key_order=1
             ),
             SQLColumn(
                 'pid',
                 data_types.MySQLInt(11),
                 is_nullable=False,
-                is_primary_key=True
+                primary_key_order=2
             ),
             SQLColumn('tag', data_types.MySQLChar(3))
         ]

@@ -162,7 +162,7 @@ class TestMySQLToAvroConverter(object):
             SQLColumn(
                 'col',
                 mysql_data_types.MySQLInt(11),
-                is_primary_key=True
+                primary_key_order=1
             ),
             {'name': 'col',
              'type': ['null', 'int'],

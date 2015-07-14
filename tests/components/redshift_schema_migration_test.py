@@ -50,23 +50,28 @@ class TestRedshiftSchemaMigration(object):
 
     @property
     def old_table(self):
-        table = SQLTable(self.table_name)
         columns = [self.same_col, self.old_col, self.random_col]
-        table.columns.extend(columns)
-        return table
+        return SQLTable(self.table_name, columns)
 
     @property
     def another_old_table(self):
-        table = SQLTable(self.another_table_name)
-        table.columns.extend(self.old_table.columns)
-        return table
+        columns = [self.same_col, self.old_col, self.random_col]
+        return SQLTable(self.another_table_name, columns)
 
     @property
     def primary_key_column(self):
         return SQLColumn(
             'primary_key_col',
             data_types.RedshiftInteger(),
-            is_primary_key=True
+            primary_key_order=1
+        )
+
+    @property
+    def second_primary_key_column(self):
+        return SQLColumn(
+            'second_pkey_col',
+            data_types.RedshiftInteger(),
+            primary_key_order=2
         )
 
     @property
@@ -87,9 +92,8 @@ class TestRedshiftSchemaMigration(object):
 
     @property
     def new_table(self):
-        table = SQLTable(self.table_name)
         columns = [self.same_col, self.renamed_col, self.primary_key_column]
-        table.columns.extend(columns)
+        table = SQLTable(self.table_name, columns)
         table.metadata[MetaDataKey.PERMISSION] = [self.permission_one,
                                                   self.permission_two]
         return table
@@ -190,7 +194,6 @@ class TestRedshiftSchemaMigration(object):
         column = SQLColumn(
             'foo',
             data_types.RedshiftInteger(),
-            is_primary_key=False,
             is_nullable=False,
             default_value='',
             attributes=attributes,
@@ -204,7 +207,6 @@ class TestRedshiftSchemaMigration(object):
         column = SQLColumn(
             'foo',
             data_types.RedshiftVarChar(256),
-            is_primary_key=False,
             attributes=[SQLAttribute.create_with_value('attr', '')],
             aliases='bar'
         )
@@ -268,4 +270,21 @@ class TestRedshiftSchemaMigration(object):
             )
         )
         actual = migration.create_table_sql(self.old_table)
+        assert expected == actual
+
+    def test_create_table_sql_with_composite_primary_keys(self, migration):
+        columns = [self.second_primary_key_column, self.primary_key_column]
+        table = SQLTable(self.table_name, columns)
+        actual = migration.create_table_sql(table)
+
+        expected = (
+            'CREATE TABLE {0} ({1} integer,{2} integer,PRIMARY KEY ({3}));'
+            .format(
+                self.table_name,
+                self.second_primary_key_column.name,
+                self.primary_key_column.name,
+                ', '.join([self.primary_key_column.name,
+                           self.second_primary_key_column.name])
+            )
+        )
         assert expected == actual
