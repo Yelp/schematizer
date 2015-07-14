@@ -3,8 +3,7 @@
         'ngRoute',
         'navbar',
         'home',
-        'browseTables',
-        'browseSchema'
+        'tableView'
     ]);
 
     "use strict";
@@ -15,13 +14,9 @@
                 templateUrl: 'partials/home.html',
                 controller: 'HomeController'
             }).
-            when('/browse', {
-                templateUrl: 'partials/browse-tables.html',
-                controller: 'BrowseTablesController'
-            }).
-            when('/schema', {
-                templateUrl: 'partials/browse-schema.html',
-                controller: 'BrowseSchemaController'
+            when('/table', {
+                templateUrl: 'partials/table-view.html',
+                controller: 'TableViewController'
             }).
             otherwise({
                 redirectTo: '/home'
