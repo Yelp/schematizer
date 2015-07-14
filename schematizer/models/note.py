@@ -10,7 +10,7 @@ from schematizer.models.database import Base
 from schematizer.models.types.time import build_time_column
 
 
-class NoteTypeEnum(object):
+class ReferenceTypeEnum(object):
 
     # Table level note in the doc tool.
     # Note references an object in the avro_schema table
@@ -36,8 +36,8 @@ class Note(Base):
     # The type of object the note is referring to
     reference_type = Column(
         Enum(
-            NoteTypeEnum.SCHEMA,
-            NoteTypeEnum.SCHEMA_ELEMENT,
+            ReferenceTypeEnum.SCHEMA,
+            ReferenceTypeEnum.SCHEMA_ELEMENT,
             name='note_type_enum',
         ),
         nullable=False

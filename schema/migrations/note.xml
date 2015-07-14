@@ -12,7 +12,7 @@
       <column name="reference_id" type="INT(11)">
         <constraints nullable="false"/>
       </column>
-      <column name="note" type="TEXT" defaultValue="NULL">
+      <column name="note" type="TEXT">
         <constraints nullable="false"/>
       </column>
       <column name="last_updated_by" type="VARCHAR(255)">

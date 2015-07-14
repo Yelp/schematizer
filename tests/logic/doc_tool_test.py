@@ -14,8 +14,8 @@ class TestDocTool(DBTestCase):
         return "qwer<3"
 
     @property
-    def user(self):
-        return factories.fake_user_email
+    def user_email(self):
+        return "user@yelp.com"
 
     @pytest.fixture
     def topic(self):
@@ -60,32 +60,32 @@ class TestDocTool(DBTestCase):
     @pytest.fixture
     def schema_note(self, schema):
         return factories.create_note(
-            models.NoteTypeEnum.SCHEMA,
+            models.ReferenceTypeEnum.SCHEMA,
             schema.id,
             self.note_text,
-            factories.fake_user_email
+            self.user_email
         )
 
     @pytest.fixture
     def schema_element_note(self, schema_element):
         return factories.create_note(
-            models.NoteTypeEnum.SCHEMA_ELEMENT,
+            models.ReferenceTypeEnum.SCHEMA_ELEMENT,
             schema_element.id,
             self.note_text,
-            factories.fake_user_email
+            self.user_email
         )
 
     def test_get_schema_note(self, schema_note):
         note = doc_tool.get_note_by_reference_id_and_type(
             schema_note.reference_id,
-            models.NoteTypeEnum.SCHEMA
+            models.ReferenceTypeEnum.SCHEMA
         )
         self.assert_equal_note(schema_note, note)
 
     def test_get_schema_element_note(self, schema_element_note):
         note = doc_tool.get_note_by_reference_id_and_type(
             schema_element_note.reference_id,
-            models.NoteTypeEnum.SCHEMA_ELEMENT
+            models.ReferenceTypeEnum.SCHEMA_ELEMENT
         )
         self.assert_equal_note(schema_element_note, note)
 
@@ -96,15 +96,15 @@ class TestDocTool(DBTestCase):
     def test_create_schema_note(self, schema):
         actual_note = doc_tool.upsert_note(
             schema.id,
-            models.NoteTypeEnum.SCHEMA,
+            models.ReferenceTypeEnum.SCHEMA,
             self.note_text,
-            self.user
+            self.user_email
         )
         expected_note = models.Note(
-            reference_type=models.NoteTypeEnum.SCHEMA,
+            reference_type=models.ReferenceTypeEnum.SCHEMA,
             reference_id=schema.id,
             note=self.note_text,
-            last_updated_by=self.user,
+            last_updated_by=self.user_email,
         )
         self.assert_equal_note_partial(expected_note, actual_note)
 
@@ -118,7 +118,7 @@ class TestDocTool(DBTestCase):
             "user2@yelp.com"
         )
         expected_note = models.Note(
-            reference_type=models.NoteTypeEnum.SCHEMA,
+            reference_type=models.ReferenceTypeEnum.SCHEMA,
             reference_id=schema_note.reference_id,
             note=new_text,
             last_updated_by=new_user,
@@ -128,15 +128,15 @@ class TestDocTool(DBTestCase):
     def test_create_schema_element_note(self, schema_element):
         actual_note = doc_tool.upsert_note(
             schema_element.id,
-            models.NoteTypeEnum.SCHEMA_ELEMENT,
+            models.ReferenceTypeEnum.SCHEMA_ELEMENT,
             self.note_text,
-            self.user
+            self.user_email
         )
         expected_note = models.Note(
-            reference_type=models.NoteTypeEnum.SCHEMA_ELEMENT,
+            reference_type=models.ReferenceTypeEnum.SCHEMA_ELEMENT,
             reference_id=schema_element.id,
             note=self.note_text,
-            last_updated_by=self.user,
+            last_updated_by=self.user_email,
         )
         self.assert_equal_note_partial(expected_note, actual_note)
 

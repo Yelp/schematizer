@@ -8,7 +8,6 @@ from schematizer.models.database import session
 fake_namespace = 'yelp'
 fake_source = 'business'
 fake_owner_email = 'business@yelp.com'
-fake_user_email = 'user@yelp.com'
 fake_topic_name = 'yelp.business.v1'
 fake_avro_schema = '{"name": "business"}'
 fake_created_at = datetime(2015, 1, 1, 17, 0, 0)
@@ -127,7 +126,7 @@ def create_note(
     reference_type,
     reference_id,
     note_text,
-    last_updated_by=fake_user_email
+    last_updated_by
 ):
     note = models.Note(
         reference_type=reference_type,

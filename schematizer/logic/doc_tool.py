@@ -42,8 +42,7 @@ def _update_note(note_id, note_text, user_email):
         {
             models.Note.note: note_text,
             models.Note.last_updated_by: user_email
-        },
-        synchronize_session='evaluate'
+        }
     )
 
 
