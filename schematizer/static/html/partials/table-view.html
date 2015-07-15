@@ -14,20 +14,21 @@
     <!-- Area to display errors, if there are any, when getting a list of schemas -->
     <div class="row" ng-show="tableError">
         <div class="col-lg-12">
-            <div class="alert alert-danger" role="alert">Schemas failed to load: <pre>{{tableError}}</pre></div>
+            <div class="alert alert-danger" role="alert">Table failed to load</div>
         </div>
     </div>
 
     <div class="row" ng-hide="load || tableError">
         <div class="col-md-12">
-            <h3><a href="#">public.business_dimension</a></h3>
+            <h3><a ng-href="#/table?id={{tableData.source_id}}">{{tableData.source}}</a></h3>
             <br />
             <h5>Table Info</h5>
             <div class="panel panel-default">
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-2">Owner</div>
-                        <div class="col-md-4"><a href="mailto:bam@yelp.com">bam@yelp.com</a></div>
+                        <div class="col-md-4"><a ng-href="mailto:{{tableData.source_owner_email}}">{{tableData.source_owner_email}}</a></div>
+                        <!-- TODO: Categories currently hardcoded and not saved. Update after DATAPIPE-243. -->
                         <div class="col-md-2">Category</div>
                         <div class="col-md-4">
                             <select id="category-select">
@@ -39,19 +40,16 @@
                     </div>
                     <div class="row">
                         <div class="col-md-2">Description</div>
-                        <div class="col-md-4">All businesses listed on Yelp.</div>
+                        <!-- TODO: update using actual description -->
+                        <div class="col-md-4">This is a hardcoded description.</div>
                         <div class="col-md-2">Last Updated</div>
-                        <div class="col-md-4">06/01/2015</div>
+                        <div class="col-md-4">{{tableData.updated_at}}</div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-2"></div>
-                        <div class="col-md-4"></div>
-                        <div class="col-md-2">Source</div>
-                        <div class="col-md-4"><a href="https://opengrok.yelpcorp.com/xref/yelp-main/yelp/datawarehouse/models/business.py">yelp/datawarehouse/models/business.py</a></div>
-                    </div>
+                    <!-- TODO: Add source as specified by v1 documentation -->
                     <div class="row">
                         <div class="col-md-2">Notes</div>
-                        <div class="col-md-10">This is a table about business dimension. The table id is {{source_id}}. Extra info: {{tableData}}</div>
+                        <!-- TODO: Retrieve actual notes. Update after DATAPIPE-227. -->
+                        <div class="col-md-10">This is a hardcoded note. The table id is {{source_id}}. Latest schema is {{schema_id}}. Extra info: {{tableData}}</div>
                     </div>
                     
                 </div>
