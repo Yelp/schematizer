@@ -31,11 +31,8 @@
                         <!-- TODO: Categories currently hardcoded and not saved. Update after DATAPIPE-243. -->
                         <div class="col-md-2">Category</div>
                         <div class="col-md-4">
-                            <select id="category-select">
-                                <option value="Business Info">Business Info</option>
-                                <option value="Content">Content</option>
-                                <option value="Deals">Deals</option>
-                            </select>
+                            Hardcoded Category
+                            <span style="float:right;"><a href="#/table?id={{tableData.source_id}}">Edit</a></span>
                         </div>
                     </div>
                     <div class="row">
@@ -48,13 +45,36 @@
                     <!-- TODO: Add source as specified by v1 documentation -->
                     <div class="row">
                         <div class="col-md-2">Notes</div>
-                        <!-- TODO: Retrieve actual notes. Update after DATAPIPE-227. -->
-                        <div class="col-md-10">This is a hardcoded note. The table id is {{source_id}}. Latest schema is {{schema_id}}. Extra info: {{tableData}}</div>
+                        <!-- TODO: Retrieve actual notes and allow them to be edited. Update after DATAPIPE-227. -->
+                        <div class="col-md-10">
+                            <p>This is a hardcoded note. The table id is {{source_id}}. Latest schema is {{schema_id}}. Extra info: {{tableData}}</p>
+                            <a href="#/table?id={{tableData.source_id}}">Edit</a>
+                        </div>
                     </div>
-                    
                 </div>
             </div>
         </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h5>Columns</h5>
+                <table class="table table-striped" style="font-size: 13px">
+                    <th>#</th>
+                    <th class="col-md-2">Name</th>
+                    <th class="col-md-2">Type</th>
+                    <th class="col-md-4">Description</th>
+                    <th class="col-md-4">Notes</th>
+                    <tr ng-repeat="field in schemaElements">
+                        <td>{{field.id}}</td>
+                        <td>{{field.key}}</td>
+                        <td>{{field.element_type}}</td>
+                        <td>{{field.doc}}</td>
+                        <td>This is a hard coded note</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
     </div>
         
 </div>

@@ -12,6 +12,7 @@
             $scope.source_id = $location.search().id;
             $scope.topic = null;
             $scope.schema_id = null;
+            $scope.schemaElements = [];
 
 
             function initTable() {
@@ -37,11 +38,20 @@
             function getSchema() {
                 $http.get('/v1/topics/' + $scope.topic + '/schemas/latest').success(function (data) {
                     $scope.schema_id = data.schema_id;
-                    $scope.load = false;
+                    getSchemaElements();
                 }).error(function (errorData) {
                     $scope.tableError = errorData;
                     $scope.load = false;
                 });
+            };
+
+            function getSchemaElements() {
+                $http.get('/v1/schemas/' + $scope.schema_id + '/elements').success(function (data) {
+                    $scope.schemaElements = data;
+                }).error(function (errorData) {
+                    $scope.tableError = errorData;
+                });
+                $scope.load = false;
             };
 
             initTable();
