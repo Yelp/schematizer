@@ -1,65 +1,65 @@
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h3><a href="#">public.business_dimension</a></h3>
-                <br />
-                <h5>Table Info</h5>
-                <div class="panel panel-default">
-                    <!-- <div class="panel-heading">Table Info</div> -->
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-md-2">Owner</div>
-                            <div class="col-md-4"><a href="mailto:bam@yelp.com">bam@yelp.com</a></div>
-                            <div class="col-md-2">Category</div>
-                            <div class="col-md-4">
-                                <select id="category-select">
-                                    <option value="Business Info">Business Info</option>
-                                    <option value="Content">Content</option>
-                                    <option value="Deals">Deals</option>
-                                </select>
-                            </div>
+<div class="container">
+
+    <!-- Loading bar, so that the UI doesn't look frozen when we're getting a list of schemas. -->
+    <!-- The loading bar should disappear when the schema end-point returns. -->
+    <div class="row" ng-show="load">
+        <div class="col-lg-12">
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 100%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Area to display errors, if there are any, when getting a list of schemas -->
+    <div class="row" ng-show="tableError">
+        <div class="col-lg-12">
+            <div class="alert alert-danger" role="alert">Schemas failed to load: <pre>{{tableError}}</pre></div>
+        </div>
+    </div>
+
+    <div class="row" ng-hide="load || tableError">
+        <div class="col-md-12">
+            <h3><a href="#">public.business_dimension</a></h3>
+            <br />
+            <h5>Table Info</h5>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-2">Owner</div>
+                        <div class="col-md-4"><a href="mailto:bam@yelp.com">bam@yelp.com</a></div>
+                        <div class="col-md-2">Category</div>
+                        <div class="col-md-4">
+                            <select id="category-select">
+                                <option value="Business Info">Business Info</option>
+                                <option value="Content">Content</option>
+                                <option value="Deals">Deals</option>
+                            </select>
                         </div>
-                        <div class="row">
-                            <div class="col-md-2">Description</div>
-                            <div class="col-md-4">All businesses listed on Yelp.</div>
-                            <div class="col-md-2">Last Updated</div>
-                            <div class="col-md-4">06/01/2015</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-2"></div>
-                            <div class="col-md-4"></div>
-                            <div class="col-md-2">Source</div>
-                            <div class="col-md-4"><a href="https://opengrok.yelpcorp.com/xref/yelp-main/yelp/datawarehouse/models/business.py">yelp/datawarehouse/models/business.py</a></div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-2">Notes</div>
-                            <div class="col-md-10">This is a table about business dimension. The table id is {{source_id}}</div>
-                        </div>
-                        
                     </div>
+                    <div class="row">
+                        <div class="col-md-2">Description</div>
+                        <div class="col-md-4">All businesses listed on Yelp.</div>
+                        <div class="col-md-2">Last Updated</div>
+                        <div class="col-md-4">06/01/2015</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-4"></div>
+                        <div class="col-md-2">Source</div>
+                        <div class="col-md-4"><a href="https://opengrok.yelpcorp.com/xref/yelp-main/yelp/datawarehouse/models/business.py">yelp/datawarehouse/models/business.py</a></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">Notes</div>
+                        <div class="col-md-10">This is a table about business dimension. The table id is {{source_id}}. Extra info: {{tableData}}</div>
+                    </div>
+                    
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <h5>Columns</h5>
-                <table class="table table-striped" style="font-size: 13px">
-                    <th>#</th><th class="col-md-2">Name</th><th class="col-md-2">Type</th><th class="col-md-4">Description</th><th class="col-md-4">Notes</th>
-                    <tr><td>1</td><td>id</td><td>integer</td><td></td><td></td></tr>
-                    <tr><td>2</td><td>yelp_id</td><td>varchar not null</td><td>Encrypted ID of the business</td><td></td></tr>
-                    <tr><td>3</td><td>location_current_id</td><td>integer not null</td><td>Location of the business</td><td>Join with id in location_dimension table</td></tr>
-                    <tr><td>4</td><td>utc_date_created_id</td><td>integer not null</td><td>Date business was added to the site.</td><td>Join with id in date_dimension table</td></tr>
-                    <tr><td>5</td><td>business_flags_id</td><td>integer not null</td><td>ID in the business_flags_dimension table.</td><td>Join with id in business_flags_dimension table</td></tr>
-                </table>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <h5>Comments</h5>
-                <div id="comments" style="width:1140px"></div>
-            </div>
-        </div>
-            
     </div>
+        
+</div>
+
+        
 
