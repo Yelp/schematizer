@@ -88,3 +88,20 @@ def _register_avro_schema(
         ).to_dict()
     except schema.AvroException as e:
         raise exceptions_v1.invalid_schema_exception(e.message)
+
+
+@view_config(
+    route_name='api.v1.get_schema_elements_by_schema_id',
+    request_method='GET',
+    renderer='json'
+)
+@transform_response()
+def get_schema_elements_by_schema_id(request):
+    schema_id = int(request.matchdict.get('schema_id'))
+    # First check if schema exists
+    schema = schema_repository.get_schema_by_id(schema_id)
+    if schema is None:
+        raise exceptions_v1.schema_not_found_exception()
+    # Get schema elements
+    elements = schema_repository.get_schema_elements_by_schema_id(schema_id)
+    return [element.to_dict() for element in elements]

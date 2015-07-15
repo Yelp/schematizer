@@ -289,3 +289,27 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
                        'must be provided.'
         assert expected_exception.code == e.value.code
         assert expected_err == str(e.value)
+
+
+class TestGetSchemaElements(TestSchemasViewBase):
+
+    def test_non_existing_schema(self, mock_request, mock_repo):
+        expected_exception = self.get_http_exception(404)
+        with pytest.raises(expected_exception) as e:
+            mock_request.matchdict = self.get_mock_dict({'schema_id': '0'})
+            mock_repo.get_schema_by_id.return_value = None
+            schema_views.get_schema_elements_by_schema_id(mock_request)
+
+        assert e.value.code == expected_exception.code
+        assert str(e.value) == exceptions_v1.SCHEMA_NOT_FOUND_ERROR_MESSAGE
+
+    def test_get_schema_elements(self, mock_request, mock_repo):
+        mock_request.matchdict = self.get_mock_dict({'schema_id': '1'})
+        mock_repo.get_schema_by_id.return_value = self.schema
+        mock_repo.get_schema_elements_by_schema_id.return_value = \
+            self.schema_elements
+
+        actual = schema_views.get_schema_elements_by_schema_id(mock_request)
+
+        assert self.schema_elements_response == actual
+        mock_repo.get_schema_elements_by_schema_id.assert_called_once_with(1)

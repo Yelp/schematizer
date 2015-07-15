@@ -116,6 +116,38 @@ class TestApiBase(object):
     def schemas_response(self):
         return [self.schema_response]
 
+    @property
+    def key(self):
+        return "schema element key"
+
+    @property
+    def element_type(self):
+        return "schema element type"
+
+    @property
+    def schema_elements(self):
+        return [
+            factories.AvroSchemaElementFactory.create(
+                self.schema,
+                self.key,
+                self.element_type
+            )
+        ]
+
+    @property
+    def schema_elements_response(self):
+        return [
+            {
+                'id': None,
+                'schema_id': None,
+                'element_type': self.element_type,
+                'key': self.key,
+                'doc': None,
+                'created_at': factories.fake_created_at.isoformat(),
+                'updated_at': factories.fake_updated_at.isoformat()
+            }
+        ]
+
     @pytest.yield_fixture
     def mock_request(self):
         with mock.patch('pyramid.request.Request', autospec=True) as mock_req:
