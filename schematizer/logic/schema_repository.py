@@ -516,3 +516,13 @@ def get_latest_topic_of_source_id(source_id):
     ).order_by(
         models.Topic.id.desc()
     ).first()
+
+
+def get_schema_elements_by_schema_id(schema_id):
+    return session.query(
+        models.AvroSchemaElement
+    ).filter(
+        models.AvroSchemaElement.avro_schema_id == schema_id
+    ).order_by(
+        models.AvroSchemaElement.id
+    ).all()

@@ -285,6 +285,28 @@ class AvroSchemaFactory(object):
         session.flush()
 
 
+class AvroSchemaElementFactory(object):
+
+    @classmethod
+    def create(
+        cls,
+        avro_schema,
+        key,
+        element_type,
+        doc=None,
+        created_at=fake_created_at,
+        updated_at=fake_updated_at
+    ):
+        return models.AvroSchemaElement(
+            avro_schema_id=avro_schema.id,
+            key=key,
+            element_type=element_type,
+            doc=doc,
+            created_at=created_at,
+            updated_at=updated_at
+        )
+
+
 class ConsumerFactory(object):
 
     @classmethod

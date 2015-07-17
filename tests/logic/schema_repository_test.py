@@ -582,6 +582,18 @@ class TestSchemaRepository(DBTestCase):
                 self.rw_schema_json
             )
 
+    def test_get_schema_elements_with_no_schema(self):
+        actual = schema_repo.get_schema_elements_by_schema_id(1)
+        assert 0 == len(actual)
+
+    def test_get_schema_elements_by_schema_id(self, rw_schema):
+        actual = schema_repo.get_schema_elements_by_schema_id(rw_schema.id)
+        for i in range(len(self.rw_schema_elements)):
+            self.assert_equal_avro_schema_element_partial(
+                actual[i],
+                self.rw_schema_elements[i]
+            )
+
     def assert_equal_namespace(self, expected, actual):
         assert expected.id == actual.id
         assert expected.name == actual.name
