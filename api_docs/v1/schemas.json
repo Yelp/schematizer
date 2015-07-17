@@ -364,12 +364,12 @@
                 "created_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When this schema is created"
+                    "description": "When this schema element is created"
                 },
                 "updated_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When this schema is last updated"
+                    "description": "When this schema element is last updated"
                 }
             }
         }
