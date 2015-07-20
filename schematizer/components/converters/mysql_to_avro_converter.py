@@ -38,17 +38,28 @@ class MySQLToAvroConverter(BaseConverter):
     def _create_avro_record_json(self, table):
         namespace = table.metadata.get(MetaDataKey.NAMESPACE, '')
         aliases = table.metadata.get(MetaDataKey.ALIASES)
+        metadata = self._get_table_metadata(table)
 
         self._builder.begin_record(
             table.name,
             namespace=namespace,
             aliases=aliases,
-            doc=table.doc
+            doc=table.doc,
+            **metadata
         )
         for column in table.columns:
             self._create_avro_field(column)
         record_json = self._builder.end()
         return record_json
+
+    def _get_table_metadata(self, table):
+        metadata = {}
+
+        primary_keys = [c.name for c in table.primary_keys]
+        if primary_keys:
+            metadata[AvroMetaDataKeyEnum.PRIMARY_KEY] = primary_keys
+
+        return metadata
 
     def _create_avro_field(self, column):
         field_type, field_metadata = self._create_avro_field_type(column)

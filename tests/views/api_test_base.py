@@ -104,6 +104,7 @@ class TestApiBase(object):
             'schema': factories.fake_avro_schema,
             'topic': self.topic_response,
             'status': 'RW',
+            'primary_keys': [],
             'created_at': factories.fake_created_at.isoformat(),
             'updated_at': factories.fake_updated_at.isoformat()
         }
