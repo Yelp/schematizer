@@ -58,7 +58,7 @@ class TestListSchemasByTopicName(TestTopicsViewBase):
         assert schemas == []
         mock_repo.get_schemas_by_topic_name.assert_called_once_with('foo')
 
-    def test_happy_case(self, mock_request, mock_repo):
+    def test_happy_case(self, mock_request, mock_repo, mock_schema):
         mock_request.matchdict = self.get_mock_dict({'topic_name': 'foo'})
         mock_repo.get_schemas_by_topic_name.return_value = self.schemas
 
@@ -94,7 +94,7 @@ class TestGetLatestSchemaByTopicName(TestTopicsViewBase):
         assert str(e.value) == exc_v1.LATEST_SCHEMA_NOT_FOUND_ERROR_MESSAGE
         mock_repo.get_latest_schema_by_topic_name.assert_called_once_with('ba')
 
-    def test_happy_case(self, mock_request, mock_repo):
+    def test_happy_case(self, mock_request, mock_repo, mock_schema):
         mock_request.matchdict = self.get_mock_dict({'topic_name': 'ba'})
         mock_repo.get_latest_schema_by_topic_name.return_value = self.schema
 

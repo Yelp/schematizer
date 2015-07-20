@@ -7,6 +7,7 @@ from avro import schema
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.components.handlers import sql_handler_base
 from schematizer.components.converters import converter_base
+from schematizer.models import Note
 from schematizer.views import schemas as schema_views
 from schematizer.views import view_common
 from testing import factories
@@ -48,7 +49,7 @@ class TestGetSchemaByID(TestSchemasViewBase):
         assert str(e.value) == exceptions_v1.SCHEMA_NOT_FOUND_ERROR_MESSAGE
         mock_repo.get_schema_by_id.assert_called_once_with(0)
 
-    def test_get_schema_by_id(self, mock_request, mock_repo):
+    def test_get_schema_by_id(self, mock_request, mock_repo, mock_schema):
         mock_request.matchdict = self.get_mock_dict({'schema_id': '1'})
         mock_repo.get_schema_by_id.return_value = self.schema
 
@@ -57,7 +58,12 @@ class TestGetSchemaByID(TestSchemasViewBase):
         assert self.schema_response == actual
         mock_repo.get_schema_by_id.assert_called_once_with(1)
 
-    def test_get_schema_by_id_with_base_schema(self, mock_request, mock_repo):
+    def test_get_schema_by_id_with_base_schema(
+        self,
+        mock_request,
+        mock_repo,
+        mock_schema
+    ):
         self.schema.base_schema_id = 2
         mock_request.matchdict = self.get_mock_dict({'schema_id': '1'})
         mock_repo.get_schema_by_id.return_value = self.schema
@@ -88,7 +94,7 @@ class TestRegisterSchema(TestSchemasViewBase):
         )
 
     @pytest.mark.usefixtures('setup_mock_create_schema_func')
-    def test_register_schema(self, mock_request, mock_repo):
+    def test_register_schema(self, mock_request, mock_repo, mock_schema):
         mock_request.json_body = self.request_json
         actual = schema_views.register_schema(mock_request)
 
@@ -99,7 +105,12 @@ class TestRegisterSchema(TestSchemasViewBase):
         )
 
     @pytest.mark.usefixtures('setup_mock_create_schema_func')
-    def test_register_schema_with_base_schema(self, mock_request, mock_repo):
+    def test_register_schema_with_base_schema(
+        self,
+        mock_request,
+        mock_repo,
+        mock_schema
+    ):
         mock_request.json_body = self.with_base_schema_request_json
 
         actual = schema_views.register_schema(mock_request)
@@ -198,6 +209,7 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
         self,
         mock_request,
         mock_repo,
+        mock_schema,
         request_body
     ):
         mock_request.json_body = request_body
@@ -291,6 +303,25 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
         assert expected_err == str(e.value)
 
 
+class TestUpsertNote(TestSchemasViewBase):
+
+    def test_upsert_note(self, mock_request, mock_doc):
+        mock_request.json_body = {
+            "reference_id": 1,
+            "reference_type": 'schema',
+            "note_text": 'This is a new note',
+            "user_email": 'wscheng@yelp.com'
+        }
+        mock_doc.upsert_note.return_value = Note(
+            reference_id=1,
+            reference_type='schema',
+            note='This is a new note',
+            last_updated_by='wscheng@yelp.com'
+        )
+        actual = schema_views.upsert_note(mock_request)
+        assert actual == mock_request.json_body
+
+
 class TestGetSchemaElements(TestSchemasViewBase):
 
     def test_non_existing_schema(self, mock_request, mock_repo):
@@ -303,7 +334,12 @@ class TestGetSchemaElements(TestSchemasViewBase):
         assert e.value.code == expected_exception.code
         assert str(e.value) == exceptions_v1.SCHEMA_NOT_FOUND_ERROR_MESSAGE
 
-    def test_get_schema_elements(self, mock_request, mock_repo):
+    def test_get_schema_elements(
+        self,
+        mock_request,
+        mock_repo,
+        mock_schema_element
+    ):
         mock_request.matchdict = self.get_mock_dict({'schema_id': '1'})
         mock_repo.get_schema_by_id.return_value = self.schema
         mock_repo.get_schema_elements_by_schema_id.return_value = \

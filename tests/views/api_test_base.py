@@ -104,6 +104,7 @@ class TestApiBase(object):
             'schema': factories.fake_avro_schema,
             'topic': self.topic_response,
             'status': 'RW',
+            'note': None,
             'created_at': factories.fake_created_at.isoformat(),
             'updated_at': factories.fake_updated_at.isoformat()
         }
@@ -143,6 +144,7 @@ class TestApiBase(object):
                 'element_type': self.element_type,
                 'key': self.key,
                 'doc': None,
+                'note': None,
                 'created_at': factories.fake_created_at.isoformat(),
                 'updated_at': factories.fake_updated_at.isoformat()
             }
@@ -160,6 +162,30 @@ class TestApiBase(object):
             autospec=True
         ) as mock_repo:
             yield mock_repo
+
+    @pytest.yield_fixture
+    def mock_doc(self):
+        with mock.patch(
+            self.test_view_module + '.doc_tool',
+            autospec=True
+        ) as mock_doc:
+            yield mock_doc
+
+    @pytest.yield_fixture
+    def mock_schema(self):
+        with mock.patch(
+            'schematizer.models.AvroSchema._get_note',
+            return_value=None
+        ) as mock_schema:
+            yield mock_schema
+
+    @pytest.yield_fixture
+    def mock_schema_element(self):
+        with mock.patch(
+            'schematizer.models.AvroSchemaElement._get_note',
+            return_value=None
+        ) as mock_schema_element:
+            yield mock_schema_element
 
     @classmethod
     def get_mock_dict(cls, dict_value):

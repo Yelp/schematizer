@@ -122,6 +122,23 @@ def create_avro_schema(
     return avro_schema
 
 
+def create_note(
+    reference_type,
+    reference_id,
+    note_text,
+    last_updated_by
+):
+    note = models.Note(
+        reference_type=reference_type,
+        reference_id=reference_id,
+        note=note_text,
+        last_updated_by=last_updated_by
+    )
+    session.add(note)
+    session.flush
+    return note
+
+
 class NamespaceFactory(object):
 
     @classmethod

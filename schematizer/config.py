@@ -54,6 +54,10 @@ def routes(config):
         '/v1/schemas/avro'
     )
     config.add_route(
+        'api.v1.upsert_note',
+        '/v1/schemas/note'
+    )
+    config.add_route(
         'api.v1.get_schema_by_id',
         '/v1/schemas/{schema_id}'
     )
