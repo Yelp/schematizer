@@ -12,6 +12,7 @@
             $scope.source_id = $location.search().id;
             $scope.topic = null;
             $scope.schema_id = null;
+            $scope.tableNote = "";
             $scope.schemaElements = [];
 
 
@@ -38,6 +39,7 @@
             function getSchema() {
                 $http.get('/v1/topics/' + $scope.topic + '/schemas/latest').success(function (data) {
                     $scope.schema_id = data.schema_id;
+                    $scope.tableNote = data.note.note_text;
                     getSchemaElements();
                 }).error(function (errorData) {
                     $scope.tableError = errorData;

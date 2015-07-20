@@ -47,7 +47,7 @@
                         <div class="col-md-2">Notes</div>
                         <!-- TODO: Retrieve actual notes and allow them to be edited. Update after DATAPIPE-227. -->
                         <div class="col-md-10">
-                            <p>This is a hardcoded note. The table id is {{source_id}}. Latest schema is {{schema_id}}. Extra info: {{tableData}}</p>
+                            <p>{{tableNote}}</p>
                             <a href="#/table?id={{tableData.source_id}}">Edit</a>
                         </div>
                     </div>
@@ -69,7 +69,7 @@
                         <td>{{field.key}}</td>
                         <td>{{field.element_type}}</td>
                         <td>{{field.doc}}</td>
-                        <td>This is a hard coded note</td>
+                        <td>{{field.note.note_text}}</td>
                     </tr>
                 </table>
             </div>
