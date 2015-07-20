@@ -164,6 +164,14 @@ class TestApiBase(object):
             yield mock_repo
 
     @pytest.yield_fixture
+    def mock_doc(self):
+        with mock.patch(
+            self.test_view_module + '.doc_tool',
+            autospec=True
+        ) as mock_doc:
+            yield mock_doc
+
+    @pytest.yield_fixture
     def mock_schema(self):
         with mock.patch(
             'schematizer.models.AvroSchema._get_note',

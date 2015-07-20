@@ -73,6 +73,37 @@
             ]
         },
         {
+            "path": "/v1/schemas/note",
+            "operations": [
+                {
+                    "method": "POST",
+                    "summary": "Upsert given note for the specified schema or schema element.",
+                    "notes": "",
+                    "type": "Note",
+                    "nickname": "upsert_note",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "body",
+                            "required": true,
+                            "type": "Note",
+                            "paramType": "body"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "path": "/v1/schemas/{schema_id}",
             "operations": [
                 {
@@ -217,6 +248,33 @@
                 }
             }
         },
+        "Note": {
+            "id": "Note",
+            "required": [
+                "reference_id",
+                "reference_type",
+                "note_text",
+                "user_email"
+            ],
+            "properties": {
+                "reference_id": {
+                    "type": "integer",
+                    "description": "The id of the item that this note is for"
+                },
+                "reference_type": {
+                    "type": "string",
+                    "description": "The type of item that this note is for ('schema', or 'schema_element')"
+                },
+                "note_text": {
+                    "type": "string",
+                    "description": "The text of the note itself"
+                },
+                "user_email": {
+                    "type": "string",
+                    "description": "The email of the user who edited the note"
+                }
+            }
+        },
         "Namespace": {
             "id": "Namespace",
             "properties": {
@@ -326,6 +384,10 @@
                     ],
                     "description": "Schema status: RW (read/write), R (read-only), Disabled. `Read` status means this schema can be used to deserialize messages, and `Write` status means this schema can be used to serialize messages. Disabled schemas cannot be used for either."
                 },
+                "note": {
+                    "$ref": "Note",
+                    "description": "The documentation tool note for this schema"
+                },
                 "created_at": {
                     "type": "string",
                     "format": "date-time",
@@ -360,6 +422,10 @@
                 "doc": {
                     "type": "string",
                     "description": "Documentation of this element"
+                },
+                "note": {
+                    "$ref": "Note",
+                    "description": "The documentation tool note for this schema element"
                 },
                 "created_at": {
                     "type": "string",

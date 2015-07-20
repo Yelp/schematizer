@@ -76,3 +76,19 @@ class MysqlSchemaCompatibilityRequest(RequestBase):
         self.alter_table_stmt = alter_table_stmt
         self.namespace = namespace
         self.source = source
+
+
+class UpsertNoteRequest(RequestBase):
+
+    def __init__(
+        self,
+        reference_id,
+        reference_type,
+        note_text,
+        user_email
+    ):
+        super(UpsertNoteRequest, self).__init__()
+        self.reference_id = reference_id
+        self.reference_type = reference_type
+        self.note_text = note_text
+        self.user_email = user_email
