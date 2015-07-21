@@ -5,16 +5,12 @@ Most of them are shared in various API responses, and therefore keep them
 in this module.
 """
 
-from datetime import datetime
-
 from schematizer.components.converters.converter_base \
     import AvroMetaDataKeyEnum
 
 
 def _format_datetime(datetime_value):
-    if isinstance(datetime_value, datetime):
-        return datetime_value.isoformat()
-    raise ValueError("datetime_value must be a datetime.")
+    return datetime_value.isoformat()
 
 
 def get_namespace_response_from_namespace(namespace):

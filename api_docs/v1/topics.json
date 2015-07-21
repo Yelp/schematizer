@@ -241,7 +241,7 @@
                     "items": {
                         "type": "string"
                     },
-                    "description": "List of strings that contain the primary key field names."
+                    "description": "List of primary key names."
                 },
                 "created_at": {
                     "type": "string",
