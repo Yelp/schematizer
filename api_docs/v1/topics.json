@@ -169,6 +169,10 @@
                     "type": "string",
                     "description": "Email address of the source owner"
                 },
+                "category": {
+                    "type": "string",
+                    "description": "Category that this source belongs to"
+                },
                 "created_at": {
                     "type": "string",
                     "format": "date-time",

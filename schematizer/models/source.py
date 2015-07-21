@@ -61,6 +61,9 @@ class Source(Base):
             'source': self.name,
             'source_owner_email': self.owner_email,
             'namespace': self.namespace.to_dict(),
+            'category': (
+                None if self.category is None else self.category.category
+            ),
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }

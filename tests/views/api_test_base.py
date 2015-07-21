@@ -54,6 +54,7 @@ class TestApiBase(object):
             'namespace': self.namespace_response,
             'source': factories.fake_source,
             'source_owner_email': factories.fake_owner_email,
+            'category': None,
             'created_at': factories.fake_created_at.isoformat(),
             'updated_at': factories.fake_updated_at.isoformat()
         }

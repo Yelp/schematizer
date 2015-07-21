@@ -75,6 +75,25 @@ class TestDocTool(DBTestCase):
             self.user_email
         )
 
+    @pytest.fixture
+    def source(self):
+        return factories.create_source(
+            factories.fake_namespace,
+            factories.fake_source
+        )
+
+    @property
+    def category(self):
+        return 'Business Info'
+
+    @property
+    def new_category(self):
+        return 'Deals'
+
+    @pytest.fixture
+    def source_category(self, source):
+        return factories.create_source_category(source.id, self.category)
+
     def test_get_schema_note(self, schema_note):
         note = doc_tool.get_note_by_reference_id_and_type(
             schema_note.reference_id,
@@ -157,6 +176,25 @@ class TestDocTool(DBTestCase):
         )
         self.assert_equal_note_partial(expected_note, actual_note)
 
+    def test_create_source_category(self, source):
+        actual = doc_tool.upsert_source_category(source.id, self.category)
+        expected = models.SourceCategory(
+            source_id=source.id,
+            category=self.category
+        )
+        self.assert_equal_source_category_partial(expected, actual)
+
+    def test_update_source_category(self, source_category):
+        actual = doc_tool.upsert_source_category(
+            source_category.source_id,
+            self.new_category
+        )
+        expected = models.SourceCategory(
+            source_id=source_category.source_id,
+            category=self.new_category
+        )
+        self.assert_equal_source_category_partial(expected, actual)
+
     def assert_equal_note(self, expected, actual):
         assert expected.id == actual.id
         assert expected.created_at == actual.created_at
@@ -168,3 +206,7 @@ class TestDocTool(DBTestCase):
         assert expected.reference_id == actual.reference_id
         assert expected.note == actual.note
         assert expected.last_updated_by == actual.last_updated_by
+
+    def assert_equal_source_category_partial(self, expected, actual):
+        assert expected.source_id == actual.source_id
+        assert expected.category == actual.category
