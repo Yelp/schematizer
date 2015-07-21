@@ -7,7 +7,6 @@ from avro import schema
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.components.handlers import sql_handler_base
 from schematizer.components.converters import converter_base
-from schematizer.models import Note
 from schematizer.views import schemas as schema_views
 from schematizer.views import view_common
 from testing import factories
@@ -306,20 +305,10 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
 class TestUpsertNote(TestSchemasViewBase):
 
     def test_upsert_note(self, mock_request, mock_doc):
-        mock_request.json_body = {
-            "reference_id": 1,
-            "reference_type": 'schema',
-            "note_text": 'This is a new note',
-            "user_email": 'wscheng@yelp.com'
-        }
-        mock_doc.upsert_note.return_value = Note(
-            reference_id=1,
-            reference_type='schema',
-            note='This is a new note',
-            last_updated_by='wscheng@yelp.com'
-        )
+        mock_request.json_body = self.note_request
+        mock_doc.upsert_note.return_value = self.note
         actual = schema_views.upsert_note(mock_request)
-        assert actual == mock_request.json_body
+        assert actual == self.note_response
 
 
 class TestGetSchemaElements(TestSchemasViewBase):

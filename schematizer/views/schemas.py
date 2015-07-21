@@ -103,8 +103,8 @@ def upsert_note(request):
         return doc_tool.upsert_note(
             reference_id=req.reference_id,
             reference_type=req.reference_type,
-            note_text=req.note_text,
-            user_email=req.user_email
+            note_text=req.note,
+            last_updated_by=req.last_updated_by
         ).to_dict()
     except Exception as e:
         raise exceptions_v1.invalid_request_exception(e.message)

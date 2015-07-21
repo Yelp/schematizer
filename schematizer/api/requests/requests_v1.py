@@ -84,11 +84,11 @@ class UpsertNoteRequest(RequestBase):
         self,
         reference_id,
         reference_type,
-        note_text,
-        user_email
+        note,
+        last_updated_by
     ):
         super(UpsertNoteRequest, self).__init__()
         self.reference_id = reference_id
         self.reference_type = reference_type
-        self.note_text = note_text
-        self.user_email = user_email
+        self.note = note
+        self.last_updated_by = last_updated_by

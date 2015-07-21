@@ -3,6 +3,7 @@ import mock
 import pytest
 from pyramid import httpexceptions
 
+from schematizer.models import Note
 from testing import factories
 
 
@@ -149,6 +150,37 @@ class TestApiBase(object):
                 'updated_at': factories.fake_updated_at.isoformat()
             }
         ]
+
+    @property
+    def note_request(self):
+        return {
+            'reference_id': None,
+            'reference_type': 'schema',
+            'note': 'This is a note',
+            'last_updated_by': 'user@yelp.com'
+        }
+
+    @property
+    def note(self):
+        return Note(
+            reference_type='schema',
+            note='This is a note',
+            last_updated_by='user@yelp.com',
+            created_at=factories.fake_created_at,
+            updated_at=factories.fake_updated_at
+        )
+
+    @property
+    def note_response(self):
+        return {
+            'id': None,
+            'reference_id': None,
+            'reference_type': 'schema',
+            'note': 'This is a note',
+            'last_updated_by': 'user@yelp.com',
+            'created_at': factories.fake_created_at.isoformat(),
+            'updated_at': factories.fake_updated_at.isoformat()
+        }
 
     @pytest.yield_fixture
     def mock_request(self):
