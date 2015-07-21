@@ -87,7 +87,7 @@ class AvroSchema(Base, BaseModel):
             'schema': self.avro_schema,
             'status': self.status,
             'topic': None if self.topic is None else self.topic.to_dict(),
-            'note': self._get_note(),
+            'note': self.note,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
@@ -97,7 +97,8 @@ class AvroSchema(Base, BaseModel):
             avro_schema_dict['base_schema_id'] = self.base_schema_id
         return avro_schema_dict
 
-    def _get_note(self):
+    @property
+    def note(self):
         note = session.query(
             Note
         ).filter(

@@ -174,17 +174,19 @@ class TestApiBase(object):
     @pytest.yield_fixture
     def mock_schema(self):
         with mock.patch(
-            'schematizer.models.AvroSchema._get_note',
-            return_value=None
+            'schematizer.models.AvroSchema.note',
+            new_callable=mock.PropertyMock
         ) as mock_schema:
+            mock_schema.return_value = None
             yield mock_schema
 
     @pytest.yield_fixture
     def mock_schema_element(self):
         with mock.patch(
-            'schematizer.models.AvroSchemaElement._get_note',
-            return_value=None
+            'schematizer.models.AvroSchemaElement.note',
+            new_callable=mock.PropertyMock
         ) as mock_schema_element:
+            mock_schema_element.return_value = None
             yield mock_schema_element
 
     @classmethod
