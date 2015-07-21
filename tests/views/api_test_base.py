@@ -78,8 +78,9 @@ class TestApiBase(object):
             'topic_id': None,
             'name': factories.fake_topic_name,
             'source': self.source_response,
+            'pii_flag': 0,
             'created_at': factories.fake_created_at.isoformat(),
-            'updated_at': factories.fake_updated_at.isoformat()
+            'updated_at': factories.fake_updated_at.isoformat(),
         }
 
     @property

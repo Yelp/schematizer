@@ -22,7 +22,8 @@ class TestDocTool(DBTestCase):
         return factories.create_topic(
             factories.fake_topic_name,
             factories.fake_namespace,
-            factories.fake_source
+            factories.fake_source,
+            factories.fake_pii_flag,
         )
 
     @property

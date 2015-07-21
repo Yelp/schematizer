@@ -24,6 +24,14 @@ class TestSchemaRepository(DBTestCase):
     def source_owner_email(self):
         return factories.fake_owner_email
 
+    @property
+    def source_is_pii_schema_true(self):
+        return True
+
+    @property
+    def source_is_pii_schema_false(self):
+        return False
+
     @pytest.fixture
     def namespace(self):
         return factories.create_namespace(self.namespace_name)
@@ -168,6 +176,7 @@ class TestSchemaRepository(DBTestCase):
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
+            self.source_is_pii_schema_false,
             base_schema_id=expected_base_schema_id
         )
 
@@ -201,7 +210,8 @@ class TestSchemaRepository(DBTestCase):
             self.another_rw_schema_json,
             topic.source.namespace.name,
             topic.source.name,
-            topic.source.owner_email
+            topic.source.owner_email,
+            self.source_is_pii_schema_false
         )
 
         expected_schema = models.AvroSchema(
@@ -212,11 +222,16 @@ class TestSchemaRepository(DBTestCase):
         self.assert_equal_avro_schema_partial(expected_schema, actual_schema)
         assert topic.id == actual_schema.topic_id
 
+    @pytest.mark.parametrize(
+        "is_compatible, is_pii_schema",
+        [(False, False), (True, True)])
     @pytest.mark.usefixtures('rw_schema')
     def test_create_schema_from_avro_json_with_incompatible_schema(
             self,
             topic,
-            mock_compatible_func
+            mock_compatible_func,
+            is_compatible,
+            is_pii_schema
     ):
         mock_compatible_func.return_value = False
 
@@ -224,7 +239,8 @@ class TestSchemaRepository(DBTestCase):
             self.another_rw_schema_json,
             topic.source.namespace.name,
             topic.source.name,
-            topic.source.owner_email
+            topic.source.owner_email,
+            self.source_is_pii_schema_false
         )
 
         expected_schema = models.AvroSchema(
@@ -253,6 +269,7 @@ class TestSchemaRepository(DBTestCase):
             rw_schema.topic.source.namespace.name,
             rw_schema.topic.source.name,
             rw_schema.topic.source.owner_email,
+            self.source_is_pii_schema_false
         )
 
         assert rw_schema.id == actual.id
@@ -271,6 +288,7 @@ class TestSchemaRepository(DBTestCase):
             rw_schema.topic.source.namespace.name,
             rw_schema.topic.source.name,
             rw_schema.topic.source.owner_email,
+            self.source_is_pii_schema_false,
             base_schema_id=expected_base_schema_id
         )
 

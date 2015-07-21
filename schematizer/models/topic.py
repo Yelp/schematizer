@@ -35,6 +35,8 @@ class Topic(Base):
 
     avro_schemas = relationship(AvroSchema, backref="topic")
 
+    pii_flag = Column(Integer, nullable=False)
+
     # Timestamp when the entry is created
     created_at = build_time_column(
         default_now=True,
@@ -53,6 +55,7 @@ class Topic(Base):
             'topic_id': self.id,
             'name': self.name,
             'source': self.source.to_dict(),
+            'pii_flag': self.pii_flag,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }

@@ -38,7 +38,8 @@ def register_schema(request):
             namespace=req.namespace,
             source=req.source,
             source_email_owner=req.source_owner_email,
-            base_schema_id=req.base_schema_id
+            base_schema_id=req.base_schema_id,
+            is_pii_schema=req.is_pii_schema
         )
     except simplejson.JSONDecodeError as e:
         raise exceptions_v1.invalid_schema_exception(
@@ -67,7 +68,8 @@ def register_schema_from_mysql_stmts(request):
         schema_json=avro_schema_json,
         namespace=req.namespace,
         source=req.source,
-        source_email_owner=req.source_owner_email
+        source_email_owner=req.source_owner_email,
+        is_pii_schema=req.is_pii_schema
     )
 
 
@@ -76,6 +78,7 @@ def _register_avro_schema(
     namespace,
     source,
     source_email_owner,
+    is_pii_schema,
     base_schema_id=None
 ):
     try:
@@ -84,6 +87,7 @@ def _register_avro_schema(
             namespace_name=namespace,
             source_name=source,
             source_email_owner=source_email_owner,
+            is_pii_schema=is_pii_schema,
             base_schema_id=base_schema_id
         ).to_dict()
     except schema.AvroException as e:

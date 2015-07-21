@@ -27,7 +27,8 @@ class TestSchemasViewBase(TestApiBase):
             'namespace_name': factories.fake_namespace,
             'source_name': factories.fake_source,
             'source_email_owner': factories.fake_owner_email,
-            'base_schema_id': factories.fake_base_schema_id
+            'base_schema_id': factories.fake_base_schema_id,
+            'is_pii_schema': factories.fake_is_pii_schema,
         }
         expected_call_args.update(param_override)
         mock_repo.create_avro_schema_from_avro_json.assert_called_once_with(
@@ -77,7 +78,8 @@ class TestRegisterSchema(TestSchemasViewBase):
             "schema": factories.fake_avro_schema,
             "namespace": factories.fake_namespace,
             "source": factories.fake_source,
-            "source_owner_email": factories.fake_owner_email
+            "source_owner_email": factories.fake_owner_email,
+            'is_pii_schema': factories.fake_is_pii_schema
         }
 
     @property
@@ -160,7 +162,8 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
             "new_create_table_stmt": self.new_create_table_stmt,
             "namespace": factories.fake_namespace,
             "source": factories.fake_source,
-            "source_owner_email": factories.fake_owner_email
+            "source_owner_email": factories.fake_owner_email,
+            'is_pii_schema': factories.fake_is_pii_schema
         }
 
     @pytest.yield_fixture
@@ -180,7 +183,8 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
             "new_create_table_stmt": 'create new table',
             "namespace": factories.fake_namespace,
             "source": factories.fake_source,
-            "source_owner_email": factories.fake_owner_email
+            "source_owner_email": factories.fake_owner_email,
+            'is_pii_schema': factories.fake_is_pii_schema
         },
         {
             "new_create_table_stmt": 'create new table',
@@ -188,7 +192,8 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
             "alter_table_stmt": 'update existing table',
             "namespace": factories.fake_namespace,
             "source": factories.fake_source,
-            "source_owner_email": factories.fake_owner_email
+            "source_owner_email": factories.fake_owner_email,
+            'is_pii_schema': factories.fake_is_pii_schema
         },
     ])
     @pytest.mark.usefixtures(
@@ -278,7 +283,8 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
             "alter_table_stmt": None,
             "namespace": factories.fake_namespace,
             "source": factories.fake_source,
-            "source_owner_email": factories.fake_owner_email
+            "source_owner_email": factories.fake_owner_email,
+            'is_pii_schema': factories.fake_is_pii_schema
         }
         expected_exception = self.get_http_exception(400)
 
