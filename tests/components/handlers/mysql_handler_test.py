@@ -79,16 +79,68 @@ class TestMySQLHandler(object):
         )
 
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
+        ('`bar` bit(4) not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLBit(4),
+             is_nullable=False
+         )),
+        ('bar bit null',
+         SQLColumn('bar', data_types.MySQLBigInt(None))),
+    ])
+    def test_create_sql_table_from_sql_stmts_with_bit_type(
+        self,
+        handler,
+        create_definition,
+        expected_column
+    ):
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
+
+    @pytest.mark.parametrize(("create_definition", "expected_column"), [
         ('`bar` int(4) not null unsigned',
          SQLColumn(
              'bar',
              data_types.MySQLInt(4, unsigned=True),
              is_nullable=False
          )),
+        ('bar tinyint null',
+         SQLColumn('bar', data_types.MySQLTinyInt(None))),
+        ('bar smallint null',
+         SQLColumn('bar', data_types.MySQLSmallInt(None))),
         ('bar bigint null',
          SQLColumn('bar', data_types.MySQLBigInt(None))),
+        ('bar integer null',
+         SQLColumn('bar', data_types.MySQLInteger(None))),
     ])
     def test_create_sql_table_from_sql_stmts_with_integer_type(
+        self,
+        handler,
+        create_definition,
+        expected_column
+    ):
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
+
+    @pytest.mark.parametrize(("create_definition", "expected_column"), [
+        ('`bar` bool not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLBool(),
+             is_nullable=False
+         )),
+        ('bar bool null',
+         SQLColumn('bar', data_types.MySQLBool())),
+        ('bar boolean null',
+         SQLColumn('bar', data_types.MySQLBoolean())),
+    ])
+    def test_create_sql_table_from_sql_stmts_with_boolean_type(
         self,
         handler,
         create_definition,
@@ -276,10 +328,10 @@ class TestMySQLHandler(object):
         assert str(e.value).startswith('No column exists in the table.')
 
     def test_create_sql_table_from_sql_stmts_with_bad_col_type(self, handler):
-        sql = 'CREATE TABLE `foo_tbl` (id integer(11));'
+        sql = 'CREATE TABLE `foo_tbl` (id basscannon(11));'
         with pytest.raises(sql_handler_base.SQLHandlerException) as e:
             handler.create_sql_table_from_sql_stmts([sql])
-        assert 'Unknown MySQL column type integer.' == str(e.value)
+        assert 'Unknown MySQL column type basscannon.' == str(e.value)
 
     def test_create_sql_table_from_sql_stmts_with_no_stmts(self, handler):
         with pytest.raises(sql_handler_base.SQLHandlerException) as e:
