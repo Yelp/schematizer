@@ -29,8 +29,8 @@ def list_schemas_by_topic_name(request):
     schemas = schema_repository.get_schemas_by_topic_name(topic_name)
     if not schemas and not schema_repository.get_topic_by_name(topic_name):
         raise exceptions_v1.topic_not_found_exception()
-    return [responses_v1.get_schema_response_from_avro_schema(sch)
-            for sch in schemas]
+    return [responses_v1.get_schema_response_from_avro_schema(avro_schema)
+            for avro_schema in schemas]
 
 
 @view_config(
