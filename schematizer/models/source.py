@@ -7,6 +7,7 @@ from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from schematizer.models.database import Base
+from schematizer.models.source_category import SourceCategory
 from schematizer.models.topic import Topic
 from schematizer.models.types.time import build_time_column
 
@@ -38,6 +39,8 @@ class Source(Base):
     )
 
     topics = relationship(Topic, backref="source")
+
+    category = relationship(SourceCategory, uselist=False, backref="source")
 
     # Timestamp when the entry is created
     created_at = build_time_column(
