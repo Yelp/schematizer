@@ -13,6 +13,9 @@ from schematizer.models.avro_schema_element import AvroSchemaElement
 from schematizer.models.base_model import BaseModel
 from schematizer.models.consumer import Consumer
 from schematizer.models.database import Base
+from schematizer.models.database import session
+from schematizer.models.note import Note
+from schematizer.models.note import ReferenceTypeEnum
 from schematizer.models.producer import Producer
 from schematizer.models.types.time import build_time_column
 
@@ -84,6 +87,7 @@ class AvroSchema(Base, BaseModel):
             'schema': self.avro_schema,
             'status': self.status,
             'topic': None if self.topic is None else self.topic.to_dict(),
+            'note': self.note,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
@@ -92,6 +96,16 @@ class AvroSchema(Base, BaseModel):
         if self.base_schema_id is not None:
             avro_schema_dict['base_schema_id'] = self.base_schema_id
         return avro_schema_dict
+
+    @property
+    def note(self):
+        note = session.query(
+            Note
+        ).filter(
+            Note.reference_type == ReferenceTypeEnum.SCHEMA,
+            Note.reference_id == self.id,
+        ).first()
+        return None if note is None else note.to_dict()
 
     @property
     def avro_schema_json(self):
