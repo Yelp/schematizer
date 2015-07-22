@@ -116,8 +116,11 @@ def create_avro_schema_from_avro_json(
     _lock_topic_and_schemas(topic)
 
     pii_flag = convert_pii_flag(is_pii_schema)
-    if not topic or topic.pii_flag != pii_flag or not \
-            is_schema_compatible_in_topic(avro_schema_json, topic.name):
+    if (
+        not topic or
+        topic.pii_flag != pii_flag or
+        not is_schema_compatible_in_topic(avro_schema_json, topic.name)
+    ):
         # Note that creating duplicate topic names will throw a sqlalchemy
         # IntegrityError exception. When it occurs, it indicates the uuid
         # is generating the same value (rarely) and we'd like to know it.

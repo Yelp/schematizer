@@ -13,8 +13,15 @@ class RequestBase(object):
 
 class RegisterSchemaRequest(RequestBase):
 
-    def __init__(self, schema, namespace, source, source_owner_email,
-                 is_pii_schema, base_schema_id=None):
+    def __init__(
+            self,
+            schema,
+            namespace,
+            source,
+            source_owner_email,
+            is_pii_schema,
+            base_schema_id=None
+    ):
         super(RegisterSchemaRequest, self).__init__()
         self.schema = schema
         self.namespace = namespace
