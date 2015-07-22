@@ -16,19 +16,20 @@ from schematizer.models.note import ReferenceTypeEnum
 )
 @transform_response()
 def create_note(request):
-    try:
-        req = requests_v1.CreateNoteRequest(**request.json_body)
-        return doc_tool.create_note(
-            reference_id=req.reference_id,
-            reference_type=req.reference_type,
-            note_text=req.note,
-            last_updated_by=req.last_updated_by
-        ).to_dict()
-    except Exception as e:
-        raise exceptions_v1.invalid_request_exception(e.message)
+    req = requests_v1.CreateNoteRequest(**request.json_body)
+    assert_reference_exists(req.reference_type, req.reference_id)
+    return doc_tool.create_note(
+        reference_type=req.reference_type,
+        reference_id=req.reference_id,
+        note_text=req.note,
+        last_updated_by=req.last_updated_by
+    ).to_dict()
 
 
-def assert_reference_exists(reference_id, reference_type):
+def assert_reference_exists(reference_type, reference_id):
+    """Checks to make sure that the reference for this note exists.
+    If it does not, raise an exception
+    """
     if (
         reference_type == ReferenceTypeEnum.SCHEMA and
         schema_repository.get_schema_by_id(reference_id) is not None
@@ -36,6 +37,7 @@ def assert_reference_exists(reference_id, reference_type):
         reference_type == ReferenceTypeEnum.SCHEMA_ELEMENT and
         schema_repository.get_schema_element_by_id(reference_id) is not None
     ):
+        # Valid. Do nothing
         return
     raise exceptions_v1.reference_not_found_exception()
 
