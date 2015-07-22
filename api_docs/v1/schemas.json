@@ -400,7 +400,7 @@
                 },
                 "note": {
                     "$ref": "Note",
-                    "description": "The documentation tool note for this schema"
+                    "description": "A user defined note for the schema that is used in the documentation tool. Used to store any relevant information about the schema that can be useful to reference."
                 },
                 "created_at": {
                     "type": "string",
@@ -439,7 +439,7 @@
                 },
                 "note": {
                     "$ref": "Note",
-                    "description": "The documentation tool note for this schema element"
+                    "description": "A user defined note for the schema element that is used in the documentation tool. Used to store any relevant information about the schema element that can be useful to reference."
                 },
                 "created_at": {
                     "type": "string",

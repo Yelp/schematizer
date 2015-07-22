@@ -196,12 +196,12 @@ class TestApiBase(object):
             yield mock_repo
 
     @pytest.yield_fixture
-    def mock_doc(self):
+    def mock_doc_tool(self):
         with mock.patch(
             self.test_view_module + '.doc_tool',
             autospec=True
-        ) as mock_doc:
-            yield mock_doc
+        ) as mock_doc_tool:
+            yield mock_doc_tool
 
     @pytest.yield_fixture
     def mock_schema(self):
