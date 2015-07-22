@@ -78,17 +78,31 @@ class MysqlSchemaCompatibilityRequest(RequestBase):
         self.source = source
 
 
-class UpsertNoteRequest(RequestBase):
+class CreateNoteRequest(RequestBase):
 
     def __init__(
         self,
         reference_id,
         reference_type,
-        note_text,
-        user_email
+        note,
+        last_updated_by
     ):
-        super(UpsertNoteRequest, self).__init__()
+        super(CreateNoteRequest, self).__init__()
         self.reference_id = reference_id
         self.reference_type = reference_type
-        self.note_text = note_text
-        self.user_email = user_email
+        self.note = note
+        self.last_updated_by = last_updated_by
+
+
+class UpdateNoteRequest(RequestBase):
+
+    def __init__(
+        self,
+        reference_id,
+        reference_type,
+        note,
+        last_updated_by
+    ):
+        super(UpdateNoteRequest, self).__init__()
+        self.note = note
+        self.last_updated_by = last_updated_by

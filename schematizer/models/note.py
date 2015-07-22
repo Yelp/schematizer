@@ -68,8 +68,11 @@ class Note(Base):
 
     def to_dict(self):
         return {
+            'id': self.id,
             'reference_type': self.reference_type,
             'reference_id': self.reference_id,
-            'note_text': self.note,
-            'user_email': self.last_updated_by,
+            'note': self.note,
+            'last_updated_by': self.last_updated_by,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
         }

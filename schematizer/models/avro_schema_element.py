@@ -90,12 +90,13 @@ class AvroSchemaElement(Base, BaseModel):
             'element_type': self.element_type,
             'key': self.key,
             'doc': self.doc,
-            'note': self._get_note(),
+            'note': self.note,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
 
-    def _get_note(self):
+    @property
+    def note(self):
         note = session.query(
             Note
         ).filter(

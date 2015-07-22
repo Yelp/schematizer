@@ -79,14 +79,14 @@
                     "method": "POST",
                     "summary": "Upsert given note for the specified schema or schema element.",
                     "notes": "",
-                    "type": "Note",
+                    "type": "NoteResponse",
                     "nickname": "upsert_note",
                     "authorizations": {},
                     "parameters": [
                         {
                             "name": "body",
                             "required": true,
-                            "type": "Note",
+                            "type": "NoteRequest",
                             "paramType": "body"
                         }
                     ],
@@ -248,13 +248,13 @@
                 }
             }
         },
-        "Note": {
-            "id": "Note",
+        "NoteRequest": {
+            "id": "NoteRequest",
             "required": [
                 "reference_id",
                 "reference_type",
-                "note_text",
-                "user_email"
+                "note",
+                "last_updated_by"
             ],
             "properties": {
                 "reference_id": {
@@ -265,13 +265,48 @@
                     "type": "string",
                     "description": "The type of item that this note is for ('schema', or 'schema_element')"
                 },
-                "note_text": {
+                "note": {
                     "type": "string",
                     "description": "The text of the note itself"
                 },
-                "user_email": {
+                "last_updated_by": {
                     "type": "string",
                     "description": "The email of the user who edited the note"
+                }
+            }
+        },
+        "NoteResponse": {
+            "id": "NoteResponse",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "The id of the note"
+                },
+                "reference_id": {
+                    "type": "integer",
+                    "description": "The id of the item that this note is for"
+                },
+                "reference_type": {
+                    "type": "string",
+                    "description": "The type of item that this note is for ('schema', or 'schema_element')"
+                },
+                "note": {
+                    "type": "string",
+                    "description": "The text of the note itself"
+                },
+                "last_updated_by": {
+                    "type": "string",
+                    "description": "The email of the user who edited the note"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this note is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this note is last updated"
                 }
             }
         },
@@ -386,7 +421,7 @@
                 },
                 "note": {
                     "$ref": "Note",
-                    "description": "The documentation tool note for this schema"
+                    "description": "A user defined note for the schema that is used in the documentation tool. Used to store any relevant information about the schema that can be useful to reference."
                 },
                 "created_at": {
                     "type": "string",
@@ -425,7 +460,7 @@
                 },
                 "note": {
                     "$ref": "Note",
-                    "description": "The documentation tool note for this schema element"
+                    "description": "A user defined note for the schema element that is used in the documentation tool. Used to store any relevant information about the schema element that can be useful to reference."
                 },
                 "created_at": {
                     "type": "string",

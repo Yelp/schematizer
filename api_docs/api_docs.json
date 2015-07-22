@@ -21,6 +21,10 @@
         {
             "path": "/v1/compatibility",
             "description": "Operations about schema compatibility check."
+        },
+        {
+            "path": "/v1/notes",
+            "description": "Operations about notes"
         }
     ],
     "info": {

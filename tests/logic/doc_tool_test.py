@@ -94,9 +94,9 @@ class TestDocTool(DBTestCase):
         assert note is None
 
     def test_create_schema_note(self, schema):
-        actual_note = doc_tool.upsert_note(
-            schema.id,
+        actual_note = doc_tool.create_note(
             models.ReferenceTypeEnum.SCHEMA,
+            schema.id,
             self.note_text,
             self.user_email
         )
@@ -111,11 +111,10 @@ class TestDocTool(DBTestCase):
     def test_update_schema_note(self, schema_note):
         new_text = "This is new text"
         new_user = "user2@yelp.com"
-        actual_note = doc_tool.upsert_note(
-            schema_note.reference_id,
-            schema_note.reference_type,
-            "This is new text",
-            "user2@yelp.com"
+        doc_tool.update_note(
+            schema_note.id,
+            new_text,
+            new_user
         )
         expected_note = models.Note(
             reference_type=models.ReferenceTypeEnum.SCHEMA,
@@ -123,12 +122,12 @@ class TestDocTool(DBTestCase):
             note=new_text,
             last_updated_by=new_user,
         )
-        self.assert_equal_note_partial(expected_note, actual_note)
+        self.assert_equal_note_partial(expected_note, schema_note)
 
     def test_create_schema_element_note(self, schema_element):
-        actual_note = doc_tool.upsert_note(
-            schema_element.id,
+        actual_note = doc_tool.create_note(
             models.ReferenceTypeEnum.SCHEMA_ELEMENT,
+            schema_element.id,
             self.note_text,
             self.user_email
         )
@@ -143,11 +142,10 @@ class TestDocTool(DBTestCase):
     def test_update_schema_element_note(self, schema_element_note):
         new_text = "This is new text"
         new_user = "user2@yelp.com"
-        actual_note = doc_tool.upsert_note(
-            schema_element_note.reference_id,
-            schema_element_note.reference_type,
-            "This is new text",
-            "user2@yelp.com"
+        doc_tool.update_note(
+            schema_element_note.id,
+            new_text,
+            new_user
         )
         expected_note = models.Note(
             reference_type=schema_element_note.reference_type,
@@ -155,7 +153,7 @@ class TestDocTool(DBTestCase):
             note=new_text,
             last_updated_by=new_user,
         )
-        self.assert_equal_note_partial(expected_note, actual_note)
+        self.assert_equal_note_partial(expected_note, schema_element_note)
 
     def assert_equal_note(self, expected, actual):
         assert expected.id == actual.id
