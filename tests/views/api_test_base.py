@@ -3,6 +3,7 @@ import mock
 import pytest
 from pyramid import httpexceptions
 
+from schematizer.models import Note
 from testing import factories
 
 
@@ -104,6 +105,7 @@ class TestApiBase(object):
             'schema': factories.fake_avro_schema,
             'topic': self.topic_response,
             'status': 'RW',
+            'note': None,
             'created_at': factories.fake_created_at.isoformat(),
             'updated_at': factories.fake_updated_at.isoformat()
         }
@@ -143,10 +145,42 @@ class TestApiBase(object):
                 'element_type': self.element_type,
                 'key': self.key,
                 'doc': None,
+                'note': None,
                 'created_at': factories.fake_created_at.isoformat(),
                 'updated_at': factories.fake_updated_at.isoformat()
             }
         ]
+
+    @property
+    def note_request(self):
+        return {
+            'reference_id': None,
+            'reference_type': 'schema',
+            'note': 'This is a note',
+            'last_updated_by': 'user@yelp.com'
+        }
+
+    @property
+    def note(self):
+        return Note(
+            reference_type='schema',
+            note='This is a note',
+            last_updated_by='user@yelp.com',
+            created_at=factories.fake_created_at,
+            updated_at=factories.fake_updated_at
+        )
+
+    @property
+    def note_response(self):
+        return {
+            'id': None,
+            'reference_id': None,
+            'reference_type': 'schema',
+            'note': 'This is a note',
+            'last_updated_by': 'user@yelp.com',
+            'created_at': factories.fake_created_at.isoformat(),
+            'updated_at': factories.fake_updated_at.isoformat()
+        }
 
     @pytest.yield_fixture
     def mock_request(self):
@@ -160,6 +194,32 @@ class TestApiBase(object):
             autospec=True
         ) as mock_repo:
             yield mock_repo
+
+    @pytest.yield_fixture
+    def mock_doc(self):
+        with mock.patch(
+            self.test_view_module + '.doc_tool',
+            autospec=True
+        ) as mock_doc:
+            yield mock_doc
+
+    @pytest.yield_fixture
+    def mock_schema(self):
+        with mock.patch(
+            'schematizer.models.AvroSchema.note',
+            new_callable=mock.PropertyMock
+        ) as mock_schema:
+            mock_schema.return_value = None
+            yield mock_schema
+
+    @pytest.yield_fixture
+    def mock_schema_element(self):
+        with mock.patch(
+            'schematizer.models.AvroSchemaElement.note',
+            new_callable=mock.PropertyMock
+        ) as mock_schema_element:
+            mock_schema_element.return_value = None
+            yield mock_schema_element
 
     @classmethod
     def get_mock_dict(cls, dict_value):

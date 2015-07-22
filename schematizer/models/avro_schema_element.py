@@ -7,6 +7,9 @@ from sqlalchemy import String
 
 from schematizer.models.base_model import BaseModel
 from schematizer.models.database import Base
+from schematizer.models.database import session
+from schematizer.models.note import Note
+from schematizer.models.note import ReferenceTypeEnum
 from schematizer.models.types.time import build_time_column
 
 
@@ -87,9 +90,20 @@ class AvroSchemaElement(Base, BaseModel):
             'element_type': self.element_type,
             'key': self.key,
             'doc': self.doc,
+            'note': self.note,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
+
+    @property
+    def note(self):
+        note = session.query(
+            Note
+        ).filter(
+            Note.reference_type == ReferenceTypeEnum.SCHEMA_ELEMENT,
+            Note.reference_id == self.id,
+        ).first()
+        return None if note is None else note.to_dict()
 
     _SCHEMA_KEY_DELIMITER = '|'
 
