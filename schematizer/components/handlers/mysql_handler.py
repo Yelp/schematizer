@@ -94,7 +94,7 @@ class ParsedMySQLProcessor(object):
 
     def _get_column_type(self, col_token):
         type_name = col_token.token_next_by_instance(0, sql.ColumnType).value
-        typ = self._mysql_type_to_class_map.get(type_name)
+        typ = self._mysql_type_to_class_map.get(type_name.lower())
         if not typ:
             raise SQLHandlerException(
                 "Unknown MySQL column type {0}.".format(type_name)

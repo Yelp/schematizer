@@ -32,6 +32,10 @@ class AvroMetaDataKeyEnum(object):
     MAX_LEN = 'maxlen'        # length of varchar type
     PRIMARY_KEY = 'pkey'      # whether it is primary key
     TIMESTAMP = 'timestamp'   # whether it is a timestamp field
+    DATE = 'date'             # whether it is a date in ISO 8601 format
+    DATETIME = 'datetime'     # whether it is a datetime in ISO 8601 format
+    TIME = 'time'             # whether it is a time in ISO 8601 format
+    YEAR = 'year'             # whether it is a year field
     UNSIGNED = 'unsigned'     # whether the int type is unsigned
     PRECISION = 'precision'   # precision of numeric type
     SCALE = 'scale'           # scale of numeric type

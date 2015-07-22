@@ -297,6 +297,32 @@ class TestMySQLHandler(object):
             expected_columns
         )
 
+    def test_create_sql_table_column_types_are_case_insensitive(self, handler):
+        create_definitions = [
+            'lows int(11)',
+            'CAPS INT(11)',
+            'MiXeD INt(11)'
+        ]
+        expected_columns = [
+            SQLColumn(
+                'lows',
+                data_types.MySQLInt(11)
+            ),
+            SQLColumn(
+                'CAPS',
+                data_types.MySQLInt(11)
+            ),
+            SQLColumn(
+                'MiXeD',
+                data_types.MySQLInt(11)
+            ),
+        ]
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            create_definitions,
+            expected_columns
+        )
+
     def test_create_sql_table_from_sql_stmts_with_multi_sqls(self, handler):
         sql_table = handler.create_sql_table_from_sql_stmts(
             [self.alter_table_sql, self.create_table_sql]

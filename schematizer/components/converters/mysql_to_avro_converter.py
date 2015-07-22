@@ -107,6 +107,10 @@ class MySQLToAvroConverter(BaseConverter):
             mysql_types.MySQLMediumText: self._convert_string_type,
             mysql_types.MySQLLongText: self._convert_string_type,
 
+            mysql_types.MySQLDate: self._convert_date_type,
+            mysql_types.MySQLDateTime: self._convert_datetime_type,
+            mysql_types.MySQLTime: self._convert_time_type,
+            mysql_types.MySQLYear: self._convert_year_type,
             mysql_types.MySQLTimestamp: self._convert_timestamp_type,
             mysql_types.MySQLEnum: self._convert_enum_type,
 
@@ -181,6 +185,38 @@ class MySQLToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeyEnum.MAX_LEN] = column.type.length
         return self._builder.create_string(), metadata
+
+    def _convert_date_type(self, column):
+        """Avro currently doesn't support date, so map the
+        date sql column type to string (ISO 8601 format)
+        """
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeyEnum.DATE] = True
+        return self._builder.create_string(), metadata
+
+    def _convert_datetime_type(self, column):
+        """Avro currently doesn't support datetime, so map the
+        datetime sql column type to string (ISO 8601 format)
+        """
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeyEnum.DATETIME] = True
+        return self._builder.create_string(), metadata
+
+    def _convert_time_type(self, column):
+        """Avro currently doesn't support time, so map the
+        time sql column type to string (ISO 8601 format)
+        """
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeyEnum.TIME] = True
+        return self._builder.create_string(), metadata
+
+    def _convert_year_type(self, column):
+        """Avro currently doesn't support year, so map the
+        year sql column type to long (year number)
+        """
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeyEnum.YEAR] = True
+        return self._builder.create_long(), metadata
 
     def _convert_timestamp_type(self, column):
         """Avro currently doesn't support timestamp, so map the

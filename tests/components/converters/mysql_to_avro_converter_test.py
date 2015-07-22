@@ -132,6 +132,46 @@ class TestMySQLToAvroConverter(object):
             {'name': 'col_text', 'type': ['null', 'string'], 'default': None},
         )
 
+    def test_convert_with_col_date(self, converter):
+        self.convert_with_one_column(
+            converter,
+            SQLColumn('col_date', mysql_data_types.MySQLDate()),
+            {'name': 'col_date',
+             'type': ['null', 'string'],
+             'default': None,
+             AvroMetaDataKeyEnum.DATE: True}
+        )
+
+    def test_convert_with_col_datetime(self, converter):
+        self.convert_with_one_column(
+            converter,
+            SQLColumn('col_datetime', mysql_data_types.MySQLDateTime()),
+            {'name': 'col_datetime',
+             'type': ['null', 'string'],
+             'default': None,
+             AvroMetaDataKeyEnum.DATETIME: True}
+        )
+
+    def test_convert_with_col_time(self, converter):
+        self.convert_with_one_column(
+            converter,
+            SQLColumn('col_time', mysql_data_types.MySQLTime()),
+            {'name': 'col_time',
+             'type': ['null', 'string'],
+             'default': None,
+             AvroMetaDataKeyEnum.TIME: True}
+        )
+
+    def test_convert_with_col_year(self, converter):
+        self.convert_with_one_column(
+            converter,
+            SQLColumn('col_year', mysql_data_types.MySQLYear()),
+            {'name': 'col_year',
+             'type': ['null', 'long'],
+             'default': None,
+             AvroMetaDataKeyEnum.YEAR: True}
+        )
+
     def test_convert_with_col_timestamp(self, converter):
         self.convert_with_one_column(
             converter,
