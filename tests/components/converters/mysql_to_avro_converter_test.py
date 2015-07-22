@@ -50,6 +50,13 @@ class TestMySQLToAvroConverter(object):
             {'name': 'col_int', 'type': ['null', 'int'], 'default': None}
         )
 
+    def test_convert_with_col_integer(self, converter):
+        self.convert_with_one_column(
+            converter,
+            SQLColumn('col_integer', mysql_data_types.MySQLInt(11)),
+            {'name': 'col_integer', 'type': ['null', 'int'], 'default': None}
+        )
+
     def test_convert_with_col_bigint(self, converter):
         self.convert_with_one_column(
             converter,
@@ -147,6 +154,32 @@ class TestMySQLToAvroConverter(object):
             SQLColumn('col_enum', mysql_data_types.MySQLEnum(['a', 'b'])),
             {'name': 'col_enum',
              'type': ['null', avro_enum],
+             'default': None}
+        )
+
+    def test_convert_with_col_bit(self, converter):
+        self.convert_with_one_column(
+            converter,
+            SQLColumn('col_bit', mysql_data_types.MySQLBit(6)),
+            {'name': 'col_bit',
+             'type': ['null', 'int'],
+             'default': None,
+             AvroMetaDataKeyEnum.BIT_LEN: 6}
+        )
+
+    def test_convert_with_col_bool(self, converter):
+        self.convert_with_one_column(
+            converter,
+            SQLColumn('col_bool', mysql_data_types.MySQLBool()),
+            {'name': 'col_bool', 'type': ['null', 'boolean'], 'default': None}
+        )
+
+    def test_convert_with_col_boolean(self, converter):
+        self.convert_with_one_column(
+            converter,
+            SQLColumn('col_boolean', mysql_data_types.MySQLBoolean()),
+            {'name': 'col_boolean',
+             'type': ['null', 'boolean'],
              'default': None}
         )
 

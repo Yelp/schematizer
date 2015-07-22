@@ -36,3 +36,4 @@ class AvroMetaDataKeyEnum(object):
     PRECISION = 'precision'   # precision of numeric type
     SCALE = 'scale'           # scale of numeric type
     FIXED_POINT = 'fixed_pt'  # fixed-point numeric type
+    BIT_LEN = 'bitlen'        # length of bit type
