@@ -34,7 +34,7 @@
       </not>
     </preConditions>
     <addColumn tableName="topic">
-      <column name="pii_flag" type="TYNYINT(1)">
+      <column name="pii_flag" type="TINYINT(1)">
         <constraints nullable="false"/>
       </column>
     </addColumn>
