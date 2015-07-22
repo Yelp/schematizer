@@ -135,7 +135,7 @@ def create_note(
         last_updated_by=last_updated_by
     )
     session.add(note)
-    session.flush
+    session.flush()
     return note
 
 
@@ -294,6 +294,7 @@ class AvroSchemaElementFactory(object):
         key,
         element_type,
         doc=None,
+        note=None,
         created_at=fake_created_at,
         updated_at=fake_updated_at
     ):

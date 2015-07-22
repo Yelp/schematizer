@@ -132,7 +132,7 @@ class TestApiBase(object):
             factories.AvroSchemaElementFactory.create(
                 self.schema,
                 self.key,
-                self.element_type
+                self.element_type,
             )
         ]
 

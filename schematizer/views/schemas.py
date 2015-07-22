@@ -6,7 +6,6 @@ from pyramid.view import view_config
 from schematizer.api.decorators import transform_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.requests import requests_v1
-from schematizer.logic import doc_tool
 from schematizer.logic import schema_repository
 from schematizer.views import view_common
 
@@ -89,25 +88,6 @@ def _register_avro_schema(
         ).to_dict()
     except schema.AvroException as e:
         raise exceptions_v1.invalid_schema_exception(e.message)
-
-
-@view_config(
-    route_name='api.v1.upsert_note',
-    request_method='POST',
-    renderer='json'
-)
-@transform_response()
-def upsert_note(request):
-    try:
-        req = requests_v1.UpsertNoteRequest(**request.json_body)
-        return doc_tool.upsert_note(
-            reference_id=req.reference_id,
-            reference_type=req.reference_type,
-            note_text=req.note,
-            last_updated_by=req.last_updated_by
-        ).to_dict()
-    except Exception as e:
-        raise exceptions_v1.invalid_request_exception(e.message)
 
 
 @view_config(
