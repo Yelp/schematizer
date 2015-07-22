@@ -302,15 +302,6 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
         assert expected_err == str(e.value)
 
 
-# class TestUpsertNote(TestSchemasViewBase):
-
-#     def test_upsert_note(self, mock_request, mock_doc_tool):
-#         mock_request.json_body = self.note_request
-#         mock_doc_tool.upsert_note.return_value = self.note
-#         actual = schema_views.upsert_note(mock_request)
-#         assert actual == self.note_response
-
-
 class TestGetSchemaElements(TestSchemasViewBase):
 
     def test_non_existing_schema(self, mock_request, mock_repo):
