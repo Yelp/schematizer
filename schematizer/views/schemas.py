@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import pprint
 import simplejson
 from avro import schema
 from pyramid.view import view_config
@@ -11,7 +10,6 @@ from schematizer.logic import doc_tool
 from schematizer.logic import schema_repository
 from schematizer.views import view_common
 
-from schematizer.config import log
 
 @view_config(
     route_name='api.v1.get_schema_by_id',
@@ -66,15 +64,12 @@ def register_schema_from_mysql_stmts(request):
         req.old_create_table_stmt,
         req.alter_table_stmt
     )
-    log.error('avro_schema_json: \n' + pprint.pformat(avro_schema_json))
-    UNDO_THIS = _register_avro_schema(
+    return _register_avro_schema(
         schema_json=avro_schema_json,
         namespace=req.namespace,
         source=req.source,
         source_email_owner=req.source_owner_email
     )
-    log.error('response: \n' + pprint.pformat(UNDO_THIS))
-    return UNDO_THIS
 
 
 def _register_avro_schema(
