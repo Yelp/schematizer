@@ -7,4 +7,4 @@ CREATE TABLE `source_category` (
   PRIMARY KEY (`id`),
   KEY `source_id` (`source_id`),
   KEY `category` (`category`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

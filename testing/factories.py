@@ -135,7 +135,7 @@ def create_note(
         last_updated_by=last_updated_by
     )
     session.add(note)
-    session.flush
+    session.flush()
     return note
 
 
@@ -145,7 +145,7 @@ def create_source_category(source_id, category):
         category=category
     )
     session.add(source_category)
-    session.flush
+    session.flush()
     return source_category
 
 
