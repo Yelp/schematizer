@@ -30,11 +30,11 @@
   <changeSet author="khuang" id="1437411783">
     <preConditions onFail="WARN" onSqlOutput="TEST">
       <not>
-        <columnExists tableName="topic" columnName="pii_flag"/>
+        <columnExists tableName="topic" columnName="is_pii"/>
       </not>
     </preConditions>
     <addColumn tableName="topic">
-      <column name="pii_flag" type="TINYINT(1)">
+      <column name="is_pii" type="TINYINT(1)">
         <constraints nullable="false"/>
       </column>
     </addColumn>

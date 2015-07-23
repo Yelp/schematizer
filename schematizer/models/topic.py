@@ -35,7 +35,18 @@ class Topic(Base):
 
     avro_schemas = relationship(AvroSchema, backref="topic")
 
-    pii_flag = Column(Integer, nullable=False)
+    is_pii = Column(Integer, nullable=False)
+
+    @property
+    def is_pii_schema(self):
+        return bool(self.is_pii)
+
+    @is_pii_schema.setter
+    def is_pii_schema(self, value):
+        if not isinstance(value, bool):
+            raise ValueError("Wrong type of is_pii_schema")
+
+        self.is_pii = int(value)
 
     # Timestamp when the entry is created
     created_at = build_time_column(
@@ -55,7 +66,7 @@ class Topic(Base):
             'topic_id': self.id,
             'name': self.name,
             'source': self.source.to_dict(),
-            'pii_flag': self.pii_flag,
+            'is_pii_schema': self.is_pii_schema,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
