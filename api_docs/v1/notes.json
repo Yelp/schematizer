@@ -24,7 +24,7 @@
                         {
                             "name": "body",
                             "required": true,
-                            "type": "NoteRequest",
+                            "type": "CreateNoteRequest",
                             "paramType": "body"
                         }
                     ],
@@ -59,12 +59,12 @@
                         {
                             "name": "body",
                             "required": true,
-                            "type": "NoteRequest",
+                            "type": "UpdateNoteRequest",
                             "paramType": "body"
                         },
                         {
                             "name": "note_id",
-                            "description": "ID of schema that will be fetched",
+                            "description": "ID of note that will be fetched",
                             "required": true,
                             "type": "integer",
                             "paramType": "path",
@@ -90,8 +90,8 @@
         }
     ],
     "models": {
-        "NoteRequest": {
-            "id": "NoteRequest",
+        "CreateNoteRequest": {
+            "id": "CreateNoteRequest",
             "required": [
                 "reference_id",
                 "reference_type",
@@ -107,6 +107,23 @@
                     "type": "string",
                     "description": "The type of item that this note is for ('schema', or 'schema_element')"
                 },
+                "note": {
+                    "type": "string",
+                    "description": "The text of the note itself"
+                },
+                "last_updated_by": {
+                    "type": "string",
+                    "description": "The email of the user who edited the note"
+                }
+            }
+        },
+        "UpdateNoteRequest": {
+            "id": "UpdateNoteRequest",
+            "required": [
+                "note",
+                "last_updated_by"
+            ],
+            "properties": {
                 "note": {
                     "type": "string",
                     "description": "The text of the note itself"

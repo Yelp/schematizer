@@ -49,7 +49,6 @@ def assert_reference_exists(reference_type, reference_id):
 )
 @transform_response()
 def update_note(request):
-    print("UPDATING NOTE")
     req = requests_v1.UpdateNoteRequest(**request.json_body)
     note_id = request.matchdict.get('note_id')
     note = doc_tool.get_note_by_id(note_id)
