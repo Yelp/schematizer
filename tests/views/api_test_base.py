@@ -152,10 +152,17 @@ class TestApiBase(object):
         ]
 
     @property
-    def note_request(self):
+    def create_note_request(self):
         return {
             'reference_id': None,
             'reference_type': 'schema',
+            'note': 'This is a note',
+            'last_updated_by': 'user@yelp.com'
+        }
+
+    @property
+    def update_note_request(self):
+        return {
             'note': 'This is a note',
             'last_updated_by': 'user@yelp.com'
         }
