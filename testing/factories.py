@@ -19,7 +19,6 @@ fake_mysql_create_stmts = ['create table foo']
 fake_mysql_alter_stmts = ['create table foo',
                           'alter table foo',
                           'create table foo']
-fake_pii_flag = False
 fake_is_pii_schema = False
 
 
@@ -75,7 +74,7 @@ def create_topic(
         topic_name,
         namespace=fake_namespace,
         source=fake_source,
-        is_pii_schema=fake_pii_flag
+        is_pii_schema=fake_is_pii_schema
 ):
     source = get_or_create_source(namespace, source)
     topic = models.Topic(
@@ -219,7 +218,7 @@ class TopicFactory(object):
         cls,
         topic_name,
         source,
-        is_pii_schema=fake_pii_flag,
+        is_pii_schema=fake_is_pii_schema,
         created_at=fake_created_at,
         updated_at=fake_updated_at
     ):

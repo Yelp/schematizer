@@ -283,7 +283,7 @@ def _construct_topic_name(namespace, source):
     return '.'.join((namespace, source, uuid.uuid4().hex))
 
 
-def _create_topic(topic_name, source_id, pii_flag):
+def _create_topic(topic_name, source_id, is_pii_schema):
     """Create a topic named `topic_name` in the given source.
     It returns a newly created topic. If a topic with the same
     name already exists, an exception is thrown
@@ -291,7 +291,7 @@ def _create_topic(topic_name, source_id, pii_flag):
     topic = models.Topic(
         name=topic_name,
         source_id=source_id,
-        is_pii_schema=pii_flag
+        is_pii_schema=is_pii_schema
     )
     session.add(topic)
     session.flush()

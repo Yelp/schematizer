@@ -23,7 +23,7 @@ class TestDocTool(DBTestCase):
             factories.fake_topic_name,
             factories.fake_namespace,
             factories.fake_source,
-            factories.fake_pii_flag,
+            factories.fake_is_pii_schema,
         )
 
     @property
