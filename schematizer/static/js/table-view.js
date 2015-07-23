@@ -39,7 +39,7 @@
             function getSchema() {
                 $http.get('/v1/topics/' + $scope.topic + '/schemas/latest').success(function (data) {
                     $scope.schema_id = data.schema_id;
-                    $scope.tableNote = data.note.note_text;
+                    $scope.tableNote = data.note;
                     getSchemaElements();
                 }).error(function (errorData) {
                     $scope.tableError = errorData;

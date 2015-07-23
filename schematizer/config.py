@@ -69,9 +69,6 @@ def routes(config):
         'api.v1.is_mysql_schema_compatible',
         '/v1/compatibility/schemas/mysql'
     )
-    # Serve the documentation tool from /web/
-    config.add_static_view(name='web', path='static/html/')
-    config.add_static_view(name='static', path='static/')
     config.add_route(
         'api.v1.create_note',
         '/v1/notes'
@@ -80,4 +77,6 @@ def routes(config):
         'api.v1.update_note',
         '/v1/notes/{note_id}'
     )
-
+    # Serve the documentation tool from /web/
+    config.add_static_view(name='web', path='static/html/')
+    config.add_static_view(name='static', path='static/')
