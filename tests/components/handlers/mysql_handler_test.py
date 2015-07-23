@@ -86,7 +86,7 @@ class TestMySQLHandler(object):
              is_nullable=False
          )),
         ('bar bit null',
-         SQLColumn('bar', data_types.MySQLBigInt(None))),
+         SQLColumn('bar', data_types.MySQLBit(None))),
     ])
     def test_create_sql_table_from_sql_stmts_with_bit_type(
         self,

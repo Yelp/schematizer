@@ -113,7 +113,6 @@ class MySQLToAvroConverter(BaseConverter):
             mysql_types.MySQLYear: self._convert_year_type,
             mysql_types.MySQLTimestamp: self._convert_timestamp_type,
             mysql_types.MySQLEnum: self._convert_enum_type,
-
         }
 
     def _convert_integer_type(self, column):
