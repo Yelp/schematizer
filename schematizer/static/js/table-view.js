@@ -1,6 +1,6 @@
 (function() {
     var app = angular.module('tableView', []);
-    
+
     "use strict";
     app.controller('TableViewController', ['$scope', '$http', '$location',
         function($scope, $http, $location){
@@ -28,7 +28,7 @@
 
             function getTopic() {
                 $http.get('/v1/sources/' + $scope.source_id + '/topics/latest').success(function (data) {
-                    $scope.topic = data.name; 
+                    $scope.topic = data.name;
                     getSchema();
                 }).error(function (errorData) {
                     $scope.tableError = errorData;
