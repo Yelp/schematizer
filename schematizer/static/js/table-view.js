@@ -13,6 +13,7 @@
             $scope.schema_id = null;
             $scope.tableNote = "";
             $scope.schemaElements = [];
+            $scope.editTableNote = false;
 
 
             function initTable() {
