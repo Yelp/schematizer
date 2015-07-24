@@ -5,7 +5,5 @@
     app.controller('HomeController', ['$scope', '$http',
         function($scope, $http){
 
-            $scope.test = "This is a test string";
-
         }])
 })();

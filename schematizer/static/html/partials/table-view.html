@@ -41,6 +41,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="row padded">
+                                <!-- TODO: Add code to actually edit and save categories. Functions currently placeholders. DATAPIPE-310 -->
                                 <div class="col-md-3"><b>Category <span id="catBtn">(<a href="javascript: editCategory();">Edit</a>)</span><span id="saveBtn" style="display: none;">(<a href="javascript: saveCategory();">Save</a>)</span></b></div>
                                 <div class="col-md-9" id="category">Business Info</div>
                             </div>
@@ -67,22 +68,20 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <h5>Columns - {{schemaElements.length}} Total</h5>
-                <table class="table table-striped table-bordered">
-                    <th class="col-md-2">Name</th>
-                    <th class="col-md-2">Type</th>
-                    <th class="col-md-4">Description</th>
-                    <th class="col-md-4">Notes</th>
-                    <tr ng-repeat="field in schemaElements">
-                        <td>{{field.key}}</td>
-                        <td>{{field.element_type}}</td>
-                        <td>{{field.doc}}</td>
-                        <td>{{field.note.note}}</td>
-                    </tr>
-                </table>
-            </div>
+        <div class="col-md-12">
+            <h5>Columns - {{schemaElements.length}} Total</h5>
+            <table class="table table-striped table-bordered">
+                <th class="col-md-2">Name</th>
+                <th class="col-md-2">Type</th>
+                <th class="col-md-4">Description</th>
+                <th class="col-md-4">Notes</th>
+                <tr ng-repeat="field in schemaElements">
+                    <td>{{field.key}}</td>
+                    <td>{{field.element_type}}</td>
+                    <td>{{field.doc}}</td>
+                    <td>{{field.note.note}}</td>
+                </tr>
+            </table>
         </div>
     </div>
 </div>

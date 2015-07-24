@@ -5,7 +5,6 @@
     app.controller('TableViewController', ['$scope', '$http', '$location',
         function($scope, $http, $location){
 
-            $scope.test = "This is a test string";
             $scope.tableData = null;
             $scope.load = true;
             $scope.tableError = false;
