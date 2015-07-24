@@ -4,6 +4,7 @@ import pytest
 from pyramid import httpexceptions
 
 from schematizer.models import Note
+from schematizer.models.avro_schema import AvroSchemaStatus
 from testing import factories
 
 
@@ -18,7 +19,7 @@ class TestApiBase(object):
     @property
     def namespace_response(self):
         return {
-            'namespace_id': None,
+            'namespace_id': factories.fake_default_id,
             'name': factories.fake_namespace,
             'created_at': factories.fake_created_at.isoformat(),
             'updated_at': factories.fake_updated_at.isoformat()
@@ -38,19 +39,23 @@ class TestApiBase(object):
 
     @property
     def namespace(self):
-        return factories.NamespaceFactory.create(factories.fake_namespace)
+        return factories.NamespaceFactory.create(
+            factories.fake_namespace,
+            fake_id=factories.fake_default_id
+        )
 
     @property
     def source(self):
         return factories.SourceFactory.create(
             factories.fake_source,
-            self.namespace
+            self.namespace,
+            fake_id=factories.fake_default_id
         )
 
     @property
     def source_response(self):
         return {
-            'source_id': None,
+            'source_id': factories.fake_default_id,
             'namespace': self.namespace_response,
             'source': factories.fake_source,
             'source_owner_email': factories.fake_owner_email,
@@ -71,12 +76,13 @@ class TestApiBase(object):
         return factories.TopicFactory.create(
             factories.fake_topic_name,
             self.source,
+            fake_id=factories.fake_default_id
         )
 
     @property
     def topic_response(self):
         return {
-            'topic_id': None,
+            'topic_id': factories.fake_default_id,
             'name': factories.fake_topic_name,
             'source': self.source_response,
             'created_at': factories.fake_created_at.isoformat(),
@@ -95,17 +101,17 @@ class TestApiBase(object):
     def schema(self):
         return factories.AvroSchemaFactory.create(
             factories.fake_avro_schema,
-            self.topic
+            self.topic,
+            fake_id=factories.fake_default_id
         )
 
     @property
     def schema_response(self):
         return {
-            'schema_id': None,
+            'schema_id': factories.fake_default_id,
             'schema': factories.fake_avro_schema,
             'topic': self.topic_response,
-            'status': 'RW',
-            'note': None,
+            'status': AvroSchemaStatus.READ_AND_WRITE,
             'created_at': factories.fake_created_at.isoformat(),
             'updated_at': factories.fake_updated_at.isoformat()
         }
@@ -127,12 +133,18 @@ class TestApiBase(object):
         return "schema element type"
 
     @property
+    def element_doc(self):
+        return "schema element doc"
+
+    @property
     def schema_elements(self):
         return [
             factories.AvroSchemaElementFactory.create(
                 self.schema,
                 self.key,
-                self.element_type
+                self.element_type,
+                self.element_doc,
+                fake_id=factories.fake_default_id
             )
         ]
 
@@ -140,32 +152,45 @@ class TestApiBase(object):
     def schema_elements_response(self):
         return [
             {
-                'id': None,
-                'schema_id': None,
+                'id': factories.fake_default_id,
+                'schema_id': factories.fake_default_id,
                 'element_type': self.element_type,
                 'key': self.key,
-                'doc': None,
-                'note': None,
+                'doc': self.element_doc,
                 'created_at': factories.fake_created_at.isoformat(),
                 'updated_at': factories.fake_updated_at.isoformat()
             }
         ]
 
     @property
+    def note_note(self):
+        return 'This is a note'
+
+    @property
+    def note_reference_type(self):
+        return 'schema'
+
+    @property
+    def note_last_updated_by(self):
+        return 'user@yelp.com'
+
+    @property
     def note_request(self):
         return {
-            'reference_id': None,
-            'reference_type': 'schema',
-            'note': 'This is a note',
-            'last_updated_by': 'user@yelp.com'
+            'reference_id': factories.fake_default_id,
+            'reference_type': self.note_reference_type,
+            'note': self.note_note,
+            'last_updated_by': self.note_last_updated_by
         }
 
     @property
     def note(self):
         return Note(
-            reference_type='schema',
-            note='This is a note',
-            last_updated_by='user@yelp.com',
+            id=factories.fake_default_id,
+            reference_id=factories.fake_default_id,
+            reference_type=self.note_reference_type,
+            note=self.note_note,
+            last_updated_by=self.note_last_updated_by,
             created_at=factories.fake_created_at,
             updated_at=factories.fake_updated_at
         )
@@ -173,11 +198,11 @@ class TestApiBase(object):
     @property
     def note_response(self):
         return {
-            'id': None,
-            'reference_id': None,
-            'reference_type': 'schema',
-            'note': 'This is a note',
-            'last_updated_by': 'user@yelp.com',
+            'id': factories.fake_default_id,
+            'reference_id': factories.fake_default_id,
+            'reference_type': self.note_reference_type,
+            'note': self.note_note,
+            'last_updated_by': self.note_last_updated_by,
             'created_at': factories.fake_created_at.isoformat(),
             'updated_at': factories.fake_updated_at.isoformat()
         }

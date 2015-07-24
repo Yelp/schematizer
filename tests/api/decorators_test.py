@@ -37,6 +37,7 @@ namespace = factories.NamespaceFactory.create(
     created_at=current_time,
     updated_at=current_time
 )
+namespace.id = 1
 
 source_response = factories.SourceFactory.create(
     factories.fake_source,
@@ -44,6 +45,7 @@ source_response = factories.SourceFactory.create(
     created_at=current_time,
     updated_at=current_time
 ).to_dict()
+source_response['source_id'] = 1
 
 
 list_of_source_response = [
@@ -60,6 +62,8 @@ list_of_source_response = [
         updated_at=current_time
     ).to_dict()
 ]
+list_of_source_response[0]['source_id'] = 2
+list_of_source_response[1]['source_id'] = 3
 
 
 @transform_response()
@@ -70,6 +74,11 @@ def _view_mock_return_list_of_sources(request):
 @transform_response()
 def _view_mock_return_source(request):
     return source_response
+
+
+@transform_response()
+def _mock_pass_request_as_response(pass_through_response):
+    return pass_through_response
 
 
 class TestDecorators(object):
@@ -100,6 +109,16 @@ class TestDecorators(object):
         expected_response = copy.deepcopy(source_response)
         response = _view_mock_return_source(request_mock)
         self.assert_source_response(response, expected_response)
+
+    def test_transform_response_object_none_fields_removed(self):
+        response = _mock_pass_request_as_response({'good': 1, 'bad': None})
+        assert response == {'good': 1}
+
+    def test_transform_response_list_of_objects_none_fields_removed(self):
+        response = _mock_pass_request_as_response(
+            [{'good': 1, 'bad': None}, {'good': 2, 'bad': None}]
+        )
+        assert response == [{'good': 1}, {'good': 2}]
 
     def assert_source_response(self, source, expected_source):
         assert source['source_id'] == expected_source['source_id']

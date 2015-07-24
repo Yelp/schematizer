@@ -5,6 +5,7 @@ from schematizer import models
 from schematizer.models.database import session
 
 
+fake_default_id = 1
 fake_namespace = 'yelp'
 fake_source = 'business'
 fake_owner_email = 'business@yelp.com'
@@ -135,7 +136,7 @@ def create_note(
         last_updated_by=last_updated_by
     )
     session.add(note)
-    session.flush
+    session.flush()
     return note
 
 
@@ -146,13 +147,17 @@ class NamespaceFactory(object):
         cls,
         name,
         created_at=fake_created_at,
-        updated_at=fake_updated_at
+        updated_at=fake_updated_at,
+        fake_id=None
     ):
-        return models.Namespace(
+        namespace = models.Namespace(
             name=name,
             created_at=created_at,
             updated_at=updated_at
         )
+        if fake_id:
+            namespace.id = fake_id
+        return namespace
 
     @classmethod
     def create_in_db(cls, name):
@@ -171,16 +176,20 @@ class SourceFactory(object):
         namespace,
         owner_email=fake_owner_email,
         created_at=fake_created_at,
-        updated_at=fake_updated_at
+        updated_at=fake_updated_at,
+        fake_id=None
     ):
-        return models.Source(
+        source = models.Source(
             name=name,
             namespace_id=namespace.id,
             owner_email=owner_email,
             created_at=created_at,
             updated_at=updated_at,
-            namespace=namespace
+            namespace=namespace,
         )
+        if fake_id:
+            source.id = fake_id
+        return source
 
     @classmethod
     def create_in_db(cls, name, namespace):
@@ -209,15 +218,19 @@ class TopicFactory(object):
         topic_name,
         source,
         created_at=fake_created_at,
-        updated_at=fake_updated_at
+        updated_at=fake_updated_at,
+        fake_id=None
     ):
-        return models.Topic(
+        topic = models.Topic(
             name=topic_name,
             source_id=source.id,
             created_at=created_at,
             updated_at=updated_at,
             source=source
         )
+        if fake_id:
+            topic.id = fake_id
+        return topic
 
     @classmethod
     def create_in_db(cls, topic_name, source):
@@ -248,9 +261,10 @@ class AvroSchemaFactory(object):
         base_schema_id=None,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
         created_at=fake_created_at,
-        updated_at=fake_updated_at
+        updated_at=fake_updated_at,
+        fake_id=None
     ):
-        return models.AvroSchema(
+        avro_schema = models.AvroSchema(
             topic_id=topic.id,
             avro_schema=avro_schema,
             base_schema_id=base_schema_id,
@@ -259,6 +273,9 @@ class AvroSchemaFactory(object):
             updated_at=updated_at,
             topic=topic
         )
+        if fake_id:
+            avro_schema.id = fake_id
+        return avro_schema
 
     @classmethod
     def create_in_db(
@@ -295,9 +312,10 @@ class AvroSchemaElementFactory(object):
         element_type,
         doc=None,
         created_at=fake_created_at,
-        updated_at=fake_updated_at
+        updated_at=fake_updated_at,
+        fake_id=None
     ):
-        return models.AvroSchemaElement(
+        avro_schema_element = models.AvroSchemaElement(
             avro_schema_id=avro_schema.id,
             key=key,
             element_type=element_type,
@@ -305,6 +323,9 @@ class AvroSchemaElementFactory(object):
             created_at=created_at,
             updated_at=updated_at
         )
+        if fake_id:
+            avro_schema_element.id = fake_id
+        return avro_schema_element
 
 
 class ConsumerFactory(object):
