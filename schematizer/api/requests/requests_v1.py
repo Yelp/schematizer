@@ -98,8 +98,6 @@ class UpdateNoteRequest(RequestBase):
 
     def __init__(
         self,
-        reference_id,
-        reference_type,
         note,
         last_updated_by
     ):
