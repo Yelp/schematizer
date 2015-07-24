@@ -86,7 +86,13 @@ class MySQLToAvroConverter(BaseConverter):
             mysql_types.MySQLSmallInt: self._convert_integer_type,
             mysql_types.MySQLMediumInt: self._convert_integer_type,
             mysql_types.MySQLInt: self._convert_integer_type,
+            mysql_types.MySQLInteger: self._convert_integer_type,
             mysql_types.MySQLBigInt: self._convert_bigint_type,
+
+            mysql_types.MySQLBit: self._convert_bit_type,
+
+            mysql_types.MySQLBool: self._convert_boolean_type,
+            mysql_types.MySQLBoolean: self._convert_boolean_type,
 
             mysql_types.MySQLFloat: self._convert_float_type,
             mysql_types.MySQLDouble: self._convert_double_type,
@@ -101,6 +107,10 @@ class MySQLToAvroConverter(BaseConverter):
             mysql_types.MySQLMediumText: self._convert_string_type,
             mysql_types.MySQLLongText: self._convert_string_type,
 
+            mysql_types.MySQLDate: self._convert_date_type,
+            mysql_types.MySQLDateTime: self._convert_datetime_type,
+            mysql_types.MySQLTime: self._convert_time_type,
+            mysql_types.MySQLYear: self._convert_year_type,
             mysql_types.MySQLTimestamp: self._convert_timestamp_type,
             mysql_types.MySQLEnum: self._convert_enum_type,
         }
@@ -122,6 +132,19 @@ class MySQLToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         return self._builder.create_long(), metadata
+
+    def _convert_bit_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata.update(self._get_bitlen_metadata(column.type.length))
+        return self._builder.create_int(), metadata
+
+    def _get_bitlen_metadata(self, bit_length):
+        return ({AvroMetaDataKeyEnum.BIT_LEN: bit_length}
+                if bit_length else {})
+
+    def _convert_boolean_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        return self._builder.create_boolean(), metadata
 
     def _convert_double_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
@@ -161,6 +184,38 @@ class MySQLToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeyEnum.MAX_LEN] = column.type.length
         return self._builder.create_string(), metadata
+
+    def _convert_date_type(self, column):
+        """Avro currently doesn't support date, so map the
+        date sql column type to string (ISO 8601 format)
+        """
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeyEnum.DATE] = True
+        return self._builder.create_string(), metadata
+
+    def _convert_datetime_type(self, column):
+        """Avro currently doesn't support datetime, so map the
+        datetime sql column type to string (ISO 8601 format)
+        """
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeyEnum.DATETIME] = True
+        return self._builder.create_string(), metadata
+
+    def _convert_time_type(self, column):
+        """Avro currently doesn't support time, so map the
+        time sql column type to string (ISO 8601 format)
+        """
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeyEnum.TIME] = True
+        return self._builder.create_string(), metadata
+
+    def _convert_year_type(self, column):
+        """Avro currently doesn't support year, so map the
+        year sql column type to long (year number)
+        """
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeyEnum.YEAR] = True
+        return self._builder.create_long(), metadata
 
     def _convert_timestamp_type(self, column):
         """Avro currently doesn't support timestamp, so map the

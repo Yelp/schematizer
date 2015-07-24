@@ -94,7 +94,7 @@ class ParsedMySQLProcessor(object):
 
     def _get_column_type(self, col_token):
         type_name = col_token.token_next_by_instance(0, sql.ColumnType).value
-        typ = self._mysql_type_to_class_map.get(type_name)
+        typ = self._mysql_type_to_class_map.get(type_name.lower())
         if not typ:
             raise SQLHandlerException(
                 "Unknown MySQL column type {0}.".format(type_name)
@@ -112,7 +112,9 @@ class ParsedMySQLProcessor(object):
     @property
     def _create_type_funcs(self):
         return [
+            self._create_bit_type,
             self._create_integer_type,
+            self._create_boolean_type,
             self._create_real_number_type,
             self._create_string_type,
             self._create_binary_type,
@@ -121,8 +123,20 @@ class ParsedMySQLProcessor(object):
             self._create_set_type,
         ]
 
+    def _create_bit_type(self, col_type_cls, col_token):
+        if not issubclass(col_type_cls, data_types.MySQLBit):
+            return None
+
+        length = None
+        len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
+        if len_token:
+            token = len_token.token_next_by_type(0, T.Number.Integer)
+            length = token.value
+
+        return col_type_cls(length)
+
     def _create_integer_type(self, col_type_cls, col_token):
-        if not issubclass(col_type_cls, data_types.MySQLInteger):
+        if not issubclass(col_type_cls, data_types.MySQLIntegerType):
             return None
 
         length = None
@@ -136,6 +150,12 @@ class ParsedMySQLProcessor(object):
         is_unsigned = attr_token is not None
 
         return col_type_cls(length, unsigned=is_unsigned)
+
+    def _create_boolean_type(self, col_type_cls, col_token):
+        if not issubclass(col_type_cls, data_types.MySQLBool):
+            return None
+
+        return col_type_cls()
 
     def _create_real_number_type(self, col_type_cls, col_token):
         if not issubclass(col_type_cls, data_types.MySQLRealNumber):
