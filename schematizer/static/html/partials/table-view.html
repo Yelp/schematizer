@@ -58,12 +58,12 @@
                     <div class="row" style="padding-top: 10px;">
                         <div class="col-md-9">
                             <div class="row">
-                                <div class="col-md-2"><b>Notes(<a href="" ng-click="editNoteTable">Edit</a>)</b></div>
-                                <div class="col-md-10" id="table_notes" ng-hide="editTableNote">
+                                <div class="col-md-2"><b>Notes(<a href="" ng-click="editTableNote()">Edit</a>)</b></div>
+                                <div class="col-md-10" id="table_notes" ng-hide="isEditingTableNote">
                                     <p id="table_notes_content" title="Last edited by {{tableNote.last_updated_by}}">{{tableNote.note}}</p>
                                 </div>
-                                <div ng-show="editTableNote">
-                                    <textarea id="table_notes_form" class="form-control" rows=4>{{tableNote.note}}</textarea>
+                                <div class="col-md-10" ng-show="isEditingTableNote">
+                                    <textarea id="table_notes_form" class="form-control" rows=4 ng-model="tableNoteEdit"></textarea>
                                     <a class="btn btn-default" ng-click="saveTableNote()">Save</a>
                                     <a class="btn btn-default" ng-click="cancelTableNote()">Cancel</a>
                                 </div>

@@ -9,11 +9,56 @@
             $scope.load = true;
             $scope.tableError = false;
             $scope.source_id = $location.search().id;
-            $scope.topic = null;
             $scope.schema_id = null;
             $scope.tableNote = "";
             $scope.schemaElements = [];
-            $scope.editTableNote = false;
+            $scope.isEditingTableNote = false;
+            $scope.tableNoteEdit = "";
+            $scope.user = "user@yelp.com"; // TODO: Set user through stargate BAM-
+
+            // Functions for saving and editing table data
+            $scope.editTableNote = function() {
+                $scope.isEditingTableNote = true;
+                $scope.tableNoteEdit = $scope.tableNote.note;
+            };
+
+            $scope.saveTableNote = function(note) {
+                if ($scope.tableNote === null) {
+                    $http({
+                        url: '/v1/notes',
+                        method: "POST",
+                        data: JSON.stringify({
+                            reference_id: parseInt($scope.source_id),
+                            reference_type: 'schema',
+                            note: $scope.tableNoteEdit,
+                            last_updated_by: 'wscheng@yelp.com'
+                        }),
+                        headers: {'Content-Type': 'application/json'}
+                    }).success(function (data) {
+                        $scope.tableNote = data;
+                        $scope.tableNote.note = $scope.tableNoteEdit;
+                    });
+                }
+                else {
+                    $http({
+                        url: '/v1/notes/'+ $scope.tableNote.id,
+                        method: "POST",
+                        data: JSON.stringify({
+                            note: $scope.tableNoteEdit,
+                            last_updated_by: 'wscheng@yelp.com'
+                        }),
+                        headers: {'Content-Type': 'application/json'}
+                    }).success(function (data) {
+                        $scope.tableNote = data;
+                        $scope.tableNote.note = $scope.tableNoteEdit;
+                    });
+                }
+                $scope.isEditingTableNote = false;
+            };
+
+            $scope.cancelTableNote = function() {
+                $scope.isEditingTableNote = false;
+            };
 
 
             function initTable() {
@@ -56,7 +101,7 @@
                 $scope.load = false;
             };
 
-            initTable();
+            initTable();    // Initialize table data on page load
 
         }]);
 })();
