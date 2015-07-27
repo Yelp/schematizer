@@ -398,6 +398,12 @@
                     ],
                     "description": "Schema status: RW (read/write), R (read-only), Disabled. `Read` status means this schema can be used to deserialize messages, and `Write` status means this schema can be used to serialize messages. Disabled schemas cannot be used for either."
                 },
+                "primary_keys": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "List of primary key names."
                 "note": {
                     "$ref": "Note",
                     "description": "The documentation tool note for this schema"
