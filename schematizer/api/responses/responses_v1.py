@@ -53,6 +53,7 @@ def get_schema_response_from_avro_schema(avro_schema):
             AvroMetaDataKeyEnum.PRIMARY_KEY,
             []
         ),
+        'note': avro_schema.note,
         'created_at': _format_datetime(avro_schema.created_at),
         'updated_at': _format_datetime(avro_schema.updated_at)
     }
