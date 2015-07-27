@@ -40,7 +40,7 @@ class TestAvroToRedshiftConverter(object):
     def table_aliases(self):
         return ['bar']
 
-    def convert_with_one_column(self, converter, avro_field, expected_column):
+    def _convert_and_assert_with_one_column(self, converter, avro_field, expected_column):
         record_schema = self.compose_record_schema(avro_field)
         expected_table = SQLTable(
             self.schema_name,
@@ -68,21 +68,21 @@ class TestAvroToRedshiftConverter(object):
         }
 
     def test_convert_with_field_int(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name, 'type': ['null', 'int'], 'default': None},
             SQLColumn(self.col_name, redshift_types.RedshiftInteger())
         )
 
     def test_convert_with_field_long(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name, 'type': ['null', 'long'], 'default': None},
             SQLColumn(self.col_name, redshift_types.RedshiftBigInt())
         )
 
     def test_convert_with_field_double(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
              'type': ['null', 'double'],
@@ -93,7 +93,7 @@ class TestAvroToRedshiftConverter(object):
         )
 
     def test_convert_with_field_double_with_fixed_flag(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
              'type': ['null', 'double'],
@@ -105,7 +105,7 @@ class TestAvroToRedshiftConverter(object):
         )
 
     def test_convert_with_field_float(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
              'type': ['null', 'float'],
@@ -116,7 +116,7 @@ class TestAvroToRedshiftConverter(object):
         )
 
     def test_convert_with_field_string_with_fixed_len(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
              'type': ['null', 'string'],
@@ -126,7 +126,7 @@ class TestAvroToRedshiftConverter(object):
         )
 
     def test_convert_with_field_string_with_max_len(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
              'type': ['null', 'string'],
@@ -143,7 +143,7 @@ class TestAvroToRedshiftConverter(object):
             converter.convert(record_schema)
 
     def test_convert_with_field_timestamp(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
              'type': ['null', 'long'],
@@ -153,7 +153,7 @@ class TestAvroToRedshiftConverter(object):
         )
 
     def test_convert_with_field_boolean(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
              'type': ['null', 'boolean'],
@@ -178,7 +178,7 @@ class TestAvroToRedshiftConverter(object):
             converter.convert(record_schema)
 
     def test_convert_with_primary_key_column(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
              'type': ['null', 'int'],
@@ -231,7 +231,7 @@ class TestAvroToRedshiftConverter(object):
         assert expected_table == actual_table
 
     def test_convert_with_non_nullable_column(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name, 'type': 'int', 'default': 10},
             SQLColumn(
@@ -243,7 +243,7 @@ class TestAvroToRedshiftConverter(object):
         )
 
     def test_convert_with_column_default_value(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name, 'type': ['int', 'null'], 'default': 10},
             SQLColumn(
@@ -254,7 +254,7 @@ class TestAvroToRedshiftConverter(object):
         )
 
     def test_convert_with_unsigned_int_column(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
              'type': ['null', 'int'],
@@ -264,7 +264,7 @@ class TestAvroToRedshiftConverter(object):
         )
 
     def test_convert_with_non_nullable_without_default_column(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name, 'type': 'int'},
             SQLColumn(
@@ -275,7 +275,7 @@ class TestAvroToRedshiftConverter(object):
         )
 
     def test_convert_with_column_with_alias(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name, 'type': 'int', 'aliases': ['abc']},
             SQLColumn(

@@ -57,7 +57,7 @@ class TestMySQLToAvroConverter(object):
         )
 
     def test_convert_with_col_integer(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_integer', mysql_data_types.MySQLInt(11)),
             {'name': 'col_integer', 'type': ['null', 'int'], 'default': None}
@@ -139,7 +139,7 @@ class TestMySQLToAvroConverter(object):
         )
 
     def test_convert_with_col_date(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_date', mysql_data_types.MySQLDate()),
             {'name': 'col_date',
@@ -149,7 +149,7 @@ class TestMySQLToAvroConverter(object):
         )
 
     def test_convert_with_col_datetime(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_datetime', mysql_data_types.MySQLDateTime()),
             {'name': 'col_datetime',
@@ -159,7 +159,7 @@ class TestMySQLToAvroConverter(object):
         )
 
     def test_convert_with_col_time(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_time', mysql_data_types.MySQLTime()),
             {'name': 'col_time',
@@ -169,7 +169,7 @@ class TestMySQLToAvroConverter(object):
         )
 
     def test_convert_with_col_year(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_year', mysql_data_types.MySQLYear()),
             {'name': 'col_year',
@@ -204,7 +204,7 @@ class TestMySQLToAvroConverter(object):
         )
 
     def test_convert_with_col_bit(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_bit', mysql_data_types.MySQLBit(6)),
             {'name': 'col_bit',
@@ -214,14 +214,14 @@ class TestMySQLToAvroConverter(object):
         )
 
     def test_convert_with_col_bool(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_bool', mysql_data_types.MySQLBool()),
             {'name': 'col_bool', 'type': ['null', 'boolean'], 'default': None}
         )
 
     def test_convert_with_col_boolean(self, converter):
-        self.convert_with_one_column(
+        self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_boolean', mysql_data_types.MySQLBoolean()),
             {'name': 'col_boolean',
