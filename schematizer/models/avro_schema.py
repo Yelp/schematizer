@@ -103,9 +103,9 @@ class AvroSchema(Base, BaseModel):
             Note
         ).filter(
             Note.reference_type == ReferenceTypeEnum.SCHEMA,
-            Note.reference_id == self.id,
+            Note.reference_id == self.id
         ).first()
-        return None if note is None else note.to_dict()
+        return note
 
     @property
     def avro_schema_json(self):

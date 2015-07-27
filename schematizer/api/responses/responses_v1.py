@@ -53,7 +53,7 @@ def get_schema_response_from_avro_schema(avro_schema):
             AvroMetaDataKeyEnum.PRIMARY_KEY,
             []
         ),
-        'note': avro_schema.note,
+        'note': get_note_response_from_note(avro_schema.note),
         'created_at': _format_datetime(avro_schema.created_at),
         'updated_at': _format_datetime(avro_schema.updated_at)
     }
@@ -62,3 +62,17 @@ def get_schema_response_from_avro_schema(avro_schema):
     if avro_schema.base_schema_id is not None:
         response['base_schema_id'] = avro_schema.base_schema_id
     return response
+
+def get_note_response_from_note(note):
+    if note is not None:
+        response = {
+            'id': note.id,
+            'reference_type': note.reference_type,
+            'reference_id': note.reference_id,
+            'note': note.note,
+            'last_updated_by': note.last_updated_by,
+            'created_at': _format_datetime(note.created_at),
+            'updated_at': _format_datetime(note.updated_at)
+        }
+        return response
+    return None
