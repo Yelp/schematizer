@@ -7,6 +7,7 @@ from sqlalchemy.orm import exc as orm_exc
 
 from schematizer import models
 from schematizer.components.converters.converter_base import BaseConverter
+from schematizer.logic import exceptions as sch_exc
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.models.database import session
 
@@ -37,14 +38,6 @@ def is_full_compatible(old_schema_json, new_schema_json):
     """
     return (is_backward_compatible(old_schema_json, new_schema_json) and
             is_forward_compatible(old_schema_json, new_schema_json))
-
-
-class EntityNotFoundException(Exception):
-    pass
-
-
-class IncompatibleSchemaException(Exception):
-    pass
 
 
 def load_converters():
@@ -201,7 +194,7 @@ def _create_source_if_not_exist(namespace_id, source_name, owner_email):
 
 
 def _get_source_by_namespace_id_and_src_name(namespace_id, source):
-    session.query(
+    return session.query(
         models.Source
     ).filter(
         models.Source.namespace_id == namespace_id,
@@ -243,7 +236,7 @@ def _lock_topic_and_schemas(topic):
 def get_latest_topic_of_namespace_source(namespace_name, source_name):
     source = get_source_by_fullname(namespace_name, source_name)
     if not source:
-        raise EntityNotFoundException(
+        raise sch_exc.EntityNotFoundException(
             "Cannot find namespace {0} source {1}.".format(
                 namespace_name,
                 source_name
@@ -379,7 +372,7 @@ def get_latest_schema_by_topic_name(topic_name):
     """
     topic = get_topic_by_name(topic_name)
     if not topic:
-        raise EntityNotFoundException(
+        raise sch_exc.EntityNotFoundException(
             "Cannot find topic {0}.".format(topic_name)
         )
 
@@ -408,7 +401,9 @@ def is_schema_compatible(target_schema, namespace, source):
 def get_schemas_by_topic_name(topic_name, include_disabled=False):
     topic = get_topic_by_name(topic_name)
     if not topic:
-        raise EntityNotFoundException('{0} not found.'.format(topic_name))
+        raise sch_exc.EntityNotFoundException(
+            'Cannot find topic {0}.'.format(topic_name)
+        )
 
     qry = session.query(
         models.AvroSchema

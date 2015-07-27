@@ -4,6 +4,7 @@ import pytest
 
 from schematizer import models
 from schematizer.components import converters
+from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
 from schematizer.models.database import session
 from testing import factories
@@ -137,21 +138,6 @@ class TestSchemaRepository(DBTestCase):
             topic_name=topic.name,
             status=models.AvroSchemaStatus.DISABLED
         )
-
-    def get_namespace(self, name):
-        return session.query(
-            models.Namespace
-        ).filter(
-            models.Namespace.name == name
-        ).one()
-
-    def get_source(self, namespace, name):
-        return session.query(
-            models.Source
-        ).filter(
-            models.Source.namespace_id == namespace.id,
-            models.Source.name == name
-        ).one()
 
     @pytest.yield_fixture
     def mock_compatible_func(self):
@@ -328,7 +314,7 @@ class TestSchemaRepository(DBTestCase):
         assert actual is None
 
     def test_get_latest_topic_of_source_with_nonexistent_source(self):
-        with pytest.raises(schema_repo.EntityNotFoundException):
+        with pytest.raises(sch_exc.EntityNotFoundException):
             schema_repo.get_latest_topic_of_namespace_source('foo', 'bar')
 
     def test_get_latest_topic_of_source_id_with_no_topic(self, source):
@@ -361,7 +347,7 @@ class TestSchemaRepository(DBTestCase):
 
     @pytest.mark.usefixtures('disabled_schema', 'rw_schema')
     def test_is_schema_compatible_in_topic_with_bad_topic_name(self):
-        with pytest.raises(schema_repo.EntityNotFoundException):
+        with pytest.raises(sch_exc.EntityNotFoundException):
             schema_repo.is_schema_compatible_in_topic('int', 'foo')
 
     def test_get_topic_by_name(self, topic):
@@ -417,7 +403,7 @@ class TestSchemaRepository(DBTestCase):
         self.assert_equal_avro_schema(rw_schema, actual)
 
     def test_get_latest_schema_by_topic_name_with_nonexistent_topic(self):
-        with pytest.raises(schema_repo.EntityNotFoundException):
+        with pytest.raises(sch_exc.EntityNotFoundException):
             schema_repo.get_latest_schema_by_topic_name('_bad.topic')
 
     @pytest.mark.usefixtures('rw_schema', 'disabled_schema')
@@ -434,7 +420,7 @@ class TestSchemaRepository(DBTestCase):
         assert expected == actual
 
     def test_is_schema_compatible_with_nonexistent_source(self):
-        with pytest.raises(schema_repo.EntityNotFoundException):
+        with pytest.raises(sch_exc.EntityNotFoundException):
             schema_repo.is_schema_compatible('avro schema', 'foo', 'bar')
 
     def test_get_schemas_by_topic_name(self, topic, rw_schema):
@@ -456,7 +442,7 @@ class TestSchemaRepository(DBTestCase):
         )
 
     def test_get_schemas_by_topic_name_with_nonexistent_topic(self):
-        with pytest.raises(schema_repo.EntityNotFoundException):
+        with pytest.raises(sch_exc.EntityNotFoundException):
             schema_repo.get_schemas_by_topic_name('foo')
 
     def test_get_schemas_by_topic_id(self, topic, rw_schema):

@@ -86,7 +86,7 @@ class AvroSchema(Base, BaseModel):
             'schema_id': self.id,
             'schema': self.avro_schema,
             'status': self.status,
-            'topic': None if self.topic is None else self.topic.to_dict(),
+            'topic': self.topic.to_dict(),
             'note': self.note,
             'created_at': self.created_at,
             'updated_at': self.updated_at
