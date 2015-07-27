@@ -103,7 +103,7 @@ class AvroSchema(Base, BaseModel):
             Note
         ).filter(
             Note.reference_type == ReferenceTypeEnum.SCHEMA,
-            Note.reference_id == self.id,
+            Note.reference_id == self.id
         ).first()
         return note
 
