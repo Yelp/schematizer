@@ -58,7 +58,7 @@
                     <div class="row" style="padding-top: 10px;">
                         <div class="col-md-9">
                             <div class="row">
-                                <div class="col-md-2"><b>Notes(<a href="" ng-click="editTableNote()">Edit</a>)</b></div>
+                                <div class="col-md-2"><b>Notes (<a href="" ng-click="editTableNote()">Edit</a>)</b></div>
                                 <div class="col-md-10" id="table_notes" ng-hide="isEditingTableNote">
                                     <p id="table_notes_content" title="Last edited by {{tableNote.last_updated_by}}">{{tableNote.note}}</p>
                                 </div>
@@ -91,7 +91,7 @@
                             <span class="pull-right"><a href="" ng-click="editColumnNote(field.id)">Edit</a></span>
                         </p>
                         <div ng-show="columnNoteEdit[field.id].isEditing">
-                            <input ng-show=class="form-control input-sm" ng-model="columnNoteEdit[field.id].edit"></input>
+                            <input class="form-control input-sm" ng-model="columnNoteEdit[field.id].edit"></input>
                             <a class="btn btn-default btn-sm" ng-click="saveColumnNote(field.id)">Save</a>
                             <a class="btn btn-default btn-sm" ng-click="cancelColumnNote(field.id)">Cancel</a>
                         </div>
