@@ -222,7 +222,7 @@ class TestSchemaRepository(DBTestCase):
         self.assert_equal_avro_schema_partial(expected_schema, actual_schema)
         assert topic.id == actual_schema.topic_id
 
-    def check_new_topic_generated_with_same_source_id(
+    def assert_new_topic_created_with_updated_schema(
         self,
         topic,
         is_pii_schema
@@ -256,7 +256,7 @@ class TestSchemaRepository(DBTestCase):
             mock_compatible_func
     ):
         mock_compatible_func.return_value = False
-        self.check_new_topic_generated_with_same_source_id(
+        self.assert_new_topic_created_with_updated_schema(
             topic,
             self.schema_is_not_pii
         )
@@ -268,7 +268,7 @@ class TestSchemaRepository(DBTestCase):
             mock_compatible_func
     ):
         mock_compatible_func.return_value = True
-        self.check_new_topic_generated_with_same_source_id(
+        self.assert_new_topic_created_with_updated_schema(
             topic,
             self.schema_is_pii
         )

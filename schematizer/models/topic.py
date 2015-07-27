@@ -35,18 +35,20 @@ class Topic(Base):
 
     avro_schemas = relationship(AvroSchema, backref="topic")
 
-    is_pii = Column(Integer, nullable=False)
+    _is_pii = Column('is_pii', Integer, nullable=False)
 
     @property
     def is_pii_schema(self):
-        return bool(self.is_pii)
+        return bool(self._is_pii)
 
     @is_pii_schema.setter
     def is_pii_schema(self, value):
         if not isinstance(value, bool):
-            raise ValueError("Wrong type of is_pii_schema")
+            raise ValueError(
+                "Wrong type was found. Type of is_pii_schema should be bool."
+            )
 
-        self.is_pii = int(value)
+        self._is_pii = int(value)
 
     # Timestamp when the entry is created
     created_at = build_time_column(
