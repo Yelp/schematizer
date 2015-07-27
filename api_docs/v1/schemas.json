@@ -332,6 +332,7 @@
                         "type": "string"
                     },
                     "description": "List of primary key names."
+                },
                 "note": {
                     "$ref": "Note",
                     "description": "A user defined note for the schema that is used in the documentation tool. Used to store any relevant information about the schema that can be useful to reference."
