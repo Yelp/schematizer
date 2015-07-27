@@ -28,7 +28,7 @@
                         url: '/v1/notes',
                         method: "POST",
                         data: JSON.stringify({
-                            reference_id: parseInt($scope.source_id),
+                            reference_id: parseInt($scope.schema_id),
                             reference_type: 'schema',
                             note: $scope.tableNoteEdit,
                             last_updated_by: 'wscheng@yelp.com'

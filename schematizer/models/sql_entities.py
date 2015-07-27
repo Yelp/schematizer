@@ -23,6 +23,13 @@ class SQLTable(object):
                 self.columns == other.columns and
                 self.metadata == other.metadata)
 
+    @property
+    def primary_keys(self):
+        return sorted(
+            (col for col in self.columns if col.primary_key_order),
+            key=lambda c: c.primary_key_order
+        )
+
 
 class SQLColumn(object):
     """Internal data structure that represents a general sql column.
