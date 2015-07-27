@@ -77,3 +77,6 @@ def routes(config):
         'api.v1.update_note',
         '/v1/notes/{note_id}'
     )
+    # Serve the documentation tool from /web/
+    config.add_static_view(name='web', path='static/html/')
+    config.add_static_view(name='static', path='static/')
