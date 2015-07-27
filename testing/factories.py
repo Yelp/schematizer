@@ -311,6 +311,7 @@ class AvroSchemaElementFactory(object):
         key,
         element_type,
         doc=None,
+        note=None,
         created_at=fake_created_at,
         updated_at=fake_updated_at,
         fake_id=None

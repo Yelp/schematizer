@@ -112,6 +112,8 @@ class TestApiBase(object):
             'schema': factories.fake_avro_schema,
             'topic': self.topic_response,
             'status': AvroSchemaStatus.READ_AND_WRITE,
+            'primary_keys': [],
+            'note': None,
             'created_at': factories.fake_created_at.isoformat(),
             'updated_at': factories.fake_updated_at.isoformat()
         }
@@ -175,12 +177,19 @@ class TestApiBase(object):
         return 'user@yelp.com'
 
     @property
-    def note_request(self):
+    def create_note_request(self):
         return {
             'reference_id': factories.fake_default_id,
             'reference_type': self.note_reference_type,
             'note': self.note_note,
             'last_updated_by': self.note_last_updated_by
+        }
+
+    @property
+    def update_note_request(self):
+        return {
+            'note': 'This is a note',
+            'last_updated_by': 'user@yelp.com'
         }
 
     @property
@@ -221,12 +230,12 @@ class TestApiBase(object):
             yield mock_repo
 
     @pytest.yield_fixture
-    def mock_doc(self):
+    def mock_doc_tool(self):
         with mock.patch(
             self.test_view_module + '.doc_tool',
             autospec=True
-        ) as mock_doc:
-            yield mock_doc
+        ) as mock_doc_tool:
+            yield mock_doc_tool
 
     @pytest.yield_fixture
     def mock_schema(self):

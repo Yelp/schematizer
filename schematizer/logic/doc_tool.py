@@ -13,31 +13,19 @@ def get_note_by_reference_id_and_type(reference_id, reference_type):
     ).first()
 
 
-def upsert_note(
-    reference_id,
-    reference_type,
-    note_text,
-    last_updated_by
-):
-    note = get_note_by_reference_id_and_type(reference_id, reference_type)
-    # update the note if one already exists, and return it
-    if note is not None:
-        _update_note(note.id, note_text, last_updated_by)
-        return note
-    # create a new note if it does not exist
-    return _create_note(
-        reference_type,
-        reference_id,
-        note_text,
-        last_updated_by
-    )
-
-
-def _update_note(note_id, note_text, last_updated_by):
+def get_note_by_id(id):
     return session.query(
         models.Note
     ).filter(
-        models.Note.id == note_id
+        models.Note.id == id
+    ).first()
+
+
+def update_note(id, note_text, last_updated_by):
+    return session.query(
+        models.Note
+    ).filter(
+        models.Note.id == id
     ).update(
         {
             models.Note.note: note_text,
@@ -46,7 +34,7 @@ def _update_note(note_id, note_text, last_updated_by):
     )
 
 
-def _create_note(reference_type, reference_id, note_text, last_updated_by):
+def create_note(reference_type, reference_id, note_text, last_updated_by):
     note = models.Note(
         reference_type=reference_type,
         reference_id=reference_id,
