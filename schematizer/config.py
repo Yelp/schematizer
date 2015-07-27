@@ -54,10 +54,6 @@ def routes(config):
         '/v1/schemas/avro'
     )
     config.add_route(
-        'api.v1.upsert_note',
-        '/v1/schemas/note'
-    )
-    config.add_route(
         'api.v1.get_schema_by_id',
         '/v1/schemas/{schema_id}'
     )
@@ -72,4 +68,12 @@ def routes(config):
     config.add_route(
         'api.v1.is_mysql_schema_compatible',
         '/v1/compatibility/schemas/mysql'
+    )
+    config.add_route(
+        'api.v1.create_note',
+        '/v1/notes'
+    )
+    config.add_route(
+        'api.v1.update_note',
+        '/v1/notes/{note_id}'
     )

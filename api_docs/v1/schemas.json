@@ -73,37 +73,6 @@
             ]
         },
         {
-            "path": "/v1/schemas/note",
-            "operations": [
-                {
-                    "method": "POST",
-                    "summary": "Upsert given note for the specified schema or schema element.",
-                    "notes": "",
-                    "type": "Note",
-                    "nickname": "upsert_note",
-                    "authorizations": {},
-                    "parameters": [
-                        {
-                            "name": "body",
-                            "required": true,
-                            "type": "Note",
-                            "paramType": "body"
-                        }
-                    ],
-                    "responseMessages": [
-                        {
-                            "code": 400,
-                            "message": "Invalid request"
-                        },
-                        {
-                            "code": 500,
-                            "message": "Server side error"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
             "path": "/v1/schemas/{schema_id}",
             "operations": [
                 {
@@ -248,47 +217,6 @@
                 }
             }
         },
-        "Note": {
-            "id": "Note",
-            "required": [
-                "reference_id",
-                "reference_type",
-                "note",
-                "last_updated_by"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer",
-                    "description": "The id of the note"
-                },
-                "reference_id": {
-                    "type": "integer",
-                    "description": "The id of the item that this note is for"
-                },
-                "reference_type": {
-                    "type": "string",
-                    "description": "The type of item that this note is for ('schema', or 'schema_element')"
-                },
-                "note": {
-                    "type": "string",
-                    "description": "The text of the note itself"
-                },
-                "last_updated_by": {
-                    "type": "string",
-                    "description": "The email of the user who edited the note"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this note is created"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this note is last updated"
-                }
-            }
-        },
         "Namespace": {
             "id": "Namespace",
             "properties": {
@@ -406,7 +334,7 @@
                     "description": "List of primary key names."
                 "note": {
                     "$ref": "Note",
-                    "description": "The documentation tool note for this schema"
+                    "description": "A user defined note for the schema that is used in the documentation tool. Used to store any relevant information about the schema that can be useful to reference."
                 },
                 "created_at": {
                     "type": "string",
@@ -445,7 +373,7 @@
                 },
                 "note": {
                     "$ref": "Note",
-                    "description": "The documentation tool note for this schema element"
+                    "description": "A user defined note for the schema element that is used in the documentation tool. Used to store any relevant information about the schema element that can be useful to reference."
                 },
                 "created_at": {
                     "type": "string",

@@ -133,7 +133,7 @@ class TestApiBase(object):
             factories.AvroSchemaElementFactory.create(
                 self.schema,
                 self.key,
-                self.element_type
+                self.element_type,
             )
         ]
 
@@ -153,10 +153,17 @@ class TestApiBase(object):
         ]
 
     @property
-    def note_request(self):
+    def create_note_request(self):
         return {
             'reference_id': None,
             'reference_type': 'schema',
+            'note': 'This is a note',
+            'last_updated_by': 'user@yelp.com'
+        }
+
+    @property
+    def update_note_request(self):
+        return {
             'note': 'This is a note',
             'last_updated_by': 'user@yelp.com'
         }
@@ -197,12 +204,12 @@ class TestApiBase(object):
             yield mock_repo
 
     @pytest.yield_fixture
-    def mock_doc(self):
+    def mock_doc_tool(self):
         with mock.patch(
             self.test_view_module + '.doc_tool',
             autospec=True
-        ) as mock_doc:
-            yield mock_doc
+        ) as mock_doc_tool:
+            yield mock_doc_tool
 
     @pytest.yield_fixture
     def mock_schema(self):
