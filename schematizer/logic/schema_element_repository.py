@@ -33,17 +33,20 @@ def get_element_chains_by_schema_id(schema_id):
         no_later_than_schema_id=schema_id
     )
 
-    start_index = 0
+    schema_start_idx = 0
+    missing_identities = set()
     for i, element in enumerate(elements):
-        if element.avro_schema_id != elements[start_index].avro_schema_id:
+        if element.avro_schema_id != elements[schema_start_idx].avro_schema_id:
             _update_schema_element_chains(
                 identity_to_element_chain_map,
-                elements[start_index:i]
+                elements[schema_start_idx:i],
+                missing_identities
             )
-            start_index = i
+            schema_start_idx = i
     _update_schema_element_chains(
         identity_to_element_chain_map,
-        elements[start_index:]
+        elements[schema_start_idx:],
+        missing_identities
     )
     return identity_to_element_chain_map.values()
 
@@ -87,17 +90,25 @@ def _get_schema_elements_by_source(source_id, no_later_than_schema_id=None):
     return qry.all()
 
 
-def _update_schema_element_chains(identity_to_element_chain_map, elements):
+def _update_schema_element_chains(
+    identity_to_element_chain_map,
+    elements,
+    missing_identities
+):
     """If the identity of an element in the given elements is the same as
     the key of the identity_to_element_chain_map, the element is added to
     the corresponding element chain.
 
-    Note that if the element with same identity appear in two schemas and
-    one of the schemas is not the immediate next version of the other, this
-    element will still be added to the chain.
+    Note that if an element with same identity appear in two schemas, and
+    these two schemas are not consecutive version schemas, the element of
+    newer version schema will not be added to the chain. `missing_identities`
+    is used to track such elements.
     """
+    missing_identities_this_round = set(identity_to_element_chain_map.keys())
     for element in elements:
         identity = _get_schema_element_identity(element)
         chain = identity_to_element_chain_map.get(identity)
-        if chain:
+        if chain and identity not in missing_identities:
             chain.append(element)
+            missing_identities_this_round.remove(identity)
+    missing_identities.update(missing_identities_this_round)
