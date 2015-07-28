@@ -31,11 +31,4 @@
     <comment>Add index on source_id column of source_category table.</comment>
   </changeSet>
 
-  <changeSet author="wscheng" id="1437512402">
-    <createIndex indexName="category" tableName="source_category" unique="false">
-      <column name="category"/>
-    </createIndex>
-    <comment>Add index on category column of source_category table.</comment>
-  </changeSet>
-
 </databaseChangeLog>

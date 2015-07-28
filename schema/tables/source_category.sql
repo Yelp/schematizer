@@ -6,5 +6,5 @@ CREATE TABLE `source_category` (
   `updated_at` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `source_id` (`source_id`),
-  KEY `category` (`category`)
+  UNIQUE KEY `category` (`category`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

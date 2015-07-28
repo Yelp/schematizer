@@ -247,6 +247,10 @@
                     },
                     "description": "List of primary key names."
                 },
+                "note": {
+                    "$ref": "Note",
+                    "description": "A user defined note for the schema element that is used in the documentation tool. Used to store any relevant information about the schema element that can be useful to reference."
+                },
                 "created_at": {
                     "type": "string",
                     "format": "date-time",
@@ -256,6 +260,41 @@
                     "type": "string",
                     "format": "date-time",
                     "description": "When this schema is last updated"
+                }
+            }
+        },
+        "Note": {
+            "id": "Note",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "The id of the note"
+                },
+                "reference_id": {
+                    "type": "integer",
+                    "description": "The id of the item that this note is for"
+                },
+                "reference_type": {
+                    "type": "string",
+                    "description": "The type of item that this note is for ('schema', or 'schema_element')"
+                },
+                "note": {
+                    "type": "string",
+                    "description": "The text of the note itself"
+                },
+                "last_updated_by": {
+                    "type": "string",
+                    "description": "The email of the user who edited the note"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this note is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this note is last updated"
                 }
             }
         }

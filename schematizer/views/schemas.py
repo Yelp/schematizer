@@ -16,6 +16,7 @@ from schematizer.views import view_common
     request_method='GET',
     renderer='json'
 )
+@transform_response()
 def get_schema_by_id(request):
     schema_id = request.matchdict.get('schema_id')
     avro_schema = schema_repository.get_schema_by_id(int(schema_id))
@@ -29,6 +30,7 @@ def get_schema_by_id(request):
     request_method='POST',
     renderer='json'
 )
+@transform_response()
 def register_schema(request):
     try:
         req = requests_v1.RegisterSchemaRequest(**request.json_body)
@@ -53,6 +55,7 @@ def register_schema(request):
     request_method='POST',
     renderer='json'
 )
+@transform_response()
 def register_schema_from_mysql_stmts(request):
     req = requests_v1.RegisterSchemaFromMySqlRequest(**request.json_body)
     avro_schema_json = view_common.convert_to_avro_from_mysql(
