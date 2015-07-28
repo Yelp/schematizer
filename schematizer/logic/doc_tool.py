@@ -44,3 +44,41 @@ def create_note(reference_type, reference_id, note_text, last_updated_by):
     session.add(note)
     session.flush()
     return note
+
+
+def upsert_source_category(source_id, category):
+    source_category = _get_source_category_by_source_id(source_id)
+    if source_category is not None:
+        _update_source_category(source_category.id, category)
+        return source_category
+    return _create_source_category(source_id, category)
+
+
+def _get_source_category_by_source_id(source_id):
+    return session.query(
+        models.SourceCategory
+    ).filter(
+        models.SourceCategory.source_id == source_id
+    ).first()
+
+
+def _update_source_category(source_category_id, category):
+    return session.query(
+        models.SourceCategory
+    ).filter(
+        models.SourceCategory.id == source_category_id
+    ).update(
+        {
+            models.SourceCategory.category: category
+        }
+    )
+
+
+def _create_source_category(source_id, category):
+    source_category = models.SourceCategory(
+        source_id=source_id,
+        category=category
+    )
+    session.add(source_category)
+    session.flush()
+    return source_category

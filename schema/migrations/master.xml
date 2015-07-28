@@ -10,5 +10,6 @@
   <include file="note.xml"/>
   <include file="producer.xml"/>
   <include file="source.xml"/>
+  <include file="source_category.xml"/>
   <include file="topic.xml"/>
 </databaseChangeLog>
