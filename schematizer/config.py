@@ -24,6 +24,10 @@ def routes(config):
         '/v1/sources/{source_id}'
     )
     config.add_route(
+        'api.v1.update_category',
+        '/v1/sources/{source_id}/category'
+    )
+    config.add_route(
         'api.v1.list_topics_by_source_id',
         '/v1/sources/{source_id}/topics'
     )

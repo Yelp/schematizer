@@ -116,3 +116,55 @@ class TestGetLatestTopicBySourceID(TestSourcesViewBase):
 
         assert self.topic_response == topic
         mock_repo.get_latest_topic_of_source_id.assert_called_once_with(1)
+
+
+class TestUpdateCategory(TestSourcesViewBase):
+
+    def test_non_existing_source_id(self, mock_request, mock_repo):
+        expected_exception = self.get_http_exception(404)
+        with pytest.raises(expected_exception) as e:
+            mock_repo.get_source_by_id.return_value = None
+            mock_request.matchdict = self.get_mock_dict({'source_id': '0'})
+            source_views.update_category(mock_request)
+
+        assert expected_exception.code == e.value.code
+        assert str(e.value) == exc_v1.SOURCE_NOT_FOUND_ERROR_MESSAGE
+        mock_repo.get_source_by_id.assert_called_once_with(0)
+
+    def test_update_category_new_source_category(
+        self,
+        mock_request,
+        mock_repo,
+        mock_doc_tool
+    ):
+        mock_repo.get_source_by_id.return_value = self.source
+        mock_request.matchdict = self.get_mock_dict({'source_id': '0'})
+        mock_doc_tool.get_source_category_by_source_id.return_value = None
+        mock_doc_tool.create_source_category.return_value = \
+            self.source_category
+        mock_request.json_body = self.category_request
+        source_category = source_views.update_category(mock_request)
+        assert source_category == self.source_category_response
+        mock_doc_tool.create_source_category.assert_called_once_with(
+            0,
+            self.category
+        )
+
+    def test_update_category_existing_source_category(
+        self,
+        mock_request,
+        mock_repo,
+        mock_doc_tool
+    ):
+        mock_repo.get_source_by_id.return_value = self.source
+        mock_request.matchdict = self.get_mock_dict({'source_id': '0'})
+        mock_doc_tool.get_source_category_by_source_id.return_value = \
+            self.source_category
+        mock_doc_tool.update_source_category.return_value = 1
+        mock_request.json_body = self.category_request
+        source_category = source_views.update_category(mock_request)
+        assert source_category == self.source_category_response
+        mock_doc_tool.update_source_category.assert_called_once_with(
+            0,
+            self.category
+        )

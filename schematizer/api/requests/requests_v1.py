@@ -104,3 +104,10 @@ class UpdateNoteRequest(RequestBase):
         super(UpdateNoteRequest, self).__init__()
         self.note = note
         self.last_updated_by = last_updated_by
+
+
+class UpdateCategoryRequest(RequestBase):
+
+    def __init__(self, category):
+        super(UpdateCategoryRequest, self).__init__()
+        self.category = category

@@ -4,6 +4,7 @@ import pytest
 from pyramid import httpexceptions
 
 from schematizer.models import Note
+from schematizer.models import SourceCategory
 from schematizer.models.avro_schema import AvroSchemaStatus
 from testing import factories
 
@@ -211,6 +212,38 @@ class TestApiBase(object):
             'reference_type': self.note_reference_type,
             'note': self.note_note,
             'last_updated_by': self.note_last_updated_by,
+            'created_at': factories.fake_created_at.isoformat(),
+            'updated_at': factories.fake_updated_at.isoformat()
+        }
+
+    @property
+    def category(self):
+        return 'Business Info'
+
+    @property
+    def new_category(self):
+        return 'Deals'
+
+    @property
+    def source_category(self):
+        return SourceCategory(
+            id=factories.fake_default_id,
+            source_id=factories.fake_default_id,
+            category=self.category,
+            created_at=factories.fake_created_at,
+            updated_at=factories.fake_updated_at
+        )
+
+    @property
+    def category_request(self):
+        return {'category': self.category}
+
+    @property
+    def source_category_response(self):
+        return {
+            'id': factories.fake_default_id,
+            'source_id': factories.fake_default_id,
+            'category': self.category,
             'created_at': factories.fake_created_at.isoformat(),
             'updated_at': factories.fake_updated_at.isoformat()
         }

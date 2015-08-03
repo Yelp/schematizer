@@ -4,6 +4,8 @@ from pyramid.view import view_config
 from schematizer.api.decorators import transform_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.responses import responses_v1
+from schematizer.api.requests import requests_v1
+from schematizer.logic import doc_tool
 from schematizer.logic import schema_repository
 
 
@@ -61,3 +63,26 @@ def get_latest_topic_by_source_id(request):
             raise exceptions_v1.source_not_found_exception()
         raise exceptions_v1.latest_topic_not_found_exception()
     return latest_topic.to_dict()
+
+
+@view_config(
+    route_name='api.v1.update_category',
+    request_method='POST',
+    renderer='json'
+)
+@transform_response()
+def update_category(request):
+    source_id = int(request.matchdict.get('source_id'))
+    source = schema_repository.get_source_by_id(int(source_id))
+    if not source:
+        raise exceptions_v1.source_not_found_exception()
+    req = requests_v1.UpdateCategoryRequest(**request.json_body)
+    source_category = doc_tool.get_source_category_by_source_id(source_id)
+    if source_category is None:
+        source_category = doc_tool.create_source_category(
+            source_id,
+            req.category
+        )
+    else:
+        doc_tool.update_source_category(source_id, req.category)
+    return source_category.to_dict()

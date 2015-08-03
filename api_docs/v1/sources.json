@@ -68,6 +68,49 @@
             ]
         },
         {
+            "path": "/v1/sources/{source_id}/category",
+            "operations": [
+                {
+                    "method": "POST",
+                    "summary": "Update the category of given source.",
+                    "notes": "",
+                    "type": "CategoryResponse",
+                    "nickname": "update_category",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "body",
+                            "required": true,
+                            "type": "CategoryRequest",
+                            "paramType": "body"
+                        },
+                        {
+                            "name": "source_id",
+                            "description": "ID of source that will have its category updated",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Source ID not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "path": "/v1/sources/{source_id}/topics",
             "operations": [
                 {
@@ -228,6 +271,45 @@
                     "type": "string",
                     "format": "date-time",
                     "description": "When this topic is last updated"
+                }
+            }
+        },
+        "CategoryRequest": {
+            "id": "CategoryRequest",
+            "required": [
+                "category"
+            ],
+            "properties": {
+                "category": {
+                    "type": "string",
+                    "description": "The updated category of a source"
+                }
+            }
+        },
+        "CategoryResponse": {
+            "id": "CategoryResponse",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "The id of the object"
+                },
+                "source_id": {
+                    "type": "integer",
+                    "description": "The id of the source this object specifies"
+                },
+                "category": {
+                    "type": "string",
+                    "description": "The category that the specified source belongs to"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this category is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this category is last updated"
                 }
             }
         }

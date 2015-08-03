@@ -174,24 +174,28 @@ class TestDocTool(DBTestCase):
         )
         self.assert_equal_note_partial(expected_note, schema_element_note)
 
+    def test_get_source_category(self, source, source_category):
+        actual = doc_tool.get_source_category_by_source_id(source.id)
+        self.assert_equal_source_category(source_category, actual)
+
     def test_create_source_category(self, source):
-        actual = doc_tool.upsert_source_category(source.id, self.category)
+        actual = doc_tool.create_source_category(source.id, self.category)
         expected = models.SourceCategory(
             source_id=source.id,
             category=self.category
         )
         self.assert_equal_source_category_partial(expected, actual)
 
-    def test_update_source_category(self, source_category):
-        actual = doc_tool.upsert_source_category(
-            source_category.source_id,
+    def test_update_source_category(self, source, source_category):
+        doc_tool.update_source_category(
+            source.id,
             self.new_category
         )
         expected = models.SourceCategory(
             source_id=source_category.source_id,
             category=self.new_category
         )
-        self.assert_equal_source_category_partial(expected, actual)
+        self.assert_equal_source_category_partial(expected, source_category)
 
     def assert_equal_note(self, expected, actual):
         assert expected.id == actual.id
@@ -204,6 +208,12 @@ class TestDocTool(DBTestCase):
         assert expected.reference_id == actual.reference_id
         assert expected.note == actual.note
         assert expected.last_updated_by == actual.last_updated_by
+
+    def assert_equal_source_category(self, expected, actual):
+        assert expected.id == actual.id
+        assert expected.created_at == actual.created_at
+        assert expected.updated_at == actual.updated_at
+        self.assert_equal_source_category_partial(expected, actual)
 
     def assert_equal_source_category_partial(self, expected, actual):
         assert expected.source_id == actual.source_id
