@@ -12,10 +12,12 @@
             $scope.schema_id = null;
             $scope.tableNote = "";
             $scope.schemaElements = [];
+            $scope.tableDescription = "";
             $scope.isEditingTableNote = false;
             $scope.tableNoteEdit = "";
             $scope.columnNoteEdit = {};
             $scope.user = "user@yelp.com"; // TODO: (wscheng#DATAPIPE-233): Attach user to this variable once stargate is activated
+
 
             // Functions for saving and editing table data
             $scope.editTableNote = function() {
@@ -104,6 +106,12 @@
                 $scope.columnNoteEdit[field_id].isEditing = false;
             }
 
+            $scope.fieldFilter = function(element) {
+                if (element.element_type == 'field')
+                    return true;
+                return false;
+            }
+
 
             function initTable() {
                 $http.get('/v1/sources/' + $scope.source_id).success(function (data) {
@@ -138,9 +146,14 @@
 
             function getSchemaElements() {
                 $http.get('/v1/schemas/' + $scope.schema_id + '/elements').success(function (data) {
-                    $scope.schemaElements = data;
                     for (var i = 0; i < data.length; i++) {
-                        $scope.columnNoteEdit[data[i].id] = {isEditing: false, edit: "", note: data[i].note};
+                        if (data[i].element_type == 'record')
+                            $scope.tableDescription = data[i].doc;
+                        if (data[i].element_type == 'field')
+                            $scope.schemaElements.push(data[i])
+                    }
+                    for (var i = 0; i < $scope.schemaElements.length; i++) {
+                        $scope.columnNoteEdit[$scope.schemaElements[i].id] = {isEditing: false, edit: "", note: $scope.schemaElements[i].note};
                     }
                 }).error(function (errorData) {
                     $scope.tableError = errorData;
