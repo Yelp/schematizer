@@ -40,6 +40,8 @@ class Source(Base):
 
     topics = relationship(Topic, backref="source")
 
+    # The category relationship object for this source.
+    # A source matches 1-to-1 with a SourceCategory.
     category = relationship(SourceCategory, uselist=False, backref="source")
 
     # Timestamp when the entry is created

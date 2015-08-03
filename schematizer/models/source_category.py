@@ -3,6 +3,7 @@ from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy import UniqueConstraint
 
 from schematizer.models.database import Base
 from schematizer.models.types.time import build_time_column
@@ -11,6 +12,12 @@ from schematizer.models.types.time import build_time_column
 class SourceCategory(Base):
 
     __tablename__ = 'source_category'
+    __tableargs__ = (
+        UniqueConstraint(
+            'source_id',
+            name='source_unique_constraint'
+        ),
+    )
 
     id = Column(Integer, primary_key=True)
 
