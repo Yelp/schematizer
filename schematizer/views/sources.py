@@ -3,6 +3,7 @@ from pyramid.view import view_config
 
 from schematizer.api.decorators import transform_response
 from schematizer.api.exceptions import exceptions_v1
+from schematizer.api.responses import responses_v1
 from schematizer.logic import schema_repository
 
 
@@ -28,7 +29,7 @@ def get_source_by_id(request):
     source = schema_repository.get_source_by_id(int(source_id))
     if not source:
         raise exceptions_v1.source_not_found_exception()
-    return source.to_dict()
+    return responses_v1.get_source_response_from_source(source)
 
 
 @view_config(

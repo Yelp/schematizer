@@ -140,6 +140,16 @@ def create_note(
     return note
 
 
+def create_source_category(source_id, category):
+    source_category = models.SourceCategory(
+        source_id=source_id,
+        category=category
+    )
+    session.add(source_category)
+    session.flush()
+    return source_category
+
+
 class NamespaceFactory(object):
 
     @classmethod

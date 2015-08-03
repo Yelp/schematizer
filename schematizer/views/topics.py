@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from pyramid.view import view_config
 
+from schematizer.api.decorators import transform_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.responses import responses_v1
 from schematizer.logic import schema_repository
@@ -11,6 +12,7 @@ from schematizer.logic import schema_repository
     request_method='GET',
     renderer='json'
 )
+@transform_response()
 def get_topic_by_topic_name(request):
     topic_name = request.matchdict.get('topic_name')
     topic = schema_repository.get_topic_by_name(topic_name)
@@ -24,6 +26,7 @@ def get_topic_by_topic_name(request):
     request_method='GET',
     renderer='json'
 )
+@transform_response()
 def list_schemas_by_topic_name(request):
     topic_name = request.matchdict.get('topic_name')
     schemas = schema_repository.get_schemas_by_topic_name(topic_name)
@@ -38,6 +41,7 @@ def list_schemas_by_topic_name(request):
     request_method='GET',
     renderer='json'
 )
+@transform_response()
 def get_latest_schema_by_topic_name(request):
     topic_name = request.matchdict.get('topic_name')
     avro_schema = schema_repository.get_latest_schema_by_topic_name(topic_name)

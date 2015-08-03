@@ -28,6 +28,9 @@ def get_source_response_from_source(source):
         'source': source.name,
         'source_owner_email': source.owner_email,
         'namespace': get_namespace_response_from_namespace(source.namespace),
+        'category': (
+            None if source.category is None else source.category.category
+        ),
         'created_at': _format_datetime(source.created_at),
         'updated_at': _format_datetime(source.updated_at)
     }

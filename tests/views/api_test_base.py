@@ -113,7 +113,6 @@ class TestApiBase(object):
             'topic': self.topic_response,
             'status': AvroSchemaStatus.READ_AND_WRITE,
             'primary_keys': [],
-            'note': None,
             'created_at': factories.fake_created_at.isoformat(),
             'updated_at': factories.fake_updated_at.isoformat()
         }
@@ -188,8 +187,8 @@ class TestApiBase(object):
     @property
     def update_note_request(self):
         return {
-            'note': 'This is a note',
-            'last_updated_by': 'user@yelp.com'
+            'note': self.note_note,
+            'last_updated_by': self.note_last_updated_by
         }
 
     @property

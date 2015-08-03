@@ -23,8 +23,8 @@
                 $scope.tableNoteEdit = $scope.tableNote.note;
             };
 
-            $scope.saveTableNote = function(note) {
-                if ($scope.tableNote === null) {
+            $scope.saveTableNote = function() {
+                if ($scope.tableNote === undefined) {
                     $http({
                         url: '/v1/notes',
                         method: "POST",
@@ -67,7 +67,7 @@
             }
 
             $scope.saveColumnNote = function(field_id) {
-                if ($scope.columnNoteEdit[field_id].note === null) {
+                if ($scope.columnNoteEdit[field_id].note === undefined) {
                     $http({
                         url: '/v1/notes',
                         method: "POST",

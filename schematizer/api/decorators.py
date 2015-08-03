@@ -43,6 +43,8 @@ def _dict_filter_out_none_values(input_dict):
         for key in input_dict.keys():
             if input_dict[key] is None:
                 del input_dict[key]
+            elif isinstance(input_dict[key], dict):
+                _dict_filter_out_none_values(input_dict[key])
 
 
 DEFAULT_TRANSFORMERS = [
