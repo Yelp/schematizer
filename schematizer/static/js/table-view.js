@@ -12,6 +12,7 @@
             $scope.schema_id = null;
             $scope.tableNote = "";
             $scope.schemaElements = [];
+            $scope.schemaElementMetadata = {};
             $scope.tableDescription = "";
             $scope.isEditingTableNote = false;
             $scope.tableNoteEdit = "";
@@ -137,6 +138,10 @@
                 $http.get('/v1/topics/' + $scope.topic + '/schemas/latest').success(function (data) {
                     $scope.schema_id = data.schema_id;
                     $scope.tableNote = data.note;
+                    var fieldData = JSON.parse(data.schema).fields;
+                    for (var i = 0; i < fieldData.length; i++) {
+                        $scope.schemaElementMetadata[fieldData[i].name] = fieldData[i].type;
+                    }
                     getSchemaElements();
                 }).error(function (errorData) {
                     $scope.tableError = errorData;
@@ -149,8 +154,10 @@
                     for (var i = 0; i < data.length; i++) {
                         if (data[i].element_type == 'record')
                             $scope.tableDescription = data[i].doc;
-                        if (data[i].element_type == 'field')
-                            $scope.schemaElements.push(data[i])
+                        if (data[i].element_type == 'field') {
+                            data[i].type = $scope.schemaElementMetadata[data[i].key.split('|')[1]];
+                            $scope.schemaElements.push(data[i]);
+                        }
                     }
                     for (var i = 0; i < $scope.schemaElements.length; i++) {
                         $scope.columnNoteEdit[$scope.schemaElements[i].id] = {isEditing: false, edit: "", note: $scope.schemaElements[i].note};
