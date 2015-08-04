@@ -8,7 +8,8 @@
             $scope.tableData = null;
             $scope.load = true;
             $scope.tableError = false;
-            $scope.source_id = $location.search().id;
+            $scope.namespace = $location.search().schema;
+            $scope.source = $location.search().table;
             $scope.schema_id = null;
             $scope.tableNote = "";
             $scope.schemaElements = [];
@@ -113,9 +114,16 @@
 
 
             function initTable() {
-                $http.get('/v1/sources/' + $scope.source_id).success(function (data) {
-                    $scope.tableData = data;
-                    getTopic();
+                $http.get('/v1/namespaces/' + $scope.namespace + '/sources').success(function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].source == $scope.source) {
+                            $scope.tableData = data[i];
+                            getTopic();
+                            return;
+                        }
+                    }
+                    $scope.tableError = "Source does not exist";
+                    $scope.load = false;
                 }).error(function (errorData) {
                     $scope.tableError = errorData;
                     $scope.load = false;
@@ -123,7 +131,7 @@
             };
 
             function getTopic() {
-                $http.get('/v1/sources/' + $scope.source_id + '/topics/latest').success(function (data) {
+                $http.get('/v1/sources/' + $scope.tableData.source_id + '/topics/latest').success(function (data) {
                     $scope.topic = data.name;
                     getSchema();
                 }).error(function (errorData) {
