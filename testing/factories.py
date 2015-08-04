@@ -20,6 +20,7 @@ fake_mysql_create_stmts = ['create table foo']
 fake_mysql_alter_stmts = ['create table foo',
                           'alter table foo',
                           'create table foo']
+fake_contains_pii = False
 
 
 def create_namespace(namespace_name):
@@ -70,9 +71,18 @@ def get_or_create_source(
     )
 
 
-def create_topic(topic_name, namespace=fake_namespace, source=fake_source):
+def create_topic(
+        topic_name,
+        namespace=fake_namespace,
+        source=fake_source,
+        contains_pii=fake_contains_pii
+):
     source = get_or_create_source(namespace, source)
-    topic = models.Topic(name=topic_name, source_id=source.id)
+    topic = models.Topic(
+        name=topic_name,
+        source_id=source.id,
+        contains_pii=contains_pii
+    )
     session.add(topic)
     session.flush()
     return topic
@@ -227,6 +237,7 @@ class TopicFactory(object):
         cls,
         topic_name,
         source,
+        contains_pii=fake_contains_pii,
         created_at=fake_created_at,
         updated_at=fake_updated_at,
         fake_id=None
@@ -236,7 +247,8 @@ class TopicFactory(object):
             source_id=source.id,
             created_at=created_at,
             updated_at=updated_at,
-            source=source
+            source=source,
+            contains_pii=contains_pii,
         )
         if fake_id:
             topic.id = fake_id
