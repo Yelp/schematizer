@@ -12,10 +12,13 @@
             $scope.schema_id = null;
             $scope.tableNote = "";
             $scope.schemaElements = [];
+            $scope.schemaElementMetadata = {};
+            $scope.tableDescription = "";
             $scope.isEditingTableNote = false;
             $scope.tableNoteEdit = "";
             $scope.columnNoteEdit = {};
             $scope.user = "user@yelp.com"; // TODO: (wscheng#DATAPIPE-233): Attach user to this variable once stargate is activated
+
 
             // Functions for saving and editing table data
             $scope.editTableNote = function() {
@@ -104,6 +107,10 @@
                 $scope.columnNoteEdit[field_id].isEditing = false;
             }
 
+            $scope.fieldFilter = function(element) {
+                return element.element_type == 'field';
+            }
+
 
             function initTable() {
                 $http.get('/v1/sources/' + $scope.source_id).success(function (data) {
@@ -129,6 +136,10 @@
                 $http.get('/v1/topics/' + $scope.topic + '/schemas/latest').success(function (data) {
                     $scope.schema_id = data.schema_id;
                     $scope.tableNote = data.note;
+                    var fieldData = JSON.parse(data.schema).fields;
+                    for (var i = 0; i < fieldData.length; i++) {
+                        $scope.schemaElementMetadata[fieldData[i].name] = getColumnType(fieldData[i]);
+                    }
                     getSchemaElements();
                 }).error(function (errorData) {
                     $scope.tableError = errorData;
@@ -138,14 +149,48 @@
 
             function getSchemaElements() {
                 $http.get('/v1/schemas/' + $scope.schema_id + '/elements').success(function (data) {
-                    $scope.schemaElements = data;
                     for (var i = 0; i < data.length; i++) {
-                        $scope.columnNoteEdit[data[i].id] = {isEditing: false, edit: "", note: data[i].note};
+                        if (data[i].element_type == 'record')
+                            $scope.tableDescription = data[i].doc;
+                        if (data[i].element_type == 'field') {
+                            data[i].name = getColumnName(data[i].key);
+                            data[i].type = $scope.schemaElementMetadata[data[i].name];
+                            $scope.schemaElements.push(data[i]);
+                        }
+                    }
+                    for (var i = 0; i < $scope.schemaElements.length; i++) {
+                        $scope.columnNoteEdit[$scope.schemaElements[i].id] = {isEditing: false, edit: "", note: $scope.schemaElements[i].note};
                     }
                 }).error(function (errorData) {
                     $scope.tableError = errorData;
                 });
                 $scope.load = false;
+            };
+
+            function getColumnType(metadata) {
+                var type = "";
+                if (typeof metadata.type == 'string') {
+                    type = metadata.type;
+                    if (metadata.type == 'string' && metadata.maxlen != undefined) {
+                        type += ('(' + metadata.maxlen + ')');
+                    }
+                    type += ' not null';
+                } else if (Object.prototype.toString.call(metadata.type) == '[object Array]') {
+                    for(var i = 0; i < metadata.type.length; i++) {
+                        if (metadata.type[i] == 'string' && metadata.maxlen != undefined) {
+                            type += ('string(' + metadata.maxlen + ') ');
+                        } else {
+                            type += (metadata.type[i] + ' ');
+                        }
+                    }
+                } else {
+                    type = metadata.type;
+                }
+                return type;
+            }
+
+            function getColumnName(name) {
+                return name.split('|')[1];
             };
 
             initTable();    // Initialize table data on page load

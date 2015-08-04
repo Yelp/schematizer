@@ -36,7 +36,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-3"><b>Description</b></div>
-                                <div class="col-md-9"></div>
+                                <div class="col-md-9">{{tableDescription}}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -81,9 +81,9 @@
                 <th class="col-md-2">Type</th>
                 <th class="col-md-4">Description</th>
                 <th class="col-md-4">Notes</th>
-                <tr ng-repeat="field in schemaElements">
-                    <td>{{field.key}}</td>
-                    <td>{{field.element_type}}</td>
+                <tr ng-repeat="field in schemaElements | filter: fieldFilter">
+                    <td>{{field.name}}</td>
+                    <td>{{field.type}}</td>
                     <td>{{field.doc}}</td>
                     <td id="comment_note" class="comment_note-cell">
                         <p title="Last updated by {{field.note.last_updated_by}}" ng-hide="columnNoteEdit[field.id].isEditing">
