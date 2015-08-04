@@ -27,20 +27,4 @@
     <comment>Changing domain_id to source_id</comment>
     <renameColumn oldColumnName="domain_id" newColumnName="source_id" tableName="topic" columnDataType="INT(11) NOT NULL"/>
   </changeSet>
-  <changeSet author="khuang" id="1437411783">
-    <preConditions onFail="WARN" onSqlOutput="TEST">
-      <not>
-        <columnExists tableName="topic" columnName="contains_pii"/>
-      </not>
-    </preConditions>
-    <addColumn tableName="topic">
-      <column name="contains_pii" type="TINYINT(1)">
-        <constraints nullable="false"/>
-      </column>
-    </addColumn>
-    <comment>Add column of PII flag</comment>
-    <modifySql>
-      <append value=" AFTER source_id"/>
-    </modifySql>
-  </changeSet>
 </databaseChangeLog>
