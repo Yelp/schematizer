@@ -85,9 +85,8 @@ class TestApiBase(object):
             'topic_id': factories.fake_default_id,
             'name': factories.fake_topic_name,
             'source': self.source_response,
-            'contains_pii': False,
             'created_at': factories.fake_created_at.isoformat(),
-            'updated_at': factories.fake_updated_at.isoformat(),
+            'updated_at': factories.fake_updated_at.isoformat()
         }
 
     @property

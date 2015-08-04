@@ -39,7 +39,6 @@ def register_schema(request):
             namespace=req.namespace,
             source=req.source,
             source_email_owner=req.source_owner_email,
-            contains_pii=req.contains_pii,
             base_schema_id=req.base_schema_id
         )
     except simplejson.JSONDecodeError as e:
@@ -69,8 +68,7 @@ def register_schema_from_mysql_stmts(request):
         schema_json=avro_schema_json,
         namespace=req.namespace,
         source=req.source,
-        source_email_owner=req.source_owner_email,
-        contains_pii=req.contains_pii
+        source_email_owner=req.source_owner_email
     )
 
 
@@ -79,7 +77,6 @@ def _register_avro_schema(
     namespace,
     source,
     source_email_owner,
-    contains_pii,
     base_schema_id=None
 ):
     try:
@@ -88,7 +85,6 @@ def _register_avro_schema(
             namespace_name=namespace,
             source_name=source,
             source_email_owner=source_email_owner,
-            contains_pii=contains_pii,
             base_schema_id=base_schema_id
         )
         return responses_v1.get_schema_response_from_avro_schema(avro_schema)
