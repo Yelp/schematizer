@@ -82,7 +82,7 @@
                 <th class="col-md-4">Description</th>
                 <th class="col-md-4">Notes</th>
                 <tr ng-repeat="field in schemaElements | filter: fieldFilter">
-                    <td>{{field.key.split('|')[1]}}</td>
+                    <td>{{field.name}}</td>
                     <td>{{field.type}}</td>
                     <td>{{field.doc}}</td>
                     <td id="comment_note" class="comment_note-cell">

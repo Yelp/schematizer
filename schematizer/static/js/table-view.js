@@ -108,9 +108,7 @@
             }
 
             $scope.fieldFilter = function(element) {
-                if (element.element_type == 'field')
-                    return true;
-                return false;
+                return element.element_type == 'field';
             }
 
 
@@ -140,7 +138,7 @@
                     $scope.tableNote = data.note;
                     var fieldData = JSON.parse(data.schema).fields;
                     for (var i = 0; i < fieldData.length; i++) {
-                        $scope.schemaElementMetadata[fieldData[i].name] = fieldData[i].type;
+                        $scope.schemaElementMetadata[fieldData[i].name] = getColumnType(fieldData[i]);
                     }
                     getSchemaElements();
                 }).error(function (errorData) {
@@ -155,7 +153,8 @@
                         if (data[i].element_type == 'record')
                             $scope.tableDescription = data[i].doc;
                         if (data[i].element_type == 'field') {
-                            data[i].type = $scope.schemaElementMetadata[data[i].key.split('|')[1]];
+                            data[i].name = getColumnName(data[i].key);
+                            data[i].type = $scope.schemaElementMetadata[data[i].name];
                             $scope.schemaElements.push(data[i]);
                         }
                     }
@@ -166,6 +165,32 @@
                     $scope.tableError = errorData;
                 });
                 $scope.load = false;
+            };
+
+            function getColumnType(metadata) {
+                var type = "";
+                if (typeof metadata.type == 'string') {
+                    type = metadata.type;
+                    if (metadata.type == 'string' && metadata.maxlen != undefined) {
+                        type += ('(' + metadata.maxlen + ')');
+                    }
+                    type += ' not null';
+                } else if (Object.prototype.toString.call(metadata.type) == '[object Array]') {
+                    for(var i = 0; i < metadata.type.length; i++) {
+                        if (metadata.type[i] == 'string' && metadata.maxlen != undefined) {
+                            type += ('string(' + metadata.maxlen + ') ');
+                        } else {
+                            type += (metadata.type[i] + ' ');
+                        }
+                    }
+                } else {
+                    type = metadata.type;
+                }
+                return type;
+            }
+
+            function getColumnName(name) {
+                return name.split('|')[1];
             };
 
             initTable();    // Initialize table data on page load
