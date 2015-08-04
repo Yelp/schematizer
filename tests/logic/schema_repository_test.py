@@ -25,6 +25,10 @@ class TestSchemaRepository(DBTestCase):
     def source_owner_email(self):
         return factories.fake_owner_email
 
+    @property
+    def schema_contains_pii(self):
+        return True
+
     @pytest.fixture
     def namespace(self):
         return factories.create_namespace(self.namespace_name)
@@ -154,6 +158,7 @@ class TestSchemaRepository(DBTestCase):
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
+            contains_pii=False,
             base_schema_id=expected_base_schema_id
         )
 
@@ -187,7 +192,8 @@ class TestSchemaRepository(DBTestCase):
             self.another_rw_schema_json,
             topic.source.namespace.name,
             topic.source.name,
-            topic.source.owner_email
+            topic.source.owner_email,
+            contains_pii=False
         )
 
         expected_schema = models.AvroSchema(
@@ -198,19 +204,17 @@ class TestSchemaRepository(DBTestCase):
         self.assert_equal_avro_schema_partial(expected_schema, actual_schema)
         assert topic.id == actual_schema.topic_id
 
-    @pytest.mark.usefixtures('rw_schema')
-    def test_create_schema_from_avro_json_with_incompatible_schema(
-            self,
-            topic,
-            mock_compatible_func
+    def assert_new_topic_created_after_schema_register(
+        self,
+        topic,
+        contains_pii
     ):
-        mock_compatible_func.return_value = False
-
         actual_schema = schema_repo.create_avro_schema_from_avro_json(
             self.another_rw_schema_json,
             topic.source.namespace.name,
             topic.source.name,
-            topic.source.owner_email
+            topic.source.owner_email,
+            contains_pii
         )
 
         expected_schema = models.AvroSchema(
@@ -227,6 +231,30 @@ class TestSchemaRepository(DBTestCase):
         # the new topic should still be under the same source
         assert topic.source_id == actual_schema.topic.source_id
 
+    @pytest.mark.usefixtures('rw_schema')
+    def test_create_schema_from_avro_json_with_incompatible_schema(
+            self,
+            topic,
+            mock_compatible_func
+    ):
+        mock_compatible_func.return_value = False
+        self.assert_new_topic_created_after_schema_register(
+            topic,
+            contains_pii=False
+        )
+
+    @pytest.mark.usefixtures('rw_schema')
+    def test_create_schema_from_avro_json_with_different_pii(
+            self,
+            topic,
+            mock_compatible_func
+    ):
+        mock_compatible_func.return_value = True
+        self.assert_new_topic_created_after_schema_register(
+            topic,
+            not topic.contains_pii
+        )
+
     def test_create_schema_from_avro_json_with_same_schema(
             self,
             rw_schema,
@@ -239,6 +267,7 @@ class TestSchemaRepository(DBTestCase):
             rw_schema.topic.source.namespace.name,
             rw_schema.topic.source.name,
             rw_schema.topic.source.owner_email,
+            contains_pii=False
         )
 
         assert rw_schema.id == actual.id
@@ -257,6 +286,7 @@ class TestSchemaRepository(DBTestCase):
             rw_schema.topic.source.namespace.name,
             rw_schema.topic.source.name,
             rw_schema.topic.source.owner_email,
+            contains_pii=False,
             base_schema_id=expected_base_schema_id
         )
 
