@@ -67,6 +67,7 @@ def create_avro_schema_from_avro_json(
         namespace_name,
         source_name,
         source_email_owner,
+        contains_pii,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
         base_schema_id=None
 ):
@@ -103,15 +104,16 @@ def create_avro_schema_from_avro_json(
     # schema to the topic or change schema status.
     _lock_topic_and_schemas(topic)
 
-    if (not topic or not is_schema_compatible_in_topic(
-            avro_schema_json,
-            topic.name
-    )):
+    if (
+        not topic or
+        topic.contains_pii != contains_pii or
+        not is_schema_compatible_in_topic(avro_schema_json, topic.name)
+    ):
         # Note that creating duplicate topic names will throw a sqlalchemy
         # IntegrityError exception. When it occurs, it indicates the uuid
         # is generating the same value (rarely) and we'd like to know it.
         topic_name = _construct_topic_name(namespace_name, source_name)
-        topic = _create_topic(topic_name, source.id)
+        topic = _create_topic(topic_name, source.id, contains_pii)
 
     # Do not create the schema if it is the same as the latest one
     latest_schema = get_latest_schema_by_topic_id(topic.id)
@@ -274,12 +276,16 @@ def _construct_topic_name(namespace, source):
     return '.'.join((namespace, source, uuid.uuid4().hex))
 
 
-def _create_topic(topic_name, source_id):
+def _create_topic(topic_name, source_id, contains_pii):
     """Create a topic named `topic_name` in the given source.
     It returns a newly created topic. If a topic with the same
     name already exists, an exception is thrown
     """
-    topic = models.Topic(name=topic_name, source_id=source_id)
+    topic = models.Topic(
+        name=topic_name,
+        source_id=source_id,
+        contains_pii=contains_pii
+    )
     session.add(topic)
     session.flush()
     return topic
