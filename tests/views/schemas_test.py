@@ -28,7 +28,7 @@ class TestSchemasViewBase(TestApiBase):
             'source_name': factories.fake_source,
             'source_email_owner': factories.fake_owner_email,
             'base_schema_id': factories.fake_base_schema_id,
-            'is_pii_schema': factories.fake_is_pii_schema,
+            'contains_pii': factories.fake_contains_pii,
         }
         expected_call_args.update(param_override)
         mock_repo.create_avro_schema_from_avro_json.assert_called_once_with(
@@ -79,7 +79,7 @@ class TestRegisterSchema(TestSchemasViewBase):
             "namespace": factories.fake_namespace,
             "source": factories.fake_source,
             "source_owner_email": factories.fake_owner_email,
-            'is_pii_schema': factories.fake_is_pii_schema
+            'contains_pii': factories.fake_contains_pii
         }
 
     @property
@@ -163,7 +163,7 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
             "namespace": factories.fake_namespace,
             "source": factories.fake_source,
             "source_owner_email": factories.fake_owner_email,
-            'is_pii_schema': factories.fake_is_pii_schema
+            'contains_pii': factories.fake_contains_pii
         }
 
     @pytest.yield_fixture
@@ -184,7 +184,7 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
             "namespace": factories.fake_namespace,
             "source": factories.fake_source,
             "source_owner_email": factories.fake_owner_email,
-            'is_pii_schema': factories.fake_is_pii_schema
+            'contains_pii': factories.fake_contains_pii
         },
         {
             "new_create_table_stmt": 'create new table',
@@ -193,7 +193,7 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
             "namespace": factories.fake_namespace,
             "source": factories.fake_source,
             "source_owner_email": factories.fake_owner_email,
-            'is_pii_schema': factories.fake_is_pii_schema
+            'contains_pii': factories.fake_contains_pii
         },
     ])
     @pytest.mark.usefixtures(
@@ -284,7 +284,7 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
             "namespace": factories.fake_namespace,
             "source": factories.fake_source,
             "source_owner_email": factories.fake_owner_email,
-            'is_pii_schema': factories.fake_is_pii_schema
+            'contains_pii': factories.fake_contains_pii
         }
         expected_exception = self.get_http_exception(400)
 

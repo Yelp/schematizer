@@ -35,20 +35,20 @@ class Topic(Base):
 
     avro_schemas = relationship(AvroSchema, backref="topic")
 
-    _is_pii = Column('is_pii', Integer, nullable=False)
+    _contains_pii = Column('contains_pii', Integer, nullable=False)
 
     @property
-    def is_pii_schema(self):
-        return bool(self._is_pii)
+    def contains_pii(self):
+        return bool(self._contains_pii)
 
-    @is_pii_schema.setter
-    def is_pii_schema(self, value):
+    @contains_pii.setter
+    def contains_pii(self, value):
         if not isinstance(value, bool):
             raise ValueError(
-                "Wrong type was found. Type of is_pii_schema should be bool."
+                "Type of contains_pii should be bool."
             )
 
-        self._is_pii = int(value)
+        self._contains_pii = int(value)
 
     # Timestamp when the entry is created
     created_at = build_time_column(
@@ -68,7 +68,7 @@ class Topic(Base):
             'topic_id': self.id,
             'name': self.name,
             'source': self.source.to_dict(),
-            'is_pii_schema': self.is_pii_schema,
+            'contains_pii': self.contains_pii,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
