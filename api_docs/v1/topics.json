@@ -200,6 +200,10 @@
                     "$ref": "Source",
                     "description": "Source of the Avro schema."
                 },
+                "contains_pii": {
+                    "type": "boolean",
+                    "description": "Whether the messages in this topic contain PII."
+                },
                 "created_at": {
                     "type": "string",
                     "format": "date-time",

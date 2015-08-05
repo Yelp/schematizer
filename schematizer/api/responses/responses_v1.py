@@ -41,6 +41,7 @@ def get_topic_response_from_topic(topic):
         'topic_id': topic.id,
         'name': topic.name,
         'source': get_source_response_from_source(topic.source),
+        'contains_pii': topic.contains_pii,
         'created_at': _format_datetime(topic.created_at),
         'updated_at': _format_datetime(topic.updated_at)
     }

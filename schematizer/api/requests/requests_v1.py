@@ -19,7 +19,7 @@ class RegisterSchemaRequest(RequestBase):
             namespace,
             source,
             source_owner_email,
-            contains_pii,
+            contains_pii=False,
             base_schema_id=None
     ):
         super(RegisterSchemaRequest, self).__init__()
@@ -43,7 +43,7 @@ class RegisterSchemaFromMySqlRequest(RequestBase):
         namespace,
         source,
         source_owner_email,
-        contains_pii,
+        contains_pii=False,
         old_create_table_stmt=None,
         alter_table_stmt=None
     ):
