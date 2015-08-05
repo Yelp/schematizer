@@ -81,3 +81,12 @@ def get_note_response_from_note(note):
         }
         return response
     return None
+
+
+def get_category_response_from_source_category(source_category):
+    return {
+        'source_id': source_category.source_id,
+        'category': source_category.category,
+        'created_at': _format_datetime(source_category.created_at),
+        'updated_at': _format_datetime(source_category.updated_at)
+    }

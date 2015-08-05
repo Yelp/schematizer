@@ -293,13 +293,9 @@
         "CategoryResponse": {
             "id": "CategoryResponse",
             "properties": {
-                "id": {
-                    "type": "integer",
-                    "description": "The id of the object"
-                },
                 "source_id": {
                     "type": "integer",
-                    "description": "The id of the source this object specifies"
+                    "description": "The id of the source this category specifies"
                 },
                 "category": {
                     "type": "string",

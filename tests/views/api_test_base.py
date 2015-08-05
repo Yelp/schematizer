@@ -242,7 +242,6 @@ class TestApiBase(object):
     @property
     def source_category_response(self):
         return {
-            'id': factories.fake_default_id,
             'source_id': factories.fake_default_id,
             'category': self.category,
             'created_at': factories.fake_created_at.isoformat(),

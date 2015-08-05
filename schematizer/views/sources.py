@@ -85,4 +85,6 @@ def update_category(request):
         )
     else:
         doc_tool.update_source_category(source_id, req.category)
-    return source_category.to_dict()
+    return responses_v1.get_category_response_from_source_category(
+        source_category
+    )
