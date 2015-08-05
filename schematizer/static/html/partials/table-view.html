@@ -40,10 +40,27 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="row padded">
-                                <!-- TODO(wscheng#DATAPIPE-310): Add code to actually edit and save categories. Functions currently placeholders. -->
-                                <div class="col-md-3"><b>Category <span id="catBtn">(<a href="javascript: editCategory();">Edit</a>)</span><span id="saveBtn" style="display: none;">(<a href="javascript: saveCategory();">Save</a>)</span></b></div>
-                                <div class="col-md-9" id="category">Business Info</div>
+                            <div class="row padded" ng-hide="isEditingCategory">
+                                <div class="col-md-3"><b>Category (<a href="" ng-click="editCategory()">Edit</a>)</b></div>
+                                <div class="col-md-9" id="category">{{category}}</div>
+                            </div>
+                            <div class="row padded" ng-show="isEditingCategory">
+                                <div class="col-md-3"><b>Category (<a href="" ng-click="saveCategory()">Save</a>)</b></div>
+                                <div class="col-md-9">
+                                    <select ng-model="category">
+                                        <option>Business Info</option>
+                                        <option>Content</option>
+                                        <option>Deals</option>
+                                        <option>GC Offers</option>
+                                        <option>Reservations</option>
+                                        <option>Salesforce</option>
+                                        <option>Settings</option>
+                                        <option>System</option>
+                                        <option>User Activity</option>
+                                        <option>User Info</option>
+                                        <option>[ Uncategorized ]</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="row padded">
                                 <div class="col-md-3"><b>Last Updated</b></div>

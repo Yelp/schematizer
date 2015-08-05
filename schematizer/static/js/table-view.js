@@ -15,6 +15,8 @@
             $scope.schemaElements = [];
             $scope.schemaElementMetadata = {};
             $scope.tableDescription = "";
+            $scope.category = "";
+            $scope.isEditingCategory=false;
             $scope.isEditingTableNote = false;
             $scope.tableNoteEdit = "";
             $scope.columnNoteEdit = {};
@@ -108,6 +110,25 @@
                 $scope.columnNoteEdit[field_id].isEditing = false;
             }
 
+            $scope.editCategory = function() {
+                $scope.isEditingCategory = true;
+            }
+
+            $scope.saveCategory = function() {
+                $scope.isEditingCategory = false;
+                $http({
+                    url: '/v1/sources/' + $scope.tableData.source_id + '/category',
+                    method: "POST",
+                    data: JSON.stringify({
+                        category: $scope.category
+                    }),
+                    headers: {'Content-Type': 'application/json'}
+                }).success(function (data) {
+                    $scope.tableData.category = $scope.category;
+                });
+                $scope.isEditingCategory = false;
+            }
+
             $scope.fieldFilter = function(element) {
                 return element.element_type == 'field';
             }
@@ -118,6 +139,11 @@
                     for (var i = 0; i < data.length; i++) {
                         if (data[i].source == $scope.source) {
                             $scope.tableData = data[i];
+                            if ($scope.tableData.category != undefined) {
+                                $scope.category = $scope.tableData.category;
+                            } else {
+                                $scope.category = '[ Uncategorized ]';
+                            }
                             getTopic();
                             return;
                         }
