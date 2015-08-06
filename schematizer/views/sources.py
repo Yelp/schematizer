@@ -88,3 +88,23 @@ def update_category(request):
     return responses_v1.get_category_response_from_source_category(
         source_category
     )
+
+
+@view_config(
+    route_name='api.v1.delete_category',
+    request_method='DELETE',
+    renderer='json'
+)
+@transform_response()
+def delete_category(request):
+    source_id = int(request.matchdict.get('source_id'))
+    source = schema_repository.get_source_by_id(int(source_id))
+    if not source:
+        raise exceptions_v1.source_not_found_exception()
+    source_category = doc_tool.get_source_category_by_source_id(source_id)
+    if source_category is None:
+        raise exceptions_v1.category_not_found_exception()
+    doc_tool.delete_source_category_by_source_id(source_id)
+    return responses_v1.get_category_response_from_source_category(
+        source_category
+    )

@@ -107,6 +107,42 @@
                             "message": "Server side error"
                         }
                     ]
+                },
+                {
+                    "method": "DELETE",
+                    "summary": "Delete the category of given source.",
+                    "notes": "",
+                    "type": "CategoryResponse",
+                    "nickname": "delete_category",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "source_id",
+                            "description": "ID of source that will have its category deleted",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Source ID not found"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Category not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
                 }
             ]
         },

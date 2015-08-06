@@ -25,6 +25,10 @@
         {
             "path": "/v1/notes",
             "description": "Operations about notes"
+        },
+        {
+            "path": "/v1/categories",
+            "description": "Operations about categories"
         }
     ],
     "info": {
