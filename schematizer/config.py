@@ -28,6 +28,9 @@ def routes(config):
         '/v1/sources/{source_id}/category'
     )
     config.add_route(
+        'api.v1.delete_category',
+        'v1/sources/{source_id}/category')
+    config.add_route(
         'api.v1.list_topics_by_source_id',
         '/v1/sources/{source_id}/topics'
     )
@@ -80,6 +83,10 @@ def routes(config):
     config.add_route(
         'api.v1.update_note',
         '/v1/notes/{note_id}'
+    )
+    config.add_route(
+        'api.v1.get_categories',
+        '/v1/categories'
     )
     # Serve the documentation tool from /web/
     config.add_static_view(name='web', path='static/html/')
