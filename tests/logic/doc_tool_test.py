@@ -175,6 +175,11 @@ class TestDocTool(DBTestCase):
         )
         self.assert_equal_note_partial(expected_note, schema_element_note)
 
+    def test_get_source_categories(self, source_category):
+        actual = doc_tool.get_source_categories()
+        assert len(actual) == 1
+        self.assert_equal_source_category(actual[0], source_category)
+
     def test_get_source_category(self, source, source_category):
         actual = doc_tool.get_source_category_by_source_id(source.id)
         self.assert_equal_source_category(source_category, actual)

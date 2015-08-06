@@ -110,18 +110,12 @@
                 },
                 {
                     "method": "DELETE",
-                    "summary": "delete the category of given source.",
+                    "summary": "Delete the category of given source.",
                     "notes": "",
                     "type": "CategoryResponse",
                     "nickname": "delete_category",
                     "authorizations": {},
                     "parameters": [
-                        {
-                            "name": "body",
-                            "required": true,
-                            "type": "CategoryRequest",
-                            "paramType": "body"
-                        },
                         {
                             "name": "source_id",
                             "description": "ID of source that will have its category deleted",
@@ -139,6 +133,10 @@
                         {
                             "code": 404,
                             "message": "Source ID not found"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Category not found"
                         },
                         {
                             "code": 500,

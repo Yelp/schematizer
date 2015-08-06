@@ -46,6 +46,10 @@ def create_note(reference_type, reference_id, note_text, last_updated_by):
     return note
 
 
+def get_source_categories():
+    return session.query(models.SourceCategory).all()
+
+
 def get_source_category_by_source_id(source_id):
     return session.query(
         models.SourceCategory
@@ -74,3 +78,11 @@ def create_source_category(source_id, category):
     session.add(source_category)
     session.flush()
     return source_category
+
+
+def delete_source_category_by_source_id(source_id):
+    return session.query(
+        models.SourceCategory
+    ).filter(
+        models.SourceCategory.source_id == source_id
+    ).delete()
