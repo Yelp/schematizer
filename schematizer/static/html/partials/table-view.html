@@ -44,22 +44,22 @@
                                 <div class="col-md-3"><b>Category (<a href="" ng-click="editCategory()">Edit</a>)</b></div>
                                 <div class="col-md-9" id="category">{{category}}</div>
                             </div>
-                            <div class="row padded" ng-show="isEditingCategory">
+                            <div class="row padded" ng-show="isEditingCategory && !isCreatingNewCategory">
                                 <div class="col-md-3"><b>Category (<a href="" ng-click="saveCategory()">Save</a>)</b></div>
                                 <div class="col-md-9">
                                     <select ng-model="category">
-                                        <option>Business Info</option>
-                                        <option>Content</option>
-                                        <option>Deals</option>
-                                        <option>GC Offers</option>
-                                        <option>Reservations</option>
-                                        <option>Salesforce</option>
-                                        <option>Settings</option>
-                                        <option>System</option>
-                                        <option>User Activity</option>
-                                        <option>User Info</option>
+                                        <option ng-repeat="cat in categories">{{cat}}</option>
                                         <option>[ Uncategorized ]</option>
                                     </select>
+                                    <a class="pull-right" href="" ng-click="newCategory()">Create New Category</a>
+                                </div>
+                            </div>
+                            <div class="row padded" ng-show="isCreatingNewCategory">
+                                <div class="col-md-3"><b>Category (<a href="" ng-click="saveCategory()">Save</a>)</b></div>
+                                <div class="col-md-9">
+                                    <form ng-model="category">
+                                        <input ng-model="category">
+                                    </form>
                                 </div>
                             </div>
                             <div class="row padded">

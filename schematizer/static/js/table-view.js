@@ -16,7 +16,9 @@
             $scope.schemaElementMetadata = {};
             $scope.tableDescription = "";
             $scope.category = "";
-            $scope.isEditingCategory=false;
+            $scope.categories = [];
+            $scope.isCreatingNewCategory = false;
+            $scope.isEditingCategory = false;
             $scope.isEditingTableNote = false;
             $scope.tableNoteEdit = "";
             $scope.columnNoteEdit = {};
@@ -115,18 +117,32 @@
             }
 
             $scope.saveCategory = function() {
+                if ($scope.category == '[ Uncategorized ]') {
+                    $http({
+                        url: '/v1/sources/' + $scope.tableData.source_id + '/category',
+                        method: "DELETE",
+                        headers: {'Content-Type': 'application/json'}
+                    }).success(function (data) {
+                        $scope.tableData.category = $scope.category;
+                    });
+                } else {
+                    $http({
+                        url: '/v1/sources/' + $scope.tableData.source_id + '/category',
+                        method: "POST",
+                        data: JSON.stringify({
+                            category: $scope.category
+                        }),
+                        headers: {'Content-Type': 'application/json'}
+                    }).success(function (data) {
+                        $scope.tableData.category = $scope.category;
+                    });
+                }
                 $scope.isEditingCategory = false;
-                $http({
-                    url: '/v1/sources/' + $scope.tableData.source_id + '/category',
-                    method: "POST",
-                    data: JSON.stringify({
-                        category: $scope.category
-                    }),
-                    headers: {'Content-Type': 'application/json'}
-                }).success(function (data) {
-                    $scope.tableData.category = $scope.category;
-                });
-                $scope.isEditingCategory = false;
+                $scope.isCreatingNewCategory = false;
+            }
+
+            $scope.newCategory = function() {
+                $scope.isCreatingNewCategory = true;
             }
 
             $scope.fieldFilter = function(element) {
@@ -153,6 +169,9 @@
                 }).error(function (errorData) {
                     $scope.tableError = errorData;
                     $scope.load = false;
+                });
+                $http.get('/v1/categories').success(function (data) {
+                    $scope.categories = data;
                 });
             };
 
