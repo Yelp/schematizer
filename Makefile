@@ -12,7 +12,7 @@ docs:
 
 test:
 	docker pull docker-dev.yelpcorp.com/mysql-testing:latest
-	tox -e py
+	tox -e py27
 
 itest: build-image
 	tox -e acceptance
@@ -25,3 +25,8 @@ clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -delete
 	rm -rf .tox/
+
+export GIT_SHA ?= $(shell git rev-parse --short HEAD)
+
+docker_push:
+	tox -e docker-push
