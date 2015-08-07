@@ -4,14 +4,14 @@
 # Docker image names match those created by docker-compose.yml (or fig.yml)
 #
 
-schematizerservice:
+schematizer_schematizerservice:
     image: docker-dev.yelpcorp.com/schematizer_service
     tags: ['latest', '${GIT_SHA}']
 
-schematizerdatabase:
+schematizer_schematizerdatabase:
     image: docker-dev.yelpcorp.com/schematizer_database
     tags: ['latest', '${GIT_SHA}']
 
-schematizerconfigs:
+schematizer_schematizerconfigs:
     image: docker-dev.yelpcorp.com/schematizer_configs
     tags: ['latest', '${GIT_SHA}']
