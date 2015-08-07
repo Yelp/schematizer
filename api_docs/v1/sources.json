@@ -110,7 +110,7 @@
                 },
                 {
                     "method": "DELETE",
-                    "summary": "Delete the category of given source.",
+                    "summary": "Remove the source from current category.",
                     "notes": "",
                     "type": "CategoryResponse",
                     "nickname": "delete_category",
