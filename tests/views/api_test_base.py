@@ -249,26 +249,6 @@ class TestApiBase(object):
         }
 
     @property
-    def source_categories_response(self):
-        return [
-            self.source_category,
-            SourceCategory(
-                id=factories.fake_default_id,
-                source_id=factories.fake_default_id,
-                category=self.new_category,
-                created_at=factories.fake_created_at,
-                updated_at=factories.fake_updated_at
-            ),
-            SourceCategory(
-                id=factories.fake_default_id,
-                source_id=factories.fake_default_id,
-                category=self.category,
-                created_at=factories.fake_created_at,
-                updated_at=factories.fake_updated_at
-            )
-        ]
-
-    @property
     def categories(self):
         return sorted([self.category, self.new_category])
 

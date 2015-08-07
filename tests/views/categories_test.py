@@ -11,12 +11,11 @@ class TestCategoriesViewBase(TestApiBase):
 class TestListCategories(TestCategoriesViewBase):
 
     def test_no_categories(self, mock_request, mock_doc_tool):
-        mock_doc_tool.get_source_categories.return_value = []
+        mock_doc_tool.get_distinct_categories.return_value = []
         actual = categories.list_categories(mock_request)
         assert actual == []
 
     def test_happy_case(self, mock_request, mock_doc_tool):
-        mock_doc_tool.get_source_categories.return_value = \
-            self.source_categories_response
+        mock_doc_tool.get_distinct_categories.return_value = self.categories
         actual = categories.list_categories(mock_request)
         assert self.categories == actual

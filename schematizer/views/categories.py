@@ -10,6 +10,6 @@ from schematizer.logic import doc_tool
     renderer='json'
 )
 def list_categories(request):
-    categories = doc_tool.get_source_categories()
+    categories = doc_tool.get_distinct_categories()
     # Remove duplicates and return categories as a list
-    return sorted(list(set(category.category for category in categories)))
+    return categories
