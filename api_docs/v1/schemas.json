@@ -157,7 +157,8 @@
                 "new_create_table_stmt",
                 "namespace",
                 "source",
-                "source_owner_email"
+                "source_owner_email",
+                "contains_pii"
             ],
             "properties": {
                 "new_create_table_stmt": {
@@ -183,6 +184,10 @@
                 "source_owner_email": {
                     "type": "string",
                     "description": "Email address of the source owner"
+                },
+                "contains_pii": {
+                    "type": "boolean",
+                    "description": "Whether the schema contains PII field."
                 }
             }
         },
@@ -192,7 +197,8 @@
                 "schema",
                 "namespace",
                 "source",
-                "source_owner_email"
+                "source_owner_email",
+                "contains_pii"
             ],
             "properties": {
                 "base_schema_id": {
@@ -214,6 +220,10 @@
                 "source_owner_email": {
                     "type": "string",
                     "description": "Email address of the source owner"
+                },
+                "contains_pii": {
+                    "type": "boolean",
+                    "description": "Whether the schema contains PII field."
                 }
             }
         },
