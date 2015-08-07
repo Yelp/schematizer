@@ -124,6 +124,7 @@
                         method: "DELETE",
                         headers: {'Content-Type': 'application/json'}
                     }).success(function (data) {
+                        $scope.category = $scope.UNCATEGORIZED
                         $scope.tableData.category = $scope.category;
                     });
                 } else {
