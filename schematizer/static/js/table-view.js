@@ -23,6 +23,7 @@
             $scope.tableNoteEdit = "";
             $scope.columnNoteEdit = {};
             $scope.user = "user@yelp.com"; // TODO: (wscheng#DATAPIPE-233): Attach user to this variable once stargate is activated
+            $scope.UNCATEGORIZED = '[ Uncategorized ]'
 
 
             // Functions for saving and editing table data
@@ -117,7 +118,7 @@
             }
 
             $scope.saveCategory = function() {
-                if ($scope.category == '[ Uncategorized ]') {
+                if ($scope.category == $scope.UNCATEGORIZED || $scope.category == "") {
                     $http({
                         url: '/v1/sources/' + $scope.tableData.source_id + '/category',
                         method: "DELETE",
@@ -158,7 +159,7 @@
                             if ($scope.tableData.category != undefined) {
                                 $scope.category = $scope.tableData.category;
                             } else {
-                                $scope.category = '[ Uncategorized ]';
+                                $scope.category = $scope.UNCATEGORIZED;
                             }
                             getTopic();
                             return;
