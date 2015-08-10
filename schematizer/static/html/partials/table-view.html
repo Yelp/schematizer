@@ -1,8 +1,7 @@
-
 <div class="container">
 
-    <!-- Loading bar, so that the UI doesn't look frozen when we're getting a list of schemas. -->
-    <!-- The loading bar should disappear when the schema end-point returns. -->
+    <!-- Loading bar, so that the UI doesn't look frozen when we're getting the table information. -->
+    <!-- The loading bar should disappear when the table info is loaded. -->
     <div class="row" ng-show="load">
         <div class="col-lg-12">
             <div class="progress">
@@ -11,7 +10,7 @@
         </div>
     </div>
 
-    <!-- Area to display errors, if there are any, when getting a list of schemas -->
+    <!-- Area to display errors, if there are any, when getting table info -->
     <div class="row" ng-show="tableError">
         <div class="col-lg-12">
             <div class="alert alert-danger" role="alert">Table failed to load</div>
