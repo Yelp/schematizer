@@ -8,7 +8,7 @@ from pyramid.httpexceptions import HTTPNotFound
 from pyramid.httpexceptions import HTTPServerError
 from sqlalchemy.orm.exc import NoResultFound
 
-from schematizer.api.decorators import transform_response
+from schematizer.api.decorators import transform_api_response
 from schematizer.api.decorators import handle_view_exception
 from testing import factories
 
@@ -66,17 +66,17 @@ list_of_source_response[0]['source_id'] = 2
 list_of_source_response[1]['source_id'] = 3
 
 
-@transform_response()
+@transform_api_response()
 def _view_mock_return_list_of_sources(request):
     return list_of_source_response
 
 
-@transform_response()
+@transform_api_response()
 def _view_mock_return_source(request):
     return source_response
 
 
-@transform_response()
+@transform_api_response()
 def _mock_pass_request_as_response(pass_through_response):
     return pass_through_response
 
@@ -97,24 +97,24 @@ class TestDecorators(object):
             assert e.code == 404
             assert str(e) == no_result_found_error_message
 
-    def test_transform_response_with_list_of_objects(self):
+    def test_transform_api_response_with_list_of_objects(self):
         request_mock = Mock()
         expected_response = copy.deepcopy(list_of_source_response)
         response = _view_mock_return_list_of_sources(request_mock)
         for source, expected_source in zip(response, expected_response):
             self.assert_source_response(source, expected_source)
 
-    def test_transform_response_with_single_object(self):
+    def test_transform_api_response_with_single_object(self):
         request_mock = Mock()
         expected_response = copy.deepcopy(source_response)
         response = _view_mock_return_source(request_mock)
         self.assert_source_response(response, expected_response)
 
-    def test_transform_response_object_none_fields_removed(self):
+    def test_transform_api_response_object_none_fields_removed(self):
         response = _mock_pass_request_as_response({'good': 1, 'bad': None})
         assert response == {'good': 1}
 
-    def test_transform_response_list_of_objects_none_fields_removed(self):
+    def test_transform_api_response_list_of_objects_none_fields_removed(self):
         response = _mock_pass_request_as_response(
             [{'good': 1, 'bad': None}, {'good': 2, 'bad': None}]
         )

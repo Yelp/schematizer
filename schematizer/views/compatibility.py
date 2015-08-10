@@ -3,7 +3,7 @@ import simplejson
 from avro import schema
 from pyramid.view import view_config
 
-from schematizer.api.decorators import transform_response
+from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.requests import requests_v1
 from schematizer.logic import schema_repository as schema_repo
@@ -15,7 +15,7 @@ from schematizer.views import view_common
     request_method='POST',
     renderer='json'
 )
-@transform_response()
+@transform_api_response()
 def is_avro_schema_compatible(request):
     try:
         req = requests_v1.AvroSchemaCompatibilityRequest(**request.json_body)
@@ -38,7 +38,7 @@ def is_avro_schema_compatible(request):
     request_method='POST',
     renderer='json'
 )
-@transform_response()
+@transform_api_response()
 def is_mysql_schema_compatible(request):
     req = requests_v1.MysqlSchemaCompatibilityRequest(**request.json_body)
     avro_schema_json = view_common.convert_to_avro_from_mysql(

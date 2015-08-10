@@ -39,6 +39,11 @@
         </nav>
 
         <div ng-view></div>
-
+        <div class="test_mako">${test_mako}</div>
+        <div class="_context">${_context}</div>
+        <div class="request">${request}</div>
+        <div class="renderer_name">${renderer_name}</div>
+        <div class="renderer_info">${renderer_info}</div>
+        <div class="view">${view}</div>
     </body>
 </html>

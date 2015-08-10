@@ -66,7 +66,11 @@ def _create_application():
     config.include('pyramid_yelp_conn')
     config.set_yelp_conn_session(schematizer.models.database.session)
 
+    # Include pyramid_swagger for REST endpoints (see ../api-docs/)
     config.include('pyramid_swagger')
+
+    # Include pyramid_mako for template rendering
+    config.include('pyramid_mako')
 
     # Display metrics on the '/status/metrics' endpoint
     config.include(pyramid_uwsgi_metrics)
