@@ -136,7 +136,7 @@
                         },
                         {
                             "code": 404,
-                            "message": "Category not found"
+                            "message": "Category not found for the given source"
                         },
                         {
                             "code": 500,

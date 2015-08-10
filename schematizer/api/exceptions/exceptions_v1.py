@@ -12,7 +12,7 @@ INVALID_AVRO_SCHEMA_ERROR = 'Invalid Avro schema.'
 INVALID_REQUEST_ERROR = 'Invalid request.'
 NOTE_NOT_FOUND_ERROR_MESSAGE = 'Note is not found.'
 REFERENCE_NOT_FOUND_ERROR_MESSAGE = 'Reference object not found'
-CATEGORY_NOT_FOUND_ERROR_MESSAGE = 'Category not found'
+CATEGORY_NOT_FOUND_ERROR_MESSAGE = 'Category not found for the given source'
 
 
 def invalid_schema_exception(err_message=INVALID_AVRO_SCHEMA_ERROR):
