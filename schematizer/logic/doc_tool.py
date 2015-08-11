@@ -49,7 +49,7 @@ def create_note(reference_type, reference_id, note_text, last_updated_by):
 def get_distinct_categories():
     categories = session.query(models.SourceCategory.category).distinct().all()
     # categories is a list of single item lists. Return a single layered list.
-    return [category[0] for category in categories]
+    return [category for category, in categories]
 
 
 def get_source_category_by_source_id(source_id):
