@@ -65,13 +65,9 @@
                                 <div class="col-md-3"><b>Last Updated</b></div>
                                 <div class="col-md-9">{{tableData.updated_at}}</div>
                             </div>
-                            <div class="row padded">
-                                <div class="col-md-3"><b>Source</b></div>
-                                <div class="col-md-9"><a href="#"></a></div>
-                            </div>
                         </div>
                     </div>
-                    <div class="row" style="padding-top: 10px;">
+                    <div class="row">
                         <div class="col-md-9">
                             <div class="row">
                                 <div class="col-md-2"><b>Notes (<a href="" ng-click="editTableNote()">Edit</a>)</b></div>
@@ -107,7 +103,7 @@
                             <span class="pull-right"><a href="" ng-click="editColumnNote(field.id)">Edit</a></span>
                         </p>
                         <div ng-show="columnNoteEdit[field.id].isEditing">
-                            <input class="form-control input-sm" ng-model="columnNoteEdit[field.id].edit"></input>
+                            <textarea class="form-control input-sm" ng-model="columnNoteEdit[field.id].edit"></textarea>
                             <a class="btn btn-default btn-sm" ng-click="saveColumnNote(field.id)">Save</a>
                             <a class="btn btn-default btn-sm" ng-click="cancelColumnNote(field.id)">Cancel</a>
                         </div>
