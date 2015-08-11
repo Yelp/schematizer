@@ -18,7 +18,7 @@
             $scope.isEditingTableNote = false;
             $scope.tableNoteEdit = "";
             $scope.columnNoteEdit = {};
-            $scope.user = "user@yelp.com"; // TODO: (wscheng#DATAPIPE-233): Attach user to this variable once stargate is activated
+            $scope.user = window.user_email;
 
 
             // Functions for saving and editing table data

@@ -3,6 +3,7 @@
 import os
 
 import pyramid_uwsgi_metrics
+import staticconf
 import uwsgi_metrics
 import yelp_pyramid
 import yelp_pyramid.healthcheck
@@ -24,6 +25,22 @@ def initialize_application():
     config_util.load_default_config(
         SERVICE_CONFIG_PATH,
         SERVICE_ENV_CONFIG_PATH
+    )
+    smartstack_conf = staticconf.NamespaceGetters('smartstack_services')
+    staticconf.DictConfiguration(
+        {
+            'services': {
+                'internalapi': {
+                    'hostname': smartstack_conf.get_string(
+                        'yelp-main_internalapi.long_timeout.host'
+                    ),
+                    'port': smartstack_conf.get_int(
+                        'yelp-main_internalapi.long_timeout.port'
+                    )
+                }
+            }
+        },
+        namespace='services'
     )
 
 

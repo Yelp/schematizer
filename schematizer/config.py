@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
-
+INTERNALAPI_SOURCE = "schematizer"
 log = logging.getLogger('schematizer.config')
 
 

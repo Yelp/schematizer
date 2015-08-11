@@ -38,6 +38,7 @@ yelp-cgeom==1.3.1
 yelp-clog==1.4.2
 yelp-conn==6.0.0
 yelp-lib==9.1.0
+yelp-main-internalapi-clientlib==5.9.0
 yelp-pyramid==0.15.1
 yelp-servlib==4.2.2
 zope.deprecation==4.1.1
