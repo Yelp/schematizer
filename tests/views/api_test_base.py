@@ -250,7 +250,7 @@ class TestApiBase(object):
 
     @property
     def categories(self):
-        return sorted([self.category, self.new_category])
+        return [self.category, self.new_category]
 
     @pytest.yield_fixture
     def mock_request(self):
