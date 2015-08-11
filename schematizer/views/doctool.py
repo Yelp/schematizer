@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 import yelp_main_internalapi.stub as yelp_main_internalapi
-from yelp_lib.decorators import memoized
 from pyramid.view import view_config
-
-from schematizer.config import INTERNALAPI_SOURCE
+from yelp_lib.decorators import memoized
 
 
 @memoized
 def get_yelp_main_internalapi_stub():
-    return yelp_main_internalapi.YelpMainInternalAPIStub(INTERNALAPI_SOURCE)
+    return yelp_main_internalapi.YelpMainInternalAPIStub(source="schematizer")
 
 
 def get_admin_user_id_from_request(request):
@@ -43,6 +41,9 @@ def get_admin_user_info(admin_user_id):
     renderer='schematizer:templates/index.mako'
 )
 def doctool_index(request):
+    """ This is invoked to serve the index of the documentation tool and extract
+    authentication information from stargate.
+    """
     admin_user_info = get_admin_user_info(
         admin_user_id=get_admin_user_id_from_request(request)
     )
