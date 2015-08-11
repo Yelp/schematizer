@@ -6,7 +6,7 @@
         function($scope, $http, $location){
 
             $scope.tables = [];
-            $scope.filtered = [];
+            $scope.filtered = {};
             $scope.load = true;
             $scope.schemaFilter = $location.search().schema;
             $scope.ALL_CATEGORIES = '[ All Categories ]';
