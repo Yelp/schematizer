@@ -2,15 +2,18 @@
     var app = angular.module('home', []);
 
     "use strict";
-    app.controller('HomeController', ['$scope', '$http', '$location',
-        function($scope, $http, $location){
+    app.controller('HomeController', ['$scope', '$http', '$location', 'CONSTANTS',
+        function($scope, $http, $location, CONSTANTS){
 
             $scope.tables = [];
             $scope.filtered = {};
             $scope.load = true;
             $scope.schemaFilter = $location.search().schema;
-            $scope.ALL_CATEGORIES = '[ All Categories ]';
-            $scope.UNCATEGORIZED = '[ Uncategorized ]';
+            if ($scope.schemaFilter == undefined) {
+                $scope.schemaFilter = CONSTANTS.defaultSchema;
+            }
+            $scope.ALL_CATEGORIES = CONSTANTS.allCategories;
+            $scope.UNCATEGORIZED = CONSTANTS.uncategorized;
             $scope.categoryFilter = $scope.ALL_CATEGORIES;
             $scope.categories = [];
 

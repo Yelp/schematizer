@@ -6,9 +6,15 @@
         'tableView'
     ]);
 
+    docToolApp.constant('CONSTANTS', {
+        allCategories: '[ All Categories ]',
+        uncategorized: '[ Uncategorized ]',
+        defaultSchema: 'public_v1'
+    });
+
     "use strict";
-    docToolApp.config(['$routeProvider',
-        function($routeProvider) {
+    docToolApp.config(['$routeProvider', 'CONSTANTS',
+        function($routeProvider, CONSTANTS) {
             $routeProvider.
             when('/home', {
                 templateUrl: 'partials/home.html',
@@ -23,7 +29,7 @@
                 controller: 'AboutController'
             }).
             otherwise({
-                redirectTo: '/home?schema=public_v1'
+                redirectTo: '/home'
             });
         }
     ]);

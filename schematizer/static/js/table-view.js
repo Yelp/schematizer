@@ -2,8 +2,8 @@
     var app = angular.module('tableView', []);
 
     "use strict";
-    app.controller('TableViewController', ['$scope', '$http', '$location',
-        function($scope, $http, $location){
+    app.controller('TableViewController', ['$scope', '$http', '$location', 'CONSTANTS',
+        function($scope, $http, $location, CONSTANTS){
 
             $scope.tableData = null;
             $scope.load = true;
@@ -23,7 +23,7 @@
             $scope.tableNoteEdit = "";
             $scope.columnNoteEdit = {};
             $scope.user = "user@yelp.com"; // TODO: (wscheng#DATAPIPE-233): Attach user to this variable once stargate is activated
-            $scope.UNCATEGORIZED = '[ Uncategorized ]'
+            $scope.UNCATEGORIZED = CONSTANTS.uncategorized;
 
 
             // Functions for saving and editing table data
