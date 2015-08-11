@@ -187,9 +187,11 @@ class TestSchemaElementRepository(DBTestCase):
         actual_chains
     ):
         assert len(actual_chains) == len(expected_chains)
-        for i, expected in enumerate(expected_chains):
-            actual = actual_chains[i]
-            self. assert_equal_schema_element_chain(expected, actual)
+
+        key_to_chain_map = {chain[0].key: chain for chain in actual_chains}
+        for expected in expected_chains:
+            actual = key_to_chain_map[expected[0].key]
+            self.assert_equal_schema_element_chain(expected, actual)
 
     def assert_equal_schema_element_chain(self, expected_chain, actual_chain):
         assert len(actual_chain) == len(expected_chain)
