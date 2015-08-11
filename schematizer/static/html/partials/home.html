@@ -44,9 +44,9 @@
                 </form>
             </div>
             <!-- Display list of tables -->
-            <div class = "col-md-9">
+            <div class="col-md-9">
                 <div ng-show="categoryFilter == ALL_CATEGORIES">
-                    <div ng-repeat="category in categories">
+                    <div ng-repeat="category in categories" ng-show="filtered[category].length > 0">
                         <h5>{{category}} - {{filtered[category].length}} tables</h5>
                         <table class="table table-hover">
                             <tr ng-repeat="table in filtered[category] = (tables | filter: table.category = category | orderBy: 'source')">
@@ -56,15 +56,17 @@
                             </tr>
                         </table>
                     </div>
-                    <h5>{{UNCATEGORIZED}} - {{filtered[UNCATEGORIZED].length}} tables</h5>
-                        <table class="table table-hover">
-                            <tr ng-repeat="table in filtered[UNCATEGORIZED] = (tables | filter: table.category = category | orderBy: 'source')">
-                                <td colspan="4">
-                                    <a ng-href="#/table?schema={{schemaFilter}}&table={{table.source}}">{{table.source}}</a>
-                                </td>
-                            </tr>
-                        </table>
-                    </h5>
+                    <div ng-show="filtered[UNCATEGORIZED].length > 0">
+                        <h5>{{UNCATEGORIZED}} - {{filtered[UNCATEGORIZED].length}} tables</h5>
+                            <table class="table table-hover">
+                                <tr ng-repeat="table in filtered[UNCATEGORIZED] = (tables | filter: table.category = category | orderBy: 'source')">
+                                    <td colspan="4">
+                                        <a ng-href="#/table?schema={{schemaFilter}}&table={{table.source}}">{{table.source}}</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </h5>
+                    </div>
                 </div>
                 <div ng-hide="categoryFilter == ALL_CATEGORIES">
                     <h5>{{categoryFilter}} - {{filtered[categoryFilter].length}} tables</h5>

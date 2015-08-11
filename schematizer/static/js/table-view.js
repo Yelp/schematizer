@@ -151,6 +151,10 @@
                 return element.element_type == 'field';
             }
 
+            $scope.formatDate = function(date) {
+                return date.split('T')[0];
+            }
+
 
             function initTable() {
                 $http.get('/v1/namespaces/' + $scope.namespace + '/sources').success(function (data) {
