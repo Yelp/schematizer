@@ -27,17 +27,16 @@
                             <legend>Filter Tables</legend>
                             <div class="form-group">
                                 <label>Schema</label>
-                                <select class="form-control" ng-model="schemaFilter">
-                                    <option>public_v1</option>
-                                    <option>mycroft_v1</option>
+                                <select class="form-control" ng-model="schemaFilter" ng-change="newSchema()">
+                                    <option ng-repeat="schema in schemas">{{schema}}</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Category</label>
                                 <select class="form-control" ng-model="categoryFilter">
-                                    <option>{{allCategories}}</option>
+                                    <option>{{ALL_CATEGORIES}}</option>
                                     <option ng-repeat="category in categories">{{category}}</option>
-                                    <option>{{uncategorized}}</option>
+                                    <option>{{UNCATEGORIZED}}</option>
                                 </select>
                             </div>
                         </div>

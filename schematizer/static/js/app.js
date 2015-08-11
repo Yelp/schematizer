@@ -23,7 +23,7 @@
                 controller: 'AboutController'
             }).
             otherwise({
-                redirectTo: '/home'
+                redirectTo: '/home?schema=public_v1'
             });
         }
     ]);
