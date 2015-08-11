@@ -11,5 +11,4 @@ from schematizer.logic import doc_tool
 )
 def list_categories(request):
     categories = doc_tool.get_distinct_categories()
-    # Remove duplicates and return categories as a list
     return categories
