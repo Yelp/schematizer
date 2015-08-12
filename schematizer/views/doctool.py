@@ -2,6 +2,7 @@
 import yelp_main_internalapi.stub as yelp_main_internalapi
 from pyramid.view import view_config
 from yelp_lib.decorators import memoized
+from yelp_lib_http.asynchttp import HttpError
 
 
 @memoized
@@ -16,7 +17,6 @@ def get_admin_user_id_from_request(request):
     admin_user_id = request.headers.get('X-User-Id')
     if admin_user_id:
         return int(admin_user_id)
-
     return None
 
 
@@ -28,11 +28,16 @@ def get_admin_user_info(admin_user_id):
         yelp-main/yelp/component/internalapi_spec/swagger_1.2/admin.json
         Returns an empty dictionary if the provided admin_user_id is falsey
     """
-    if not admin_user_id:
-        return {}
-    return get_yelp_main_internalapi_stub().get_admin_user_info(
-        admin_user_id=admin_user_id
-    )()
+    user_info = {}
+    if admin_user_id:
+        try:
+            user_info = get_yelp_main_internalapi_stub().get_admin_user_info(
+                admin_user_id=admin_user_id
+            )()
+        except HttpError:
+            # intentional swallow; return an empty dict if we fail
+            pass
+    return user_info
 
 
 @view_config(
@@ -41,10 +46,11 @@ def get_admin_user_info(admin_user_id):
     renderer='schematizer:templates/index.mako'
 )
 def doctool_index(request):
-    """ This is invoked to serve the index of the documentation tool and extract
-    authentication information from stargate.
+    """ This is invoked to serve the index of the documentation tool and
+    extract authentication information from stargate. If we fail to get the
+    admin_user_info properly we send an empty string for the frontend.
     """
     admin_user_info = get_admin_user_info(
         admin_user_id=get_admin_user_id_from_request(request)
     )
-    return {'user_email': admin_user_info.get('email')}
+    return {'user_email': admin_user_info.get('email', '')}
