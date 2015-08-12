@@ -17,11 +17,12 @@
             $scope.categoryFilter = $scope.ALL_CATEGORIES;
             $scope.categories = [];
 
+            $scope.uncategorizedFilter = function(table) {
+                return table.category == undefined;
+            }
+
             $scope.tableFilter = function(table) {
-                if ($scope.categoryFilter == $scope.ALL_CATEGORIES) {
-                    return true;
-                }
-                else if ($scope.categoryFilter == $scope.UNCATEGORIZED) {
+                if ($scope.categoryFilter == $scope.UNCATEGORIZED) {
                     return table.category == undefined;
                 }
                 return table.category == $scope.categoryFilter;

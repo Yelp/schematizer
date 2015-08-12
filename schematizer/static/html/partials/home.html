@@ -59,7 +59,7 @@
                     <div ng-show="filtered[UNCATEGORIZED].length > 0">
                         <h5>{{UNCATEGORIZED}} - {{filtered[UNCATEGORIZED].length}} tables</h5>
                             <table class="table table-hover">
-                                <tr ng-repeat="table in filtered[UNCATEGORIZED] = (tables | filter: table.category = category | orderBy: 'source')">
+                                <tr ng-repeat="table in filtered[UNCATEGORIZED] = (tables | filter: uncategorizedFilter | orderBy: 'source')">
                                     <td colspan="4">
                                         <a ng-href="#/table?schema={{schemaFilter}}&table={{table.source}}">{{table.source}}</a>
                                     </td>

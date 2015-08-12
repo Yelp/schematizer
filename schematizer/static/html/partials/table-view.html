@@ -32,8 +32,8 @@
                             <div class="row padded">
                                 <div class="col-md-3"><b>Owner</b></div>
                                 <div class="col-md-9">
-                                    <a href="mailto:{{tableData.source_owner_email}}" ng-hide="tableData.source_owner_email == undefined">{{tableData.source_owner_email}}</a>
-                                    <div ng-show="tableData.source_owner_email == undefined">No owner found.</div>
+                                    <a href="mailto:{{tableData.source_owner_email}}" ng-hide="tableData.source_owner_email == ''">{{tableData.source_owner_email}}</a>
+                                    <div ng-show="tableData.source_owner_email == ''">No owner found.</div>
                                 </div>
                             </div>
                             <div class="row">
