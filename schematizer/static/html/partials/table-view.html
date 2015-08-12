@@ -31,11 +31,17 @@
                         <div class="col-md-6">
                             <div class="row padded">
                                 <div class="col-md-3"><b>Owner</b></div>
-                                <div class="col-md-9"><a href="mailto:{{tableData.source_owner_email}}">{{tableData.source_owner_email}}</a></div>
+                                <div class="col-md-9">
+                                    <a href="mailto:{{tableData.source_owner_email}}" ng-hide="tableData.source_owner_email == undefined">{{tableData.source_owner_email}}</a>
+                                    <div ng-show="tableData.source_owner_email == undefined">No owner found.</div>
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3"><b>Description</b></div>
-                                <div class="col-md-9">{{tableDescription}}</div>
+                                <div class="col-md-9">
+                                    <div ng-hide="tableDescription.length == 0">{{tableDescription}}</div>
+                                    <div ng-show="tableDescription.length == 0">No description found.</div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -96,7 +102,10 @@
                 <tr ng-repeat="field in schemaElements | filter: fieldFilter">
                     <td>{{field.name}}</td>
                     <td>{{field.type}}</td>
-                    <td>{{field.doc}}</td>
+                    <td>
+                        <div ng-hide="field.doc.length == 0">{{field.doc}}</div>
+                        <div ng-show="field.doc.length == 0">No description found.</div>
+                    </td>
                     <td id="comment_note" class="comment_note-cell">
                         <p title="Last updated by {{field.note.last_updated_by}}" ng-hide="columnNoteEdit[field.id].isEditing">
                             {{columnNoteEdit[field.id].note.note}}
