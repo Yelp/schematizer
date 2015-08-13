@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
 
-
 log = logging.getLogger('schematizer.config')
 
 
@@ -90,6 +89,10 @@ def routes(config):
     config.add_route(
         'api.v1.list_categories',
         '/v1/categories'
+    )
+    config.add_route(
+        'doctool.index',
+        '/web/'
     )
     # Serve the documentation tool from /web/
     config.add_static_view(name='web', path='static/html/')

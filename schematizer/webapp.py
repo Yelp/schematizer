@@ -3,6 +3,7 @@
 import os
 
 import pyramid_uwsgi_metrics
+import staticconf
 import uwsgi_metrics
 import yelp_pyramid
 import yelp_pyramid.healthcheck
@@ -24,6 +25,22 @@ def initialize_application():
     config_util.load_default_config(
         SERVICE_CONFIG_PATH,
         SERVICE_ENV_CONFIG_PATH
+    )
+    smartstack_conf = staticconf.NamespaceGetters('smartstack_services')
+    staticconf.DictConfiguration(
+        {
+            'services': {
+                'internalapi': {
+                    'hostname': smartstack_conf.get_string(
+                        'yelp-main_internalapi.long_timeout.host'
+                    ),
+                    'port': smartstack_conf.get_int(
+                        'yelp-main_internalapi.long_timeout.port'
+                    )
+                }
+            }
+        },
+        namespace='services'
     )
 
 
@@ -66,7 +83,11 @@ def _create_application():
     config.include('pyramid_yelp_conn')
     config.set_yelp_conn_session(schematizer.models.database.session)
 
+    # Include pyramid_swagger for REST endpoints (see ../api-docs/)
     config.include('pyramid_swagger')
+
+    # Include pyramid_mako for template rendering
+    config.include('pyramid_mako')
 
     # Display metrics on the '/status/metrics' endpoint
     config.include(pyramid_uwsgi_metrics)

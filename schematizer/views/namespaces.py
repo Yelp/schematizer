@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from pyramid.view import view_config
 
-from schematizer.api.decorators import transform_response
+from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.logic import schema_repository
 
@@ -21,7 +21,7 @@ def list_namespaces(request):
     request_method='GET',
     renderer='json'
 )
-@transform_response()
+@transform_api_response()
 def list_sources_by_namespace(request):
     namespace_name = request.matchdict.get('namespace')
     namespace = schema_repository.get_namespace_by_name(namespace_name)
