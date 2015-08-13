@@ -15,7 +15,7 @@ test:
 	tox -e py27
 
 itest: build-image
-	paasta local-run -t
+	paasta local-run -s schematizer -t
 	tox -e acceptance
 
 build-image:
