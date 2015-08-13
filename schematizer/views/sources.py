@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from pyramid.view import view_config
 
-from schematizer.api.decorators import transform_response
+from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.responses import responses_v1
 from schematizer.api.requests import requests_v1
@@ -14,7 +14,7 @@ from schematizer.logic import schema_repository
     request_method='GET',
     renderer='json'
 )
-@transform_response()
+@transform_api_response()
 def list_sources(request):
     sources = schema_repository.get_sources()
     return [source.to_dict() for source in sources]
@@ -25,7 +25,7 @@ def list_sources(request):
     request_method='GET',
     renderer='json'
 )
-@transform_response()
+@transform_api_response()
 def get_source_by_id(request):
     source_id = request.matchdict.get('source_id')
     source = schema_repository.get_source_by_id(int(source_id))
@@ -39,7 +39,7 @@ def get_source_by_id(request):
     request_method='GET',
     renderer='json'
 )
-@transform_response()
+@transform_api_response()
 def list_topics_by_source_id(request):
     source_id = int(request.matchdict.get('source_id'))
     topics = schema_repository.get_topics_by_source_id(source_id)
@@ -53,7 +53,7 @@ def list_topics_by_source_id(request):
     request_method='GET',
     renderer='json'
 )
-@transform_response()
+@transform_api_response()
 def get_latest_topic_by_source_id(request):
     source_id = int(request.matchdict.get('source_id'))
     latest_topic = schema_repository.get_latest_topic_of_source_id(source_id)
@@ -70,7 +70,7 @@ def get_latest_topic_by_source_id(request):
     request_method='POST',
     renderer='json'
 )
-@transform_response()
+@transform_api_response()
 def update_category(request):
     source_id = int(request.matchdict.get('source_id'))
     source = schema_repository.get_source_by_id(int(source_id))
@@ -95,7 +95,7 @@ def update_category(request):
     request_method='DELETE',
     renderer='json'
 )
-@transform_response()
+@transform_api_response()
 def delete_category(request):
     source_id = int(request.matchdict.get('source_id'))
     source = schema_repository.get_source_by_id(int(source_id))

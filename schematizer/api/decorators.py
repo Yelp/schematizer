@@ -53,8 +53,8 @@ DEFAULT_TRANSFORMERS = [
 ]
 
 
-def transform_response(transformers=DEFAULT_TRANSFORMERS):
-    """ Transform a response with a given list of transformation
+def transform_api_response(transformers=DEFAULT_TRANSFORMERS):
+    """ Transform an api response with a given list of transformation
     functions.
     """
     def serialize_response_decorator(func):
