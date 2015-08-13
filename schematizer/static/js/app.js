@@ -9,7 +9,7 @@
     docToolApp.constant('CONSTANTS', {
         allCategories: '[ All Categories ]',
         uncategorized: '[ Uncategorized ]',
-        defaultSchema: 'public_v1'
+        defaultSchema: 'yelp_dw_redshift.public'
     });
 
     "use strict";

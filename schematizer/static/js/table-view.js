@@ -154,6 +154,13 @@
                 return date.split('T')[0];
             }
 
+            $scope.formatSchema = function(schema) {
+                // If the string is in the format aaa.bbb, return aaa.
+                // If there is no '.', return the original string.
+                var name = schema.split('.');
+                return name[name.length - 1];
+            }
+
 
             function initTable() {
                 $http.get('/v1/namespaces/' + $scope.namespace + '/sources').success(function (data) {
