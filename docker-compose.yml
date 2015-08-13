@@ -10,3 +10,5 @@ schematizerservice:
         - schematizerdatabase
     volumes_from:
         - schematizerconfigs
+    ports:
+        - "49257:8888"
