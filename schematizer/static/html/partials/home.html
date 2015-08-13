@@ -27,11 +27,11 @@
                             <legend>Filter Tables</legend>
                             <div class="form-group">
                                 <label>Schema</label>
-                                <select class="form-control" ng-model="schemaFilter" ng-options="formatSchema(schema) for schema in schemas" ng-change="newSchema()"></select>
+                                <select class="form-control input-sm" ng-model="schemaFilter" ng-options="formatSchema(schema) for schema in schemas" ng-change="newSchema()"></select>
                             </div>
                             <div class="form-group">
                                 <label>Category</label>
-                                <select class="form-control" ng-model="categoryFilter">
+                                <select class="form-control input-sm" ng-model="categoryFilter">
                                     <option>{{ALL_CATEGORIES}}</option>
                                     <option ng-repeat="category in categories">{{category}}</option>
                                     <option>{{UNCATEGORIZED}}</option>
