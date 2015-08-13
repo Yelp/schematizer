@@ -95,7 +95,7 @@ def update_category(request):
     request_method='DELETE',
     renderer='json'
 )
-@transform_response()
+@transform_api_response()
 def delete_category(request):
     source_id = int(request.matchdict.get('source_id'))
     source = schema_repository.get_source_by_id(int(source_id))
