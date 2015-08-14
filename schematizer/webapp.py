@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-
 import pyramid_uwsgi_metrics
 import staticconf
 import uwsgi_metrics
@@ -20,29 +19,33 @@ SERVICE_ENV_CONFIG_PATH = os.environ.get('SERVICE_ENV_CONFIG_PATH')
 
 uwsgi_metrics.initialize()
 
+IT_ALREADY_FREAKING_HAPPENED = False
+
 
 def initialize_application():
-    config_util.load_default_config(
-        SERVICE_CONFIG_PATH,
-        SERVICE_ENV_CONFIG_PATH
-    )
-    smartstack_conf = staticconf.NamespaceGetters('smartstack_services')
-    staticconf.DictConfiguration(
-        {
-            'services': {
-                'internalapi': {
-                    'hostname': smartstack_conf.get_string(
-                        'yelp-main_internalapi.long_timeout.host'
-                    ),
-                    'port': smartstack_conf.get_int(
-                        'yelp-main_internalapi.long_timeout.port'
-                    )
+    global IT_ALREADY_FREAKING_HAPPENED
+    if not IT_ALREADY_FREAKING_HAPPENED:
+        config_util.load_default_config(
+            SERVICE_CONFIG_PATH,
+            SERVICE_ENV_CONFIG_PATH
+        )
+        smartstack_conf = staticconf.NamespaceGetters('smartstack_services')
+        staticconf.DictConfiguration(
+            {
+                'services': {
+                    'internalapi': {
+                        'hostname': smartstack_conf.get_string(
+                            'yelp-main_internalapi.long_timeout.host'
+                        ),
+                        'port': smartstack_conf.get_int(
+                            'yelp-main_internalapi.long_timeout.port'
+                        )
+                    }
                 }
-            }
-        },
-        namespace='services'
-    )
-
+            },
+            namespace='services'
+        )
+        IT_ALREADY_FREAKING_HAPPENED = True
 
 yelp_pyramid.healthcheck.install_healthcheck(
     'mysql',
