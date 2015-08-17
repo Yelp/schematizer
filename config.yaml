@@ -47,3 +47,5 @@ module_config:
         config:
             connection_set_file: 'connection_sets.yaml'
 
+    -   namespace: services
+        file: /nail/srv/configs/services.yaml
