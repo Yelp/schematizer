@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="docToolApp">
     <head>
-        <title>Documentation Tool</title>
+        <title>Watson</title>
         <script>window.user_email = "${user_email}"</script>
         <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular-route.min.js"></script>
