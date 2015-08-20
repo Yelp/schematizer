@@ -3,13 +3,13 @@
 import os
 
 import pyramid_uwsgi_metrics
-import staticconf
 import uwsgi_metrics
 import yelp_pyramid
 import yelp_pyramid.healthcheck
+from pyramid.config import Configurator
+from yelp_lib.decorators import memoized
 from yelp_servlib import logging_util
 from yelp_servlib import config_util
-from pyramid.config import Configurator
 
 import schematizer.config
 import schematizer.models.database
@@ -21,26 +21,15 @@ SERVICE_ENV_CONFIG_PATH = os.environ.get('SERVICE_ENV_CONFIG_PATH')
 uwsgi_metrics.initialize()
 
 
+@memoized
 def initialize_application():
+    """Initialize required configuration variables. Note that it is important
+    for this to be `@memoized` as it has caused problems when it happens
+    repeatedly (such as during the healthcheck, see DATAPIPE-360)
+    """
     config_util.load_default_config(
         SERVICE_CONFIG_PATH,
         SERVICE_ENV_CONFIG_PATH
-    )
-    smartstack_conf = staticconf.NamespaceGetters('smartstack_services')
-    staticconf.DictConfiguration(
-        {
-            'services': {
-                'internalapi': {
-                    'hostname': smartstack_conf.get_string(
-                        'yelp-main_internalapi.long_timeout.host'
-                    ),
-                    'port': smartstack_conf.get_int(
-                        'yelp-main_internalapi.long_timeout.port'
-                    )
-                }
-            }
-        },
-        namespace='services'
     )
 
 

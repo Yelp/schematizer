@@ -9,6 +9,7 @@ RUN     apt-get update && \
             python-setuptools \
             python-virtualenv \
             python-pip \
+            curl \
             git
 
 # uwsgi deps
