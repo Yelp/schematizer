@@ -1,0 +1,677 @@
+# Hostname/port for services
+
+
+services:
+
+    report_monitoring:
+        host: "169.254.255.254"
+        port: 20612
+
+    bank_transfer:
+        host: "169.254.255.254"
+        port: 20057
+
+    localize_location:
+        host: srv2-devc
+        port: 13732
+
+    feeds:
+        hostname: srv1-devc
+        port: 13718
+
+    geocoder:
+        hostname: "169.254.255.254"
+        port: 20028
+
+    request_blocking:
+        host: srv1-devc
+        port: 13725
+
+    transit:
+        hostname: srv1-devc
+        port: 13712
+
+    data_vault:
+        host: stagebsec2.stageb.yelp.com
+        port: 8995
+        ca_cert: '/nail/etc/ssl/certs/stageb.pem'
+        client_cert: '/nail/etc/ssl/client_data_vault.pem'
+        client_key: '/nail/etc/ssl/client_data_vault.pem'
+        num_retries: 3
+        retry_backoff_factor: 2
+        timeout: 15
+
+    currency_exchange:
+        hostname: srv1-devc
+        port: 13702
+
+    query_lm:
+        hostname: search2-devc
+        port: 14902
+        timeout: 0.2
+
+    checkout_fulfillment:
+        hostname: srv2-devc
+        port: 13742
+
+    ccserv:
+        hostname: srv2-devc
+        port: 8993
+
+    encryption:
+        hostname: 'https://e.stageb.yelp-payments.com'
+        port: 443
+
+    ddserv:
+        hostname: "169.254.255.254"
+        port: 20018
+
+    serendipity:
+        hostname: search1-devc
+        port: 14898
+
+    serendipity121:
+        hostname: search2-devc
+        port: 14898
+
+    partner_api:
+        hostname: "169.254.255.254"
+        port: 20037
+
+    ad_delivery:
+        hostname: addelivery-elb-uswest1devc
+        port: 13766
+
+    ad_analytics:
+        hostname: srv2-devc
+        port: 13744
+
+    ad_inventory:
+        hostname: srv2-devc
+        port: 13716
+
+    ad_indexer:
+        hostname: adindexer-elb-uswest1devc
+        port: 12345
+
+    adyenserv:
+        hostname: "169.254.255.254"
+        host: "169.254.255.254"
+        port: 20004
+        retries: 3
+        request_timeout: 4
+        response_timeout: 5
+        response_timeout_no_retries: 20
+
+    analytics_api:
+        hostname: srv2-devc
+        port: 13789
+
+    anti_phishing:
+        hostname: srv1-devc
+        port: 13700
+
+    contact_import:
+        hostname: srv2-devc
+        port: 13722
+
+    gdata:
+        hostname: srv1-devc
+        port: 13710
+
+    payload:
+        hostname: srv1-devc
+        port: 13750
+
+    partner_business_data:
+        hostname: srv2-devc
+        port: 13746
+
+    ppc_reporting:
+        hostname: srv2-devc
+        port: 13760
+
+    quarantine:
+        hostname: srv2-devc
+        port: 13748
+
+    rate_tracker:
+        hostname: srv1-devc
+        port: 13768
+
+    sessions:
+        hostname: srv1-devc
+        port: 13730
+
+    business_match:
+        hostname: srv2-devc
+        port: 13758
+
+    weekly_email:
+        hostname: srv2-devc
+        port: 13756
+
+    internalapi:
+        hostname: web1-uswest1cdevc.dev.yelpcorp.com
+        port: 9077
+
+    # Hey you. This is deprecated. It's only here because the internalapi
+    # clientlib used to point here. You should be 1) using the clientlib and 2)
+    # if not, at least refer to 'internalapi' not 'yelp_main_internalapi' to
+    # get these references.
+    yelp_main_internalapi:
+        hostname: web1-uswest1cdevc.dev.yelpcorp.com
+        port: 9077
+
+    elasticsearch:
+        host: 'elasticsearch-testing144-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: ''
+            password: ''
+        rw_auth:
+            username: ''
+            password: ''
+        admin_auth:
+            username: ''
+            password: ''
+
+    elasticsearch-accountsearch:
+        host: 'elasticsearch-testing144-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: ''
+            password: ''
+        rw_auth:
+            username: ''
+            password: ''
+        admin_auth:
+            username: ''
+            password: ''
+
+    elasticsearch-community:
+        host: 'elasticsearch-testing121-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-community-data:
+        host: 'elasticsearch-testing121-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-dimetrics:
+        host: 'elasticsearch-dimetricsdev-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: ''
+        rw_auth:
+            username: 'readwrite'
+            password: ''
+
+    elasticsearch-dowser144:
+        host: 'elasticsearch-dowser144-elb-uswest2devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: ''
+        rw_auth:
+            username: 'readwrite'
+            password: ''
+
+    elasticsearch-events:
+        host: 'elasticsearch-testing121-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-reservations:
+        host: 'elasticsearch-testing121-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-reviews:
+        host: 'elasticsearch-testing144-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: ''
+            password: ''
+        rw_auth:
+            username: ''
+            password: ''
+        admin_auth:
+            username: ''
+            password: ''
+
+    elasticsearch-review-suggestions:
+        host: 'search1-testing-uswest1cdevc'
+        port: 14900
+        cluster_prefix: 'testing'
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-serendipity:
+        host: 'elasticsearch-testing121-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-syndicationmetric:
+        host: 169.254.255.254
+        port: 20892
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'readwrite'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-platform:
+        host: 'elasticsearch-testing121-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-platform144:
+        host: 'elasticsearch-testing144-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-testing:
+        host: 'elasticsearch-testing-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-testing121:
+        host: 'elasticsearch-testing121-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch144:
+        host: 'elasticsearch-testing144-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: ''
+            password: ''
+        rw_auth:
+            username: ''
+            password: ''
+        admin_auth:
+            username: ''
+            password: ''
+
+    elasticsearch-newbizdev:
+        host: 'elasticsearch-newbizdev-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-lists:
+        host: 169.254.255.254
+        port: 20146
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-ads:
+        host: 'elasticsearchads-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-ads144:
+        host: 'elasticsearch-testing144-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-aws:
+        host: 'elasticsearch-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-datamining:
+        host: 'elasticsearchdatamining-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-datamining-new:
+        host: 'elasticsearch-esdm-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-location-suggest:
+            host: 'elasticsearch-testing121-elb-uswest1devc'
+            port: 14900
+            ro_auth:
+                username: 'readonly'
+                password: 'ro_5nndogv8wojz7oe'
+            rw_auth:
+                username: 'readwrite'
+                password: 'rw_dqp5vmegovq94'
+            admin_auth:
+                username: 'admin-jan2014'
+                password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-eventhub:
+        host: 'elasticsearch-eventhub-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-eventhub144:
+        host: 'elasticsearch-eventhub144-elb-uswest2devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+    elasticsearch-profilistic:
+        host: 'elasticsearch-testing121-elb-uswest1devc'
+        port: 14900
+        ro_auth:
+            username: 'readonly'
+            password: 'ro_5nndogv8wojz7oe'
+        rw_auth:
+            username: 'readwrite'
+            password: 'rw_dqp5vmegovq94'
+        admin_auth:
+            username: 'admin-jan2014'
+            password: 'admin_ffyp2ou3j8'
+
+
+    highlights:
+        hostname: highlights-elb-uswest1devc
+        port: 14904
+
+    ruleserv:
+        hostname: srv1-devc
+        port: 13764
+
+    biz_feed:
+        hostname: srv1-devc
+        port: 13762
+
+    taradiddle:
+        hostname: 'taradiddle-elb-uswest2devc'
+        port: 14908
+
+    taradiddleconsumer:
+        hostname: 'taradiddleconsumer-elb-uswest2devc'
+        port: 14908
+
+    taradiddlemobile:
+        hostname: 'taradiddlemobile-elb-uswest2devc'
+        port: 14908
+
+    taradiddlesearch:
+        hostname: 'taradiddlesearch-elb-uswest2devc'
+        port: 14908
+
+    # AWS Testing Hypertable
+    hypertable:
+        hostname: '10.40.31.18'
+        port: 38080
+
+    fandango:
+        host: srv2-devc
+        port: 13720
+
+    franz:
+        host: "169.254.255.254"
+        port: 20025
+
+    search_data:
+        hostname: 'searchdata-elb-uswest1devc'
+        port: 14444
+
+    biz_site_location_search:
+        hostname: srv1-devc
+        port: 13778
+
+    biz_claims:
+        host: srv2-devc
+        port: 13806
+
+    badges:
+        hostname: srv1-devc
+        port: 14910
+
+    federator:
+        host: "169.254.255.254"
+        port: 20023
+
+    soxhlet:
+        host: "169.254.255.254"
+        port: 20916
+
+    language_models:
+        host: search1-devc
+        port: 14906
+
+    name_classifier:
+        host: search1-devc
+        port: 14894
+
+    cm_user_queues:
+        host: srv2-devc
+        port: 13791
+
+    seatme_api:
+        hostname: 'seatme-duncan.dev.yelp.com'
+        port: 443
+
+    machine_translation:
+        host: srv1-devc
+        port: 13798
+
+    wire_transfer_serv:
+        host: "169.254.255.254"
+        port: 20053
+
+    adjustments_metadata:
+        host: srv1-devc
+        port: 13800
+
+    elastic_payment_account_search:
+        host: srv2-devc
+        port: 13793
+
+    apollo:
+        host: "search2-devc"
+        port: 13808
+
+    video:
+        host: devservices3-r1-devc
+        port: 13810
+
+    places:
+        host: devservices3-r1-devc
+        port: 13819
+
+    business_data:
+        host: srv2-devc
+        port: 13785
+
+    biz_temp_login:
+        host: devservices3-r1-devc
+        port: 13821
+
+    fake_platform_partner:
+        host: devservices3-r1-devc
+        port: 13827
+
+    community_markets:
+        host: devservices3-r1-devc
+        port: 13831
+
+    wordtime:
+        host: devservices3-r1-devc
+        port: 13833
+
+    review:
+        host: srv1-devc
+        port: 13835
+
+    user_authentication:
+        host: "169.254.255.254"
+        port: 20607
+
+    mycroft:
+        host: internal-mycroftapi-406241451.us-west-2.elb.amazonaws.com
+        port: 80
+
+    kafka:
+        host: kafka-standard-elb-uswest1devc
+        port: 9092
+
+    biz_deduplicator:
+        host: localhost
+        port: 20894
+
+    healthdata:
+        host: "169.254.255.254"
+        port: 20937
