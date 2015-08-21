@@ -118,14 +118,16 @@
 
             $scope.saveCategory = function() {
                 if ($scope.category == $scope.UNCATEGORIZED || $scope.category == "") {
+                    var complete = function (data) {
+                        $scope.category = $scope.UNCATEGORIZED;
+                        $scope.tableData.category = $scope.category;
+                    };
                     $http({
                         url: '/v1/sources/' + $scope.tableData.source_id + '/category',
                         method: "DELETE",
                         headers: {'Content-Type': 'application/json'}
-                    }).success(function (data) {
-                        $scope.category = $scope.UNCATEGORIZED
-                        $scope.tableData.category = $scope.category;
-                    });
+                    }).success(complete)
+                        .error(complete);
                 } else {
                     $http({
                         url: '/v1/sources/' + $scope.tableData.source_id + '/category',
@@ -151,7 +153,9 @@
             }
 
             $scope.formatDate = function(date) {
-                return date.split('T')[0];
+                if (date !== undefined) {
+                    return date.split('T')[0];
+                }
             }
 
             $scope.formatSchema = function(schema) {

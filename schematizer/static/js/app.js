@@ -15,10 +15,12 @@
     docToolApp.service('DocToolService', function() {
         return {
             formatSchema: function(schema) {
-                // If the string is in the format aaa.bbb, return aaa.
-                // If there is no '.', return the original string.
-                var name = schema.split('.');
-                return name[name.length - 1];
+                if (schema !== undefined) {
+                    // If the string is in the format aaa.bbb, return aaa.
+                    // If there is no '.', return the original string.
+                    var name = schema.split('.');
+                    return name[name.length - 1];
+                }
             }
         };
     });
