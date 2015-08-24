@@ -72,7 +72,7 @@
             $scope.editColumnNote = function(field_id) {
                 $scope.columnNoteEdit[field_id].isEditing = true;
                 $scope.columnNoteEdit[field_id].edit = $scope.columnNoteEdit[field_id].note.note;
-            }
+            };
 
             $scope.saveColumnNote = function(field_id) {
                 if ($scope.columnNoteEdit[field_id].note === undefined) {
@@ -106,15 +106,15 @@
                     });
                 }
                 $scope.columnNoteEdit[field_id].isEditing = false;
-            }
+            };
 
             $scope.cancelColumnNote = function(field_id) {
                 $scope.columnNoteEdit[field_id].isEditing = false;
-            }
+            };
 
             $scope.editCategory = function() {
                 $scope.isEditingCategory = true;
-            }
+            };
 
             $scope.saveCategory = function() {
                 if ($scope.category == $scope.UNCATEGORIZED || $scope.category == "") {
@@ -142,25 +142,25 @@
                 }
                 $scope.isEditingCategory = false;
                 $scope.isCreatingNewCategory = false;
-            }
+            };
 
             $scope.newCategory = function() {
                 $scope.isCreatingNewCategory = true;
-            }
+            };
 
             $scope.fieldFilter = function(element) {
                 return element.element_type == 'field';
-            }
+            };
 
             $scope.formatDate = function(date) {
                 if (date !== undefined) {
                     return date.split('T')[0];
                 }
-            }
+            };
 
             $scope.formatSchema = function(schema) {
                 return DocToolService.formatSchema(schema);
-            }
+            };
 
 
             function initTable() {
@@ -186,7 +186,7 @@
                 $http.get('/v1/categories').success(function (data) {
                     $scope.categories = data;
                 });
-            };
+            }
 
             function getTopic() {
                 $http.get('/v1/sources/' + $scope.tableData.source_id + '/topics/latest').success(function (data) {
@@ -211,7 +211,7 @@
                     $scope.tableError = errorData;
                     $scope.load = false;
                 });
-            };
+            }
 
             function getSchemaElements() {
                 $http.get('/v1/schemas/' + $scope.schema_id + '/elements').success(function (data) {
@@ -231,7 +231,7 @@
                     $scope.tableError = errorData;
                 });
                 $scope.load = false;
-            };
+            }
 
             function getColumnType(metadata) {
                 var type = "";
@@ -257,7 +257,7 @@
 
             function getColumnName(name) {
                 return name.split('|')[1];
-            };
+            }
 
             initTable();    // Initialize table data on page load
 

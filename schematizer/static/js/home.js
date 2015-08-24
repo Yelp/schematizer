@@ -19,18 +19,18 @@
 
             $scope.uncategorizedFilter = function(table) {
                 return table.category == undefined;
-            }
+            };
 
             $scope.tableFilter = function(table) {
                 if ($scope.categoryFilter == $scope.UNCATEGORIZED) {
                     return table.category == undefined;
                 }
                 return table.category == $scope.categoryFilter;
-            }
+            };
 
             $scope.newSchema = function() {
                 $location.search('schema', $scope.schemaFilter);
-            }
+            };
 
             $scope.updateSchema = function() {
                 $scope.load = true;
@@ -42,11 +42,11 @@
                     $scope.error = errorData;
                     $scope.load = false;
                 });
-            }
+            };
 
             $scope.formatSchema = function(schema) {
                 return DocToolService.formatSchema(schema);
-            }
+            };
 
 
             function initBrowse() {
@@ -57,7 +57,7 @@
                 $http.get('/v1/namespaces').success(function (data) {
                     $scope.schemas = data;
                 });
-            };
+            }
 
             initBrowse();
 
