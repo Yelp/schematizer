@@ -124,9 +124,8 @@ class GetTopicsRequest(RequestBase):
         super(GetTopicsRequest, self).__init__()
         self.namespace = query_params.get('namespace')
         self.source = query_params.get('source')
-        created_before_param = query_params.get('created_before')
-        self.created_before = (long(created_before_param)
-                               if created_before_param is not None else None)
+        param = query_params.get('created_before')
+        self.created_before = long(param) if param is not None else None
         self.created_before_datetime = self._timestamp_to_datetime(
             self.created_before
         )

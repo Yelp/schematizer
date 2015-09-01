@@ -760,8 +760,9 @@ class TestGetTopicsByCriteira(DBTestCase):
 
     @pytest.fixture
     def sorted_topics(self, user_topic_1, user_topic_2, biz_topic, cta_topic):
-        return self._sort_topics_by_id(
-            [user_topic_1, biz_topic, user_topic_2, cta_topic]
+        return sorted(
+            [user_topic_1, biz_topic, user_topic_2, cta_topic],
+            key=lambda topic: topic.created_at
         )
 
     def test_get_topics_before_given_timestamp(self, sorted_topics):
