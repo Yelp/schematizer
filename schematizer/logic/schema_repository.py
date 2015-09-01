@@ -535,3 +535,32 @@ def get_schema_elements_by_schema_id(schema_id):
     ).order_by(
         models.AvroSchemaElement.id
     ).all()
+
+
+def get_topics_by_criteria(namespace=None, source=None, created_before=None):
+    """Get all the topics that match given filter criteria.
+
+    Args:
+        namespace(Optional[str]): get topics of given namespace if specified
+        source(Optional[str]): get topics of given source name if specified
+        created_before(Optional[datetime]): get topics created before given
+            utc datetime (inclusive) if specified.
+    Returns:
+        (list[:class:schematizer.models.Topic]): List of topic models sorted
+        by their ids.
+    """
+    qry = session.query(models.Topic)
+    if namespace or source:
+        qry = qry.join(models.Source).filter(
+            models.Source.id == models.Topic.source_id
+        )
+    if namespace:
+        qry = qry.join(models.Namespace).filter(
+            models.Namespace.name == namespace,
+            models.Namespace.id == models.Source.namespace_id,
+        )
+    if source:
+        qry = qry.filter(models.Source.name == source)
+    if created_before:
+        qry = qry.filter(models.Topic.created_at <= created_before)
+    return qry.order_by(models.Topic.id).all()

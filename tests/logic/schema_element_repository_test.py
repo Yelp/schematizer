@@ -26,24 +26,24 @@ class TestSchemaElementRepository(DBTestCase):
     def topic_one(self, source_one):
         return factories.create_topic(
             topic_name='some.topic',
-            namespace=source_one.namespace.name,
-            source=source_one.name
+            namespace_name=source_one.namespace.name,
+            source_name=source_one.name
         )
 
     @pytest.fixture
     def topic_two(self, source_one):
         return factories.create_topic(
             topic_name='topic.2',
-            namespace=source_one.namespace.name,
-            source=source_one.name
+            namespace_name=source_one.namespace.name,
+            source_name=source_one.name
         )
 
     @pytest.fixture
     def topic_of_src_two(self, source_two):
         return factories.create_topic(
             topic_name='another.topic.name',
-            namespace=source_two.namespace.name,
-            source=source_two.name
+            namespace_name=source_two.namespace.name,
+            source_name=source_two.name
         )
 
     @property

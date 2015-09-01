@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import logging
 
-log = logging.getLogger('schematizer.config')
+
+log = logging.getLogger('schematizer')
 
 
 def routes(config):
@@ -51,6 +55,10 @@ def routes(config):
     config.add_route(
         'api.v1.get_latest_schema_by_topic_name',
         '/v1/topics/{topic_name}/schemas/latest'
+    )
+    config.add_route(
+        'api.v1.get_topics_by_criteria',
+        '/v1/topics'
     )
     # The REST URI matches in order, so please consider the
     # potential conflicts when you make changes.

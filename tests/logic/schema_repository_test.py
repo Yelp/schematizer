@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
+import datetime
+
 import mock
 import pytest
 
@@ -314,8 +319,8 @@ class TestSchemaRepository(DBTestCase):
         self.assert_equal_topic(topic, actual)
         new_topic = factories.create_topic(
             'new_topic',
-            namespace=source.namespace.name,
-            source=source.name
+            source.namespace.name,
+            source.name
         )
         actual = schema_repo.get_latest_topic_of_namespace_source(
             namespace.name,
@@ -329,8 +334,8 @@ class TestSchemaRepository(DBTestCase):
 
         new_topic = factories.create_topic(
             'new_topic',
-            namespace=source.namespace.name,
-            source=source.name
+            source.namespace.name,
+            source.name
         )
         actual = schema_repo.get_latest_topic_of_source_id(source.id)
         self.assert_equal_topic(new_topic, actual)
@@ -688,3 +693,128 @@ class TestSchemaRepository(DBTestCase):
         assert expected.created_at == actual.created_at
         assert expected.updated_at == actual.updated_at
         self.assert_equal_avro_schema_element_partial(expected, actual)
+
+
+@pytest.mark.usefixtures('sorted_topics')
+class TestGetTopicsByCriteira(DBTestCase):
+
+    @pytest.fixture
+    def yelp_namespace(self):
+        return factories.create_namespace(namespace_name='yelp')
+
+    @pytest.fixture
+    def aux_namespace(self):
+        return factories.create_namespace(namespace_name='aux')
+
+    @pytest.fixture
+    def biz_source(self, yelp_namespace):
+        return factories.create_source(yelp_namespace.name, source_name='biz')
+
+    @pytest.fixture
+    def user_source(self, yelp_namespace):
+        return factories.create_source(yelp_namespace.name, source_name='user')
+
+    @pytest.fixture
+    def cta_source(self, aux_namespace):
+        return factories.create_source(aux_namespace.name, source_name='cta')
+
+    @property
+    def some_timestamp(self):
+        return datetime.datetime(2015, 3, 1, 10, 23, 5, 254)
+
+    @pytest.fixture
+    def biz_topic(self, biz_source):
+        return factories.create_topic(
+            topic_name='yelp.biz.topic.1',
+            namespace_name=biz_source.namespace.name,
+            source_name=biz_source.name,
+            created_at=self.some_timestamp + datetime.timedelta(seconds=3)
+        )
+
+    @pytest.fixture
+    def user_topic_1(self, user_source):
+        return factories.create_topic(
+            topic_name='yelp.user.topic.1',
+            namespace_name=user_source.namespace.name,
+            source_name=user_source.name,
+            created_at=self.some_timestamp - datetime.timedelta(seconds=1)
+        )
+
+    @pytest.fixture
+    def user_topic_2(self, user_source):
+        return factories.create_topic(
+            topic_name='yelp.user.topic.two',
+            namespace_name=user_source.namespace.name,
+            source_name=user_source.name,
+            created_at=self.some_timestamp + datetime.timedelta(seconds=5)
+        )
+
+    @pytest.fixture
+    def cta_topic(self, cta_source):
+        return factories.create_topic(
+            topic_name='aux.cta.topic.1',
+            namespace_name=cta_source.namespace.name,
+            source_name=cta_source.name,
+            created_at=self.some_timestamp + datetime.timedelta(minutes=1)
+        )
+
+    @pytest.fixture
+    def sorted_topics(self, user_topic_1, user_topic_2, biz_topic, cta_topic):
+        return self._sort_topics_by_id(
+            [user_topic_1, biz_topic, user_topic_2, cta_topic]
+        )
+
+    def test_get_topics_before_given_timestamp(self, sorted_topics):
+        expected_topics = sorted_topics[:1]
+        before_dt = expected_topics[-1].created_at
+        actual = schema_repo.get_topics_by_criteria(created_before=before_dt)
+
+        assert len(actual) == len(expected_topics)
+        for i, actual_topic in enumerate(actual):
+            expected_topic = expected_topics[i]
+            self.assert_equal_topic(expected_topic, actual_topic)
+            assert actual_topic.created_at <= before_dt
+
+    def test_no_newer_topic(self, sorted_topics):
+        first_topic = sorted_topics[0]
+        before_dt = first_topic.created_at - datetime.timedelta(milliseconds=5)
+        actual = schema_repo.get_topics_by_criteria(created_before=before_dt)
+        assert actual == []
+
+    def test_get_biz_source_only(self, biz_topic, biz_source):
+        actual = schema_repo.get_topics_by_criteria(source=biz_source.name)
+        self.assert_equal_topics([biz_topic], actual)
+
+    def test_get_yelp_namespace_only(self, user_topic_1, user_topic_2,
+                                     biz_topic, yelp_namespace):
+        actual = schema_repo.get_topics_by_criteria(
+            namespace=yelp_namespace.name
+        )
+        expected = self._sort_topics_by_id(
+            [user_topic_1, user_topic_2, biz_topic]
+        )
+        self.assert_equal_topics(expected, actual)
+
+    def test_get_user_topics_only(self, user_topic_1, user_topic_2,
+                                  user_source, yelp_namespace):
+        actual = schema_repo.get_topics_by_criteria(
+            namespace=yelp_namespace.name,
+            source=user_source.name
+        )
+        expected = self._sort_topics_by_id([user_topic_1, user_topic_2])
+        self.assert_equal_topics(expected, actual)
+
+    def assert_equal_topics(self, expected_topics, actual_topics):
+        assert len(actual_topics) == len(expected_topics)
+        for i, actual_topic in enumerate(actual_topics):
+            self.assert_equal_topic(expected_topics[i], actual_topic)
+
+    def assert_equal_topic(self, expected_topic, actual_topic):
+        assert actual_topic.id == expected_topic.id
+        assert actual_topic.name == expected_topic.name
+        assert actual_topic.source.id == expected_topic.source.id
+        assert actual_topic.source.namespace.id == \
+            expected_topic.source.namespace.id
+
+    def _sort_topics_by_id(self, topics):
+        return sorted(topics, key=lambda topic: topic.id)

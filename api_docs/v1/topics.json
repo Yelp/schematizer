@@ -124,6 +124,58 @@
                     ]
                 }
             ]
+        },
+        {
+            "path": "/v1/topics",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get the topics that match specified criteria",
+                    "type": "Topic",
+                    "nickname": "get_topics_by_criteria",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "namespace",
+                            "description": "Name of the namespace the topics belong to",
+                            "required": false,
+                            "type": "string",
+                            "paramType": "query",
+                            "allowMultiple": false
+                        },
+                        {
+                            "name": "source",
+                            "description": "Name of the source the topics belong to.",
+                            "required": false,
+                            "type": "string",
+                            "paramType": "query",
+                            "allowMultiple": false
+                        },
+                        {
+                            "name": "created_before",
+                            "description": "Unix timestamp the topics must be created before. The topics created at the same timestamp will be returned as well.",
+                            "required": false,
+                            "type": "string",
+                            "paramType": "query",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid topic_name supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Topic not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "models": {

@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from pyramid import httpexceptions
 
 
@@ -65,3 +68,7 @@ def reference_not_found_exception(
 
 def category_not_found_exception(err_message=CATEGORY_NOT_FOUND_ERROR_MESSAGE):
     return httpexceptions.exception_response(404, detail=err_message)
+
+
+def unhandled_exception(err_message=None):
+    return httpexceptions.exception_response(500, detail=err_message)

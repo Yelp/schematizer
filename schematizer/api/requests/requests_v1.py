@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
+from datetime import datetime
+
 import simplejson
 from cached_property import cached_property
 
@@ -14,13 +19,13 @@ class RequestBase(object):
 class RegisterSchemaRequest(RequestBase):
 
     def __init__(
-            self,
-            schema,
-            namespace,
-            source,
-            source_owner_email,
-            contains_pii=False,
-            base_schema_id=None
+        self,
+        schema,
+        namespace,
+        source,
+        source_owner_email,
+        contains_pii=False,
+        base_schema_id=None
     ):
         super(RegisterSchemaRequest, self).__init__()
         self.schema = schema
@@ -90,13 +95,7 @@ class MysqlSchemaCompatibilityRequest(RequestBase):
 
 class CreateNoteRequest(RequestBase):
 
-    def __init__(
-        self,
-        reference_id,
-        reference_type,
-        note,
-        last_updated_by
-    ):
+    def __init__(self, reference_id, reference_type, note, last_updated_by):
         super(CreateNoteRequest, self).__init__()
         self.reference_id = reference_id
         self.reference_type = reference_type
@@ -106,11 +105,7 @@ class CreateNoteRequest(RequestBase):
 
 class UpdateNoteRequest(RequestBase):
 
-    def __init__(
-        self,
-        note,
-        last_updated_by
-    ):
+    def __init__(self, note, last_updated_by):
         super(UpdateNoteRequest, self).__init__()
         self.note = note
         self.last_updated_by = last_updated_by
@@ -121,3 +116,22 @@ class UpdateCategoryRequest(RequestBase):
     def __init__(self, category):
         super(UpdateCategoryRequest, self).__init__()
         self.category = category
+
+
+class GetTopicsRequest(RequestBase):
+
+    def __init__(self, query_params):
+        super(GetTopicsRequest, self).__init__()
+        self.namespace = query_params.get('namespace')
+        self.source = query_params.get('source')
+        created_before_param = query_params.get('created_before')
+        self.created_before = (long(created_before_param)
+                               if created_before_param is not None else None)
+        self.created_before_datetime = self._timestamp_to_datetime(
+            self.created_before
+        )
+
+    @classmethod
+    def _timestamp_to_datetime(cls, timestamp):
+        return (datetime.utcfromtimestamp(timestamp)
+                if timestamp is not None else None)

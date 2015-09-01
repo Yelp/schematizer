@@ -71,27 +71,24 @@ def get_or_create_source(
     )
 
 
-def create_topic(
-        topic_name,
-        namespace=fake_namespace,
-        source=fake_source,
-        contains_pii=fake_contains_pii
-):
-    source = get_or_create_source(namespace, source)
-    topic = models.Topic(
-        name=topic_name,
-        source_id=source.id,
-        contains_pii=contains_pii
-    )
+def create_topic(topic_name, namespace_name, source_name, **overrides):
+    source = get_or_create_source(namespace_name, source_name)
+    params = {
+        'name': topic_name,
+        'source_id': source.id,
+        'contains_pii': False
+    }
+    params.update(overrides)
+    topic = models.Topic(**params)
     session.add(topic)
     session.flush()
     return topic
 
 
 def get_or_create_topic(
-        topic_name,
-        namespace=fake_namespace,
-        source=fake_source
+    topic_name,
+    namespace=fake_namespace,
+    source=fake_source
 ):
     topic = session.query(
         models.Topic

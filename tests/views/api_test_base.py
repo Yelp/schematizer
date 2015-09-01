@@ -7,9 +7,10 @@ from schematizer.models import Note
 from schematizer.models import SourceCategory
 from schematizer.models.avro_schema import AvroSchemaStatus
 from testing import factories
+from tests.models.testing_db import DBTestCase
 
 
-class TestApiBase(object):
+class TestApiBase(DBTestCase):
 
     test_view_module = None
 
@@ -98,6 +99,57 @@ class TestApiBase(object):
     @property
     def topics_response(self):
         return [self.topic_response]
+
+    @pytest.fixture
+    def yelp_namespace(self):
+        return factories.create_namespace('yelp')
+
+    @pytest.fixture
+    def biz_source(self, yelp_namespace):
+        return factories.create_source(
+            namespace_name=yelp_namespace.name,
+            source_name='biz',
+            owner_email='test-dev@yelp.com'
+        )
+
+    @pytest.fixture
+    def biz_topic(self, biz_source):
+        return factories.create_topic(
+            topic_name='yelp.biz.1',
+            namespace_name=biz_source.namespace.name,
+            source_name=biz_source.name
+        )
+
+    @pytest.fixture
+    def yelp_namespace_response(self, yelp_namespace):
+        return {
+            'namespace_id': yelp_namespace.id,
+            'name': yelp_namespace.name,
+            'created_at': yelp_namespace.created_at.isoformat(),
+            'updated_at': yelp_namespace.updated_at.isoformat()
+        }
+
+    @pytest.fixture
+    def biz_source_response(self, biz_source, yelp_namespace_response):
+        return {
+            'source_id': biz_source.id,
+            'namespace': yelp_namespace_response,
+            'source': biz_source.name,
+            'source_owner_email': biz_source.owner_email,
+            'created_at': biz_source.created_at.isoformat(),
+            'updated_at': biz_source.updated_at.isoformat()
+        }
+
+    @pytest.fixture
+    def biz_topic_response(self, biz_topic, biz_source_response):
+        return {
+            'topic_id': biz_topic.id,
+            'name': biz_topic.name,
+            'source': biz_source_response,
+            'contains_pii': False,
+            'created_at': biz_topic.created_at.isoformat(),
+            'updated_at': biz_topic.updated_at.isoformat(),
+        }
 
     @property
     def schema(self):
