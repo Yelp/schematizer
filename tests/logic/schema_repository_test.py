@@ -719,7 +719,7 @@ class TestGetTopicsByCriteira(DBTestCase):
         return factories.create_source(aux_namespace.name, source_name='cta')
 
     @property
-    def some_timestamp(self):
+    def some_datetime(self):
         return datetime.datetime(2015, 3, 1, 10, 23, 5, 254)
 
     @pytest.fixture
@@ -728,7 +728,7 @@ class TestGetTopicsByCriteira(DBTestCase):
             topic_name='yelp.biz.topic.1',
             namespace_name=biz_source.namespace.name,
             source_name=biz_source.name,
-            created_at=self.some_timestamp + datetime.timedelta(seconds=3)
+            created_at=self.some_datetime + datetime.timedelta(seconds=3)
         )
 
     @pytest.fixture
@@ -737,7 +737,7 @@ class TestGetTopicsByCriteira(DBTestCase):
             topic_name='yelp.user.topic.1',
             namespace_name=user_source.namespace.name,
             source_name=user_source.name,
-            created_at=self.some_timestamp - datetime.timedelta(seconds=1)
+            created_at=self.some_datetime - datetime.timedelta(seconds=1)
         )
 
     @pytest.fixture
@@ -746,7 +746,7 @@ class TestGetTopicsByCriteira(DBTestCase):
             topic_name='yelp.user.topic.two',
             namespace_name=user_source.namespace.name,
             source_name=user_source.name,
-            created_at=self.some_timestamp + datetime.timedelta(seconds=5)
+            created_at=self.some_datetime + datetime.timedelta(seconds=5)
         )
 
     @pytest.fixture
@@ -755,7 +755,7 @@ class TestGetTopicsByCriteira(DBTestCase):
             topic_name='aux.cta.topic.1',
             namespace_name=cta_source.namespace.name,
             source_name=cta_source.name,
-            created_at=self.some_timestamp + datetime.timedelta(minutes=1)
+            created_at=self.some_datetime + datetime.timedelta(minutes=1)
         )
 
     @pytest.fixture

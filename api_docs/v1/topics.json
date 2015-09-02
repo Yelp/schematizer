@@ -130,7 +130,7 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Get the topics that match specified criteria",
+                    "summary": "Get the topics that match specified criteria. If no search criterion is specified, it returns all the topics.",
                     "type": "array",
                     "items": {
                         "$ref": "Topic"
@@ -166,11 +166,11 @@
                     "responseMessages": [
                         {
                             "code": 400,
-                            "message": "Invalid topic_name supplied"
+                            "message": "Invalid query parameter(s) supplied"
                         },
                         {
                             "code": 404,
-                            "message": "Topic not found"
+                            "message": "Namespace or source not found"
                         },
                         {
                             "code": 500,
