@@ -49,9 +49,9 @@ class TestSchemaRepository(DBTestCase):
     @pytest.fixture
     def topic(self):
         return factories.create_topic(
-            self.topic_name,
-            self.namespace_name,
-            self.source_name
+            topic_name=self.topic_name,
+            namespace_name=self.namespace_name,
+            source_name=self.source_name
         )
 
     @property
@@ -318,9 +318,9 @@ class TestSchemaRepository(DBTestCase):
         )
         self.assert_equal_topic(topic, actual)
         new_topic = factories.create_topic(
-            'new_topic',
-            source.namespace.name,
-            source.name
+            topic_name='new_topic',
+            namespace_name=source.namespace.name,
+            source_name=source.name
         )
         actual = schema_repo.get_latest_topic_of_namespace_source(
             namespace.name,
@@ -333,9 +333,9 @@ class TestSchemaRepository(DBTestCase):
         self.assert_equal_topic(topic, actual)
 
         new_topic = factories.create_topic(
-            'new_topic',
-            source.namespace.name,
-            source.name
+            topic_name='new_topic',
+            namespace_name=source.namespace.name,
+            source_name=source.name
         )
         actual = schema_repo.get_latest_topic_of_source_id(source.id)
         self.assert_equal_topic(new_topic, actual)
@@ -766,20 +766,20 @@ class TestGetTopicsByCriteira(DBTestCase):
         )
 
     def test_get_topics_before_given_timestamp(self, sorted_topics):
-        expected_topics = sorted_topics[:1]
-        before_dt = expected_topics[-1].created_at
-        actual = schema_repo.get_topics_by_criteria(created_before=before_dt)
+        expected_topics = sorted_topics[2:]
+        after_dt = expected_topics[0].created_at
+        actual = schema_repo.get_topics_by_criteria(created_after=after_dt)
 
         assert len(actual) == len(expected_topics)
         for i, actual_topic in enumerate(actual):
             expected_topic = expected_topics[i]
             self.assert_equal_topic(expected_topic, actual_topic)
-            assert actual_topic.created_at <= before_dt
+            assert actual_topic.created_at >= after_dt
 
     def test_no_newer_topic(self, sorted_topics):
-        first_topic = sorted_topics[0]
-        before_dt = first_topic.created_at - datetime.timedelta(milliseconds=5)
-        actual = schema_repo.get_topics_by_criteria(created_before=before_dt)
+        last_topic = sorted_topics[-1]
+        after_dt = last_topic.created_at + datetime.timedelta(seconds=1)
+        actual = schema_repo.get_topics_by_criteria(created_after=after_dt)
         assert actual == []
 
     def test_get_biz_source_only(self, biz_topic, biz_source):

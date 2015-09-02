@@ -131,7 +131,10 @@
                 {
                     "method": "GET",
                     "summary": "Get the topics that match specified criteria",
-                    "type": "Topic",
+                    "type": "array",
+                    "items": {
+                        "$ref": "Topic"
+                    },
                     "nickname": "get_topics_by_criteria",
                     "authorizations": {},
                     "parameters": [
@@ -152,10 +155,10 @@
                             "allowMultiple": false
                         },
                         {
-                            "name": "created_before",
-                            "description": "Unix timestamp the topics must be created before. The topics created at the same timestamp will be returned as well.",
+                            "name": "created_after",
+                            "description": "Unix timestamp the topics must be created after. The topics created at the same timestamp will be returned as well.",
                             "required": false,
-                            "type": "string",
+                            "type": "integer",
                             "paramType": "query",
                             "allowMultiple": false
                         }

@@ -72,6 +72,9 @@ def get_or_create_source(
 
 
 def create_topic(topic_name, namespace_name, source_name, **overrides):
+    """Create a topic of specified topic name in the Topic table.  For topic
+    attributes to override, see :class:schematizer.models.topic.Topic.
+    """
     source = get_or_create_source(namespace_name, source_name)
     params = {
         'name': topic_name,

@@ -132,8 +132,8 @@ class TestGetTopicsByCriteria(TestApiBase):
                                           biz_topic_response):
         mock_request.params = self.get_mock_dict({
             'namespace': biz_topic.source.namespace.name,
-            'created_before': (biz_topic.created_at -
-                               datetime.utcfromtimestamp(0)).total_seconds()
+            'created_after': (biz_topic.created_at -
+                              datetime.utcfromtimestamp(0)).total_seconds()
         })
         actual = topic_views.get_topics_by_criteria(mock_request)
         assert actual == [biz_topic_response]
