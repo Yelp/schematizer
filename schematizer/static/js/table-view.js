@@ -40,7 +40,8 @@
                             reference_id: parseInt($scope.schema_id),
                             reference_type: 'schema',
                             note: $scope.tableNoteEdit,
-                            last_updated_by: $scope.user
+                            last_updated_by: $scope.user,
+			    updated_at: new Date().toJSON()
                         }),
                         headers: {'Content-Type': 'application/json'}
                     }).success(function (data) {
@@ -54,15 +55,16 @@
                         method: "POST",
                         data: JSON.stringify({
                             note: $scope.tableNoteEdit,
-                            last_updated_by: $scope.user
+                            last_updated_by: $scope.user,
+			    updated_at: new Date().toJSON()
                         }),
                         headers: {'Content-Type': 'application/json'}
                     }).success(function (data) {
                         $scope.tableNote = data;
-                        $scope.tableNote.note = $scope.tableNoteEdit;
+                        $scope.tableNote.note = $scope.tableNoteEdit;	
                     });
-                }
-                $scope.isEditingTableNote = false;
+                }	
+                $scope.isEditingTableNote = false;	
             };
 
             $scope.cancelTableNote = function() {
@@ -83,7 +85,8 @@
                             reference_id: field_id,
                             reference_type: 'schema_element',
                             note: $scope.columnNoteEdit[field_id].edit,
-                            last_updated_by: $scope.user
+                            last_updated_by: $scope.user,
+			    updated_at: new Date().toJSON()
                         }),
                         headers: {'Content-Type': 'application/json'}
                     }).success(function (data) {
@@ -97,7 +100,8 @@
                         method: "POST",
                         data: JSON.stringify({
                             note: $scope.columnNoteEdit[field_id].edit,
-                            last_updated_by: $scope.user
+                            last_updated_by: $scope.user,
+			    updated_at: new Date().toJSON()
                         }),
                         headers: {'Content-Type': 'application/json'}
                     }).success(function (data) {
@@ -202,6 +206,7 @@
                 $http.get('/v1/topics/' + $scope.topic + '/schemas/latest').success(function (data) {
                     $scope.schema_id = data.schema_id;
                     $scope.tableNote = data.note;
+		    $scope.tableData.updated_at = data.updated_at;
                     var fieldData = JSON.parse(data.schema).fields;
                     for (var i = 0; i < fieldData.length; i++) {
                         $scope.schemaElementMetadata[fieldData[i].name] = getColumnType(fieldData[i]);
@@ -223,6 +228,9 @@
                             data[i].type = $scope.schemaElementMetadata[data[i].name];
                             $scope.schemaElements.push(data[i]);
                         }
+			if (i > 0 && data[i].note.updated_at > $scope.tableData.updated_at) {
+			    $scope.tableData.updated_at = data[i].note.updated_at;
+			}
                     }
                     for (var i = 0; i < $scope.schemaElements.length; i++) {
                         $scope.columnNoteEdit[$scope.schemaElements[i].id] = {isEditing: false, edit: "", note: $scope.schemaElements[i].note};
