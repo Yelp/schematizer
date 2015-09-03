@@ -40,8 +40,7 @@
                             reference_id: parseInt($scope.schema_id),
                             reference_type: 'schema',
                             note: $scope.tableNoteEdit,
-                            last_updated_by: $scope.user,
-			    updated_at: new Date().toJSON()
+                            last_updated_by: $scope.user 
                         }),
                         headers: {'Content-Type': 'application/json'}
                     }).success(function (data) {
@@ -55,8 +54,7 @@
                         method: "POST",
                         data: JSON.stringify({
                             note: $scope.tableNoteEdit,
-                            last_updated_by: $scope.user,
-			    updated_at: new Date().toJSON()
+                            last_updated_by: $scope.user 
                         }),
                         headers: {'Content-Type': 'application/json'}
                     }).success(function (data) {
@@ -85,8 +83,7 @@
                             reference_id: field_id,
                             reference_type: 'schema_element',
                             note: $scope.columnNoteEdit[field_id].edit,
-                            last_updated_by: $scope.user,
-			    updated_at: new Date().toJSON()
+                            last_updated_by: $scope.user
                         }),
                         headers: {'Content-Type': 'application/json'}
                     }).success(function (data) {
@@ -100,8 +97,7 @@
                         method: "POST",
                         data: JSON.stringify({
                             note: $scope.columnNoteEdit[field_id].edit,
-                            last_updated_by: $scope.user,
-			    updated_at: new Date().toJSON()
+                            last_updated_by: $scope.user
                         }),
                         headers: {'Content-Type': 'application/json'}
                     }).success(function (data) {

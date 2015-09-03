@@ -95,15 +95,13 @@ class CreateNoteRequest(RequestBase):
         reference_id,
         reference_type,
         note,
-        last_updated_by,
-	updated_at
+        last_updated_by
     ):
         super(CreateNoteRequest, self).__init__()
         self.reference_id = reference_id
         self.reference_type = reference_type
         self.note = note
         self.last_updated_by = last_updated_by
-	self.updated_at = updated_at
 
 
 class UpdateNoteRequest(RequestBase):
@@ -111,13 +109,11 @@ class UpdateNoteRequest(RequestBase):
     def __init__(
         self,
         note,
-        last_updated_by,
-	updated_at
+        last_updated_by
     ):
         super(UpdateNoteRequest, self).__init__()
         self.note = note
         self.last_updated_by = last_updated_by
-	self.updated_at = updated_at
 
 
 class UpdateCategoryRequest(RequestBase):
