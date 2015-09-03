@@ -206,7 +206,7 @@
                 $http.get('/v1/topics/' + $scope.topic + '/schemas/latest').success(function (data) {
                     $scope.schema_id = data.schema_id;
                     $scope.tableNote = data.note;
-		    $scope.tableData.updated_at = data.updated_at;
+		    $scope.tableData.updated_at = data.note.updated_at;
                     var fieldData = JSON.parse(data.schema).fields;
                     for (var i = 0; i < fieldData.length; i++) {
                         $scope.schemaElementMetadata[fieldData[i].name] = getColumnType(fieldData[i]);
@@ -219,8 +219,8 @@
             }
 
             function getSchemaElements() {
-                $http.get('/v1/schemas/' + $scope.schema_id + '/elements').success(function (data) {
-                    for (var i = 0; i < data.length; i++) {
+                $http.get('/v1/schemas/' + $scope.schema_id + '/elements').success(function (data) {  
+		    for (var i = 0; i < data.length; i++) {
                         if (data[i].element_type == 'record')
                             $scope.tableDescription = data[i].doc;
                         if (data[i].element_type == 'field') {
@@ -228,7 +228,7 @@
                             data[i].type = $scope.schemaElementMetadata[data[i].name];
                             $scope.schemaElements.push(data[i]);
                         }
-			if (i > 0 && data[i].note.updated_at > $scope.tableData.updated_at) {
+			if (i > 0 && data[i].note && data[i].note.updated_at > $scope.tableData.updated_at) {
 			    $scope.tableData.updated_at = data[i].note.updated_at;
 			}
                     }
