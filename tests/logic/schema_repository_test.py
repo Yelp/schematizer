@@ -767,16 +767,16 @@ class TestGetTopicsByCriteira(DBTestCase):
 
     def test_get_topics_after_given_timestamp(self, sorted_topics):
         expected = sorted_topics[2:]
-        after_dt = expected[0].created_at - datetime.timedelta(seconds=1)
+        after_dt = expected[0].created_at
 
         actual = schema_repo.get_topics_by_criteria(created_after=after_dt)
 
         self.assert_equal_topics(expected, actual)
-        assert all(topic.created_at > after_dt for topic in actual)
+        assert all(topic.created_at >= after_dt for topic in actual)
 
     def test_no_newer_topic(self, sorted_topics):
         last_topic = sorted_topics[-1]
-        after_dt = last_topic.created_at
+        after_dt = last_topic.created_at + datetime.timedelta(seconds=1)
         actual = schema_repo.get_topics_by_criteria(created_after=after_dt)
         assert actual == []
 

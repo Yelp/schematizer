@@ -156,7 +156,7 @@
                         },
                         {
                             "name": "created_after",
-                            "description": "Unix timestamp the topics must be created after. The topics created at the same timestamp will be excluded.",
+                            "description": "Unix timestamp the topics must be created after. The topics created at the same timestamp will be included.",
                             "required": false,
                             "type": "integer",
                             "paramType": "query",

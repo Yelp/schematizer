@@ -544,7 +544,7 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None):
         namespace(Optional[str]): get topics of given namespace if specified
         source(Optional[str]): get topics of given source name if specified
         created_after(Optional[datetime]): get topics created after given utc
-            datetime (exclusive) if specified.
+            datetime (inclusive) if specified.
     Returns:
         (list[:class:schematizer.models.Topic]): List of topic models sorted
         by their ids.
@@ -562,5 +562,5 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None):
     if source:
         qry = qry.filter(models.Source.name == source)
     if created_after:
-        qry = qry.filter(models.Topic.created_at > created_after)
+        qry = qry.filter(models.Topic.created_at >= created_after)
     return qry.order_by(models.Topic.id).all()
