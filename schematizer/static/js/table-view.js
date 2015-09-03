@@ -229,7 +229,11 @@
 			}
                     }
                     for (var i = 0; i < $scope.schemaElements.length; i++) {
-                        $scope.columnNoteEdit[$scope.schemaElements[i].id] = {isEditing: false, edit: "", note: $scope.schemaElements[i].note};
+                        $scope.columnNoteEdit[$scope.schemaElements[i].id] = {
+			    isEditing: false,
+			    edit: "",
+			    note: $scope.schemaElements[i].note
+			};
                     }
                 }).error(function (errorData) {
                     $scope.tableError = errorData;
