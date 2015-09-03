@@ -765,20 +765,18 @@ class TestGetTopicsByCriteira(DBTestCase):
             key=lambda topic: topic.created_at
         )
 
-    def test_get_topics_before_given_timestamp(self, sorted_topics):
-        expected_topics = sorted_topics[2:]
-        after_dt = expected_topics[0].created_at
+    def test_get_topics_after_given_timestamp(self, sorted_topics):
+        expected = sorted_topics[2:]
+        after_dt = expected[0].created_at - datetime.timedelta(seconds=1)
+
         actual = schema_repo.get_topics_by_criteria(created_after=after_dt)
 
-        assert len(actual) == len(expected_topics)
-        for i, actual_topic in enumerate(actual):
-            expected_topic = expected_topics[i]
-            self.assert_equal_topic(expected_topic, actual_topic)
-            assert actual_topic.created_at >= after_dt
+        self.assert_equal_topics(expected, actual)
+        assert all(topic.created_at > after_dt for topic in actual)
 
     def test_no_newer_topic(self, sorted_topics):
         last_topic = sorted_topics[-1]
-        after_dt = last_topic.created_at + datetime.timedelta(seconds=1)
+        after_dt = last_topic.created_at
         actual = schema_repo.get_topics_by_criteria(created_after=after_dt)
         assert actual == []
 
@@ -786,24 +784,38 @@ class TestGetTopicsByCriteira(DBTestCase):
         actual = schema_repo.get_topics_by_criteria(source=biz_source.name)
         self.assert_equal_topics([biz_topic], actual)
 
-    def test_get_yelp_namespace_only(self, user_topic_1, user_topic_2,
-                                     biz_topic, yelp_namespace):
-        actual = schema_repo.get_topics_by_criteria(
-            namespace=yelp_namespace.name
+    def test_get_yelp_namespace_only(
+        self,
+        biz_topic,
+        user_topic_1,
+        user_topic_2,
+        yelp_namespace
+    ):
+        self.assert_equal_topics(
+            expected_topics=self._sort_topics_by_id(
+                [user_topic_1, user_topic_2, biz_topic]
+            ),
+            actual_topics=schema_repo.get_topics_by_criteria(
+                namespace=yelp_namespace.name
+            )
         )
-        expected = self._sort_topics_by_id(
-            [user_topic_1, user_topic_2, biz_topic]
-        )
-        self.assert_equal_topics(expected, actual)
 
-    def test_get_user_topics_only(self, user_topic_1, user_topic_2,
-                                  user_source, yelp_namespace):
-        actual = schema_repo.get_topics_by_criteria(
-            namespace=yelp_namespace.name,
-            source=user_source.name
+    def test_get_user_topics_only(
+        self,
+        user_topic_1,
+        user_topic_2,
+        user_source,
+        yelp_namespace
+    ):
+        self.assert_equal_topics(
+            expected_topics=self._sort_topics_by_id(
+                [user_topic_1, user_topic_2]
+            ),
+            actual_topics=schema_repo.get_topics_by_criteria(
+                namespace=yelp_namespace.name,
+                source=user_source.name
+            )
         )
-        expected = self._sort_topics_by_id([user_topic_1, user_topic_2])
-        self.assert_equal_topics(expected, actual)
 
     def assert_equal_topics(self, expected_topics, actual_topics):
         assert len(actual_topics) == len(expected_topics)

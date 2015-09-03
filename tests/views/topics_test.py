@@ -128,12 +128,16 @@ class TestGetTopicsByCriteria(TestApiBase):
         assert expected_exception.code == e.value.code
         assert str(e.value) == exc_v1.SOURCE_NOT_FOUND_ERROR_MESSAGE
 
-    def test_filter_by_namespace_and_time(self, mock_request, biz_topic,
-                                          biz_topic_response):
+    def test_filter_by_namespace_and_time(
+        self,
+        mock_request,
+        biz_topic,
+        biz_topic_response
+    ):
         mock_request.params = self.get_mock_dict({
             'namespace': biz_topic.source.namespace.name,
             'created_after': (biz_topic.created_at -
-                              datetime.utcfromtimestamp(0)).total_seconds()
+                              datetime.utcfromtimestamp(0)).total_seconds() - 1
         })
         actual = topic_views.get_topics_by_criteria(mock_request)
         assert actual == [biz_topic_response]
