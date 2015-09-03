@@ -202,7 +202,9 @@
                 $http.get('/v1/topics/' + $scope.topic + '/schemas/latest').success(function (data) {
                     $scope.schema_id = data.schema_id;
                     $scope.tableNote = data.note;
-		    $scope.tableData.updated_at = data.note.updated_at;
+		    if ($scope.tableData != undefined) {
+		        $scope.tableData.updated_at = data.note.updated_at;
+		    }
                     var fieldData = JSON.parse(data.schema).fields;
                     for (var i = 0; i < fieldData.length; i++) {
                         $scope.schemaElementMetadata[fieldData[i].name] = getColumnType(fieldData[i]);
@@ -224,8 +226,13 @@
                             data[i].type = $scope.schemaElementMetadata[data[i].name];
                             $scope.schemaElements.push(data[i]);
                         }
-			if (i > 0 && data[i].note && data[i].note.updated_at > $scope.tableData.updated_at) {
-			    $scope.tableData.updated_at = data[i].note.updated_at;
+			if (data[i].updated_at > $scope.tableData.updated_at) {
+			    $scope.tableData.updated_at = data[i].updated_at;
+			}
+			if (i > 0 && data[i].note != undefined) {
+			    if (data[i].note.updated_at > $scope.tableData.updated_at) {
+			        $scope.tableData.updated_at = data[i].note.updated_at;
+			    }
 			}
                     }
                     for (var i = 0; i < $scope.schemaElements.length; i++) {

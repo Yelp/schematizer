@@ -69,7 +69,8 @@ def update_source_category(source_id, category):
         models.SourceCategory.source_id == source_id
     ).update(
         {
-            models.SourceCategory.category: category
+            models.SourceCategory.category: category,
+	    models.SourceCategory.updated_at: datetime.datetime.now()
         }
     )
 
