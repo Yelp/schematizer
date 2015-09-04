@@ -229,7 +229,7 @@
 			if (data[i].updated_at > $scope.tableData.updated_at) {
 			    $scope.tableData.updated_at = data[i].updated_at;
 			}
-			if (i > 0 && data[i].note !== undefined) {
+			if (data[i].note !== undefined) {
 			    if (data[i].note.updated_at > $scope.tableData.updated_at) {
 			        $scope.tableData.updated_at = data[i].note.updated_at;
 			    }
