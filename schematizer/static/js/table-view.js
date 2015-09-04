@@ -168,7 +168,7 @@
                     for (var i = 0; i < data.length; i++) {
                         if (data[i].source == $scope.source) {
                             $scope.tableData = data[i];
-                            if ($scope.tableData.category != undefined) {
+                            if ($scope.tableData.category !== undefined) {
                                 $scope.category = $scope.tableData.category;
                             } else {
                                 $scope.category = $scope.UNCATEGORIZED;
@@ -202,7 +202,7 @@
                 $http.get('/v1/topics/' + $scope.topic + '/schemas/latest').success(function (data) {
                     $scope.schema_id = data.schema_id;
                     $scope.tableNote = data.note;
-		    if ($scope.tableData != undefined) {
+		    if ($scope.tableData !== undefined && $scope.tableData.updated_at < data.note.updated_at) {
 		        $scope.tableData.updated_at = data.note.updated_at;
 		    }
                     var fieldData = JSON.parse(data.schema).fields;
@@ -229,7 +229,7 @@
 			if (data[i].updated_at > $scope.tableData.updated_at) {
 			    $scope.tableData.updated_at = data[i].updated_at;
 			}
-			if (i > 0 && data[i].note != undefined) {
+			if (i > 0 && data[i].note !== undefined) {
 			    if (data[i].note.updated_at > $scope.tableData.updated_at) {
 			        $scope.tableData.updated_at = data[i].note.updated_at;
 			    }
@@ -252,13 +252,13 @@
                 var type = "";
                 if (typeof metadata.type == 'string') {
                     type = metadata.type;
-                    if (metadata.type == 'string' && metadata.maxlen != undefined) {
+                    if (metadata.type == 'string' && metadata.maxlen !== undefined) {
                         type += ('(' + metadata.maxlen + ')');
                     }
                     type += ' not null';
                 } else if (Object.prototype.toString.call(metadata.type) == '[object Array]') {
                     for(var i = 0; i < metadata.type.length; i++) {
-                        if (metadata.type[i] == 'string' && metadata.maxlen != undefined) {
+                        if (metadata.type[i] == 'string' && metadata.maxlen !== undefined) {
                             type += ('string(' + metadata.maxlen + ') ');
                         } else {
                             type += (metadata.type[i] + ' ');
