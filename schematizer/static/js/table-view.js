@@ -24,6 +24,7 @@
             $scope.columnNoteEdit = {};
             $scope.UNCATEGORIZED = CONSTANTS.uncategorized;
             $scope.user = window.user_email;
+	    $scope.last_updated = "";
 
             // Functions for saving and editing table data
             $scope.editTableNote = function() {
@@ -202,8 +203,9 @@
                 $http.get('/v1/topics/' + $scope.topic + '/schemas/latest').success(function (data) {
                     $scope.schema_id = data.schema_id;
                     $scope.tableNote = data.note;
-		    if ($scope.tableData !== undefined && $scope.tableData.updated_at < data.note.updated_at) {
-		        $scope.tableData.updated_at = data.note.updated_at;
+		    $scope.last_updated = $scope.tableData.updated_at;
+		    if (data.note !== undefined && $scope.last_updated < data.note.updated_at) {
+		        $scope.last_updated = data.note.updated_at;
 		    }
                     var fieldData = JSON.parse(data.schema).fields;
                     for (var i = 0; i < fieldData.length; i++) {
@@ -226,12 +228,12 @@
                             data[i].type = $scope.schemaElementMetadata[data[i].name];
                             $scope.schemaElements.push(data[i]);
                         }
-			if (data[i].updated_at > $scope.tableData.updated_at) {
-			    $scope.tableData.updated_at = data[i].updated_at;
+			if (data[i].updated_at > $scope.last_updated) {
+			    $scope.last_updated = data[i].updated_at;
 			}
 			if (data[i].note !== undefined) {
-			    if (data[i].note.updated_at > $scope.tableData.updated_at) {
-			        $scope.tableData.updated_at = data[i].note.updated_at;
+			    if (data[i].note.updated_at > $scope.last_updated) {
+			        $scope.last_updated = data[i].note.updated_at;
 			    }
 			}
                     }

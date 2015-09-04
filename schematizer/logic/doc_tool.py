@@ -2,7 +2,6 @@
 import datetime
 
 from schematizer import models
-
 from schematizer.models.database import session
 
 
@@ -32,7 +31,7 @@ def update_note(id, note_text, last_updated_by):
         {
             models.Note.note: note_text,
             models.Note.last_updated_by: last_updated_by,
-	    models.Note.updated_at: datetime.datetime.utcnow()
+            models.Note.updated_at: datetime.datetime.utcnow()
         }
     )
 
@@ -42,7 +41,9 @@ def create_note(reference_type, reference_id, note_text, last_updated_by):
         reference_type=reference_type,
         reference_id=reference_id,
         note=note_text,
-        last_updated_by=last_updated_by
+        last_updated_by=last_updated_by,
+	updated_at=datetime.datetime.utcnow(),
+	created_at=datetime.datetime.utcnow()
     )
     session.add(note)
     session.flush()
@@ -71,7 +72,7 @@ def update_source_category(source_id, category):
     ).update(
         {
             models.SourceCategory.category: category,
-	    models.SourceCategory.updated_at: datetime.datetime.utcnow()
+            models.SourceCategory.updated_at: datetime.datetime.utcnow()
         }
     )
 
