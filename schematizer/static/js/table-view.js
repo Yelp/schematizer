@@ -40,7 +40,7 @@
                             reference_id: parseInt($scope.schema_id),
                             reference_type: 'schema',
                             note: $scope.tableNoteEdit,
-                            last_updated_by: $scope.user 
+                            last_updated_by: $scope.user
                         }),
                         headers: {'Content-Type': 'application/json'}
                     }).success(function (data) {
@@ -54,15 +54,15 @@
                         method: "POST",
                         data: JSON.stringify({
                             note: $scope.tableNoteEdit,
-                            last_updated_by: $scope.user 
+                            last_updated_by: $scope.user
                         }),
                         headers: {'Content-Type': 'application/json'}
                     }).success(function (data) {
                         $scope.tableNote = data;
-                        $scope.tableNote.note = $scope.tableNoteEdit;	
+                        $scope.tableNote.note = $scope.tableNoteEdit;
                     });
-                }	
-                $scope.isEditingTableNote = false;	
+                }
+                $scope.isEditingTableNote = false;
             };
 
             $scope.cancelTableNote = function() {
@@ -217,7 +217,7 @@
             }
 
             function getSchemaElements() {
-                $http.get('/v1/schemas/' + $scope.schema_id + '/elements').success(function (data) {  
+                $http.get('/v1/schemas/' + $scope.schema_id + '/elements').success(function (data) {
 		    for (var i = 0; i < data.length; i++) {
                         if (data[i].element_type == 'record')
                             $scope.tableDescription = data[i].doc;

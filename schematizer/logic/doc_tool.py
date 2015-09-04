@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+import datetime
+
 from schematizer import models
 
 from schematizer.models.database import session
 
-import datetime
 
 def get_note_by_reference_id_and_type(reference_id, reference_type):
     return session.query(
@@ -31,7 +32,7 @@ def update_note(id, note_text, last_updated_by):
         {
             models.Note.note: note_text,
             models.Note.last_updated_by: last_updated_by,
-	    models.Note.updated_at: datetime.datetime.now()
+	    models.Note.updated_at: datetime.datetime.utcnow()
         }
     )
 
@@ -70,7 +71,7 @@ def update_source_category(source_id, category):
     ).update(
         {
             models.SourceCategory.category: category,
-	    models.SourceCategory.updated_at: datetime.datetime.now()
+	    models.SourceCategory.updated_at: datetime.datetime.utcnow()
         }
     )
 
