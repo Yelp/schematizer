@@ -106,10 +106,20 @@ def register_avro_schema_from_avro_json(
     )
     _lock_topic_and_schemas(topic)
 
-    return _get_avro_schema_or_create(avro_schema_json, base_schema_id, status, topic)
+    return _get_avro_schema_or_create(
+        avro_schema_json=avro_schema_json,
+        base_schema_id=base_schema_id,
+        status=status,
+        topic=topic
+    )
 
 
-def _get_avro_schema_or_create(avro_schema_json, base_schema_id, status, topic):
+def _get_avro_schema_or_create(
+        avro_schema_json,
+        base_schema_id,
+        status,
+        topic
+):
     # Do not create the schema if it is the same as the latest one
     avro_schema = _get_latest_identical_schema_from_topic(
         topic=topic,
@@ -124,6 +134,7 @@ def _get_avro_schema_or_create(avro_schema_json, base_schema_id, status, topic):
             base_schema_id=base_schema_id
         )
     return avro_schema
+
 
 def _get_compatible_topic_or_create(
         avro_schema_json,
@@ -153,12 +164,14 @@ def is_topic_compatible(topic, avro_schema_json, contains_pii):
             topic.contains_pii == contains_pii and
             is_schema_compatible_in_topic(avro_schema_json, topic.name))
 
+
 def _create_topic_for_source(namespace_name, source, contains_pii):
     # Note that creating duplicate topic names will throw a sqlalchemy
     # IntegrityError exception. When it occurs, it indicates the uuid
     # is generating the same value (rarely) and we'd like to know it.
     topic_name = _construct_topic_name(namespace_name, source.name)
     return _create_topic(topic_name, source.id, contains_pii)
+
 
 def _get_latest_identical_schema_from_topic(
         topic,
@@ -171,6 +184,7 @@ def _get_latest_identical_schema_from_topic(
             latest_schema.base_schema_id == base_schema_id):
         return latest_schema
     return None
+
 
 def _get_namespace_or_create(namespace_name):
     try:

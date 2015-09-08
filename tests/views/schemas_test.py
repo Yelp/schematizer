@@ -19,7 +19,8 @@ class TestSchemasViewBase(TestApiBase):
 
     @pytest.fixture
     def setup_mock_create_schema_func(self, mock_repo):
-        mock_repo.create_avro_schema_from_avro_json.return_value = self.schema
+        mock_repo.register_avro_schema_from_avro_json.return_value = \
+            self.schema
 
     def assert_mock_create_schema_func_call(self, mock_repo, **param_override):
         expected_call_args = {
@@ -31,7 +32,7 @@ class TestSchemasViewBase(TestApiBase):
             'contains_pii': factories.fake_contains_pii,
         }
         expected_call_args.update(param_override)
-        mock_repo.create_avro_schema_from_avro_json.assert_called_once_with(
+        mock_repo.register_avro_schema_from_avro_json.assert_called_once_with(
             **expected_call_args
         )
 
@@ -145,7 +146,7 @@ class TestRegisterSchema(TestSchemasViewBase):
         mock_repo
     ):
         mock_request.json_body = self.request_json
-        mock_repo.create_avro_schema_from_avro_json.side_effect = \
+        mock_repo.register_avro_schema_from_avro_json.side_effect = \
             schema.AvroException('oops')
         expected_exception = self.get_http_exception(422)
 
@@ -218,7 +219,8 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
     ):
         mock_request.json_body = request_body
         mock_repo.convert_schema.return_value = self.converted_schema_json
-        mock_repo.create_avro_schema_from_avro_json.return_value = self.schema
+        mock_repo.register_avro_schema_from_avro_json.return_value = \
+            self.schema
 
         actual = schema_views.register_schema_from_mysql_stmts(mock_request)
 
@@ -273,7 +275,7 @@ class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
         mock_request,
         mock_repo
     ):
-        mock_repo.create_avro_schema_from_avro_json.side_effect = \
+        mock_repo.register_avro_schema_from_avro_json.side_effect = \
             schema.AvroException('oops')
         expected_exception = self.get_http_exception(422)
 
