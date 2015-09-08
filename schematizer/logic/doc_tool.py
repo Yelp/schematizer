@@ -22,10 +22,6 @@ def get_note_by_id(id):
     ).first()
 
 
-def _get_utcnow():
-    return datetime.datetime.utcnow()
-
-
 def update_note(id, note_text, last_updated_by):
     return session.query(
         models.Note
@@ -35,7 +31,7 @@ def update_note(id, note_text, last_updated_by):
         {
             models.Note.note: note_text,
             models.Note.last_updated_by: last_updated_by,
-            models.Note.updated_at: _get_utcnow()
+            models.Note.updated_at: datetime.datetime.utcnow()
         }
     )
 
