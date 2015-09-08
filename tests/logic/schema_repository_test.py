@@ -151,9 +151,9 @@ class TestSchemaRepository(DBTestCase):
         ) as mock_func:
             yield mock_func
 
-    def test_create_schema_from_avro_json_with_new_schema(self, namespace):
+    def test_registering_from_avro_json_with_new_schema(self, namespace):
         expected_base_schema_id = 100
-        actual_schema = schema_repo.create_avro_schema_from_avro_json(
+        actual_schema = schema_repo.register_avro_schema_from_avro_json(
             self.rw_schema_json,
             self.namespace_name,
             self.source_name,
@@ -181,14 +181,14 @@ class TestSchemaRepository(DBTestCase):
         self.assert_equal_source_partial(expected_source, actual_source)
 
     @pytest.mark.usefixtures('rw_schema')
-    def test_create_schema_from_avro_json_with_compatible_schema(
+    def test_registering_from_avro_json_with_compatible_schema(
             self,
             topic,
             mock_compatible_func
     ):
         mock_compatible_func.return_value = True
 
-        actual_schema = schema_repo.create_avro_schema_from_avro_json(
+        actual_schema = schema_repo.register_avro_schema_from_avro_json(
             self.another_rw_schema_json,
             topic.source.namespace.name,
             topic.source.name,
@@ -209,7 +209,7 @@ class TestSchemaRepository(DBTestCase):
         topic,
         contains_pii
     ):
-        actual_schema = schema_repo.create_avro_schema_from_avro_json(
+        actual_schema = schema_repo.register_avro_schema_from_avro_json(
             self.another_rw_schema_json,
             topic.source.namespace.name,
             topic.source.name,
@@ -255,14 +255,14 @@ class TestSchemaRepository(DBTestCase):
             not topic.contains_pii
         )
 
-    def test_create_schema_from_avro_json_with_same_schema(
+    def test_registering_from_avro_json_with_same_schema(
             self,
             rw_schema,
             mock_compatible_func
     ):
         mock_compatible_func.return_value = True
 
-        actual = schema_repo.create_avro_schema_from_avro_json(
+        actual = schema_repo.register_avro_schema_from_avro_json(
             self.rw_schema_json,
             rw_schema.topic.source.namespace.name,
             rw_schema.topic.source.name,
@@ -272,7 +272,7 @@ class TestSchemaRepository(DBTestCase):
 
         assert rw_schema.id == actual.id
 
-    def test_create_schema_from_avro_json_with_diff_base_schema(
+    def test_registering_from_avro_json_with_diff_base_schema(
             self,
             topic,
             rw_schema,
@@ -281,7 +281,7 @@ class TestSchemaRepository(DBTestCase):
         mock_compatible_func.return_value = True
         expected_base_schema_id = 100
 
-        actual = schema_repo.create_avro_schema_from_avro_json(
+        actual = schema_repo.register_avro_schema_from_avro_json(
             self.rw_schema_json,
             rw_schema.topic.source.namespace.name,
             rw_schema.topic.source.name,

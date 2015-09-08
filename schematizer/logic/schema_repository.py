@@ -62,7 +62,7 @@ def convert_schema(source_type, target_type, source_schema):
     return converter().convert(source_schema)
 
 
-def create_avro_schema_from_avro_json(
+def register_avro_schema_from_avro_json(
         avro_schema_json,
         namespace_name,
         source_name,
@@ -98,38 +98,79 @@ def create_avro_schema_from_avro_json(
     )
     _lock_source(source)
 
-    topic = get_latest_topic_of_source_id(source.id)
+    topic = _get_compatible_topic_or_create(
+        avro_schema_json=avro_schema_json,
+        contains_pii=contains_pii,
+        namespace_name=namespace_name,
+        source=source
+    )
+    _lock_topic_and_schemas(topic)
 
+    return _get_avro_schema_or_create(avro_schema_json, base_schema_id, status, topic)
+
+
+def _get_avro_schema_or_create(avro_schema_json, base_schema_id, status, topic):
+    # Do not create the schema if it is the same as the latest one
+    avro_schema = _get_latest_identical_schema_from_topic(
+        topic=topic,
+        avro_schema_json=avro_schema_json,
+        base_schema_id=base_schema_id
+    )
+    if not avro_schema:
+        avro_schema = _create_avro_schema(
+            avro_schema_json=avro_schema_json,
+            topic_id=topic.id,
+            status=status,
+            base_schema_id=base_schema_id
+        )
+    return avro_schema
+
+def _get_compatible_topic_or_create(
+        avro_schema_json,
+        contains_pii,
+        namespace_name,
+        source
+):
+    topic = get_latest_topic_of_source_id(source.id)
     # Lock topic and its schemas so that no other transaction can add new
     # schema to the topic or change schema status.
     _lock_topic_and_schemas(topic)
-
-    if (
-        not topic or
-        topic.contains_pii != contains_pii or
-        not is_schema_compatible_in_topic(avro_schema_json, topic.name)
+    if not is_topic_compatible(
+            topic=topic,
+            avro_schema_json=avro_schema_json,
+            contains_pii=contains_pii
     ):
-        # Note that creating duplicate topic names will throw a sqlalchemy
-        # IntegrityError exception. When it occurs, it indicates the uuid
-        # is generating the same value (rarely) and we'd like to know it.
-        topic_name = _construct_topic_name(namespace_name, source_name)
-        topic = _create_topic(topic_name, source.id, contains_pii)
+        topic = _create_topic_for_source(
+            namespace_name=namespace_name,
+            source=source,
+            contains_pii=contains_pii
+        )
+    return topic
 
-    # Do not create the schema if it is the same as the latest one
+
+def is_topic_compatible(topic, avro_schema_json, contains_pii):
+    return (topic and
+            topic.contains_pii == contains_pii and
+            is_schema_compatible_in_topic(avro_schema_json, topic.name))
+
+def _create_topic_for_source(namespace_name, source, contains_pii):
+    # Note that creating duplicate topic names will throw a sqlalchemy
+    # IntegrityError exception. When it occurs, it indicates the uuid
+    # is generating the same value (rarely) and we'd like to know it.
+    topic_name = _construct_topic_name(namespace_name, source.name)
+    return _create_topic(topic_name, source.id, contains_pii)
+
+def _get_latest_identical_schema_from_topic(
+        topic,
+        avro_schema_json,
+        base_schema_id
+):
     latest_schema = get_latest_schema_by_topic_id(topic.id)
     if (latest_schema and
             latest_schema.avro_schema_json == avro_schema_json and
             latest_schema.base_schema_id == base_schema_id):
         return latest_schema
-
-    avro_schema = _create_avro_schema(
-        avro_schema_json,
-        topic.id,
-        status,
-        base_schema_id
-    )
-    return avro_schema
-
+    return None
 
 def _get_namespace_or_create(namespace_name):
     try:
