@@ -22,6 +22,10 @@ def get_note_by_id(id):
     ).first()
 
 
+def _get_utcnow():
+    return datetime.datetime.utcnow()
+
+
 def update_note(id, note_text, last_updated_by):
     return session.query(
         models.Note
@@ -31,7 +35,7 @@ def update_note(id, note_text, last_updated_by):
         {
             models.Note.note: note_text,
             models.Note.last_updated_by: last_updated_by,
-            models.Note.updated_at: datetime.datetime.utcnow()
+            models.Note.updated_at: _get_utcnow()
         }
     )
 
@@ -41,9 +45,7 @@ def create_note(reference_type, reference_id, note_text, last_updated_by):
         reference_type=reference_type,
         reference_id=reference_id,
         note=note_text,
-        last_updated_by=last_updated_by,
-	updated_at=datetime.datetime.utcnow(),
-	created_at=datetime.datetime.utcnow()
+        last_updated_by=last_updated_by
     )
     session.add(note)
     session.flush()
@@ -71,8 +73,7 @@ def update_source_category(source_id, category):
         models.SourceCategory.source_id == source_id
     ).update(
         {
-            models.SourceCategory.category: category,
-            models.SourceCategory.updated_at: datetime.datetime.utcnow()
+            models.SourceCategory.category: category
         }
     )
 
