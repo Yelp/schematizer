@@ -771,7 +771,7 @@ class TestGetTopicsByCriteira(DBTestCase):
 
         actual = schema_repo.get_topics_by_criteria(created_after=after_dt)
 
-        self.assert_equal_topics(expected, actual)
+        self.assert_equal_topics(actual, expected)
         assert all(topic.created_at >= after_dt for topic in actual)
 
     def test_no_newer_topic(self, sorted_topics):
@@ -782,7 +782,7 @@ class TestGetTopicsByCriteira(DBTestCase):
 
     def test_get_biz_source_only(self, biz_topic, biz_source):
         actual = schema_repo.get_topics_by_criteria(source=biz_source.name)
-        self.assert_equal_topics([biz_topic], actual)
+        self.assert_equal_topics(actual, [biz_topic])
 
     def test_get_yelp_namespace_only(
         self,
@@ -792,11 +792,11 @@ class TestGetTopicsByCriteira(DBTestCase):
         yelp_namespace
     ):
         self.assert_equal_topics(
-            expected_topics=self._sort_topics_by_id(
-                [user_topic_1, user_topic_2, biz_topic]
-            ),
             actual_topics=schema_repo.get_topics_by_criteria(
                 namespace=yelp_namespace.name
+            ),
+            expected_topics=self._sort_topics_by_id(
+                [user_topic_1, user_topic_2, biz_topic]
             )
         )
 
@@ -808,26 +808,19 @@ class TestGetTopicsByCriteira(DBTestCase):
         yelp_namespace
     ):
         self.assert_equal_topics(
-            expected_topics=self._sort_topics_by_id(
-                [user_topic_1, user_topic_2]
-            ),
             actual_topics=schema_repo.get_topics_by_criteria(
                 namespace=yelp_namespace.name,
                 source=user_source.name
+            ),
+            expected_topics=self._sort_topics_by_id(
+                [user_topic_1, user_topic_2]
             )
         )
 
     def assert_equal_topics(self, expected_topics, actual_topics):
         assert len(actual_topics) == len(expected_topics)
         for i, actual_topic in enumerate(actual_topics):
-            self.assert_equal_topic(expected_topics[i], actual_topic)
-
-    def assert_equal_topic(self, expected_topic, actual_topic):
-        assert actual_topic.id == expected_topic.id
-        assert actual_topic.name == expected_topic.name
-        assert actual_topic.source.id == expected_topic.source.id
-        assert actual_topic.source.namespace.id == \
-            expected_topic.source.namespace.id
+            assert actual_topic == expected_topics[i]
 
     def _sort_topics_by_id(self, topics):
         return sorted(topics, key=lambda topic: topic.id)

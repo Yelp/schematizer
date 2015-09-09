@@ -73,3 +73,22 @@ class Topic(Base):
             'updated_at': self.updated_at
         }
         return topic_dict
+
+    def __eq__(self, other):
+        return (isinstance(other, Topic) and
+                self.id == other.id and
+                self.name == other.name and
+                self.source_id == other.source_id and
+                self.contains_pii == other.contains_pii and
+                self.created_at == other.created_at and
+                self.updated_at == other.updated_at)
+
+    def __hash__(self):
+        return hash(
+            (self.id,
+             self.name,
+             self.source_id,
+             self.contains_pii,
+             self.created_at,
+             self.updated_at)
+        )

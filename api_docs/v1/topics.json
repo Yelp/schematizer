@@ -130,7 +130,7 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Get the topics that match specified criteria. If no search criterion is specified, it returns all the topics.",
+                    "summary": "Get the topics that match specified criteria. If no search criterion is specified, it returns all the topics.  Note that it doesn't support pagination at the moment, and querying all the topics without criteria may cause time-out.",
                     "type": "array",
                     "items": {
                         "$ref": "Topic"
