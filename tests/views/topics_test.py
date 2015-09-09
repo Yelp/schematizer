@@ -24,7 +24,7 @@ class TestGetTopicByTopicName(TestApiBase):
             mock_request.matchdict = self.get_mock_dict({'topic_name': 'foo'})
             topic_views.get_topic_by_topic_name(mock_request)
 
-        assert expected_exception.code == e.value.code
+        assert e.value.code == expected_exception.code
         assert str(e.value) == exc_v1.TOPIC_NOT_FOUND_ERROR_MESSAGE
 
     def test_happy_case(self, mock_request, biz_topic, biz_topic_response):
@@ -32,7 +32,7 @@ class TestGetTopicByTopicName(TestApiBase):
             'topic_name': biz_topic.name
         })
         actual = topic_views.get_topic_by_topic_name(mock_request)
-        assert biz_topic_response == actual
+        assert actual == biz_topic_response
 
 
 class TestListSchemasByTopicName(TestTopicsViewBase):
@@ -45,7 +45,7 @@ class TestListSchemasByTopicName(TestTopicsViewBase):
             mock_repo.get_topic_by_name.return_value = None
             topic_views.list_schemas_by_topic_name(mock_request)
 
-        assert expected_exception.code == e.value.code
+        assert e.value.code == expected_exception.code
         assert str(e.value) == exc_v1.TOPIC_NOT_FOUND_ERROR_MESSAGE
         mock_repo.get_schemas_by_topic_name.assert_called_once_with('foo')
         mock_repo.get_topic_by_name.assert_called_once_with('foo')
