@@ -250,38 +250,37 @@
                 $scope.load = false;
             }
 
-            function getColumnType(metadata) {
+            function getColumnType(field) {
                 // TODO(psuben#BAM-407|2015-09-08):
                 // Handle fixed lengths for types like char(10)
                 var type = "";
-                if (typeof metadata.type == 'string') {
-                    type = metadata.type;
-                    type += formatMetaType(metadata);
-                } else if (Object.prototype.toString.call(metadata.type) == '[object Array]') {
-                    for(var i = 0; i < metadata.type.length; i++) {
-                        type += formatArrayMetaType(metadata, i);
+                if (typeof field.type == 'string') {
+                    type = field.type;
+                    type += formatFieldType(field.type, field.maxlen, false) + ' not null';
+                } else if (Object.prototype.toString.call(field.type) == '[object Array]') {
+                    for(var i = 0; i < field.type.length; i++) {
+                        var formatResult = formatFieldType(field.type[i], field.maxlen, true);
+                        if (formatResult != "") {
+                            type += formatResult;
+                        } else {
+                            type += (field.type[i] + ' ');
+                        }
                     }
                 } else {
-                    type = metadata.type;
+                    type = field.type;
                 }
                 return type;
             }
 
-            function formatMetaType(metadata) {
-                var resultType = "";
-                if (metadata.type == 'string' && metadata.maxlen !== undefined) {
-                    resultType += ('(' + metadata.maxlen + ')');
+            function formatFieldType(fieldType, fieldLen, unionBool) {
+                if (fieldType == 'string' && fieldLen !== undefined) {
+                    if (unionBool) {
+                        return ('string(' + fieldLen + ') ');
+                    } else {
+                        return ('(' + fieldLen + ')');
+                    }
                 }
-                resultType += ' not null';
-                return resultType;
-            }
-
-            function formatArrayMetaType(metadata, i) {
-                if (metadata.type[i] == 'string' && metadata.maxlen !== undefined) {
-                    return ('string(' + metadata.maxlen + ') ');
-                } else {
-                    return (metadata.type[i] + ' ');
-                }
+                return "";
             }
 
             function getColumnName(name) {
