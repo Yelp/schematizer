@@ -130,7 +130,8 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Get the topics that match specified criteria. If no search criterion is specified, it returns all the topics.  It is recommended to use this api with criteria since it doesn't support pagination at the moment, and querying all the topics may cause time-out.",
+                    "summary": "Get the topics that match specified criteria. If no criterion is specified, it returns all the topics.",
+                    "notes": "It is recommended to use this api with criteria since it doesn't support pagination at the moment, and querying all the topics may cause time-out.",
                     "type": "array",
                     "items": {
                         "$ref": "Topic"
