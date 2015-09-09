@@ -89,6 +89,21 @@ class TestDocTool(DBTestCase):
             factories.fake_source
         )
 
+    @pytest.fixture
+    def mock_utcnow(self, schema_note, new_text, new_user):
+        with mock.patch.object(
+            doc_tool,
+            'datetime',
+        ) as mock_datetime:
+            mock_datetime.datetime.utcnow = mock.Mock(
+                return_value=self.test_date
+            )
+            doc_tool.update_note(
+                schema_note.id,
+                new_text,
+                new_user
+            )
+
     @property
     def category(self):
         return 'Business Info'
@@ -137,18 +152,7 @@ class TestDocTool(DBTestCase):
     def test_update_schema_note(self, schema_note):
         new_text = "This is new text"
         new_user = "user2@yelp.com"
-        with mock.patch.object(
-            doc_tool,
-            'datetime'
-        ) as mock_datetime:
-            mock_datetime.datetime.utcnow = mock.Mock(
-                return_value=self.test_date
-            )
-            doc_tool.update_note(
-                schema_note.id,
-                new_text,
-                new_user
-            )
+        self.mock_utcnow(schema_note, new_text, new_user)
         expected_note = models.Note(
             reference_type=models.ReferenceTypeEnum.SCHEMA,
             reference_id=schema_note.reference_id,
@@ -176,18 +180,7 @@ class TestDocTool(DBTestCase):
     def test_update_schema_element_note(self, schema_element_note):
         new_text = "This is new text"
         new_user = "user2@yelp.com"
-        with mock.patch.object(
-            doc_tool,
-            'datetime',
-        ) as mock_datetime:
-            mock_datetime.datetime.utcnow = mock.Mock(
-                return_value=self.test_date
-            )
-            doc_tool.update_note(
-                schema_element_note.id,
-                new_text,
-                new_user
-            )
+        self.mock_utcnow(schema_element_note, new_text, new_user)
         expected_note = models.Note(
             reference_type=schema_element_note.reference_type,
             reference_id=schema_element_note.reference_id,
