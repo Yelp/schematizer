@@ -79,7 +79,7 @@ class TestGetLatestSchemaByTopicName(TestTopicsViewBase):
             mock_repo.get_topic_by_name.return_value = None
             topic_views.get_latest_schema_by_topic_name(mock_request)
 
-        assert expected_exception.code == e.value.code
+        assert e.value.code == expected_exception.code
         assert str(e.value) == exc_v1.TOPIC_NOT_FOUND_ERROR_MESSAGE
         mock_repo.get_latest_schema_by_topic_name.assert_called_once_with('ba')
         mock_repo.get_topic_by_name.assert_called_once_with('ba')
@@ -91,7 +91,7 @@ class TestGetLatestSchemaByTopicName(TestTopicsViewBase):
             mock_repo.get_latest_schema_by_topic_name.return_value = None
             topic_views.get_latest_schema_by_topic_name(mock_request)
 
-        assert expected_exception.code == e.value.code
+        assert e.value.code == expected_exception.code
         assert str(e.value) == exc_v1.LATEST_SCHEMA_NOT_FOUND_ERROR_MESSAGE
         mock_repo.get_latest_schema_by_topic_name.assert_called_once_with('ba')
 
@@ -101,7 +101,7 @@ class TestGetLatestSchemaByTopicName(TestTopicsViewBase):
 
         actual = topic_views.get_latest_schema_by_topic_name(mock_request)
 
-        assert self.schema_response == actual
+        assert actual == self.schema_response
         mock_repo.get_latest_schema_by_topic_name.assert_called_once_with('ba')
 
 
@@ -113,7 +113,7 @@ class TestGetTopicsByCriteria(TestApiBase):
             mock_request.params = self.get_mock_dict({'namespace': 'missing'})
             topic_views.get_topics_by_criteria(mock_request)
 
-        assert expected_exception.code == e.value.code
+        assert e.value.code == expected_exception.code
         assert str(e.value) == exc_v1.NAMESPACE_NOT_FOUND_ERROR_MESSAGE
 
     def test_bad_source_name(self, mock_request, biz_topic):
@@ -125,7 +125,7 @@ class TestGetTopicsByCriteria(TestApiBase):
             })
             topic_views.get_topics_by_criteria(mock_request)
 
-        assert expected_exception.code == e.value.code
+        assert e.value.code == expected_exception.code
         assert str(e.value) == exc_v1.SOURCE_NOT_FOUND_ERROR_MESSAGE
 
     def test_filter_by_namespace_and_time(
