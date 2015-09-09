@@ -98,6 +98,16 @@ def register_avro_schema_from_avro_json(
     )
     _lock_source(source)
 
+    # if base_schema_id:
+    #     avro_schema = _doit(
+    #         base_schema_id=base_schema_id,
+    #         contains_pii=contains_pii,
+    #         source=source,
+    #         avro_schema_json=avro_schema_json
+    #     )
+    #     if avro_schema:
+    #         return avro_schema
+
     topic = _get_compatible_topic_or_create(
         avro_schema_json=avro_schema_json,
         contains_pii=contains_pii,
@@ -113,6 +123,40 @@ def register_avro_schema_from_avro_json(
         topic=topic
     )
 
+
+def _doit(
+        base_schema_id,
+        contains_pii,
+        source,
+        avro_schema_json
+):
+    # Find all topics with an enabled schema sharing the same base_schema_id
+    # which has the same contains_pii flag in the same source ordered
+    # reverse-chronologically
+    potential_topics = session.query(
+        models.Topic
+    ).join(
+        models.AvroSchema
+    ).filter(
+        models.AvroSchema.base_schema_id == base_schema_id,
+        models.AvroSchema.status != models.AvroSchemaStatus.DISABLED,
+        models.Topic.contains_pii == contains_pii,
+        models.Topic.source_id == source.id
+    ).order_by(
+        models.Topic.id
+    ).all()
+    for topic in potential_topics:
+        # Lock topic and its schemas so that no other transaction can add new
+        # schema to the topic or change schema status.
+        _lock_topic_and_schemas(topic)
+        existing_schema = _get_latest_identical_schema_from_topic(
+            topic=topic,
+            avro_schema_json=avro_schema_json,
+            base_schema_id=base_schema_id
+        )
+        if existing_schema:
+            return existing_schema
+    return None
 
 def _get_avro_schema_or_create(
         avro_schema_json,

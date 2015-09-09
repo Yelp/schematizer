@@ -7,9 +7,11 @@ from schematizer.models.database import session
 
 fake_default_id = 1
 fake_namespace = 'yelp'
+fake_transformed_namespace = 'yelp_transformed'
 fake_source = 'business'
 fake_owner_email = 'business@yelp.com'
 fake_topic_name = 'yelp.business.v1'
+fake_transformed_topic_name = 'yelp.business.v1.transformed'
 fake_avro_schema = '{"name": "business"}'
 fake_created_at = datetime(2015, 1, 1, 17, 0, 0)
 fake_updated_at = datetime(2015, 1, 1, 17, 0, 1)

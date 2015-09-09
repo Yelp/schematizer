@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import mock
 import pytest
+import copy
 
 from schematizer import models
 from schematizer.components import converters
@@ -16,6 +17,10 @@ class TestSchemaRepository(DBTestCase):
     @property
     def namespace_name(self):
         return factories.fake_namespace
+
+    @property
+    def transformed_namespace_name(self):
+        return factories.fake_transformed_namespace
 
     @property
     def source_name(self):
@@ -50,29 +55,53 @@ class TestSchemaRepository(DBTestCase):
         )
 
     @property
+    def transformed_topic_name(self):
+        return factories.fake_transformed_topic_name
+
+    @pytest.fixture
+    def transformed_topic(self):
+        return factories.create_topic(
+            self.transformed_topic_name,
+            self.transformed_namespace_name,
+            self.source_name
+        )
+
+    @property
+    def rw_schema_name(self):
+        return "foo"
+
+    @property
     def rw_schema_json(self):
         return {
-            "name": "foo",
-            "namespace": "yelp",
+            "name": self.rw_schema_name,
+            "namespace": self.namespace_name,
             "type": "record",
             "fields": [{"name": "bar", "type": "int", "doc": "bar"}],
             "doc": "table foo"
         }
 
+    def _build_elements(self, json):
+        base_key = "{}.{}".format(json['namespace'], json['name'])
+        avro_schema_elements = [
+            models.AvroSchemaElement(
+                key=base_key,
+                element_type="record",
+                doc=json['doc']
+            )
+        ]
+        for field in json['fields']:
+            avro_schema_elements.append(
+                models.AvroSchemaElement(
+                    key='{}|{}'.format(base_key, field['name']),
+                    element_type='field',
+                    doc=field['doc']
+                )
+            )
+        return avro_schema_elements
+
     @property
     def rw_schema_elements(self):
-        return [
-            models.AvroSchemaElement(
-                key="yelp.foo",
-                element_type="record",
-                doc="table foo"
-            ),
-            models.AvroSchemaElement(
-                key="yelp.foo|bar",
-                element_type="field",
-                doc="bar"
-            ),
-        ]
+        return self._build_elements(self.rw_schema_json)
 
     @pytest.fixture
     def rw_schema(self, topic):
@@ -83,10 +112,32 @@ class TestSchemaRepository(DBTestCase):
         )
 
     @property
+    def rw_transformed_schema_json(self):
+        schema_json = copy.deepcopy(self.rw_schema_json)
+        schema_json['namespace'] = self.transformed_namespace_name
+        schema_json['fields'].append(
+            {"name": "bar_str", "type": "string", "doc": "bar_str"}
+        )
+        return schema_json
+
+    @property
+    def rw_transformed_schema_elements(self):
+        return self._build_elements(self.rw_transformed_schema_json)
+
+    @pytest.fixture
+    def rw_transformed_schema(self, transformed_topic, rw_schema):
+        return factories.create_avro_schema(
+            self.rw_transformed_schema_json,
+            self.rw_transformed_schema_elements,
+            topic_name=transformed_topic.name,
+            base_schema_id=rw_schema.id
+        )
+
+    @property
     def another_rw_schema_json(self):
         return {
-            "name": "foo",
-            "namespace": "yelp",
+            "name": self.rw_schema_name,
+            "namespace": self.namespace_name,
             "type": "record",
             "fields": [{"name": "baz", "type": "int", "doc": "baz"}],
             "doc": "table foo"
@@ -94,18 +145,7 @@ class TestSchemaRepository(DBTestCase):
 
     @property
     def another_rw_schema_elements(self):
-        return [
-            models.AvroSchemaElement(
-                key="yelp.foo",
-                element_type="record",
-                doc='table foo'
-            ),
-            models.AvroSchemaElement(
-                key="yelp.foo|baz",
-                element_type="field",
-                doc="baz"
-            ),
-        ]
+        return self._build_elements(self.another_rw_schema_json)
 
     @pytest.fixture
     def another_rw_schema(self, topic):
@@ -116,23 +156,40 @@ class TestSchemaRepository(DBTestCase):
         )
 
     @property
+    def another_rw_transformed_schema_json(self):
+        schema_json = copy.deepcopy(self.another_rw_schema_json)
+        schema_json['namespace'] = self.transformed_namespace_name
+        schema_json['fields'].append(
+            {"name": "baz_str", "type": "string", "doc": "baz_str"}
+        )
+        return schema_json
+
+    @property
+    def another_rw_transformed_schema_elements(self):
+        return self._build_elements(self.another_rw_transformed_schema_json)
+
+    @pytest.fixture
+    def another_rw_transformed_schema(self, transformed_topic, another_rw_schema):
+        return factories.create_avro_schema(
+            self.another_rw_transformed_schema_json,
+            self.another_rw_transformed_schema_elements,
+            topic_name=transformed_topic.name,
+            base_schema_id=another_rw_schema.id
+        )
+
+    @property
     def disabled_schema_json(self):
         return {
             "type": "record",
             "name": "disabled",
+            "namespace": self.namespace_name,
             "fields": [],
             "doc": "I am disabled!"
         }
 
     @property
     def disabled_schema_elements(self):
-        return [
-            models.AvroSchemaElement(
-                key="disabled",
-                element_type="record",
-                doc="I am disabled!"
-            )
-        ]
+        return self._build_elements(self.disabled_schema_json)
 
     @pytest.fixture
     def disabled_schema(self, topic):
@@ -269,8 +326,79 @@ class TestSchemaRepository(DBTestCase):
             rw_schema.topic.source.owner_email,
             contains_pii=False
         )
-
         assert rw_schema.id == actual.id
+    #
+    # def test_registering_same_transformed_schema_twice(
+    #         self,
+    #         transformed_topic,
+    #         rw_transformed_schema
+    # ):
+    #     result_a = schema_repo.register_avro_schema_from_avro_json(
+    #         self.rw_schema_json,
+    #         rw_transformed_schema.topic.source.namespace.name,
+    #         rw_transformed_schema.topic.source.name,
+    #         rw_transformed_schema.topic.source.owner_email,
+    #         contains_pii=False,
+    #         base_schema_id=rw_transformed_schema.base_schema_id
+    #     )
+    #     result_b = schema_repo.register_avro_schema_from_avro_json(
+    #         self.rw_schema_json,
+    #         rw_transformed_schema.topic.source.namespace.name,
+    #         rw_transformed_schema.topic.source.name,
+    #         rw_transformed_schema.topic.source.owner_email,
+    #         contains_pii=False,
+    #         base_schema_id=rw_transformed_schema.base_schema_id
+    #     )
+    #
+    #     # new schema should be created for the same topic
+    #     assert rw_transformed_schema.id == result_a.id
+    #     assert transformed_topic.id == result_a.topic_id
+    #     assert rw_transformed_schema.id == result_b.id
+    #     assert transformed_topic.id == result_b.topic_id
+    #     expected = models.AvroSchema(
+    #         avro_schema_json=self.rw_schema_json,
+    #         status=models.AvroSchemaStatus.READ_AND_WRITE,
+    #         avro_schema_elements=self.rw_schema_elements,
+    #         base_schema_id=rw_transformed_schema.base_schema_id
+    #     )
+    #     self.assert_equal_avro_schema_partial(expected, result_a)
+    #     self.assert_equal_avro_schema_partial(expected, result_b)
+
+    def test_registering_same_schema_twice(
+            self,
+            topic,
+            rw_schema
+    ):
+        result_a = schema_repo.register_avro_schema_from_avro_json(
+            self.rw_schema_json,
+            rw_schema.topic.source.namespace.name,
+            rw_schema.topic.source.name,
+            rw_schema.topic.source.owner_email,
+            contains_pii=rw_schema.topic.contains_pii,
+            base_schema_id=rw_schema.base_schema_id
+        )
+        result_b = schema_repo.register_avro_schema_from_avro_json(
+            self.rw_schema_json,
+            rw_schema.topic.source.namespace.name,
+            rw_schema.topic.source.name,
+            rw_schema.topic.source.owner_email,
+            contains_pii=rw_schema.topic.contains_pii,
+            base_schema_id=rw_schema.base_schema_id
+        )
+
+        # new schema should be created for the same topic
+        assert rw_schema.id == result_a.id
+        assert topic.id == result_a.topic_id
+        assert rw_schema.id == result_b.id
+        assert topic.id == result_b.topic_id
+        expected = models.AvroSchema(
+            avro_schema_json=self.rw_schema_json,
+            status=models.AvroSchemaStatus.READ_AND_WRITE,
+            avro_schema_elements=self.rw_schema_elements,
+            base_schema_id=rw_schema.base_schema_id
+        )
+        self.assert_equal_avro_schema_partial(expected, result_a)
+        self.assert_equal_avro_schema_partial(expected, result_b)
 
     def test_registering_from_avro_json_with_diff_base_schema(
             self,
