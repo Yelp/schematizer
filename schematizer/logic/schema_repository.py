@@ -159,19 +159,17 @@ def _get_avro_schema_or_create(
         topic
 ):
     # Do not create the schema if it is the same as the latest one
-    avro_schema = _get_latest_identical_schema_from_topic(
+    existing_avro_schema = _get_latest_identical_schema_from_topic(
         topic=topic,
         avro_schema_json=avro_schema_json,
         base_schema_id=base_schema_id
     )
-    if not avro_schema:
-        avro_schema = _create_avro_schema(
-            avro_schema_json=avro_schema_json,
-            topic_id=topic.id,
-            status=status,
-            base_schema_id=base_schema_id
-        )
-    return avro_schema
+    return existing_avro_schema or _create_avro_schema(
+        avro_schema_json=avro_schema_json,
+        topic_id=topic.id,
+        status=status,
+        base_schema_id=base_schema_id
+    )
 
 
 def _get_compatible_topic_or_create(
@@ -217,9 +215,11 @@ def _get_latest_identical_schema_from_topic(
         base_schema_id
 ):
     latest_schema = get_latest_schema_by_topic_id(topic.id)
-    if (latest_schema and
-            latest_schema.avro_schema_json == avro_schema_json and
-            latest_schema.base_schema_id == base_schema_id):
+    if (
+        latest_schema and
+        latest_schema.avro_schema_json == avro_schema_json and
+        latest_schema.base_schema_id == base_schema_id
+    ):
         return latest_schema
     return None
 

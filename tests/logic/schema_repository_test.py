@@ -372,27 +372,21 @@ class TestSchemaRepository(DBTestCase):
         result_a2 = self._register_avro_schema(rw_transformed_schema)
         self.assert_equal_avro_schema_partial(result_a1, result_a2)
 
-    def test_registering_different_transformed_schema_is_different(
+    def test_reregistering_different_transformed_schema(
             self,
             rw_transformed_schema,
             another_rw_transformed_schema
     ):
-        result_a = self._register_avro_schema(rw_transformed_schema)
-        result_b = self._register_avro_schema(another_rw_transformed_schema)
-        assert result_a.id != result_b.id
-        assert result_a.topic.id != result_b.topic.id
-        assert result_a.base_schema_id != result_b.base_schema_id
-
-    def test_reregistering_different_transformed_schema_retains_id(
-            self,
-            rw_transformed_schema,
-            another_rw_transformed_schema
-    ):
+        # Registering a different transformed schema should result in a
+        # different schema/topic
         result_a1 = self._register_avro_schema(rw_transformed_schema)
         result_b = self._register_avro_schema(another_rw_transformed_schema)
         assert result_a1.id != result_b.id
         assert result_a1.topic.id != result_b.topic.id
         assert result_a1.base_schema_id != result_b.base_schema_id
+
+        # Re-registering the original transformed schema will should
+        # result in the original's schema/topic
         result_a2 = self._register_avro_schema(rw_transformed_schema)
         assert result_a1.id == result_a2.id
         assert result_a1.topic.id == result_a2.topic.id
