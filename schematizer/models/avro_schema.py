@@ -113,7 +113,7 @@ class AvroSchema(Base, BaseModel):
 
     @avro_schema_json.setter
     def avro_schema_json(self, schema_json):
-        self.avro_schema = simplejson.dumps(schema_json)
+        self.avro_schema = simplejson.dumps(schema_json, sort_keys=True)
 
     @property
     def avro_schema_with_doc(self):

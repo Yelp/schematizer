@@ -134,6 +134,35 @@ class TestSchemaRepository(DBTestCase):
         )
 
     @property
+    def rw_transformed_schema_v2_json(self):
+        schema_json = copy.deepcopy(self.rw_transformed_schema_json)
+        schema_json['fields'].append(
+            {
+                "name": "bar_double",
+                "type": "double",
+                "doc": "bar_double",
+                "default": 0.0
+            }
+        )
+        return schema_json
+
+    @property
+    def rw_transformed_schema_v2_elements(self):
+        return self._build_elements(self.rw_transformed_schema_v2_json)
+
+    @pytest.fixture
+    def rw_transformed_v2_schema(self, transformed_topic, rw_schema):
+        """Represents an upgrade to the ASTs (v2) which produces a different
+        (but compatible) transformed schema from the same base
+        """
+        return factories.create_avro_schema(
+            self.rw_transformed_schema_v2_json,
+            self.rw_transformed_schema_v2_elements,
+            topic_name=transformed_topic.name,
+            base_schema_id=rw_schema.id
+        )
+
+    @property
     def another_rw_schema_json(self):
         return {
             "name": self.rw_schema_name,
@@ -169,7 +198,11 @@ class TestSchemaRepository(DBTestCase):
         return self._build_elements(self.another_rw_transformed_schema_json)
 
     @pytest.fixture
-    def another_rw_transformed_schema(self, transformed_topic, another_rw_schema):
+    def another_rw_transformed_schema(
+            self,
+            transformed_topic,
+            another_rw_schema
+    ):
         return factories.create_avro_schema(
             self.another_rw_transformed_schema_json,
             self.another_rw_transformed_schema_elements,
@@ -312,79 +345,81 @@ class TestSchemaRepository(DBTestCase):
             not topic.contains_pii
         )
 
+    def _register_avro_schema(self, avro_schema):
+        return schema_repo.register_avro_schema_from_avro_json(
+            avro_schema.avro_schema_json,
+            avro_schema.topic.source.namespace.name,
+            avro_schema.topic.source.name,
+            avro_schema.topic.source.owner_email,
+            contains_pii=avro_schema.topic.contains_pii,
+            base_schema_id=avro_schema.base_schema_id
+        )
+
     def test_registering_from_avro_json_with_same_schema(
             self,
             rw_schema,
             mock_compatible_func
     ):
         mock_compatible_func.return_value = True
-
-        actual = schema_repo.register_avro_schema_from_avro_json(
-            self.rw_schema_json,
-            rw_schema.topic.source.namespace.name,
-            rw_schema.topic.source.name,
-            rw_schema.topic.source.owner_email,
-            contains_pii=False
-        )
+        actual = self._register_avro_schema(rw_schema)
         assert rw_schema.id == actual.id
-    #
-    # def test_registering_same_transformed_schema_twice(
-    #         self,
-    #         transformed_topic,
-    #         rw_transformed_schema
-    # ):
-    #     result_a = schema_repo.register_avro_schema_from_avro_json(
-    #         self.rw_schema_json,
-    #         rw_transformed_schema.topic.source.namespace.name,
-    #         rw_transformed_schema.topic.source.name,
-    #         rw_transformed_schema.topic.source.owner_email,
-    #         contains_pii=False,
-    #         base_schema_id=rw_transformed_schema.base_schema_id
-    #     )
-    #     result_b = schema_repo.register_avro_schema_from_avro_json(
-    #         self.rw_schema_json,
-    #         rw_transformed_schema.topic.source.namespace.name,
-    #         rw_transformed_schema.topic.source.name,
-    #         rw_transformed_schema.topic.source.owner_email,
-    #         contains_pii=False,
-    #         base_schema_id=rw_transformed_schema.base_schema_id
-    #     )
-    #
-    #     # new schema should be created for the same topic
-    #     assert rw_transformed_schema.id == result_a.id
-    #     assert transformed_topic.id == result_a.topic_id
-    #     assert rw_transformed_schema.id == result_b.id
-    #     assert transformed_topic.id == result_b.topic_id
-    #     expected = models.AvroSchema(
-    #         avro_schema_json=self.rw_schema_json,
-    #         status=models.AvroSchemaStatus.READ_AND_WRITE,
-    #         avro_schema_elements=self.rw_schema_elements,
-    #         base_schema_id=rw_transformed_schema.base_schema_id
-    #     )
-    #     self.assert_equal_avro_schema_partial(expected, result_a)
-    #     self.assert_equal_avro_schema_partial(expected, result_b)
+
+    def test_registering_same_transformed_schema_is_same(
+            self,
+            rw_transformed_schema
+    ):
+        result_a1 = self._register_avro_schema(rw_transformed_schema)
+        result_a2 = self._register_avro_schema(rw_transformed_schema)
+        self.assert_equal_avro_schema_partial(result_a1, result_a2)
+
+    def test_registering_different_transformed_schema_is_different(
+            self,
+            rw_transformed_schema,
+            another_rw_transformed_schema
+    ):
+        result_a = self._register_avro_schema(rw_transformed_schema)
+        result_b = self._register_avro_schema(another_rw_transformed_schema)
+        assert result_a.id != result_b.id
+        assert result_a.topic.id != result_b.topic.id
+        assert result_a.base_schema_id != result_b.base_schema_id
+
+    def test_reregistering_different_transformed_schema_retains_id(
+            self,
+            rw_transformed_schema,
+            another_rw_transformed_schema
+    ):
+        result_a1 = self._register_avro_schema(rw_transformed_schema)
+        result_b = self._register_avro_schema(another_rw_transformed_schema)
+        assert result_a1.id != result_b.id
+        assert result_a1.topic.id != result_b.topic.id
+        assert result_a1.base_schema_id != result_b.base_schema_id
+        result_a2 = self._register_avro_schema(rw_transformed_schema)
+        assert result_a1.id == result_a2.id
+        assert result_a1.topic.id == result_a2.topic.id
+        assert result_a1.base_schema_id == result_a2.base_schema_id
+
+    def test_reregistering_compatible_transformed_schema_stays_in_topic(
+            self,
+            rw_transformed_schema,
+            rw_transformed_v2_schema
+    ):
+        result_a1 = self._register_avro_schema(rw_transformed_schema)
+        result_b = self._register_avro_schema(rw_transformed_v2_schema)
+        assert result_a1.id != result_b.id
+        assert result_a1.topic.id == result_b.topic.id
+        assert result_a1.base_schema_id == result_b.base_schema_id
+        result_a2 = self._register_avro_schema(rw_transformed_schema)
+        assert result_a1.id != result_a2.id
+        assert result_a1.topic.id == result_a2.topic.id
+        assert result_a1.base_schema_id == result_a2.base_schema_id
 
     def test_registering_same_schema_twice(
             self,
             topic,
             rw_schema
     ):
-        result_a = schema_repo.register_avro_schema_from_avro_json(
-            self.rw_schema_json,
-            rw_schema.topic.source.namespace.name,
-            rw_schema.topic.source.name,
-            rw_schema.topic.source.owner_email,
-            contains_pii=rw_schema.topic.contains_pii,
-            base_schema_id=rw_schema.base_schema_id
-        )
-        result_b = schema_repo.register_avro_schema_from_avro_json(
-            self.rw_schema_json,
-            rw_schema.topic.source.namespace.name,
-            rw_schema.topic.source.name,
-            rw_schema.topic.source.owner_email,
-            contains_pii=rw_schema.topic.contains_pii,
-            base_schema_id=rw_schema.base_schema_id
-        )
+        result_a = self._register_avro_schema(rw_schema)
+        result_b = self._register_avro_schema(rw_schema)
 
         # new schema should be created for the same topic
         assert rw_schema.id == result_a.id
@@ -410,7 +445,7 @@ class TestSchemaRepository(DBTestCase):
         expected_base_schema_id = 100
 
         actual = schema_repo.register_avro_schema_from_avro_json(
-            self.rw_schema_json,
+            rw_schema.avro_schema_json,
             rw_schema.topic.source.namespace.name,
             rw_schema.topic.source.name,
             rw_schema.topic.source.owner_email,
