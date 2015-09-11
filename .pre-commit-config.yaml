@@ -6,7 +6,7 @@
     -   id: autopep8-wrapper
         args:
         - -i
-        - --ignore=E265,E309,E501
+        - --ignore=E265,E309
     -   id: check-yaml
     -   id: debug-statements
         language_version: python2.7

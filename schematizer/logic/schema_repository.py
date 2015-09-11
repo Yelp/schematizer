@@ -183,9 +183,9 @@ def _get_compatible_topic_or_create(
     # schema to the topic or change schema status.
     _lock_topic_and_schemas(topic)
     if not is_topic_compatible(
-            topic=topic,
-            avro_schema_json=avro_schema_json,
-            contains_pii=contains_pii
+        topic=topic,
+        avro_schema_json=avro_schema_json,
+        contains_pii=contains_pii
     ):
         topic = _create_topic_for_source(
             namespace_name=namespace_name,
