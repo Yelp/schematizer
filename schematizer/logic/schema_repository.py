@@ -519,11 +519,11 @@ def get_latest_topic_of_source_id(source_id):
     ).first()
 
 
-def get_schema_element_by_id(id):
+def get_schema_element_by_id(schema_id):
     return session.query(
         models.AvroSchemaElement
     ).filter(
-        models.AvroSchemaElement.id == id
+        models.AvroSchemaElement.id == schema_id
     ).first()
 
 

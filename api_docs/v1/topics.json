@@ -170,10 +170,6 @@
                             "message": "Invalid query parameter(s) supplied"
                         },
                         {
-                            "code": 404,
-                            "message": "Namespace or source not found"
-                        },
-                        {
                             "code": 500,
                             "message": "Server side error"
                         }

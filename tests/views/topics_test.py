@@ -108,25 +108,17 @@ class TestGetLatestSchemaByTopicName(TestTopicsViewBase):
 class TestGetTopicsByCriteria(TestApiBase):
 
     def test_non_existing_namespace_name(self, mock_request, biz_topic):
-        expected_exception = self.get_http_exception(404)
-        with pytest.raises(expected_exception) as e:
-            mock_request.params = self.get_mock_dict({'namespace': 'missing'})
-            topic_views.get_topics_by_criteria(mock_request)
-
-        assert e.value.code == expected_exception.code
-        assert str(e.value) == exc_v1.NAMESPACE_NOT_FOUND_ERROR_MESSAGE
+        mock_request.params = self.get_mock_dict({'namespace': 'missing'})
+        actual = topic_views.get_topics_by_criteria(mock_request)
+        assert actual == []
 
     def test_bad_source_name(self, mock_request, biz_topic):
-        expected_exception = self.get_http_exception(404)
-        with pytest.raises(expected_exception) as e:
-            mock_request.params = self.get_mock_dict({
-                'namespace': biz_topic.source.namespace.name,
-                'source': 'missing'
-            })
-            topic_views.get_topics_by_criteria(mock_request)
-
-        assert e.value.code == expected_exception.code
-        assert str(e.value) == exc_v1.SOURCE_NOT_FOUND_ERROR_MESSAGE
+        mock_request.params = self.get_mock_dict({
+            'namespace': biz_topic.source.namespace.name,
+            'source': 'missing'
+        })
+        actual = topic_views.get_topics_by_criteria(mock_request)
+        assert actual == []
 
     def test_filter_by_namespace_and_time(
         self,

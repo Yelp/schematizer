@@ -66,16 +66,6 @@ def get_latest_schema_by_topic_name(request):
 def get_topics_by_criteria(request):
     criteria = requests_v1.GetTopicsRequest(request.params)
 
-    if (criteria.namespace and
-            not schema_repository.get_namespace_by_name(criteria.namespace)):
-        raise exceptions_v1.namespace_not_found_exception()
-
-    if (criteria.namespace and criteria.source and
-            not schema_repository.get_source_by_fullname(
-                criteria.namespace,
-                criteria.source)):
-        raise exceptions_v1.source_not_found_exception()
-
     topics = schema_repository.get_topics_by_criteria(
         namespace=criteria.namespace,
         source=criteria.source,

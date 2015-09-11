@@ -75,20 +75,18 @@ class Topic(Base):
         return topic_dict
 
     def __eq__(self, other):
-        return (isinstance(other, Topic) and
-                self.id == other.id and
-                self.name == other.name and
-                self.source_id == other.source_id and
-                self.contains_pii == other.contains_pii and
-                self.created_at == other.created_at and
-                self.updated_at == other.updated_at)
+        return type(self) is type(other) and self._eq_keys == other._eq_keys
 
     def __hash__(self):
-        return hash(
-            (self.id,
-             self.name,
-             self.source_id,
-             self.contains_pii,
-             self.created_at,
-             self.updated_at)
+        return hash(self._eq_keys)
+
+    @property
+    def _eq_keys(self):
+        return (
+            self.id,
+            self.name,
+            self.source_id,
+            self.contains_pii,
+            self.created_at,
+            self.updated_at
         )
