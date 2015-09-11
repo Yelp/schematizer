@@ -78,7 +78,7 @@ class Topic(Base):
         return type(self) is type(other) and self._key == other._key
 
     def __hash__(self):
-        return hash(self._eq_keys)
+        return hash(self._key)
 
     @property
     def _key(self):
