@@ -75,13 +75,13 @@ class Topic(Base):
         return topic_dict
 
     def __eq__(self, other):
-        return type(self) is type(other) and self._eq_keys == other._eq_keys
+        return type(self) is type(other) and self._key == other._key
 
     def __hash__(self):
         return hash(self._eq_keys)
 
     @property
-    def _eq_keys(self):
+    def _key(self):
         return (
             self.id,
             self.name,
