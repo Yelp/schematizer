@@ -89,8 +89,8 @@ class TestDocTool(DBTestCase):
             factories.fake_source
         )
 
-    @pytest.fixture
-    def mock_utcnow(self, schema_note, new_text, new_user):
+    @pytest.yield_fixture
+    def mock_utcnow(self):
         with mock.patch.object(
             doc_tool,
             'datetime',
@@ -98,11 +98,7 @@ class TestDocTool(DBTestCase):
             mock_datetime.datetime.utcnow = mock.Mock(
                 return_value=self.test_date
             )
-            doc_tool.update_note(
-                schema_note.id,
-                new_text,
-                new_user
-            )
+            yield
 
     @property
     def category(self):
@@ -149,10 +145,10 @@ class TestDocTool(DBTestCase):
         )
         self.assert_equal_note_partial(expected_note, actual_note)
 
-    def test_update_schema_note(self, schema_note):
+    def test_update_schema_note(self, schema_note, mock_utcnow):
         new_text = "This is new text"
         new_user = "user2@yelp.com"
-        self.mock_utcnow(schema_note, new_text, new_user)
+        doc_tool.update_note(schema_note.id, new_text, new_user)
         expected_note = models.Note(
             reference_type=models.ReferenceTypeEnum.SCHEMA,
             reference_id=schema_note.reference_id,
@@ -177,10 +173,14 @@ class TestDocTool(DBTestCase):
         )
         self.assert_equal_note_partial(expected_note, actual_note)
 
-    def test_update_schema_element_note(self, schema_element_note):
+    def test_update_schema_element_note(
+        self,
+        schema_element_note,
+        mock_utcnow
+    ):
         new_text = "This is new text"
         new_user = "user2@yelp.com"
-        self.mock_utcnow(schema_element_note, new_text, new_user)
+        doc_tool.update_note(schema_element_note.id, new_text, new_user)
         expected_note = models.Note(
             reference_type=schema_element_note.reference_type,
             reference_id=schema_element_note.reference_id,
