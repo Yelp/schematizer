@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-from schematizer import models
+import datetime
 
+from schematizer import models
 from schematizer.models.database import session
 
 
@@ -29,7 +30,8 @@ def update_note(id, note_text, last_updated_by):
     ).update(
         {
             models.Note.note: note_text,
-            models.Note.last_updated_by: last_updated_by
+            models.Note.last_updated_by: last_updated_by,
+            models.Note.updated_at: datetime.datetime.utcnow()
         }
     )
 

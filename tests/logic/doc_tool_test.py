@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import datetime
+import mock
 import pytest
 
 from schematizer import models
@@ -16,6 +18,10 @@ class TestDocTool(DBTestCase):
     @property
     def user_email(self):
         return "user@yelp.com"
+
+    @property
+    def test_date(self):
+        return datetime.datetime(2015, 9, 4, 17, 37, 0)
 
     @pytest.fixture
     def topic(self):
@@ -83,6 +89,17 @@ class TestDocTool(DBTestCase):
             factories.fake_source
         )
 
+    @pytest.yield_fixture
+    def mock_utcnow(self):
+        with mock.patch.object(
+            doc_tool,
+            'datetime',
+        ) as mock_datetime:
+            mock_datetime.datetime.utcnow = mock.Mock(
+                return_value=self.test_date
+            )
+            yield
+
     @property
     def category(self):
         return 'Business Info'
@@ -124,25 +141,22 @@ class TestDocTool(DBTestCase):
             reference_type=models.ReferenceTypeEnum.SCHEMA,
             reference_id=schema.id,
             note=self.note_text,
-            last_updated_by=self.user_email,
+            last_updated_by=self.user_email
         )
         self.assert_equal_note_partial(expected_note, actual_note)
 
-    def test_update_schema_note(self, schema_note):
+    def test_update_schema_note(self, schema_note, mock_utcnow):
         new_text = "This is new text"
         new_user = "user2@yelp.com"
-        doc_tool.update_note(
-            schema_note.id,
-            new_text,
-            new_user
-        )
+        doc_tool.update_note(schema_note.id, new_text, new_user)
         expected_note = models.Note(
             reference_type=models.ReferenceTypeEnum.SCHEMA,
             reference_id=schema_note.reference_id,
             note=new_text,
             last_updated_by=new_user,
+            updated_at=self.test_date
         )
-        self.assert_equal_note_partial(expected_note, schema_note)
+        self.assert_equal_note_update(expected_note, schema_note)
 
     def test_create_schema_element_note(self, schema_element):
         actual_note = doc_tool.create_note(
@@ -159,21 +173,22 @@ class TestDocTool(DBTestCase):
         )
         self.assert_equal_note_partial(expected_note, actual_note)
 
-    def test_update_schema_element_note(self, schema_element_note):
+    def test_update_schema_element_note(
+        self,
+        schema_element_note,
+        mock_utcnow
+    ):
         new_text = "This is new text"
         new_user = "user2@yelp.com"
-        doc_tool.update_note(
-            schema_element_note.id,
-            new_text,
-            new_user
-        )
+        doc_tool.update_note(schema_element_note.id, new_text, new_user)
         expected_note = models.Note(
             reference_type=schema_element_note.reference_type,
             reference_id=schema_element_note.reference_id,
             note=new_text,
             last_updated_by=new_user,
+            updated_at=self.test_date
         )
-        self.assert_equal_note_partial(expected_note, schema_element_note)
+        self.assert_equal_note_update(expected_note, schema_element_note)
 
     def test_get_distinct_categories(self, source_category):
         actual = doc_tool.get_distinct_categories()
@@ -205,6 +220,9 @@ class TestDocTool(DBTestCase):
     def assert_equal_note(self, expected, actual):
         assert expected.id == actual.id
         assert expected.created_at == actual.created_at
+        self.assert_equal_note_update(expected, actual)
+
+    def assert_equal_note_update(self, expected, actual):
         assert expected.updated_at == actual.updated_at
         self.assert_equal_note_partial(expected, actual)
 
