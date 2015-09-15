@@ -24,6 +24,7 @@
             $scope.columnNoteEdit = {};
             $scope.UNCATEGORIZED = CONSTANTS.uncategorized;
             $scope.user = window.user_email;
+            $scope.last_updated = "";
 
             // Functions for saving and editing table data
             $scope.editTableNote = function() {
@@ -168,7 +169,7 @@
                     for (var i = 0; i < data.length; i++) {
                         if (data[i].source == $scope.source) {
                             $scope.tableData = data[i];
-                            if ($scope.tableData.category != undefined) {
+                            if ($scope.tableData.category !== undefined) {
                                 $scope.category = $scope.tableData.category;
                             } else {
                                 $scope.category = $scope.UNCATEGORIZED;
@@ -202,6 +203,10 @@
                 $http.get('/v1/topics/' + $scope.topic + '/schemas/latest').success(function (data) {
                     $scope.schema_id = data.schema_id;
                     $scope.tableNote = data.note;
+                    $scope.last_updated = $scope.tableData.updated_at;
+                    if (data.note !== undefined && $scope.last_updated < data.note.updated_at) {
+                        $scope.last_updated = data.note.updated_at;
+                    }
                     var fieldData = JSON.parse(data.schema).fields;
                     for (var i = 0; i < fieldData.length; i++) {
                         $scope.schemaElementMetadata[fieldData[i].name] = getColumnType(fieldData[i]);
@@ -223,9 +228,21 @@
                             data[i].type = $scope.schemaElementMetadata[data[i].name];
                             $scope.schemaElements.push(data[i]);
                         }
+                        if (data[i].updated_at > $scope.last_updated) {
+                            $scope.last_updated = data[i].updated_at;
+                        }
+                        if (data[i].note !== undefined) {
+                            if (data[i].note.updated_at > $scope.last_updated) {
+                                $scope.last_updated = data[i].note.updated_at;
+                            }
+                        }
                     }
                     for (var i = 0; i < $scope.schemaElements.length; i++) {
-                        $scope.columnNoteEdit[$scope.schemaElements[i].id] = {isEditing: false, edit: "", note: $scope.schemaElements[i].note};
+                        $scope.columnNoteEdit[$scope.schemaElements[i].id] = {
+                            isEditing: false,
+                            edit: "",
+                            note: $scope.schemaElements[i].note
+                        };
                     }
                 }).error(function (errorData) {
                     $scope.tableError = errorData;
@@ -233,26 +250,37 @@
                 $scope.load = false;
             }
 
-            function getColumnType(metadata) {
+            function getColumnType(field) {
+                // TODO(psuben#BAM-407|2015-09-08):
+                // Handle fixed lengths for types like char(10)
                 var type = "";
-                if (typeof metadata.type == 'string') {
-                    type = metadata.type;
-                    if (metadata.type == 'string' && metadata.maxlen != undefined) {
-                        type += ('(' + metadata.maxlen + ')');
-                    }
-                    type += ' not null';
-                } else if (Object.prototype.toString.call(metadata.type) == '[object Array]') {
-                    for(var i = 0; i < metadata.type.length; i++) {
-                        if (metadata.type[i] == 'string' && metadata.maxlen != undefined) {
-                            type += ('string(' + metadata.maxlen + ') ');
+                if (typeof field.type == 'string') {
+                    type = field.type;
+                    type += formatFieldType(field.type, field.maxlen, false) + ' not null';
+                } else if (Object.prototype.toString.call(field.type) == '[object Array]') {
+                    for(var i = 0; i < field.type.length; i++) {
+                        var formatResult = formatFieldType(field.type[i], field.maxlen, true);
+                        if (formatResult != "") {
+                            type += formatResult;
                         } else {
-                            type += (metadata.type[i] + ' ');
+                            type += (field.type[i] + ' ');
                         }
                     }
                 } else {
-                    type = metadata.type;
+                    type = field.type;
                 }
                 return type;
+            }
+
+            function formatFieldType(fieldType, fieldLen, unionBool) {
+                if (fieldType == 'string' && fieldLen !== undefined) {
+                    if (unionBool) {
+                        return ('string(' + fieldLen + ') ');
+                    } else {
+                        return ('(' + fieldLen + ')');
+                    }
+                }
+                return "";
             }
 
             function getColumnName(name) {
