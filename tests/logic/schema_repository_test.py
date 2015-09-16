@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+import copy
+
 import mock
 import pytest
-import copy
 
 from schematizer import models
 from schematizer.components import converters
@@ -92,7 +93,10 @@ class TestSchemaRepository(DBTestCase):
         for field in json['fields']:
             avro_schema_elements.append(
                 models.AvroSchemaElement(
-                    key='{}|{}'.format(base_key, field['name']),
+                    key=models.AvroSchemaElement.compose_key(
+                        base_key,
+                        field['name']
+                    ),
                     element_type='field',
                     doc=field['doc']
                 )
@@ -449,7 +453,7 @@ class TestSchemaRepository(DBTestCase):
 
         # new schema should be created for the same topic
         assert rw_schema.id != actual.id
-        assert topic.id == actual.topic_id
+        assert topic.id != actual.topic_id
         expected = models.AvroSchema(
             avro_schema_json=self.rw_schema_json,
             status=models.AvroSchemaStatus.READ_AND_WRITE,
