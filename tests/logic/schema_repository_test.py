@@ -451,7 +451,7 @@ class TestSchemaRepository(DBTestCase):
             base_schema_id=expected_base_schema_id
         )
 
-        # new schema should be created for the same topic
+        # new schema should be created for a new topic
         assert rw_schema.id != actual.id
         assert topic.id != actual.topic_id
         expected = models.AvroSchema(

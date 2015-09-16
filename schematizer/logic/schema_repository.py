@@ -116,7 +116,7 @@ def register_avro_schema_from_avro_json(
             return latest_schema
 
     most_recent_topic = topic_candidates[0] if topic_candidates else None
-    if not most_recent_topic or not _is_topic_compatible(
+    if not _is_topic_compatible(
         topic=most_recent_topic,
         avro_schema_json=avro_schema_json,
         contains_pii=contains_pii
@@ -137,7 +137,6 @@ def _is_same_schema(schema, avro_schema_json, base_schema_id):
     return (schema and
             schema.avro_schema_json == avro_schema_json and
             schema.base_schema_id == base_schema_id)
-
 
 
 def _is_topic_compatible(topic, avro_schema_json, contains_pii):
@@ -327,10 +326,8 @@ def _get_topic_candidates(
     ).join(
         models.AvroSchema
     ).filter(
-        models.Topic.source_id == source_id
-    ).filter(
-        models.Topic._contains_pii == int(contains_pii)
-    ).filter(
+        models.Topic.source_id == source_id,
+        models.Topic._contains_pii == int(contains_pii),
         models.AvroSchema.base_schema_id == base_schema_id
     )
     if enabled_schemas_only:
@@ -342,36 +339,7 @@ def _get_topic_candidates(
     )
     if limit:
         query = query.limit(limit)
-    print query
-    results = query.all()
-    print results
-    return results
-
-def _get_topics_with_same_source_and_base_schema_id(
-        source_id,
-        base_schema_id,
-        contains_pii,
-        enabled_schemas_only=True
-):
-    query = session.query(
-        models.Topic
-    ).join(
-        models.AvroSchema
-    ).filter(
-        models.AvroSchema.base_schema_id == base_schema_id,
-        models.Topic.source_id == source_id
-    )
-    if enabled_schemas_only:
-        query.filter(
-            models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
-        )
-    if enabled_schemas_only:
-        query.filter(
-            models.Topic.contains_pii == contains_pii
-        )
-    return query.order_by(
-        models.Topic.id
-    ).all()
+    return query.all()
 
 
 def is_schema_compatible_in_topic(target_schema, topic_name):
