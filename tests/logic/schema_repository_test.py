@@ -376,7 +376,7 @@ class TestSchemaRepository(DBTestCase):
         result_a2 = self._register_avro_schema(rw_transformed_schema)
         self.assert_equal_avro_schema_partial(result_a1, result_a2)
 
-    def test_reregistering_different_transformed_schema(
+    def test_add_different_transformed_schemas_with_same_base_schema(
             self,
             rw_transformed_schema,
             another_rw_transformed_schema
