@@ -83,7 +83,7 @@ def _register_avro_schema(
     base_schema_id=None
 ):
     try:
-        avro_schema = schema_repository.create_avro_schema_from_avro_json(
+        avro_schema = schema_repository.register_avro_schema_from_avro_json(
             avro_schema_json=schema_json,
             namespace_name=namespace,
             source_name=source,

@@ -62,7 +62,7 @@ def convert_schema(source_type, target_type, source_schema):
     return converter().convert(source_schema)
 
 
-def create_avro_schema_from_avro_json(
+def register_avro_schema_from_avro_json(
         avro_schema_json,
         namespace_name,
         source_name,
@@ -98,37 +98,78 @@ def create_avro_schema_from_avro_json(
     )
     _lock_source(source)
 
-    topic = get_latest_topic_of_source_id(source.id)
-
-    # Lock topic and its schemas so that no other transaction can add new
-    # schema to the topic or change schema status.
-    _lock_topic_and_schemas(topic)
-
-    if (
-        not topic or
-        topic.contains_pii != contains_pii or
-        not is_schema_compatible_in_topic(avro_schema_json, topic.name)
-    ):
-        # Note that creating duplicate topic names will throw a sqlalchemy
-        # IntegrityError exception. When it occurs, it indicates the uuid
-        # is generating the same value (rarely) and we'd like to know it.
-        topic_name = _construct_topic_name(namespace_name, source_name)
-        topic = _create_topic(topic_name, source.id, contains_pii)
-
-    # Do not create the schema if it is the same as the latest one
-    latest_schema = get_latest_schema_by_topic_id(topic.id)
-    if (latest_schema and
-            latest_schema.avro_schema_json == avro_schema_json and
-            latest_schema.base_schema_id == base_schema_id):
-        return latest_schema
-
-    avro_schema = _create_avro_schema(
-        avro_schema_json,
-        topic.id,
-        status,
-        base_schema_id
+    topic_candidates = _get_topic_candidates(
+        source_id=source.id,
+        base_schema_id=base_schema_id,
+        contains_pii=contains_pii,
+        limit=None if base_schema_id else 1
     )
-    return avro_schema
+
+    for topic in topic_candidates:
+        _lock_topic_and_schemas(topic)
+        latest_schema = get_latest_schema_by_topic_id(topic.id)
+        if _is_same_schema(
+            schema=latest_schema,
+            avro_schema_json=avro_schema_json,
+            base_schema_id=base_schema_id
+        ):
+            return latest_schema
+
+    most_recent_topic = topic_candidates[0] if topic_candidates else None
+    if not _is_topic_compatible(
+        topic=most_recent_topic,
+        avro_schema_json=avro_schema_json,
+        contains_pii=contains_pii
+    ):
+        most_recent_topic = _create_topic_for_source(
+            namespace_name=namespace_name,
+            source=source,
+            contains_pii=contains_pii
+        )
+    return _create_avro_schema(
+        avro_schema_json=avro_schema_json,
+        topic_id=most_recent_topic.id,
+        base_schema_id=base_schema_id
+    )
+
+
+def _is_same_schema(schema, avro_schema_json, base_schema_id):
+    return (schema and
+            schema.avro_schema_json == avro_schema_json and
+            schema.base_schema_id == base_schema_id)
+
+
+def _is_topic_compatible(topic, avro_schema_json, contains_pii):
+    return (topic and
+            topic.contains_pii == contains_pii and
+            is_schema_compatible_in_topic(avro_schema_json, topic.name))
+
+
+def _create_topic_for_source(namespace_name, source, contains_pii):
+    # Note that creating duplicate topic names will throw a sqlalchemy
+    # IntegrityError exception. When it occurs, it indicates the uuid
+    # is generating the same value (rarely) and we'd like to know it.
+    topic_name = _construct_topic_name(namespace_name, source.name)
+    return _create_topic(topic_name, source.id, contains_pii)
+
+
+def _construct_topic_name(namespace, source):
+    return '.'.join((namespace, source, uuid.uuid4().hex))
+
+
+def _create_topic(topic_name, source_id, contains_pii):
+    """Create a topic named `topic_name` in the given source.
+    It returns a newly created topic. If a topic with the same
+    name already exists, an exception is thrown
+    """
+    topic = models.Topic(
+        name=topic_name,
+        source_id=source_id,
+        contains_pii=contains_pii
+    )
+    session.add(topic)
+    session.flush()
+    return topic
 
 
 def _get_namespace_or_create(namespace_name):
@@ -259,6 +300,48 @@ def get_latest_topic_of_namespace_source(namespace_name, source_name):
     ).first()
 
 
+def _get_topic_candidates(
+        source_id,
+        base_schema_id,
+        contains_pii,
+        limit=None,
+        enabled_schemas_only=True
+):
+    """ Get topic candidate(s) for the given args, in order of creation (newest
+    first).
+
+    :param int source_id: The source_id of the topic(s)
+    :param int|None base_schema_id: The base_schema_id of the schema(s) in the
+        topic(s). Note that this may be None, as is the case for any schemas
+        not derived from other schemas.
+    :param bool contains_pii: Limit to topics which either do or do not
+        contain PII. Defaults to None, which will not apply any filter.
+    :param int|None limit: Provide a limit to the number of topics returned.
+    :param bool enabled_schemas_only: Set to True to limit results to schemas
+        which have not been disabled
+    :rtype: [schematizer.models.Topic]
+    """
+    query = session.query(
+        models.Topic
+    ).join(
+        models.AvroSchema
+    ).filter(
+        models.Topic.source_id == source_id,
+        models.Topic._contains_pii == int(contains_pii),
+        models.AvroSchema.base_schema_id == base_schema_id
+    )
+    if enabled_schemas_only:
+        query = query.filter(
+            models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
+        )
+    query = query.order_by(
+        models.Topic.id.desc()
+    )
+    if limit:
+        query = query.limit(limit)
+    return query.all()
+
+
 def is_schema_compatible_in_topic(target_schema, topic_name):
     """Check whether given schema is a valid Avro schema and compatible
     with existing schemas in the specified topic. Note that target_schema
@@ -270,25 +353,6 @@ def is_schema_compatible_in_topic(target_schema, topic_name):
         if not is_full_compatible(schema_json, target_schema):
             return False
     return True
-
-
-def _construct_topic_name(namespace, source):
-    return '.'.join((namespace, source, uuid.uuid4().hex))
-
-
-def _create_topic(topic_name, source_id, contains_pii):
-    """Create a topic named `topic_name` in the given source.
-    It returns a newly created topic. If a topic with the same
-    name already exists, an exception is thrown
-    """
-    topic = models.Topic(
-        name=topic_name,
-        source_id=source_id,
-        contains_pii=contains_pii
-    )
-    session.add(topic)
-    session.flush()
-    return topic
 
 
 def get_topic_by_name(topic_name):
