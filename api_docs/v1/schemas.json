@@ -263,7 +263,7 @@
                 },
                 "name": {
                     "type": "string",
-                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
+                    "description": "Name of the source, such as 'User' for table User."
                 },
                 "owner_email": {
                     "type": "string",
