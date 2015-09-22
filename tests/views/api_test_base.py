@@ -59,8 +59,8 @@ class TestApiBase(DBTestCase):
         return {
             'source_id': factories.fake_default_id,
             'namespace': self.namespace_response,
-            'source': factories.fake_source,
-            'source_owner_email': factories.fake_owner_email,
+            'name': factories.fake_source,
+            'owner_email': factories.fake_owner_email,
             'created_at': factories.fake_created_at.isoformat(),
             'updated_at': factories.fake_updated_at.isoformat()
         }
@@ -134,8 +134,8 @@ class TestApiBase(DBTestCase):
         return {
             'source_id': biz_source.id,
             'namespace': yelp_namespace_response,
-            'source': biz_source.name,
-            'source_owner_email': biz_source.owner_email,
+            'name': biz_source.name,
+            'owner_email': biz_source.owner_email,
             'created_at': biz_source.created_at.isoformat(),
             'updated_at': biz_source.updated_at.isoformat()
         }

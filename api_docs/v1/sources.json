@@ -259,11 +259,11 @@
                     "$ref": "Namespace",
                     "description": "Namespace of the source"
                 },
-                "source": {
+                "name": {
                     "type": "string",
                     "description": "Source of the Avro schema, such as table User, or log service.foo etc"
                 },
-                "source_owner_email": {
+                "owner_email": {
                     "type": "string",
                     "description": "Email address of the source owner"
                 },

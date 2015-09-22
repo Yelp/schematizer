@@ -122,10 +122,8 @@ class TestDecorators(object):
 
     def assert_source_response(self, source, expected_source):
         assert source['source_id'] == expected_source['source_id']
-        assert source['source'] == expected_source['source']
-        assert source['source_owner_email'] == expected_source[
-            'source_owner_email'
-        ]
+        assert source['name'] == expected_source['name']
+        assert source['owner_email'] == expected_source['owner_email']
         assert source['created_at'] == current_time.isoformat()
         assert source['updated_at'] == current_time.isoformat()
         self.assert_namespace_response(

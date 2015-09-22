@@ -167,7 +167,7 @@
             function initTable() {
                 $http.get('/v1/namespaces/' + $scope.namespace + '/sources').success(function (data) {
                     for (var i = 0; i < data.length; i++) {
-                        if (data[i].source == $scope.source) {
+                        if (data[i].name == $scope.source) {
                             $scope.tableData = data[i];
                             if ($scope.tableData.category !== undefined) {
                                 $scope.category = $scope.tableData.category;

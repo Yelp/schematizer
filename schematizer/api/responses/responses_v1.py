@@ -25,8 +25,8 @@ def get_namespace_response_from_namespace(namespace):
 def get_source_response_from_source(source):
     return {
         'source_id': source.id,
-        'source': source.name,
-        'source_owner_email': source.owner_email,
+        'name': source.name,
+        'owner_email': source.owner_email,
         'namespace': get_namespace_response_from_namespace(source.namespace),
         'category': (
             None if source.category is None else source.category.category

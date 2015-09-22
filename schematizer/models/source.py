@@ -60,8 +60,8 @@ class Source(Base):
     def to_dict(self):
         return {
             'source_id': self.id,
-            'source': self.name,
-            'source_owner_email': self.owner_email,
+            'name': self.name,
+            'owner_email': self.owner_email,
             'namespace': self.namespace.to_dict(),
             'category': (
                 None if self.category is None else self.category.category

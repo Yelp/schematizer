@@ -21,7 +21,7 @@
         <div class="col-md-12">
             <ol class="breadcrumb">
                 <li><a ng-href="#/home?schema={{tableData.namespace.name}}">{{formatSchema(tableData.namespace.name)}}</a></li>
-                <li class="active"><a href="">{{tableData.source}}</a></li>
+                <li class="active"><a href="">{{tableData.name}}</a></li>
             </ol>
             <br />
             <h5>Table Info</h5>
@@ -32,8 +32,8 @@
                             <div class="row padded">
                                 <div class="col-md-3"><b>Owner</b></div>
                                 <div class="col-md-9">
-                                    <a href="mailto:{{tableData.source_owner_email}}" ng-hide="tableData.source_owner_email == ''">{{tableData.source_owner_email}}</a>
-                                    <div ng-show="tableData.source_owner_email == ''">No owner found.</div>
+                                    <a href="mailto:{{tableData.owner_email}}" ng-hide="tableData.owner_email == ''">{{tableData.owner_email}}</a>
+                                    <div ng-show="tableData.owner_email == ''">No owner found.</div>
                                 </div>
                             </div>
                             <div class="row">

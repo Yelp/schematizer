@@ -47,9 +47,9 @@
                     <div ng-repeat="category in categories" ng-show="filtered[category].length > 0">
                         <h5>{{category}} - {{filtered[category].length}} tables</h5>
                         <table class="table table-hover">
-                            <tr ng-repeat="table in filtered[category] = (tables | filter: table.category = category | orderBy: 'source')">
+                            <tr ng-repeat="table in filtered[category] = (tables | filter: table.category = category | orderBy: 'name')">
                                 <td colspan="4">
-                                    <a ng-href="#/table?schema={{schemaFilter}}&table={{table.source}}">{{table.source}}</a>
+                                    <a ng-href="#/table?schema={{schemaFilter}}&table={{table.name}}">{{table.name}}</a>
                                 </td>
                             </tr>
                         </table>
@@ -57,9 +57,9 @@
                     <div ng-show="filtered[UNCATEGORIZED].length > 0">
                         <h5>{{UNCATEGORIZED}} - {{filtered[UNCATEGORIZED].length}} tables</h5>
                             <table class="table table-hover">
-                                <tr ng-repeat="table in filtered[UNCATEGORIZED] = (tables | filter: uncategorizedFilter | orderBy: 'source')">
+                                <tr ng-repeat="table in filtered[UNCATEGORIZED] = (tables | filter: uncategorizedFilter | orderBy: 'name')">
                                     <td colspan="4">
-                                        <a ng-href="#/table?schema={{schemaFilter}}&table={{table.source}}">{{table.source}}</a>
+                                        <a ng-href="#/table?schema={{schemaFilter}}&table={{table.name}}">{{table.name}}</a>
                                     </td>
                                 </tr>
                             </table>
@@ -69,9 +69,9 @@
                 <div ng-hide="categoryFilter == ALL_CATEGORIES">
                     <h5>{{categoryFilter}} - {{filtered[categoryFilter].length}} tables</h5>
                     <table class="table table-hover">
-                        <tr ng-repeat="table in filtered[categoryFilter] = (tables | filter: tableFilter | orderBy: 'source')">
+                        <tr ng-repeat="table in filtered[categoryFilter] = (tables | filter: tableFilter | orderBy: 'name')">
                             <td colspan="4">
-                                <a ng-href="#/table?schema={{schemaFilter}}&table={{table.source}}">{{table.source}}</a>
+                                <a ng-href="#/table?schema={{schemaFilter}}&table={{table.name}}">{{table.name}}</a>
                             </td>
                         </tr>
                     </table>
