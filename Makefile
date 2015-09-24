@@ -14,11 +14,11 @@ test:
 	docker pull docker-dev.yelpcorp.com/mysql-testing:latest
 	tox -e py27
 
-itest: build-image
+itest: cook-image
 	paasta local-run -s schematizer -t
 	tox -e acceptance
 
-build-image:
+cook-image:
 	docker build -t $(DOCKER_TAG) .
 
 clean:
