@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from avro.avro_builder import AvroSchemaBuilder
+from yelp_avro.avro_builder import AvroSchemaBuilder
 
 from schematizer.components.converters.converter_base \
     import AvroMetaDataKeyEnum
