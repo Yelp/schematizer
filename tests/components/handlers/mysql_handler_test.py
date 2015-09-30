@@ -36,24 +36,26 @@ class TestMySQLHandler(object):
                 '`id` int(11) auto_increment not null, '
                 'name varchar(255),'
                 'amount decimal(10, 2) default 0.0 unsigned,'
+                'age int default NULL,'
                 'primary key (id) '
                 ');')
 
     @property
     def expected_sql_table_foo(self):
-        column_id = SQLColumn(
+        col_id = SQLColumn(
             'id',
             data_types.MySQLInt(11),
             primary_key_order=1,
             is_nullable=False
         )
-        column_name = SQLColumn('name', data_types.MySQLVarChar(255))
-        column_amount = SQLColumn(
+        col_name = SQLColumn('name', data_types.MySQLVarChar(255))
+        col_amount = SQLColumn(
             'amount',
             data_types.MySQLDecimal(10, 2, unsigned=True),
             default_value=0.0
         )
-        return SQLTable('foo', [column_id, column_name, column_amount])
+        col_age = SQLColumn('age', data_types.MySQLInt(None))
+        return SQLTable('foo', [col_id, col_name, col_amount, col_age])
 
     def test_create_sql_table_from_sql_stmts(self, handler):
         sql_table = handler.create_sql_table_from_sql_stmts(
@@ -161,7 +163,7 @@ class TestMySQLHandler(object):
              data_types.MySQLDecimal(10, 2, unsigned=True),
              default_value=0.0
          )),
-        ('bar double null',
+        ('bar double NULL',
          SQLColumn('bar', data_types.MySQLDouble(None, None))),
         ('bar numeric(10) null',
          SQLColumn('bar', data_types.MySQLNumeric(10, None))),
