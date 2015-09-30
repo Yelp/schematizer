@@ -51,7 +51,7 @@ class TestMySQLHandler(object):
         column_amount = SQLColumn(
             'amount',
             data_types.MySQLDecimal(10, 2, unsigned=True),
-            default_value='0.0'
+            default_value=0.0
         )
         return SQLTable('foo', [column_id, column_name, column_amount])
 
@@ -107,6 +107,8 @@ class TestMySQLHandler(object):
              data_types.MySQLInt(4, unsigned=True),
              is_nullable=False
          )),
+        ('`bar` int(4) default 1',
+         SQLColumn('bar', data_types.MySQLInt(4), default_value=1)),
         ('bar tinyint null',
          SQLColumn('bar', data_types.MySQLTinyInt(None))),
         ('bar smallint null',
@@ -157,7 +159,7 @@ class TestMySQLHandler(object):
          SQLColumn(
              'bar',
              data_types.MySQLDecimal(10, 2, unsigned=True),
-             default_value='0.0'
+             default_value=0.0
          )),
         ('bar double null',
          SQLColumn('bar', data_types.MySQLDouble(None, None))),

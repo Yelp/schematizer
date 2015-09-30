@@ -117,6 +117,18 @@ class SQLColumnDataType(object):
         return (isinstance(other, SQLColumnDataType) and
                 self.attributes == other.attributes)
 
+    def to_value(self, val_string):
+        """Convert the given string representation of the value to the value
+        of this data type.  Each data type is responsible for converting the
+        string to the value of correct type.  It returns `None` if the given
+        string is missing or `null`.  Otherwise, it returns the original value
+        string by default.
+        """
+        return None if self._is_null_string(val_string) else val_string
+
+    def _is_null_string(self, val_string):
+        return val_string is None or val_string.lower() == 'null'
+
 
 class MetaDataKey(object):
     """Key of metadata attributes"""

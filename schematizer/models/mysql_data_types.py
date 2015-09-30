@@ -37,6 +37,9 @@ class MySQLIntegerType(SQLColumnDataType):
     def is_unsigned(self):
         return self.attribute_exists('unsigned')
 
+    def to_value(self, val_string):
+        return None if self._is_null_string(val_string) else int(val_string)
+
 
 class MySQLTinyInt(MySQLIntegerType):
 
@@ -105,6 +108,9 @@ class MySQLRealNumber(SQLColumnDataType):
     @property
     def is_unsigned(self):
         return self.attribute_exists('unsigned')
+
+    def to_value(self, val_string):
+        return None if self._is_null_string(val_string) else float(val_string)
 
 
 class MySQLDouble(MySQLRealNumber):

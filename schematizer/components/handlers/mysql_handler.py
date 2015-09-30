@@ -83,11 +83,12 @@ class ParsedMySQLProcessor(object):
 
     def _construct_column(self, col_token):
         name_token = col_token.token_next_by_instance(0, sql.ColumnName)
+        column_type = self._get_column_type(col_token)
         return sql_entities.SQLColumn(
             column_name=name_token.value,
-            column_type=self._get_column_type(col_token),
+            column_type=column_type,
             is_nullable=self._is_column_nullable(col_token),
-            default_value=self._get_default_value(col_token),
+            default_value=self._get_default_value(col_token, column_type),
             attributes=None,
             doc=None
         )
@@ -251,9 +252,10 @@ class ParsedMySQLProcessor(object):
         attr = self._get_attribute_token(attribute_name, attributes)
         return attr.tokens[1].value if attr else None
 
-    def _get_default_value(self, col_token):
+    def _get_default_value(self, col_token, column_type):
         attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
-        return self._get_attribute_value('default', attributes)
+        attr_value = self._get_attribute_value('default', attributes)
+        return column_type.to_value(attr_value)
 
     def _is_column_nullable(self, col_token):
         attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
