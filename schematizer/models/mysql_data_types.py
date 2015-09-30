@@ -4,6 +4,8 @@ This module contains the MySQL specific column data types. Refer to
 http://dev.mysql.com/doc/refman/5.5/en/create-table.html and
 http://dev.mysql.com/doc/refman/5.5/en/data-types.html for data
 type definitions.
+
+TODO([DATAPIPE-491|clin]) add string-value conversion as we see fit.
 """
 from schematizer.models.sql_entities import SQLAttribute
 from schematizer.models.sql_entities import SQLColumnDataType
