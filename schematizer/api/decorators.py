@@ -1,8 +1,30 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from datetime import datetime
 
 from pyramid.httpexceptions import HTTPException
 from pyramid.httpexceptions import exception_response
+
+from schematizer.config import log
+
+
+def log_api(logger=None):
+    logger = logger or log
+
+    def decorator(func):
+        def log_wrapper(request):
+            logger.info("Received request: {0}".format(request))
+            try:
+                response = func(request)
+                logger.info("Return response: {0}".format(response))
+                return response
+            except Exception:
+                logger.exception("Return exception")
+                raise
+        return log_wrapper
+    return decorator
 
 
 def handle_view_exception(exception, status_code, error_message=None):

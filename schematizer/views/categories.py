@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from pyramid.view import view_config
 
+from schematizer.api.decorators import log_api
 from schematizer.logic import doc_tool
 
 
@@ -9,6 +13,7 @@ from schematizer.logic import doc_tool
     request_method='GET',
     renderer='json'
 )
+@log_api()
 def list_categories(request):
     categories = doc_tool.get_distinct_categories()
     return categories

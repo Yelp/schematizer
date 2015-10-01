@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import simplejson
 from avro import schema
 from pyramid.view import view_config
 
+from schematizer.api.decorators import log_api
 from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.requests import requests_v1
@@ -17,6 +21,7 @@ from schematizer.views import view_common
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def get_schema_by_id(request):
     schema_id = request.matchdict.get('schema_id')
     avro_schema = schema_repository.get_schema_by_id(int(schema_id))
@@ -31,6 +36,7 @@ def get_schema_by_id(request):
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def register_schema(request):
     try:
         req = requests_v1.RegisterSchemaRequest(**request.json_body)
@@ -57,6 +63,7 @@ def register_schema(request):
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def register_schema_from_mysql_stmts(request):
     req = requests_v1.RegisterSchemaFromMySqlRequest(**request.json_body)
     avro_schema_json = view_common.convert_to_avro_from_mysql(
@@ -102,6 +109,7 @@ def _register_avro_schema(
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def get_schema_elements_by_schema_id(request):
     schema_id = int(request.matchdict.get('schema_id'))
     # First check if schema exists

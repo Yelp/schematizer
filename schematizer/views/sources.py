@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from pyramid.view import view_config
 
+from schematizer.api.decorators import log_api
 from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.responses import responses_v1
@@ -15,6 +19,7 @@ from schematizer.logic import schema_repository
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def list_sources(request):
     sources = schema_repository.get_sources()
     return [source.to_dict() for source in sources]
@@ -26,6 +31,7 @@ def list_sources(request):
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def get_source_by_id(request):
     source_id = request.matchdict.get('source_id')
     source = schema_repository.get_source_by_id(int(source_id))
@@ -40,6 +46,7 @@ def get_source_by_id(request):
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def list_topics_by_source_id(request):
     source_id = int(request.matchdict.get('source_id'))
     topics = schema_repository.get_topics_by_source_id(source_id)
@@ -54,6 +61,7 @@ def list_topics_by_source_id(request):
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def get_latest_topic_by_source_id(request):
     source_id = int(request.matchdict.get('source_id'))
     latest_topic = schema_repository.get_latest_topic_of_source_id(source_id)
@@ -71,6 +79,7 @@ def get_latest_topic_by_source_id(request):
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def update_category(request):
     source_id = int(request.matchdict.get('source_id'))
     source = schema_repository.get_source_by_id(int(source_id))
@@ -96,6 +105,7 @@ def update_category(request):
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def delete_category(request):
     source_id = int(request.matchdict.get('source_id'))
     source = schema_repository.get_source_by_id(int(source_id))
