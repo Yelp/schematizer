@@ -4,6 +4,8 @@
 Most of them are shared in various API responses, and therefore keep them
 in this module.
 """
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from schematizer.components.converters.converter_base \
     import AvroMetaDataKeyEnum

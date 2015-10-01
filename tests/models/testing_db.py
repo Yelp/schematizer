@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 # This is shamelessly copied from
 # checkout_fulfillment servicve with some minor changes.
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import atexit
 import contextlib
 from glob import glob

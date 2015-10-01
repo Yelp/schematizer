@@ -10,6 +10,9 @@ Note that Python Avro library also has schema resolution function
 `avro.io.DatumReader.match_schemas`, but it is missing some of the resolution
 rules. Therefore, a separate SchemaResolution class is implemented here.
 """
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from collections import defaultdict
 
 from avro import schema

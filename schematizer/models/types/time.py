@@ -2,6 +2,9 @@
 """This code is originally copied from yelp-main.
 https://opengrok.yelpcorp.com/xref/yelp-main/yelp/models/types/time.py
 """
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import datetime
 
 import sqlalchemy

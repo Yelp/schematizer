@@ -3,6 +3,8 @@
 This module contains the internal data structure to hold the information
 of parsed SQL schemas.
 """
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 
 class SQLTable(object):

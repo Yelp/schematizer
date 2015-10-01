@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 # flake8: noqa
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from schematizer.models.avro_schema import *
 from schematizer.models.avro_schema_element import *
 from schematizer.models.consumer import *

@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import uuid
 
 import simplejson
@@ -41,7 +44,10 @@ def is_full_compatible(old_schema_json, new_schema_json):
 
 
 def load_converters():
-    __import__('schematizer.components.converters', fromlist=['converters'])
+    __import__(
+        'schematizer.components.converters',
+        fromlist=[str('converters')]
+    )
     _converters = dict()
     for cls in BaseConverter.__subclasses__():
         _converters[(cls.source_type, cls.target_type)] = cls

@@ -5,6 +5,9 @@ http://dev.mysql.com/doc/refman/5.5/en/create-table.html and
 http://dev.mysql.com/doc/refman/5.5/en/data-types.html for data
 type definitions.
 """
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from schematizer.models.sql_entities import SQLAttribute
 from schematizer.models.sql_entities import SQLColumnDataType
 

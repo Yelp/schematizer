@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import copy
 from contextlib import nested
 
@@ -500,7 +503,7 @@ class TestSchemaResolution(object):
     def default_mock_call_counts(self):
         keys = ['primitive', 'enum', 'fixed', 'map', 'array',
                 'record', 'union']
-        return dict.fromkeys(keys, 0*len(keys))
+        return dict.fromkeys(keys, 0 * len(keys))
 
     def test_resolve_primitive_schema_resolver(self, resolver):
         expected_call_counts = self.default_mock_call_counts()

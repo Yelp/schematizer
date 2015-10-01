@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from schematizer.components.handlers import sql_handler_base
 from schematizer.components.handlers.mysql_handler import MySQLHandler
 

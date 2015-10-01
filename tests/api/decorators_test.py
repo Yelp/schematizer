@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import copy
-import pytest
 from datetime import datetime
 
+import pytest
 from mock import Mock
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.httpexceptions import HTTPServerError
 from sqlalchemy.orm.exc import NoResultFound
 
-from schematizer.api.decorators import transform_api_response
 from schematizer.api.decorators import handle_view_exception
+from schematizer.api.decorators import transform_api_response
 from testing import factories
 
 

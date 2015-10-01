@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import mock
 import pytest
 import simplejson
 from avro import schema
 
 from schematizer.api.exceptions import exceptions_v1
-from schematizer.components.handlers import sql_handler_base
 from schematizer.components.converters import converter_base
+from schematizer.components.handlers import sql_handler_base
 from schematizer.views import schemas as schema_views
 from schematizer.views import view_common
 from testing import factories

@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from datetime import datetime
 
-from pyramid.httpexceptions import HTTPException
 from pyramid.httpexceptions import exception_response
+from pyramid.httpexceptions import HTTPException
 
 
 def handle_view_exception(exception, status_code, error_message=None):
