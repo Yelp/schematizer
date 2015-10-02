@@ -168,19 +168,5 @@ class TestLogApiDecorator(object):
         response = api_with_success_response(mock_request)
         assert response == mock_response
         assert mock_log.mock_calls == [
-            call.info("Received request: {}".format(mock_request)),
-            call.info("Return response: {}".format(mock_response))
-        ]
-
-    def test_log_error_response(self, mock_request, mock_log):
-
-        @log_api(logger=mock_log)
-        def api_with_success_response(request):
-            raise HTTPNotFound()
-
-        with pytest.raises(HTTPNotFound):
-            api_with_success_response(mock_request)
-        assert mock_log.mock_calls == [
-            call.info("Received request: {}".format(mock_request)),
-            call.exception("Return exception")
+            call.debug("Received request: {}".format(mock_request))
         ]

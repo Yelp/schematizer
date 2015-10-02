@@ -11,18 +11,19 @@ from schematizer.config import log
 
 
 def log_api(logger=None):
+    """Service by default logs all the requests (without request body) and the
+    response code.  It logs full trace stack for the uncaught exceptions (500
+    error response).
+
+    This decorator is meant to log requests with body.  Logging request body
+    should be OK because right now they do not contain sensitive data.
+    """
     logger = logger or log
 
     def decorator(func):
         def log_wrapper(request):
-            logger.info("Received request: {0}".format(request))
-            try:
-                response = func(request)
-                logger.info("Return response: {0}".format(response))
-                return response
-            except Exception:
-                logger.exception("Return exception")
-                raise
+            logger.debug("Received request: {0}".format(request))
+            return func(request)
         return log_wrapper
     return decorator
 

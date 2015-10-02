@@ -10,8 +10,10 @@ from schematizer.api.decorators import log_api
 from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.requests import requests_v1
+from schematizer.config import log
 from schematizer.logic import schema_repository as schema_repo
 from schematizer.views import view_common
+from schematizer.utils.utils import get_current_func_arg_name_values
 
 
 @view_config(
@@ -30,6 +32,8 @@ def is_avro_schema_compatible(request):
             req.source
         )
     except simplejson.JSONDecodeError as e:
+        log.exception("Failed to construct AvroSchemaCompatibilityRequest. {}"
+                      .format(request.json_body))
         raise exceptions_v1.invalid_schema_exception(
             'Error "{error}" encountered decoding JSON: "{schema}"'.format(
                 error=str(e),
@@ -64,4 +68,5 @@ def _is_schema_compatible(schema_json, namespace, source):
             source
         )
     except schema.AvroException as e:
+        log.exception('{0}'.format(get_current_func_arg_name_values()))
         raise exceptions_v1.invalid_schema_exception(e.message)

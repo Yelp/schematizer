@@ -11,8 +11,10 @@ from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.requests import requests_v1
 from schematizer.api.responses import responses_v1
+from schematizer.config import log
 from schematizer.logic import schema_repository
 from schematizer.views import view_common
+from schematizer.utils.utils import get_current_func_arg_name_values
 
 
 @view_config(
@@ -21,7 +23,6 @@ from schematizer.views import view_common
     renderer='json'
 )
 @transform_api_response()
-@log_api()
 def get_schema_by_id(request):
     schema_id = request.matchdict.get('schema_id')
     avro_schema = schema_repository.get_schema_by_id(int(schema_id))
@@ -49,6 +50,8 @@ def register_schema(request):
             base_schema_id=req.base_schema_id
         )
     except simplejson.JSONDecodeError as e:
+        log.exception("Failed to construct RegisterSchemaRequest. {}"
+                      .format(request.json_body))
         raise exceptions_v1.invalid_schema_exception(
             'Error "{error}" encountered decoding JSON: "{schema}"'.format(
                 error=str(e),
@@ -100,6 +103,7 @@ def _register_avro_schema(
         )
         return responses_v1.get_schema_response_from_avro_schema(avro_schema)
     except schema.AvroException as e:
+        log.exception('{0}'.format(get_current_func_arg_name_values()))
         raise exceptions_v1.invalid_schema_exception(e.message)
 
 
@@ -109,7 +113,6 @@ def _register_avro_schema(
     renderer='json'
 )
 @transform_api_response()
-@log_api()
 def get_schema_elements_by_schema_id(request):
     schema_id = int(request.matchdict.get('schema_id'))
     # First check if schema exists
