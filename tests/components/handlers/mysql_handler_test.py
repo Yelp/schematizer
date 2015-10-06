@@ -374,3 +374,9 @@ class TestMySQLHandler(object):
         assert actual.name == 'Fo`o'
         assert actual.columns[0].name == 'ba"r'
         assert actual.columns[1].name == '"ba""z"'
+
+    def test_create_temp_table(self, handler):
+        sql = 'create temporary table `foo` (bar int(11));'
+        actual = handler.create_sql_table_from_sql_stmts([sql])
+        expected = SQLTable('foo', [SQLColumn('bar', data_types.MySQLInt(11))])
+        assert actual == expected
