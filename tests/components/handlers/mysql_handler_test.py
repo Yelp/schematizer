@@ -367,3 +367,16 @@ class TestMySQLHandler(object):
         with pytest.raises(sql_handler_base.SQLHandlerException) as e:
             handler.create_sql_table_from_sql_stmts([])
         assert 'Unable to process MySQL statements [].' == str(e.value)
+
+    def test_identifiers_with_quotes(self, handler):
+        sql = 'CREATE TABLE `Fo``o` (`ba"r` int, `"ba""z"` int);'
+        actual = handler.create_sql_table_from_sql_stmts([sql])
+        assert actual.name == 'Fo`o'
+        assert actual.columns[0].name == 'ba"r'
+        assert actual.columns[1].name == '"ba""z"'
+
+    def test_create_temp_table(self, handler):
+        sql = 'create temporary table `foo` (bar int(11));'
+        actual = handler.create_sql_table_from_sql_stmts([sql])
+        expected = SQLTable('foo', [SQLColumn('bar', data_types.MySQLInt(11))])
+        assert actual == expected

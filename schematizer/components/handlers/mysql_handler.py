@@ -48,7 +48,16 @@ class ParsedMySQLProcessor(object):
     def is_create_table_sql(self, parsed_sql):
         if parsed_sql.get_type() != 'CREATE':
             return False
+
         token = parsed_sql.token_next_by_type(1, T.Keyword)
+        if token.normalized not in ('TABLE', 'TEMPORARY'):
+            return False
+
+        if token.normalized == 'TABLE':
+            return True
+
+        index = parsed_sql.token_index(token)
+        token = parsed_sql.token_next_by_type(index + 1, T.Keyword)
         return token.normalized == 'TABLE'
 
     def _get_table_name(self, stmt):
