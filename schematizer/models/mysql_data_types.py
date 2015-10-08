@@ -5,8 +5,6 @@ http://dev.mysql.com/doc/refman/5.5/en/create-table.html and
 http://dev.mysql.com/doc/refman/5.5/en/data-types.html for data
 type definitions.
 """
-import re
-
 from schematizer.models.sql_entities import SQLAttribute
 from schematizer.models.sql_entities import SQLColumnDataType
 
@@ -93,9 +91,9 @@ class MySQLBool(SQLColumnDataType):
     def _string_to_value(self, val_string):
         # MySQL considers any non-zero value as 'True' and aliases the TRUE
         # and FALSE keywords to 1 and 0 respectively.
-        # For more info see: https://regex101.com/r/lY1yB0/ and
+        # For more info see:
         # http://dev.mysql.com/doc/refman/5.5/en/numeric-type-overview.html
-        return not re.search('(false|0)', val_string, flags=re.IGNORECASE)
+        return not val_string.lower() in ('false', '0')
 
 
 class MySQLBoolean(MySQLBool):
