@@ -3,6 +3,7 @@
 This module contains the internal data structure to hold the information
 of parsed SQL schemas.
 """
+from itertools import izip
 
 
 class SQLTable(object):
@@ -22,6 +23,16 @@ class SQLTable(object):
                 self.name == other.name and
                 self.columns == other.columns and
                 self.metadata == other.metadata)
+
+    def test(self):
+        assert False
+
+    def assert_equal(self, other):
+        assert isinstance(other, SQLTable)
+        assert self.name == other.name
+        for my_column, other_column in izip(self.columns, other.columns):
+            my_column.assert_equal(other_column)
+        assert self.metadata == other.metadata
 
     @property
     def primary_keys(self):
@@ -67,6 +78,20 @@ class SQLColumn(object):
                 self.attributes == other.attributes and
                 self.metadata == other.metadata)
 
+    def assert_equal(self, other):
+        assert isinstance(other, SQLColumn)
+        assert self.name == other.name
+        assert self.type == other.type
+        assert self.primary_key_order == other.primary_key_order
+        assert self.is_nullable == other.is_nullable
+        assert self.default_value == other.default_value
+        for my_attribute, other_attribute in izip(
+            self.attributes,
+            other.attributes
+        ):
+            my_attribute.assert_equal(other_attribute)
+        assert self.metadata == other.metadata
+
 
 class SQLAttribute(object):
     """Class that holds the sql attributes in the table/column definitions,
@@ -94,6 +119,12 @@ class SQLAttribute(object):
 
     def __hash__(self):
         return hash((self.name, self.value, self.has_value))
+
+    def assert_equal(self, other):
+        assert isinstance(other, SQLAttribute)
+        assert self.name == other.name
+        assert self.value == other.value
+        assert self.has_value == other.has_value
 
 
 class SQLColumnDataType(object):
@@ -124,7 +155,17 @@ class SQLColumnDataType(object):
         string is missing or `null`.  Otherwise, it returns the original value
         string by default.
         """
-        return None if self._is_null_string(val_string) else val_string
+        if self._is_null_string(val_string):
+            return None
+        else:
+            return self._string_to_value(val_string)
+
+    def _string_to_value(self, val_string):
+        """Convert the given string representation of the value to the value
+        of this data type.  Each data type is responsible for converting the
+        string to the value of correct type.
+        """
+        raise NotImplementedError('Must be implemented by subclasses')
 
     def _is_null_string(self, val_string):
         return val_string is None or val_string.lower() == 'null'

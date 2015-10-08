@@ -4,9 +4,9 @@ This module contains the MySQL specific column data types. Refer to
 http://dev.mysql.com/doc/refman/5.5/en/create-table.html and
 http://dev.mysql.com/doc/refman/5.5/en/data-types.html for data
 type definitions.
-
-TODO([DATAPIPE-491|clin]) add string-value conversion as we see fit.
 """
+import re
+
 from schematizer.models.sql_entities import SQLAttribute
 from schematizer.models.sql_entities import SQLColumnDataType
 
@@ -21,6 +21,9 @@ class MySQLBit(SQLColumnDataType):
     def __init__(self, length):
         super(MySQLBit, self).__init__()
         self.length = length
+
+    def _string_to_value(self, val_string):
+        return int(val_string, base=2)
 
 
 class MySQLIntegerType(SQLColumnDataType):
@@ -39,8 +42,8 @@ class MySQLIntegerType(SQLColumnDataType):
     def is_unsigned(self):
         return self.attribute_exists('unsigned')
 
-    def to_value(self, val_string):
-        return None if self._is_null_string(val_string) else int(val_string)
+    def _string_to_value(self, val_string):
+        return int(val_string)
 
 
 class MySQLTinyInt(MySQLIntegerType):
@@ -87,6 +90,13 @@ class MySQLBool(SQLColumnDataType):
         super(MySQLBool, self).__init__()
         self.length = 1
 
+    def _string_to_value(self, val_string):
+        # MySQL considers any non-zero value as 'True' and aliases the TRUE
+        # and FALSE keywords to 1 and 0 respectively.
+        # For more info see: https://regex101.com/r/lY1yB0/ and
+        # http://dev.mysql.com/doc/refman/5.5/en/numeric-type-overview.html
+        return not re.search('(false|0)', val_string, flags=re.IGNORECASE)
+
 
 class MySQLBoolean(MySQLBool):
     """ BOOLEAN is a synonym for BOOL """
@@ -111,8 +121,8 @@ class MySQLRealNumber(SQLColumnDataType):
     def is_unsigned(self):
         return self.attribute_exists('unsigned')
 
-    def to_value(self, val_string):
-        return None if self._is_null_string(val_string) else float(val_string)
+    def _string_to_value(self, val_string):
+        return float(val_string)
 
 
 class MySQLDouble(MySQLRealNumber):
@@ -163,6 +173,9 @@ class MySQLString(SQLColumnDataType):
             )
         super(MySQLString, self).__init__(attributes)
 
+    def _string_to_value(self, val_string):
+        return val_string
+
 
 class MySQLChar(MySQLString):
 
@@ -212,6 +225,9 @@ class MySQLBinaryBase(SQLColumnDataType):
     def __init__(self):
         super(MySQLBinaryBase, self).__init__()
 
+    def _string_to_value(self, val_string):
+        return val_string
+
 
 class MySQLBinary(MySQLBinaryBase):
 
@@ -259,6 +275,9 @@ class MySQLDateAndTime(SQLColumnDataType):
 
     def __init__(self):
         super(MySQLDateAndTime, self).__init__()
+
+    def _string_to_value(self, val_string):
+        return val_string
 
 
 class MySQLDate(MySQLDateAndTime):
@@ -309,6 +328,9 @@ class MySQLEnum(SQLColumnDataType):
         super(MySQLEnum, self).__init__()
         self.values = values  # list of enum values
 
+    def _string_to_value(self, val_string):
+        return val_string
+
 
 class MySQLSet(SQLColumnDataType):
     """ Refer to http://dev.mysql.com/doc/refman/5.5/en/set.html for type
@@ -320,3 +342,6 @@ class MySQLSet(SQLColumnDataType):
     def __init__(self, values):
         super(MySQLSet, self).__init__()
         self.values = values  # list of set values
+
+    def _string_to_value(self, val_string):
+        return val_string

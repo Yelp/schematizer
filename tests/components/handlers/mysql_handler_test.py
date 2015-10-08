@@ -72,7 +72,7 @@ class TestMySQLHandler(object):
         sql = self._build_create_table_sql(create_definitions)
         actual_table = handler.create_sql_table_from_sql_stmts([sql])
         expected_table = SQLTable(self.table_name, expected_columns)
-        assert expected_table == actual_table
+        expected_table.assert_equal(actual_table)
 
     def _build_create_table_sql(self, create_definitions):
         return 'CREATE TABLE `{table}` ({definitions});'.format(
@@ -89,6 +89,12 @@ class TestMySQLHandler(object):
          )),
         ('bar bit null',
          SQLColumn('bar', data_types.MySQLBit(None))),
+        ('bar bit default 0101',
+         SQLColumn(
+             'bar',
+             data_types.MySQLBit(False),
+             default_value=5
+         )),
     ])
     def test_create_sql_table_from_sql_stmts_with_bit_type(
         self,
@@ -109,8 +115,8 @@ class TestMySQLHandler(object):
              data_types.MySQLInt(4, unsigned=True),
              is_nullable=False
          )),
-        ('`bar` int(4) default 1',
-         SQLColumn('bar', data_types.MySQLInt(4), default_value=1)),
+        ('`bar` int(4) default 10',
+         SQLColumn('bar', data_types.MySQLInt(4), default_value=10)),
         ('bar tinyint null',
          SQLColumn('bar', data_types.MySQLTinyInt(None))),
         ('bar smallint null',
@@ -141,6 +147,18 @@ class TestMySQLHandler(object):
          )),
         ('bar bool null',
          SQLColumn('bar', data_types.MySQLBool())),
+        ('bar bool default TRUE',
+         SQLColumn('bar', data_types.MySQLBool(), default_value=True)),
+        ('bar bool default true',
+         SQLColumn('bar', data_types.MySQLBool(), default_value=True)),
+        ('bar bool default 1',
+         SQLColumn('bar', data_types.MySQLBool(), default_value=True)),
+        ('bar bool default FALSE',
+         SQLColumn('bar', data_types.MySQLBool(), default_value=False)),
+        ('bar bool default false',
+         SQLColumn('bar', data_types.MySQLBool(), default_value=False)),
+        ('bar bool default 0',
+         SQLColumn('bar', data_types.MySQLBool(), default_value=False)),
         ('bar boolean null',
          SQLColumn('bar', data_types.MySQLBoolean())),
     ])
@@ -190,6 +208,14 @@ class TestMySQLHandler(object):
              char_set='latin1',
              collate='latin1_german1_ci'
          ))),
+        ('bar char(42) default \'Luke\'',
+         SQLColumn('bar', data_types.MySQLChar(42), default_value='Luke')),
+        ('bar varchar(42) default \'use\'',
+         SQLColumn('bar', data_types.MySQLVarChar(42), default_value='use')),
+        ('bar text default \'the\'',
+         SQLColumn('bar', data_types.MySQLText(), default_value='the')),
+        ('bar tinytext default \'force!\'',
+         SQLColumn('bar', data_types.MySQLTinyText(), default_value='force!')),
     ])
     def test_create_sql_table_from_sql_stmts_with_string_type(
         self,
@@ -227,7 +253,23 @@ class TestMySQLHandler(object):
 
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
         ('bar binary(64)', SQLColumn('bar', data_types.MySQLBinary(64))),
+        ('bar varbinary(64)', SQLColumn('bar', data_types.MySQLVarBinary(64))),
         ('bar blob null', SQLColumn('bar', data_types.MySQLBlob())),
+        ('bar tinyblob', SQLColumn('bar', data_types.MySQLTinyBlob())),
+        ('bar mediumblob', SQLColumn('bar', data_types.MySQLMediumBlob())),
+        ('bar longblob', SQLColumn('bar', data_types.MySQLLongBlob())),
+        ('bar binary(16) default \'The powerglove\'',
+         SQLColumn(
+             'bar',
+             data_types.MySQLBinary(16),
+             default_value='The powerglove'
+         )),
+        ('bar blob default "it\'s so bad!"',
+         SQLColumn(
+             'bar',
+             data_types.MySQLBlob(),
+             default_value='it\'s so bad!'
+         )),
     ])
     def test_create_sql_table_from_sql_stmts_with_binary_type(
         self,
@@ -244,6 +286,18 @@ class TestMySQLHandler(object):
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
         ('bar enum (a1, a2, a3) character set latin1',
          SQLColumn('bar', data_types.MySQLEnum(['a1', 'a2', 'a3']))),
+        ('bar enum (a1, a2, a3) not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLEnum(['a1', 'a2', 'a3']),
+             is_nullable=False
+         )),
+        ('bar enum (a1, a2, a3) default a1',
+         SQLColumn(
+             'bar',
+             data_types.MySQLEnum(['a1', 'a2', 'a3']),
+             default_value='a1'
+         )),
     ])
     def test_create_sql_table_from_sql_stmts_with_enum_type(
         self,
@@ -260,6 +314,18 @@ class TestMySQLHandler(object):
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
         ('bar set (a1, a2, a3) character set latin1',
          SQLColumn('bar', data_types.MySQLSet(['a1', 'a2', 'a3']))),
+        ('bar set (a1, a2, a3) not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLSet(['a1', 'a2', 'a3']),
+             is_nullable=False
+         )),
+        ('bar set (a1, a2, a3) default a2',
+         SQLColumn(
+             'bar',
+             data_types.MySQLSet(['a1', 'a2', 'a3']),
+             default_value='a2'
+         )),
     ])
     def test_create_sql_table_from_sql_stmts_with_set_type(
         self,
