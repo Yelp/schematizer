@@ -4,9 +4,7 @@
 Most of them are shared in various API responses, and therefore keep them
 in this module.
 """
-
-from schematizer.components.converters.converter_base \
-    import AvroMetaDataKeyEnum
+from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeyEnum
 
 
 def _format_datetime(datetime_value):

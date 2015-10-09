@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from yelp_avro.avro_builder import AvroSchemaBuilder
+from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeyEnum
 
-from schematizer.components.converters.converter_base \
-    import AvroMetaDataKeyEnum
 from schematizer.components.converters.converter_base import BaseConverter
 from schematizer.components.converters.converter_base \
     import SchemaConversionException

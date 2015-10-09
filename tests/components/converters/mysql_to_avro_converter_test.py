@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import pytest
+from yelp_avro.avro_meta_data import AvroMetaDataKeyEnum
 
 from schematizer.components.converters import MySQLToAvroConverter
-from schematizer.components.converters.converter_base \
-    import AvroMetaDataKeyEnum
 from schematizer.components.converters.converter_base \
     import SchemaConversionException
 from schematizer.components.converters.converter_base \
