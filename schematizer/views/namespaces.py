@@ -16,7 +16,8 @@ from schematizer.logic import schema_repository
 )
 def list_namespaces(request):
     namespaces = schema_repository.get_namespaces()
-    return [namespace.name for namespace in namespaces]
+    #TODO: change this to namespace rather than namespace.name
+    return [namespace for namespace in namespaces]
 
 
 @view_config(
