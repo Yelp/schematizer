@@ -55,7 +55,7 @@
                     $scope.categories = data;
                 });
                 $http.get('/v1/namespaces').success(function (data) {
-                    for (var i=0; i<data.length; i++) {
+                    for (var i = 0; i < data.length; ++i) {
                         $scope.schemas.push(data[i].name);
                     }
                 });
