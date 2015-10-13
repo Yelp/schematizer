@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from avro import schema
-from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeyEnum
+from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
 from schematizer.components.converters.converter_base import BaseConverter
 from schematizer.components.converters.converter_base \
@@ -131,7 +131,7 @@ class AvroToRedshiftConverter(BaseConverter):
         return redshift_data_types.RedshiftInteger()
 
     def _convert_long_type(self, field):
-        is_timestamp = AvroMetaDataKeyEnum.TIMESTAMP in field.props
+        is_timestamp = AvroMetaDataKeys.TIMESTAMP in field.props
         return (redshift_data_types.RedshiftTimestamp() if is_timestamp
                 else redshift_data_types.RedshiftBigInt())
 
@@ -139,15 +139,15 @@ class AvroToRedshiftConverter(BaseConverter):
         return redshift_data_types.RedshiftReal()
 
     def _convert_double_type(self, field):
-        is_fixed_point = AvroMetaDataKeyEnum.FIXED_POINT in field.props
+        is_fixed_point = AvroMetaDataKeys.FIXED_POINT in field.props
         if is_fixed_point:
             length, decimal = self._get_precision_metadata(field)
             return redshift_data_types.RedshiftDecimal(length, decimal)
         return redshift_data_types.RedshiftDouble()
 
     def _get_precision_metadata(self, field):
-        return (field.props.get(AvroMetaDataKeyEnum.PRECISION),
-                field.props.get(AvroMetaDataKeyEnum.SCALE))
+        return (field.props.get(AvroMetaDataKeys.PRECISION),
+                field.props.get(AvroMetaDataKeys.SCALE))
 
     # 2 bytes per char is currently chosen as the trade-off between
     # support multi-byte char in Redshift and performance/space usage.
@@ -158,17 +158,17 @@ class AvroToRedshiftConverter(BaseConverter):
         """Only supports char and varchar. If neither fix_len nor max_len
         is specified, an exception is thrown.
         """
-        fix_len = field.props.get(AvroMetaDataKeyEnum.FIX_LEN)
+        fix_len = field.props.get(AvroMetaDataKeys.FIX_LEN)
         if fix_len:
             return redshift_data_types.RedshiftChar(fix_len)
 
-        max_len = field.props.get(AvroMetaDataKeyEnum.MAX_LEN)
+        max_len = field.props.get(AvroMetaDataKeys.MAX_LEN)
         if max_len:
             return redshift_data_types.RedshiftVarChar(max_len*self.CHAR_BYTES)
 
         raise SchemaConversionException(
             "Unable to convert `string` type without metadata {0} or {1}."
-            .format(AvroMetaDataKeyEnum.FIX_LEN, AvroMetaDataKeyEnum.MAX_LEN)
+            .format(AvroMetaDataKeys.FIX_LEN, AvroMetaDataKeys.MAX_LEN)
         )
 
     def _convert_boolean_type(self, field):
@@ -188,4 +188,4 @@ class AvroToRedshiftConverter(BaseConverter):
         return self._get_aliases_metadata(field.props)
 
     def _get_primary_key_order(self, field):
-        return field.props.get(AvroMetaDataKeyEnum.PRIMARY_KEY)
+        return field.props.get(AvroMetaDataKeys.PRIMARY_KEY)
