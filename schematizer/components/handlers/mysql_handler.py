@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import inspect
 import sys
 
@@ -10,6 +13,7 @@ from schematizer.components.handlers.sql_handler_base import SQLDialect
 from schematizer.components.handlers.sql_handler_base import SQLHandlerBase
 from schematizer.components.handlers.sql_handler_base import \
     SQLHandlerException
+from schematizer.config import log
 from schematizer.models import mysql_data_types as data_types
 from schematizer.models import sql_entities
 
@@ -333,3 +337,13 @@ class MySQLHandler(SQLHandlerBase):
         raise SQLHandlerException(
             "Unable to process MySQL statements {0}.".format(parsed_sqls)
         )
+
+
+class LoggingMySQLHandler(MySQLHandler):
+
+    def _parse(self, sql):
+        try:
+            return super(LoggingMySQLHandler, self)._parse(sql)
+        except:
+            log.exception("Parsing MySQL error: {}".format(sql))
+            raise

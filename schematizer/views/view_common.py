@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.components.converters import converter_base
 from schematizer.components.handlers import sql_handler
 from schematizer.components.handlers import sql_handler_base
+from schematizer.config import log
+from schematizer.utils.utils import get_current_func_arg_name_values
 
 
 def convert_to_avro_from_mysql(
@@ -32,4 +37,5 @@ def convert_to_avro_from_mysql(
         )
     except (sql_handler_base.SQLHandlerException,
             converter_base.SchemaConversionException) as e:
+        log.exception('{0}'.format(get_current_func_arg_name_values()))
         raise exceptions_v1.invalid_schema_exception(e.message)

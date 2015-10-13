@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from schematizer.components.handlers import sql_handler_base
-from schematizer.components.handlers.mysql_handler import MySQLHandler
+from schematizer.components.handlers.mysql_handler import LoggingMySQLHandler
 
 
 _sql_handlers = {
     sql_handler_base.SQLDialect.SQL: None,
-    sql_handler_base.SQLDialect.MySQL: MySQLHandler
+    sql_handler_base.SQLDialect.MySQL: LoggingMySQLHandler
 }
 
 

@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import simplejson
 from avro import schema
 from pyramid.view import view_config
 
+from schematizer.api.decorators import log_api
 from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.requests import requests_v1
 from schematizer.api.responses import responses_v1
+from schematizer.config import log
 from schematizer.logic import schema_repository
 from schematizer.views import view_common
+from schematizer.utils.utils import get_current_func_arg_name_values
 
 
 @view_config(
@@ -31,6 +37,7 @@ def get_schema_by_id(request):
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def register_schema(request):
     try:
         req = requests_v1.RegisterSchemaRequest(**request.json_body)
@@ -43,6 +50,8 @@ def register_schema(request):
             base_schema_id=req.base_schema_id
         )
     except simplejson.JSONDecodeError as e:
+        log.exception("Failed to construct RegisterSchemaRequest. {}"
+                      .format(request.json_body))
         raise exceptions_v1.invalid_schema_exception(
             'Error "{error}" encountered decoding JSON: "{schema}"'.format(
                 error=str(e),
@@ -57,6 +66,7 @@ def register_schema(request):
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def register_schema_from_mysql_stmts(request):
     req = requests_v1.RegisterSchemaFromMySqlRequest(**request.json_body)
     avro_schema_json = view_common.convert_to_avro_from_mysql(
@@ -93,6 +103,7 @@ def _register_avro_schema(
         )
         return responses_v1.get_schema_response_from_avro_schema(avro_schema)
     except schema.AvroException as e:
+        log.exception('{0}'.format(get_current_func_arg_name_values()))
         raise exceptions_v1.invalid_schema_exception(e.message)
 
 

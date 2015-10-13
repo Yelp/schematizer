@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from pyramid.view import view_config
 
 from schematizer.api.decorators import transform_api_response
@@ -25,7 +28,6 @@ def list_namespaces(request):
 def list_sources_by_namespace(request):
     namespace_name = request.matchdict.get('namespace')
     namespace = schema_repository.get_namespace_by_name(namespace_name)
-    # Raise an exception if this namespace does not exist
     if namespace is None:
         raise exceptions_v1.namespace_not_found_exception()
     sources = schema_repository.get_sources_by_namespace(namespace_name)

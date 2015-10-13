@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
-import yelp_main_internalapi.stub as yelp_main_internalapi
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from pyramid.view import view_config
 from yelp_lib.decorators import memoized
 from yelp_lib_http.asynchttp import HttpError
+from yelp_main_internalapi import stub as yelp_main_internalapi
 
 
 @memoized

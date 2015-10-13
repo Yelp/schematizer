@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from pyramid.view import view_config
 
+from schematizer.api.decorators import log_api
 from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.requests import requests_v1
@@ -15,6 +19,7 @@ from schematizer.models.note import ReferenceTypeEnum
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def create_note(request):
     req = requests_v1.CreateNoteRequest(**request.json_body)
     assert_reference_exists(req.reference_type, req.reference_id)
@@ -48,6 +53,7 @@ def assert_reference_exists(reference_type, reference_id):
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def update_note(request):
     req = requests_v1.UpdateNoteRequest(**request.json_body)
     note_id = request.matchdict.get('note_id')

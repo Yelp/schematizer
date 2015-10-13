@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from pyramid.view import view_config
 
+from schematizer.api.decorators import log_api
 from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.responses import responses_v1
@@ -16,8 +20,8 @@ from schematizer.logic import schema_repository
 )
 @transform_api_response()
 def list_sources(request):
-    sources = schema_repository.get_sources()
-    return [source.to_dict() for source in sources]
+    return [responses_v1.get_source_response_from_source(src)
+            for src in schema_repository.get_sources()]
 
 
 @view_config(
@@ -45,7 +49,7 @@ def list_topics_by_source_id(request):
     topics = schema_repository.get_topics_by_source_id(source_id)
     if not topics and not schema_repository.get_source_by_id(source_id):
         raise exceptions_v1.source_not_found_exception()
-    return [topic.to_dict() for topic in topics]
+    return [responses_v1.get_topic_response_from_topic(t) for t in topics]
 
 
 @view_config(
@@ -62,7 +66,7 @@ def get_latest_topic_by_source_id(request):
         if not source:
             raise exceptions_v1.source_not_found_exception()
         raise exceptions_v1.latest_topic_not_found_exception()
-    return latest_topic.to_dict()
+    return responses_v1.get_topic_response_from_topic(latest_topic)
 
 
 @view_config(
@@ -71,6 +75,7 @@ def get_latest_topic_by_source_id(request):
     renderer='json'
 )
 @transform_api_response()
+@log_api()
 def update_category(request):
     source_id = int(request.matchdict.get('source_id'))
     source = schema_repository.get_source_by_id(int(source_id))

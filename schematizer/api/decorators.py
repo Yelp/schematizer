@@ -1,8 +1,31 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from datetime import datetime
 
 from pyramid.httpexceptions import HTTPException
 from pyramid.httpexceptions import exception_response
+
+from schematizer.config import log
+
+
+def log_api(logger=None):
+    """Service by default logs all the requests (without request body) and the
+    response code.  It logs full trace stack for the uncaught exceptions (500
+    error response).
+
+    This decorator is meant to log requests with body.  Logging request body
+    should be OK because right now they do not contain sensitive data.
+    """
+    logger = logger or log
+
+    def decorator(func):
+        def log_wrapper(request):
+            logger.debug("Received request: {0}".format(request))
+            return func(request)
+        return log_wrapper
+    return decorator
 
 
 def handle_view_exception(exception, status_code, error_message=None):

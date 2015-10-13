@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import uuid
 
 import simplejson
@@ -40,15 +43,18 @@ def is_full_compatible(old_schema_json, new_schema_json):
             is_forward_compatible(old_schema_json, new_schema_json))
 
 
-def load_converters():
-    __import__('schematizer.components.converters', fromlist=['converters'])
+def _load_converters():
+    __import__(
+        'schematizer.components.converters',
+        fromlist=[str('converters')]
+    )
     _converters = dict()
     for cls in BaseConverter.__subclasses__():
         _converters[(cls.source_type, cls.target_type)] = cls
     return _converters
 
 
-converters = load_converters()
+converters = _load_converters()
 
 
 def convert_schema(source_type, target_type, source_schema):
@@ -129,6 +135,7 @@ def register_avro_schema_from_avro_json(
     return _create_avro_schema(
         avro_schema_json=avro_schema_json,
         topic_id=most_recent_topic.id,
+        status=status,
         base_schema_id=base_schema_id
     )
 
