@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
-from yelp_avro.avro_meta_data import AvroMetaDataKeys
+from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
 from schematizer.components.converters import MySQLToAvroConverter
 from schematizer.components.converters.converter_base \
