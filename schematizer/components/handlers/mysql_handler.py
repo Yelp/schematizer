@@ -268,7 +268,7 @@ class ParsedMySQLProcessor(object):
     def _get_default_value(self, col_token, column_type):
         attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
         attr_value = self._get_attribute_value('default', attributes)
-        return column_type.to_value(attr_value)
+        return column_type.convert_str_to_type_val(attr_value)
 
     def _is_column_nullable(self, col_token):
         attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)

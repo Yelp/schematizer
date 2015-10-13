@@ -24,11 +24,8 @@ class SQLTable(object):
                 self.columns == other.columns and
                 self.metadata == other.metadata)
 
-    def test(self):
-        assert False
-
     def assert_equal(self, other):
-        assert isinstance(other, SQLTable)
+        assert type(self) is type(other)
         assert self.name == other.name
         for my_column, other_column in izip(self.columns, other.columns):
             my_column.assert_equal(other_column)
@@ -121,7 +118,7 @@ class SQLAttribute(object):
         return hash((self.name, self.value, self.has_value))
 
     def assert_equal(self, other):
-        assert isinstance(other, SQLAttribute)
+        assert type(self) is type(other)
         assert self.name == other.name
         assert self.value == other.value
         assert self.has_value == other.has_value
@@ -148,7 +145,7 @@ class SQLColumnDataType(object):
         return (isinstance(other, SQLColumnDataType) and
                 self.attributes == other.attributes)
 
-    def to_value(self, val_string):
+    def convert_str_to_type_val(self, val_string):
         """Convert the given string representation of the value to the value
         of this data type.  Each data type is responsible for converting the
         string to the value of correct type.  It returns `None` if the given
@@ -158,9 +155,9 @@ class SQLColumnDataType(object):
         if self._is_null_string(val_string):
             return None
         else:
-            return self._string_to_value(val_string)
+            return self._convert_str_to_type_val(val_string)
 
-    def _string_to_value(self, val_string):
+    def _convert_str_to_type_val(self, val_string):
         """Convert the given string representation of the value to the value
         of this data type.  Each data type is responsible for converting the
         string to the value of correct type.

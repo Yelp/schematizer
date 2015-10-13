@@ -95,6 +95,12 @@ class TestMySQLHandler(object):
              data_types.MySQLBit(False),
              default_value=5
          )),
+        ('bar bit default b\'101\'',
+         SQLColumn(
+             'bar',
+             data_types.MySQLBit(False),
+             default_value=5
+         )),
     ])
     def test_create_sql_table_from_sql_stmts_with_bit_type(
         self,
@@ -212,10 +218,12 @@ class TestMySQLHandler(object):
          SQLColumn('bar', data_types.MySQLChar(42), default_value='Luke')),
         ('bar varchar(42) default \'use\'',
          SQLColumn('bar', data_types.MySQLVarChar(42), default_value='use')),
-        ('bar text default \'the\'',
-         SQLColumn('bar', data_types.MySQLText(), default_value='the')),
         ('bar tinytext default \'force!\'',
          SQLColumn('bar', data_types.MySQLTinyText(), default_value='force!')),
+        # Note that MySQL BLOB and TEXT cannot have default value so we are
+        # intentionally excluding them from such tests. For more information
+        # See http://dev.mysql.com/doc/refman/5.5/en/data-type-defaults.html
+        # or the discussion on https://reviewboard.yelpcorp.com/r/119051/
     ])
     def test_create_sql_table_from_sql_stmts_with_string_type(
         self,
@@ -264,12 +272,10 @@ class TestMySQLHandler(object):
              data_types.MySQLBinary(16),
              default_value='The powerglove'
          )),
-        ('bar blob default "it\'s so bad!"',
-         SQLColumn(
-             'bar',
-             data_types.MySQLBlob(),
-             default_value='it\'s so bad!'
-         )),
+        # Note that MySQL BLOB and TEXT cannot have default value so we are
+        # intentionally excluding them from such tests. For more information
+        # See http://dev.mysql.com/doc/refman/5.5/en/data-type-defaults.html
+        # or the discussion on https://reviewboard.yelpcorp.com/r/119051/
     ])
     def test_create_sql_table_from_sql_stmts_with_binary_type(
         self,
