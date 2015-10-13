@@ -4,9 +4,7 @@
 Most of them are shared in various API responses, and therefore keep them
 in this module.
 """
-
-from schematizer.components.converters.converter_base \
-    import AvroMetaDataKeyEnum
+from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
 
 def _format_datetime(datetime_value):
@@ -54,7 +52,7 @@ def get_schema_response_from_avro_schema(avro_schema):
         'status': avro_schema.status,
         'topic': get_topic_response_from_topic(avro_schema.topic),
         'primary_keys': avro_schema.avro_schema_json.get(
-            AvroMetaDataKeyEnum.PRIMARY_KEY,
+            AvroMetaDataKeys.PRIMARY_KEY,
             []
         ),
         'note': get_note_response_from_note(avro_schema.note),

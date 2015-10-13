@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from yelp_avro.avro_builder import AvroSchemaBuilder
+from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
-from schematizer.components.converters.converter_base \
-    import AvroMetaDataKeyEnum
 from schematizer.components.converters.converter_base import BaseConverter
 from schematizer.components.converters.converter_base \
     import SchemaConversionException
@@ -57,7 +56,7 @@ class MySQLToAvroConverter(BaseConverter):
 
         primary_keys = [c.name for c in table.primary_keys]
         if primary_keys:
-            metadata[AvroMetaDataKeyEnum.PRIMARY_KEY] = primary_keys
+            metadata[AvroMetaDataKeys.PRIMARY_KEY] = primary_keys
 
         return metadata
 
@@ -132,11 +131,11 @@ class MySQLToAvroConverter(BaseConverter):
         return self._builder.create_int(), metadata
 
     def _get_primary_key_metadata(self, primary_key_order):
-        return ({AvroMetaDataKeyEnum.PRIMARY_KEY: primary_key_order}
+        return ({AvroMetaDataKeys.PRIMARY_KEY: primary_key_order}
                 if primary_key_order else {})
 
     def _get_unsigned_metadata(self, is_unsigned):
-        return ({AvroMetaDataKeyEnum.UNSIGNED: is_unsigned}
+        return ({AvroMetaDataKeys.UNSIGNED: is_unsigned}
                 if is_unsigned else {})
 
     def _convert_bigint_type(self, column):
@@ -150,7 +149,7 @@ class MySQLToAvroConverter(BaseConverter):
         return self._builder.create_int(), metadata
 
     def _get_bitlen_metadata(self, bit_length):
-        return ({AvroMetaDataKeyEnum.BIT_LEN: bit_length}
+        return ({AvroMetaDataKeys.BIT_LEN: bit_length}
                 if bit_length else {})
 
     def _convert_boolean_type(self, column):
@@ -165,8 +164,8 @@ class MySQLToAvroConverter(BaseConverter):
 
     def _get_precision_metadata(self, column):
         return {
-            AvroMetaDataKeyEnum.PRECISION: column.type.precision,
-            AvroMetaDataKeyEnum.SCALE: column.type.scale,
+            AvroMetaDataKeys.PRECISION: column.type.precision,
+            AvroMetaDataKeys.SCALE: column.type.scale,
         }
 
     def _convert_float_type(self, column):
@@ -179,7 +178,7 @@ class MySQLToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata.update(self._get_precision_metadata(column))
         metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
-        metadata.update({AvroMetaDataKeyEnum.FIXED_POINT: True})
+        metadata.update({AvroMetaDataKeys.FIXED_POINT: True})
         return self._builder.create_double(), metadata
 
     def _convert_string_type(self, column):
@@ -188,12 +187,12 @@ class MySQLToAvroConverter(BaseConverter):
 
     def _convert_char_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeyEnum.FIX_LEN] = column.type.length
+        metadata[AvroMetaDataKeys.FIX_LEN] = column.type.length
         return self._builder.create_string(), metadata
 
     def _convert_varchar_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeyEnum.MAX_LEN] = column.type.length
+        metadata[AvroMetaDataKeys.MAX_LEN] = column.type.length
         return self._builder.create_string(), metadata
 
     def _convert_date_type(self, column):
@@ -201,7 +200,7 @@ class MySQLToAvroConverter(BaseConverter):
         date sql column type to string (ISO 8601 format)
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeyEnum.DATE] = True
+        metadata[AvroMetaDataKeys.DATE] = True
         return self._builder.create_string(), metadata
 
     def _convert_datetime_type(self, column):
@@ -209,7 +208,7 @@ class MySQLToAvroConverter(BaseConverter):
         datetime sql column type to string (ISO 8601 format)
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeyEnum.DATETIME] = True
+        metadata[AvroMetaDataKeys.DATETIME] = True
         return self._builder.create_string(), metadata
 
     def _convert_time_type(self, column):
@@ -217,7 +216,7 @@ class MySQLToAvroConverter(BaseConverter):
         time sql column type to string (ISO 8601 format)
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeyEnum.TIME] = True
+        metadata[AvroMetaDataKeys.TIME] = True
         return self._builder.create_string(), metadata
 
     def _convert_year_type(self, column):
@@ -225,7 +224,7 @@ class MySQLToAvroConverter(BaseConverter):
         year sql column type to long (year number)
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeyEnum.YEAR] = True
+        metadata[AvroMetaDataKeys.YEAR] = True
         return self._builder.create_long(), metadata
 
     def _convert_timestamp_type(self, column):
@@ -233,7 +232,7 @@ class MySQLToAvroConverter(BaseConverter):
         timestamp sql column type to long (unix timestamp)
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeyEnum.TIMESTAMP] = True
+        metadata[AvroMetaDataKeys.TIMESTAMP] = True
         return self._builder.create_long(), metadata
 
     def _convert_enum_type(self, column):
