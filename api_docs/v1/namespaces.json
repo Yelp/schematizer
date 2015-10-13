@@ -18,7 +18,7 @@
                     "summary": "List all the namespaces",
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "Namespace"
                     },
                     "nickname": "list_namespaces",
                     "authorizations": {},
