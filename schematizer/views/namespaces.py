@@ -14,9 +14,10 @@ from schematizer.logic import schema_repository
     request_method='GET',
     renderer='json'
 )
+@transform_api_response()
 def list_namespaces(request):
     namespaces = schema_repository.get_namespaces()
-    return [namespace.name for namespace in namespaces]
+    return [namespace.to_dict() for namespace in namespaces]
 
 
 @view_config(

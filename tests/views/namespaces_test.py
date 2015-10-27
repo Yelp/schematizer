@@ -30,7 +30,6 @@ class TestListSourcesByNamespace(TestNamespaceViewBase):
         mock_request.matchdict = self.get_mock_dict({'namespace': 'yelp'})
 
         sources = namespace_views.list_sources_by_namespace(mock_request)
-
         assert self.sources_response == sources
         mock_repo.get_sources_by_namespace.assert_called_once_with('yelp')
 
@@ -45,4 +44,6 @@ class TestListNamespaces(TestNamespaceViewBase):
     def test_happy_case(self, mock_request, mock_repo):
         mock_repo.get_namespaces.return_value = self.namespaces_response
         actual = list_namespaces(mock_request)
-        assert self.namespaces == actual
+        assert self.namespaces == [
+            namespace.get('name') for namespace in actual
+        ]

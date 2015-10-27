@@ -16,7 +16,7 @@
             $scope.UNCATEGORIZED = CONSTANTS.uncategorized;
             $scope.categoryFilter = $scope.ALL_CATEGORIES;
             $scope.categories = [];
-
+            $scope.schemas = [];
             $scope.uncategorizedFilter = function(table) {
                 return table.category == undefined;
             };
@@ -55,7 +55,9 @@
                     $scope.categories = data;
                 });
                 $http.get('/v1/namespaces').success(function (data) {
-                    $scope.schemas = data;
+                    for (var i = 0; i < data.length; ++i) {
+                        $scope.schemas.push(data[i].name);
+                    }
                 });
             }
 
