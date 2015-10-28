@@ -21,7 +21,6 @@ pyramid-yelp-conn==0.4.0
 pysubnettree==0.23
 pytz==2014.9
 repoze.lru==0.6
-requests>=2.6.1,<2.7
 simplejson==3.6.5
 six==1.8.0
 -e git://github.com/changsi/sqlparse.git@e624a6a924d1be5e79db2e855d2774004a767ccf#egg=sqlparse
