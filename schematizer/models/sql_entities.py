@@ -3,7 +3,6 @@
 This module contains the internal data structure to hold the information
 of parsed SQL schemas.
 """
-from itertools import izip
 
 
 class SQLTable(object):
@@ -23,13 +22,6 @@ class SQLTable(object):
                 self.name == other.name and
                 self.columns == other.columns and
                 self.metadata == other.metadata)
-
-    def assert_equal(self, other):
-        assert type(self) is type(other)
-        assert self.name == other.name
-        for my_column, other_column in izip(self.columns, other.columns):
-            my_column.assert_equal(other_column)
-        assert self.metadata == other.metadata
 
     @property
     def primary_keys(self):
@@ -75,20 +67,6 @@ class SQLColumn(object):
                 self.attributes == other.attributes and
                 self.metadata == other.metadata)
 
-    def assert_equal(self, other):
-        assert isinstance(other, SQLColumn)
-        assert self.name == other.name
-        assert self.type == other.type
-        assert self.primary_key_order == other.primary_key_order
-        assert self.is_nullable == other.is_nullable
-        assert self.default_value == other.default_value
-        for my_attribute, other_attribute in izip(
-            self.attributes,
-            other.attributes
-        ):
-            my_attribute.assert_equal(other_attribute)
-        assert self.metadata == other.metadata
-
 
 class SQLAttribute(object):
     """Class that holds the sql attributes in the table/column definitions,
@@ -116,12 +94,6 @@ class SQLAttribute(object):
 
     def __hash__(self):
         return hash((self.name, self.value, self.has_value))
-
-    def assert_equal(self, other):
-        assert type(self) is type(other)
-        assert self.name == other.name
-        assert self.value == other.value
-        assert self.has_value == other.has_value
 
 
 class SQLColumnDataType(object):

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from itertools import izip
+
 import pytest
 
 from schematizer.components.handlers import mysql_handler
@@ -72,7 +74,7 @@ class TestMySQLHandler(object):
         sql = self._build_create_table_sql(create_definitions)
         actual_table = handler.create_sql_table_from_sql_stmts([sql])
         expected_table = SQLTable(self.table_name, expected_columns)
-        expected_table.assert_equal(actual_table)
+        assert_equal_sql_table(expected_table, actual_table)
 
     def _build_create_table_sql(self, create_definitions):
         return 'CREATE TABLE `{table}` ({definitions});'.format(
@@ -89,7 +91,7 @@ class TestMySQLHandler(object):
          )),
         ('bar bit null',
          SQLColumn('bar', data_types.MySQLBit(None))),
-        ('bar bit default 0101',
+        ('bar bit default 0b0101',
          SQLColumn(
              'bar',
              data_types.MySQLBit(False),
@@ -452,3 +454,42 @@ class TestMySQLHandler(object):
         actual = handler.create_sql_table_from_sql_stmts([sql])
         expected = SQLTable('foo', [SQLColumn('bar', data_types.MySQLInt(11))])
         assert actual == expected
+
+
+def assert_equal_sql_table(self, other):
+    """ This exists to aid in debugging test failures, as a simple
+    ``self == other`` doesn't give enough information as to _what_
+    was different.
+    """
+    assert self.name == other.name
+    for my_column, other_column in izip(self.columns, other.columns):
+        assert_equal_sql_column(my_column, other_column)
+    assert self.metadata == other.metadata
+
+
+def assert_equal_sql_column(self, other):
+    """ This exists to aid in debugging test failures, as a simple
+    ``self == other`` doesn't give enough information as to _what_
+    was different.
+    """
+    assert self.name == other.name
+    assert self.type == other.type
+    assert self.primary_key_order == other.primary_key_order
+    assert self.is_nullable == other.is_nullable
+    assert self.default_value == other.default_value
+    for my_attribute, other_attribute in izip(
+        sorted(self.attributes),
+        sorted(other.attributes)
+    ):
+        assert_equal_sql_attribute(my_attribute, other_attribute)
+    assert self.metadata == other.metadata
+
+
+def assert_equal_sql_attribute(self, other):
+    """ This exists to aid in debugging test failures, as a simple
+    ``self == other`` doesn't give enough information as to _what_
+    was different.
+    """
+    assert self.name == other.name
+    assert self.value == other.value
+    assert self.has_value == other.has_value
