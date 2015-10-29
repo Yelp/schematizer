@@ -1,0 +1,193 @@
+{
+  "apiVersion": "1.0.0",
+  "swaggerVersion": "1.2",
+  "basePath": "http://169.254.255.254:20912",
+  "resourcePath": "/v1/refresh",
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/refresh",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create refresh info entry for given table identifier.",
+          "notes": "",
+          "type": "RefreshInfoResponse",
+          "nickname": "create_refresh_info",
+          "authorizations": {},
+          "parameters": [
+            {
+              "name": "body",
+              "required": true,
+              "type": "CreateRefreshInfoRequest",
+              "paramType": "body"
+            }
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "message": "Invalid request"
+            },
+            {
+              "code": 404,
+              "message": "Reference object not found"
+            },
+            {
+              "code": 500,
+              "message": "Server side error"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/refresh/{table_identifier}/status",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Update refresh status of given table identifier.",
+          "type": "RefreshInfoResponse",
+          "nickname": "update_refresh_info",
+          "authorizations": {},
+          "parameters": [
+            {
+              "name": "body",
+              "required": true,
+              "type": "UpdateRefreshInfoRequest",
+              "paramType": "body"
+            }
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "message": "Invalid request"
+            },
+            {
+              "code": 404,
+              "message": "Reference object not found"
+            },
+            {
+              "code": 500,
+              "message": "Server side error"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/refresh/refresh_info/incomplete",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List all incomplete refreshes",
+          "type": "array",
+          "items": {
+            "$ref": "RefreshInfoResponse"
+          },
+          "nickname": "list_incomplete_refreshes",
+          "authorizations": {},
+          "parameters": [],
+          "responseMessages": [
+            {
+              "code": 500,
+              "message": "Server side error"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/refresh/{table_identifier}",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get the refresh info of the specified table identifier",
+          "type": "RefreshInfoResponse",
+          "nickname": "get_refresh_info_by_table",
+          "authorizations": {},
+          "parameters": [
+            {
+              "name": "table_identifier",
+              "required": true,
+              "type": "string",
+              "paramType": "path",
+              "allowMultiple": false
+            }
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "message": "Invalid table identifier supplied"
+            },
+            {
+              "code": 404,
+              "message": "Table identifier not found"
+            },
+            {
+              "code": 500,
+              "message": "Server side error"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "models": {
+    "CreateRefreshInfoRequest": {
+      "id": "CreateRefreshInfoRequest",
+      "required": [
+        "table_identifier",
+        "refresh_status"
+      ],
+      "properties": {
+        "table_identifier": {
+          "type": "string",
+          "description": "Unique string representing a cluster and table combination."
+        },
+        "refresh_status": {
+          "type": "integer",
+          "description": "Status of last full refresh."
+        }
+      }
+    },
+    "UpdateRefreshInfoRequest": {
+      "id": "UpdateRefreshInfoRequest",
+      "required": [
+        "refresh_status"
+      ],
+      "properties": {
+        "refresh_status": {
+          "type": "integer",
+          "description": "Status of last full refresh."
+        }
+      }
+    },
+    "RefreshInfoResponse": {
+      "id": "RefreshInfoResponse",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "The id of the refresh info."
+        },
+        "table_identifier": {
+          "type": "string",
+          "description": "Unique string representing a cluster and table combination."
+        },
+        "refresh_status": {
+          "type": "integer",
+          "description": "Status of last full refresh."
+        },
+        "last_refreshed_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last time this table is refreshed."
+        }
+      }
+    }
+  }
+}

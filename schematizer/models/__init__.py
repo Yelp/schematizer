@@ -10,6 +10,7 @@ from schematizer.models.enums import *
 from schematizer.models.namespace import *
 from schematizer.models.note import *
 from schematizer.models.producer import *
+from schematizer.models.refresh_info import *
 from schematizer.models.source import *
 from schematizer.models.source_category import *
 from schematizer.models.topic import *

@@ -102,6 +102,22 @@ def routes(config):
         'doctool.index',
         '/web/'
     )
+    config.add_route(
+        'api.v1.create_refresh_info',
+        '/v1/refresh'
+    )
+    config.add_route(
+        'api.v1.update_refresh_info',
+        '/v1/refresh/{table_identifier}/status'
+    )
+    config.add_route(
+        'api.v1.get_refresh_info_by_table',
+        '/v1/refresh/{table_identifier}'
+    )
+    config.add_route(
+        'api.v1.list_incomplete_refreshes',
+        '/v1/refresh/refresh_info/incomplete'
+    )
     # Serve the documentation tool from /web/
     config.add_static_view(name='web', path='static/html/')
     config.add_static_view(name='static', path='static/')

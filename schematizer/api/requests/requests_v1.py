@@ -134,3 +134,18 @@ class GetTopicsRequest(RequestBase):
     def _timestamp_to_datetime(cls, timestamp):
         return (datetime.utcfromtimestamp(timestamp)
                 if timestamp is not None else None)
+
+
+class CreateRefreshInfoRequest(RequestBase):
+
+    def __init__(self, table_identifier, refresh_status):
+        super(CreateRefreshInfoRequest, self).__init__()
+        self.table_identifier = table_identifier
+        self.refresh_status = refresh_status
+
+
+class UpdateRefreshInfoRequest(RequestBase):
+
+    def __init__(self, refresh_status):
+        super(UpdateRefreshInfoRequest, self).__init__()
+        self.refresh_status = refresh_status

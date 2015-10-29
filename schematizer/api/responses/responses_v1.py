@@ -88,3 +88,12 @@ def get_category_response_from_source_category(source_category):
         'created_at': _format_datetime(source_category.created_at),
         'updated_at': _format_datetime(source_category.updated_at)
     }
+
+
+def get_refresh_response_by_refresh_info(refresh_info):
+    return {
+        'id': refresh_info.id,
+        'table_identifier': refresh_info.table_identifier,
+        'refresh_status': refresh_info.refresh_status,
+        'last_refreshed_at': _format_datetime(refresh_info.last_refreshed_at)
+    }

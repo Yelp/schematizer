@@ -16,6 +16,8 @@ INVALID_REQUEST_ERROR = 'Invalid request.'
 NOTE_NOT_FOUND_ERROR_MESSAGE = 'Note is not found.'
 REFERENCE_NOT_FOUND_ERROR_MESSAGE = 'Reference object not found'
 CATEGORY_NOT_FOUND_ERROR_MESSAGE = 'Category not found for the given source'
+REFRESH_INFO_NOT_FOUND_ERROR_MESSAGE = ('Refresh info not found for the'
+                                        ' given table identifier')
 
 
 def invalid_schema_exception(err_message=INVALID_AVRO_SCHEMA_ERROR):
@@ -67,4 +69,10 @@ def reference_not_found_exception(
 
 
 def category_not_found_exception(err_message=CATEGORY_NOT_FOUND_ERROR_MESSAGE):
+    return httpexceptions.exception_response(404, detail=err_message)
+
+
+def refresh_info_not_found_exception(
+        err_message=REFRESH_INFO_NOT_FOUND_ERROR_MESSAGE
+):
     return httpexceptions.exception_response(404, detail=err_message)
