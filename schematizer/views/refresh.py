@@ -35,7 +35,7 @@ def update_refresh_info(request):
     table_identifier = request.matchdict.get('table_identifier')
     refresh_info = refresher.get_refresh_info_by_table(table_identifier)
     if refresh_info is None:
-        raise exceptions_v1.REFRESH_INFO_NOT_FOUND_ERROR_MESSAGE
+        raise exceptions_v1.refresh_info_not_found_exception()
     refresher.update_refresh_info(
         table_identifier=table_identifier,
         refresh_status=req.refresh_status

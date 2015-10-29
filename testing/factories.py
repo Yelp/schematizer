@@ -152,6 +152,19 @@ def create_note(
     return note
 
 
+def create_refresh_info(
+        table_identifier,
+        refresh_status
+):
+    refresh_info = models.RefreshInfo(
+        table_identifier=table_identifier,
+        refresh_status=refresh_status
+    )
+    session.add(refresh_info)
+    session.flush()
+    return refresh_info
+
+
 def create_source_category(source_id, category):
     source_category = models.SourceCategory(
         source_id=source_id,
