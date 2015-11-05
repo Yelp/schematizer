@@ -72,6 +72,41 @@ class TestSchemaRepository(DBTestCase):
         )
 
     @property
+    def source_id(self):
+        return factories.fake_default_id
+
+    @property
+    def offset(self):
+        return factories.fake_offset
+
+    @property
+    def batch_size(self):
+        return factories.fake_batch_size
+
+    @property
+    def priority(self):
+        return factories.fake_priority
+
+    @property
+    def where(self):
+        return factories.fake_where
+
+    @property
+    def status(self):
+        return models.RefreshStatus.NOT_STARTED
+
+    @pytest.fixture
+    def refresh(self, source):
+        return factories.register_refresh(
+            source_id=source.id,
+            offset=self.offset,
+            batch_size=self.batch_size,
+            priority=self.priority,
+            where=self.where,
+            status=self.status
+        )
+
+    @property
     def rw_schema_name(self):
         return "foo"
 
@@ -775,6 +810,51 @@ class TestSchemaRepository(DBTestCase):
                 self.rw_schema_elements[i]
             )
 
+    def test_register_refresh(self):
+        actual_refresh = schema_repo.register_refresh(
+            self.source_id,
+            self.status,
+            self.offset,
+            self.batch_size,
+            self.priority,
+            self.where
+        )
+        expected_refresh = models.Refresh(
+            source_id=self.source_id,
+            status=self.status,
+            offset=self.offset,
+            batch_size=self.batch_size,
+            priority=self.priority,
+            where=self.where
+        )
+        self.assert_equal_refresh_partial(expected_refresh, actual_refresh)
+
+    def test_get_refresh_by_id(self, refresh):
+        actual_refresh = schema_repo.get_refresh_by_id(refresh.id)
+        self.assert_equal_refresh(refresh, actual_refresh)
+
+    def test_update_refresh(self, refresh):
+        new_status = models.RefreshStatus.IN_PROGRESS
+        schema_repo.update_refresh(
+            refresh.id,
+            new_status
+        )
+        actual_refresh = schema_repo.get_refresh_by_id(refresh.id)
+        expected_refresh = models.Refresh(
+            source_id=refresh.source_id,
+            status=new_status,
+            offset=refresh.offset,
+            batch_size=refresh.batch_size,
+            priority=refresh.priority,
+            where=refresh.where
+        )
+        self.assert_equal_refresh_partial(expected_refresh, actual_refresh)
+
+    def test_list_refreshes_by_source_id(self, source, refresh):
+        actual = schema_repo.list_refreshes_by_source_id(source.id)
+        assert 1 == len(actual)
+        self.assert_equal_refresh(actual[0], refresh)
+
     def assert_equal_namespace(self, expected, actual):
         assert expected.id == actual.id
         assert expected.name == actual.name
@@ -853,6 +933,20 @@ class TestSchemaRepository(DBTestCase):
         assert expected.created_at == actual.created_at
         assert expected.updated_at == actual.updated_at
         self.assert_equal_avro_schema_element_partial(expected, actual)
+
+    def assert_equal_refresh(self, expected, actual):
+        assert expected.id == actual.id
+        assert expected.created_at == actual.created_at
+        assert expected.updated_at == actual.updated_at
+        self.assert_equal_refresh_partial(expected, actual)
+
+    def assert_equal_refresh_partial(self, expected, actual):
+        assert expected.source_id == actual.source_id
+        assert expected.status == actual.status
+        assert expected.offset == actual.offset
+        assert expected.batch_size == actual.batch_size
+        assert expected.priority == actual.priority
+        assert expected.where == actual.where
 
 
 @pytest.mark.usefixtures('sorted_topics')

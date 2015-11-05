@@ -136,16 +136,26 @@ class GetTopicsRequest(RequestBase):
                 if timestamp is not None else None)
 
 
-class CreateRefreshInfoRequest(RequestBase):
+class RegisterRefreshRequest(RequestBase):
 
-    def __init__(self, table_identifier, refresh_status):
-        super(CreateRefreshInfoRequest, self).__init__()
-        self.table_identifier = table_identifier
-        self.refresh_status = refresh_status
+    def __init__(
+            self,
+            status,
+            offset,
+            batch_size,
+            priority,
+            where
+    ):
+        super(RegisterRefreshRequest, self).__init__()
+        self.status = status
+        self.offset = offset
+        self.batch_size = batch_size
+        self.priority = priority
+        self.where = where
 
 
-class UpdateRefreshInfoRequest(RequestBase):
+class UpdateRefreshRequest(RequestBase):
 
-    def __init__(self, refresh_status):
-        super(UpdateRefreshInfoRequest, self).__init__()
-        self.refresh_status = refresh_status
+    def __init__(self, status):
+        super(UpdateRefreshRequest, self).__init__()
+        self.status = status

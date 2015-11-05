@@ -19,6 +19,10 @@ def routes(config):
         '/v1/namespaces/{namespace}/sources'
     )
     config.add_route(
+        'api.v1.list_refreshes_by_namespace',
+        '/v1/namespaces/{namespace}/refreshes'
+    )
+    config.add_route(
         'api.v1.list_sources',
         '/v1/sources'
     )
@@ -43,6 +47,10 @@ def routes(config):
     config.add_route(
         'api.v1.get_latest_topic_by_source_id',
         '/v1/sources/{source_id}/topics/latest'
+    )
+    config.add_route(
+        'api.v1.register_refresh',
+        '/v1/sources/{source_id}/refreshes'
     )
     config.add_route(
         'api.v1.get_topic_by_topic_name',
@@ -103,20 +111,12 @@ def routes(config):
         '/web/'
     )
     config.add_route(
-        'api.v1.create_refresh_info',
-        '/v1/refresh'
+        'api.v1.get_refresh_by_id',
+        '/v1/refreshes/{refresh_id}'
     )
     config.add_route(
-        'api.v1.update_refresh_info',
-        '/v1/refresh/{table_identifier}/status'
-    )
-    config.add_route(
-        'api.v1.get_refresh_info_by_table',
-        '/v1/refresh/{table_identifier}'
-    )
-    config.add_route(
-        'api.v1.list_incomplete_refreshes',
-        '/v1/refresh/refresh_info/incomplete'
+        'api.v1.update_refresh',
+        '/v1/refreshes/{refresh_id}/status'
     )
     # Serve the documentation tool from /web/
     config.add_static_view(name='web', path='static/html/')

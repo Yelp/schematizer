@@ -4,7 +4,7 @@ import pytest
 from pyramid import httpexceptions
 
 from schematizer.models import Note
-from schematizer.models import RefreshInfo
+from schematizer.models import RefreshStatus
 from schematizer.models import SourceCategory
 from schematizer.models.avro_schema import AvroSchemaStatus
 from testing import factories
@@ -271,47 +271,78 @@ class TestApiBase(DBTestCase):
         }
 
     @property
-    def refresh_table_identifier(self):
-        return "db_table"
+    def refresh_source_id(self):
+        return factories.fake_default_id
 
     @property
     def refresh_status(self):
-        return 0
+        return RefreshStatus.NOT_STARTED
 
     @property
-    def create_refresh_info_request(self):
+    def updated_refresh_status(self):
+        return RefreshStatus.SUCCESS
+
+    @property
+    def refresh_offset(self):
+        return factories.fake_offset
+
+    @property
+    def refresh_batch_size(self):
+        return factories.fake_batch_size
+
+    @property
+    def refresh_priority(self):
+        return factories.fake_priority
+
+    @property
+    def refresh_where(self):
+        return factories.fake_where
+
+    @property
+    def register_refresh_request(self):
         return {
-            'table_identifier': self.refresh_table_identifier,
-            'refresh_status': self.refresh_status
+            'status': self.refresh_status,
+            'offset': self.refresh_offset,
+            'batch_size': self.refresh_batch_size,
+            'priority': self.refresh_priority,
+            'where': self.refresh_where
         }
 
     @property
-    def update_refresh_info_request(self):
+    def update_refresh_request(self):
         return {
-            'refresh_status': self.refresh_status
+            'status': self.updated_refresh_status
         }
 
     @property
-    def refresh_info(self):
-        return RefreshInfo(
-            id=factories.fake_default_id,
-            table_identifier=self.refresh_table_identifier,
-            refresh_status=self.refresh_status,
-            last_refreshed_at=factories.fake_updated_at
+    def refresh(self):
+        return factories.RefreshFactory.create(
+            fake_id=factories.fake_default_id,
+            source=self.source,
+            status=self.refresh_status,
+            offset=self.refresh_offset,
+            batch_size=self.refresh_batch_size,
+            priority=self.refresh_priority,
+            where=self.refresh_where,
         )
 
     @property
     def refresh_response(self):
         return {
-            'id': factories.fake_default_id,
-            'table_identifier': self.refresh_table_identifier,
-            'refresh_status': self.refresh_status,
-            'last_refreshed_at': factories.fake_updated_at.isoformat()
+            'refresh_id': factories.fake_default_id,
+            'source': self.source_response,
+            'status': self.refresh_status,
+            'offset': self.refresh_offset,
+            'batch_size': self.refresh_batch_size,
+            'priority': self.refresh_priority,
+            'where': self.refresh_where,
+            'created_at': factories.fake_created_at.isoformat(),
+            'updated_at': factories.fake_updated_at.isoformat()
         }
 
     @property
-    def refresh_info_list(self):
-        return [self.refresh_info]
+    def refresh_list(self):
+        return [self.refresh]
 
     @property
     def refresh_response_list(self):
@@ -372,13 +403,6 @@ class TestApiBase(DBTestCase):
             autospec=True
         ) as mock_doc_tool:
             yield mock_doc_tool
-
-    @pytest.yield_fixture
-    def mock_refresh(self):
-        with mock.patch(
-            self.test_view_module + '.refresher'
-        ) as mock_refresh:
-            yield mock_refresh
 
     @pytest.yield_fixture
     def mock_schema(self):

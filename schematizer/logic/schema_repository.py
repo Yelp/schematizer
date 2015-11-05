@@ -590,6 +590,37 @@ def get_latest_topic_of_source_id(source_id):
     ).first()
 
 
+def list_refreshes_by_source_id(source_id):
+    return session.query(
+        models.Refresh
+    ).filter(
+        models.Refresh.source_id == source_id
+    ).order_by(
+        models.Refresh.id
+    ).all()
+
+
+def register_refresh(
+        source_id,
+        status,
+        offset,
+        batch_size,
+        priority,
+        where
+):
+    refresh = models.Refresh(
+        source_id=source_id,
+        status=status,
+        offset=offset,
+        batch_size=batch_size,
+        priority=priority,
+        where=where
+    )
+    session.add(refresh)
+    session.flush()
+    return refresh
+
+
 def get_schema_element_by_id(schema_id):
     return session.query(
         models.AvroSchemaElement
@@ -635,3 +666,23 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None):
     if created_after:
         qry = qry.filter(models.Topic.created_at >= created_after)
     return qry.order_by(models.Topic.id).all()
+
+
+def get_refresh_by_id(refresh_id):
+    return session.query(
+        models.Refresh
+    ).filter(
+        models.Refresh.id == refresh_id
+    ).first()
+
+
+def update_refresh(refresh_id, status):
+    return session.query(
+        models.Refresh
+    ).filter(
+        models.Refresh.id == refresh_id
+    ).update(
+        {
+            models.Refresh.status: status
+        }
+    )

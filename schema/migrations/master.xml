@@ -9,7 +9,7 @@
   <include file="namespace.xml"/>
   <include file="note.xml"/>
   <include file="producer.xml"/>
-  <include file="refresh_info.xml"/>
+  <include file="refresh.xml"/>
   <include file="source.xml"/>
   <include file="source_category.xml"/>
   <include file="topic.xml"/>

@@ -9,6 +9,7 @@ from sqlalchemy.orm import relationship
 from schematizer.models.database import Base
 from schematizer.models.source_category import SourceCategory
 from schematizer.models.topic import Topic
+from schematizer.models.refresh import Refresh
 from schematizer.models.types.time import build_time_column
 
 
@@ -39,6 +40,8 @@ class Source(Base):
     )
 
     topics = relationship(Topic, backref="source")
+
+    refreshes = relationship(Refresh, backref="source")
 
     # The category relationship object for this source.
     # A source matches 1-to-1 with a SourceCategory.

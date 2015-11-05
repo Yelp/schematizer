@@ -90,10 +90,15 @@ def get_category_response_from_source_category(source_category):
     }
 
 
-def get_refresh_response_by_refresh_info(refresh_info):
+def get_refresh_response_from_refresh(refresh):
     return {
-        'id': refresh_info.id,
-        'table_identifier': refresh_info.table_identifier,
-        'refresh_status': refresh_info.refresh_status,
-        'last_refreshed_at': _format_datetime(refresh_info.last_refreshed_at)
+        'refresh_id': refresh.id,
+        'source': get_source_response_from_source(refresh.source),
+        'status': refresh.status,
+        'offset': refresh.offset,
+        'batch_size': refresh.batch_size,
+        'priority': refresh.priority,
+        'where': refresh.where,
+        'created_at': _format_datetime(refresh.created_at),
+        'updated_at': _format_datetime(refresh.updated_at)
     }

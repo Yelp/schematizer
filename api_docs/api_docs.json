@@ -31,8 +31,8 @@
             "description": "Operations about categories."
         },
         {
-            "path": "/v1/refresh",
-            "description": "Operations about the full refresh status of each table."
+            "path": "/v1/refreshes",
+            "description": "Operations about full refreshes."
         }
     ],
     "info": {

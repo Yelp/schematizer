@@ -47,3 +47,25 @@ class TestListNamespaces(TestNamespaceViewBase):
         assert self.namespaces == [
             namespace.get('name') for namespace in actual
         ]
+
+
+class TestListRefreshesByNamespace(TestNamespaceViewBase):
+
+    def test_non_existing_namespace(self, mock_request, mock_repo):
+        expected_exception = self.get_http_exception(404)
+        with pytest.raises(expected_exception) as e:
+            mock_repo.get_namespace_by_name.return_value = None
+            mock_request.matchdict = self.get_mock_dict({'namespace': 'foo'})
+            namespace_views.list_refreshes_by_namespace(mock_request)
+
+        assert expected_exception.code == e.value.code
+        assert str(e.value) == exceptions_v1.NAMESPACE_NOT_FOUND_ERROR_MESSAGE
+        mock_repo.get_namespace_by_name.assert_called_once_with('foo')
+
+    def test_happy_case(self, mock_request, mock_repo):
+        mock_repo.get_sources_by_namespace.return_value = self.sources
+        mock_repo.list_refreshes_by_source_id.return_value = self.refresh_list
+        mock_request.matchdict = self.get_mock_dict({'namespace': 'yelp'})
+
+        refreshes = namespace_views.list_refreshes_by_namespace(mock_request)
+        assert refreshes == self.refresh_response_list

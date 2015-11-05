@@ -2,28 +2,41 @@
     "apiVersion": "1.0.0",
     "swaggerVersion": "1.2",
     "basePath": "http://169.254.255.254:20912",
-    "resourcePath": "/v1/namespaces",
+    "resourcePath": "/v1/refreshes",
     "produces": [
         "application/json"
     ],
     "consumes": [
-        "application/json"
+	    "application/json"
     ],
     "apis": [
         {
-            "path": "/v1/namespaces",
-            "operations": [
+            "path": "/v1/refreshes/{refresh_id}",
+	        "operations": [
                 {
                     "method": "GET",
-                    "summary": "List all the namespaces",
-                    "type": "array",
-                    "items": {
-                        "$ref": "Namespace"
-                    },
-                    "nickname": "list_namespaces",
+                    "summary": "Get refresh for the specified refresh id.",
+                    "type": "Refresh",
+                    "nickname": "get_refresh_by_id",
                     "authorizations": {},
-                    "parameters": [],
+                    "parameters": [
+                        {
+                            "name": "refresh_id",
+                            "required": true,
+                            "type": "string",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
                     "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid table identifier supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Table identifier not found"
+                        },
                         {
                             "code": 500,
                             "message": "Server side error"
@@ -33,22 +46,26 @@
             ]
         },
         {
-            "path": "/v1/namespaces/{namespace}/sources",
+            "path": "/v1/refreshes/{refresh_id}/status",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "List all the sources of specified namespace",
-                    "type": "array",
-                    "items": {
-                        "$ref": "Source"
-                    },
-                    "nickname": "list_sources_by_namespace",
+                    "method": "POST",
+                    "summary": "Update status of refresh.",
+                    "type": "Refresh",
+                    "nickname": "update_refresh",
                     "authorizations": {},
                     "parameters": [
                         {
-                            "name": "namespace",
+                            "name": "body",
                             "required": true,
-                            "type": "string",
+                            "type": "UpdateRefreshRequest",
+                            "paramType": "body"
+                        },
+                        {
+                            "name": "refresh_id",
+                            "description": "ID of refresh that will have its status updated",
+                            "required": true,
+                            "type": "integer",
                             "paramType": "path",
                             "allowMultiple": false
                         }
@@ -60,45 +77,7 @@
                         },
                         {
                             "code": 404,
-                            "message": "Namespace is not found"
-                        },
-                        {
-                            "code": 500,
-                            "message": "Server side error"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/v1/namespaces/{namespace}/refreshes",
-            "operations": [
-                {
-                    "method": "GET",
-                    "summary": "List all incomplete refreshes of specified namespace",
-                    "type": "array",
-                    "items": {
-                        "$ref": "Refresh"
-                    },
-                    "nickname": "list_refreshes_by_namespace",
-                    "authorizations": {},
-                    "parameters": [
-                        {
-                            "name": "namespace",
-                            "required": true,
-                            "type": "string",
-                            "paramType": "path",
-                            "allowMultiple": false
-                        }
-                    ],
-                    "responseMessages": [
-                        {
-                            "code": 400,
-                            "message": "Invalid request"
-                        },
-                        {
-                            "code": 404,
-                            "message": "Namespace is not found"
+                            "message": "Reference object not found"
                         },
                         {
                             "code": 500,
@@ -215,6 +194,25 @@
                     "type": "string",
                     "format": "date-time",
                     "description": "When this refresh is updated."
+                }
+            }
+        },
+        "UpdateRefreshRequest": {
+            "id": "UpdateRefreshRequest",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "Not Started",
+                        "In Progress",
+                        "Paused",
+                        "Success",
+                        "Failed"
+                    ],
+                    "description": "Current status of refresh."
                 }
             }
         }

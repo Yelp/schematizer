@@ -113,3 +113,26 @@ def delete_category(request):
     return responses_v1.get_category_response_from_source_category(
         source_category
     )
+
+
+@view_config(
+    route_name='api.v1.register_refresh',
+    request_method='POST',
+    renderer='json'
+)
+@transform_api_response()
+def register_refresh(request):
+    source_id = int(request.matchdict.get('source_id'))
+    source = schema_repository.get_source_by_id(int(source_id))
+    if not source:
+        raise exceptions_v1.source_not_found_exception()
+    req = requests_v1.RegisterRefreshRequest(**request.json_body)
+    refresh = schema_repository.register_refresh(
+        source_id=source_id,
+        status=req.status,
+        offset=req.offset,
+        batch_size=req.batch_size,
+        priority=req.priority,
+        where=req.where
+    )
+    return responses_v1.get_refresh_response_from_refresh(refresh)

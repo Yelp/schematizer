@@ -222,6 +222,43 @@
                     ]
                 }
             ]
+        },
+        {
+            "path": "/v1/sources/{source_id}/refreshes",
+            "operations": [
+                {
+                    "method": "POST",
+                    "summary": "Create a refresh associated with specified source id.",
+                    "type": "Refresh",
+                    "nickname": "register_refresh",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "source_id",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        },
+                        {
+                            "name": "body",
+                            "required": true,
+                            "type": "RegisterRefreshRequest",
+                            "paramType": "body"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "models": {
@@ -346,6 +383,95 @@
                     "type": "string",
                     "format": "date-time",
                     "description": "When this category is last updated"
+                }
+            }
+        },
+        "Refresh": {
+            "id": "Refresh",
+            "properties": {
+                "refresh_id": {
+                    "type": "integer",
+                    "description": "Refresh ID"
+                },
+                "source": {
+                    "$ref": "Source",
+                    "description": "Source of the refresh."
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "Not Started",
+                        "In Progress",
+                        "Paused",
+                        "Success",
+                        "Failed"
+                    ],
+                    "description": "Current status of refresh."
+                },
+                "offset": {
+                    "type": "integer",
+                    "description": "Last known refresh offset."
+                },
+                "batch_size": {
+                    "type": "integer",
+                    "description": "Number of rows to refresh per batch."
+                },
+                "priority": {
+                    "type": "integer",
+                    "description": "Priority of this refresh."
+                },
+                "where": {
+                    "type": "string",
+                    "description": "Where clause that may apply to this refresh."
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this refresh is created."
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this refresh is updated."
+                }
+            }
+        },
+        "RegisterRefreshRequest": {
+            "id": "RegisterRefreshRequest",
+            "required": [
+                "status",
+                "offset",
+                "batch_size",
+                "priority",
+                "where"
+            ],
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "Not Started",
+                        "In Progress",
+                        "Paused",
+                        "Success",
+                        "Failed"
+                    ],
+                    "description": "Current status of refresh."
+                },
+                "offset": {
+                    "type": "integer",
+                    "description": "Last known refresh offset."
+                },
+                "batch_size": {
+                    "type": "integer",
+                    "description": "Number of rows to refresh per batch."
+                },
+                "priority": {
+                    "type": "integer",
+                    "description": "Priority of this refresh."
+                },
+                "where": {
+                    "type": "string",
+                    "description": "Where clause that may apply to this refresh."
                 }
             }
         }

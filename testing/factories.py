@@ -23,6 +23,10 @@ fake_mysql_alter_stmts = ['create table foo',
                           'alter table foo',
                           'create table foo']
 fake_contains_pii = False
+fake_offset = 0
+fake_batch_size = 100
+fake_priority = 50
+fake_where = 'None'
 
 
 def create_namespace(namespace_name):
@@ -152,17 +156,25 @@ def create_note(
     return note
 
 
-def create_refresh_info(
-        table_identifier,
-        refresh_status
+def register_refresh(
+        source_id,
+        offset,
+        batch_size,
+        priority,
+        where,
+        status=models.RefreshStatus.NOT_STARTED
 ):
-    refresh_info = models.RefreshInfo(
-        table_identifier=table_identifier,
-        refresh_status=refresh_status
+    refresh = models.Refresh(
+        source_id=source_id,
+        status=status,
+        offset=offset,
+        batch_size=batch_size,
+        priority=priority,
+        where=where
     )
-    session.add(refresh_info)
+    session.add(refresh)
     session.flush()
-    return refresh_info
+    return refresh
 
 
 def create_source_category(source_id, category):
@@ -454,3 +466,32 @@ class DataTargetFactory(object):
         session.add(data_target)
         session.flush()
         return data_target
+
+
+class RefreshFactory(object):
+
+    @classmethod
+    def create(
+            cls,
+            fake_id,
+            source,
+            status,
+            offset,
+            batch_size,
+            priority,
+            where,
+            created_at=fake_created_at,
+            updated_at=fake_updated_at
+    ):
+        return models.Refresh(
+            id=fake_id,
+            source_id=source.id,
+            source=source,
+            status=status,
+            offset=offset,
+            batch_size=batch_size,
+            priority=priority,
+            where=where,
+            created_at=created_at,
+            updated_at=updated_at
+        )
