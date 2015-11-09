@@ -156,6 +156,7 @@ class RegisterRefreshRequest(RequestBase):
 
 class UpdateRefreshRequest(RequestBase):
 
-    def __init__(self, status):
+    def __init__(self, status, offset):
         super(UpdateRefreshRequest, self).__init__()
         self.status = status
+        self.offset = offset

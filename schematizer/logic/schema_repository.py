@@ -6,6 +6,7 @@ import uuid
 
 import simplejson
 from sqlalchemy import exc
+from sqlalchemy import desc
 from sqlalchemy.orm import exc as orm_exc
 
 from schematizer import models
@@ -594,7 +595,11 @@ def list_refreshes_by_source_id(source_id):
     return session.query(
         models.Refresh
     ).filter(
-        models.Refresh.source_id == source_id
+        models.Refresh.source_id == source_id,
+        models.Refresh.status != models.RefreshStatus.SUCCESS,
+        models.Refresh.status != models.RefreshStatus.FAILED
+    ).order_by(
+        desc(models.Refresh.priority)
     ).order_by(
         models.Refresh.id
     ).all()
@@ -676,13 +681,14 @@ def get_refresh_by_id(refresh_id):
     ).first()
 
 
-def update_refresh(refresh_id, status):
+def update_refresh(refresh_id, status, offset):
     return session.query(
         models.Refresh
     ).filter(
         models.Refresh.id == refresh_id
     ).update(
         {
-            models.Refresh.status: status
+            models.Refresh.status: status,
+            models.Refresh.offset: offset
         }
     )

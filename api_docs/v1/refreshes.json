@@ -213,6 +213,10 @@
                         "Failed"
                     ],
                     "description": "Current status of refresh."
+                },
+                "offset": {
+                    "type": "integer",
+                    "description": "Last known refresh offset."
                 }
             }
         }

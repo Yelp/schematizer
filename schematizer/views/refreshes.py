@@ -39,6 +39,7 @@ def update_refresh(request):
         raise exceptions_v1.refresh_not_found_exception()
     schema_repository.update_refresh(
         refresh_id=refresh_id,
-        status=req.status
+        status=req.status,
+        offset=req.offset
     )
     return responses_v1.get_refresh_response_from_refresh(refresh)
