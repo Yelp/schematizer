@@ -287,6 +287,10 @@ class TestApiBase(DBTestCase):
         return factories.fake_offset
 
     @property
+    def updated_offset(self):
+        return factories.fake_updated_offset
+
+    @property
     def refresh_batch_size(self):
         return factories.fake_batch_size
 
@@ -311,7 +315,8 @@ class TestApiBase(DBTestCase):
     @property
     def update_refresh_request(self):
         return {
-            'status': self.updated_refresh_status
+            'status': self.updated_refresh_status,
+            'offset': self.updated_offset
         }
 
     @property

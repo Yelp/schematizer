@@ -257,6 +257,39 @@
                             "message": "Server side error"
                         }
                     ]
+                },
+                {
+                    "method": "GET",
+                    "summary": "List the history of refreshes on the specified source id.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "Refresh"
+                    },
+                    "nickname": "list_source_refresh_history",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "source_id",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Namespace is not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
                 }
             ]
         }

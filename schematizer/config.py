@@ -50,7 +50,13 @@ def routes(config):
     )
     config.add_route(
         'api.v1.register_refresh',
-        '/v1/sources/{source_id}/refreshes'
+        '/v1/sources/{source_id}/refreshes',
+        request_method="POST"
+    )
+    config.add_route(
+        'api.v1.list_refresh_history_by_source',
+        '/v1/sources/{source_id}/refreshes',
+        request_method="GET"
     )
     config.add_route(
         'api.v1.get_topic_by_topic_name',

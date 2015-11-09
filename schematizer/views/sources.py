@@ -136,3 +136,20 @@ def register_refresh(request):
         where=req.where
     )
     return responses_v1.get_refresh_response_from_refresh(refresh)
+
+
+@view_config(
+    route_name='api.v1.list_refresh_history_by_source',
+    request_method='GET',
+    renderer='json'
+)
+@transform_api_response()
+def list_refresh_history_by_source(request):
+    source_id = int(request.matchdict.get('source_id'))
+    source = schema_repository.get_source_by_id(source_id)
+    if not source:
+        raise exceptions_v1.source_not_found_exception()
+    refresh_history = schema_repository.list_refresh_history_by_source(
+        source_id
+    )
+    return [refresh.to_dict() for refresh in refresh_history]

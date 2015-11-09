@@ -591,6 +591,16 @@ def get_latest_topic_of_source_id(source_id):
     ).first()
 
 
+def list_refresh_history_by_source(source_id):
+    return session.query(
+        models.Refresh
+    ).filter(
+        models.Refresh.source_id == source_id
+    ).order_by(
+        models.Refresh.id
+    ).all()
+
+
 def list_refreshes_by_source_id(source_id):
     return session.query(
         models.Refresh

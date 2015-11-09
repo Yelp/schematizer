@@ -24,6 +24,7 @@ fake_mysql_alter_stmts = ['create table foo',
                           'create table foo']
 fake_contains_pii = False
 fake_offset = 0
+fake_updated_offset = 500
 fake_batch_size = 100
 fake_priority = 50
 fake_where = 'None'

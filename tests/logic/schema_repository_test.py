@@ -835,15 +835,17 @@ class TestSchemaRepository(DBTestCase):
 
     def test_update_refresh(self, refresh):
         new_status = models.RefreshStatus.IN_PROGRESS
+        new_offset = 500
         schema_repo.update_refresh(
             refresh.id,
-            new_status
+            new_status,
+            new_offset
         )
         actual_refresh = schema_repo.get_refresh_by_id(refresh.id)
         expected_refresh = models.Refresh(
             source_id=refresh.source_id,
             status=new_status,
-            offset=refresh.offset,
+            offset=new_offset,
             batch_size=refresh.batch_size,
             priority=refresh.priority,
             where=refresh.where
