@@ -116,40 +116,40 @@ def delete_category(request):
 
 
 @view_config(
-    route_name='api.v1.register_refresh',
+    route_name='api.v1.create_refresh',
     request_method='POST',
     renderer='json'
 )
 @transform_api_response()
-def register_refresh(request):
+def create_refresh(request):
     source_id = int(request.matchdict.get('source_id'))
     source = schema_repository.get_source_by_id(int(source_id))
     if not source:
         raise exceptions_v1.source_not_found_exception()
-    req = requests_v1.RegisterRefreshRequest(**request.json_body)
-    refresh = schema_repository.register_refresh(
+    req = requests_v1.CreateRefreshRequest(**request.json_body)
+    refresh = schema_repository.create_refresh(
         source_id=source_id,
-        status=req.status,
         offset=req.offset,
         batch_size=req.batch_size,
         priority=req.priority,
-        where=req.where
+        filter_condition=req.filter_condition
     )
     return responses_v1.get_refresh_response_from_refresh(refresh)
 
 
 @view_config(
-    route_name='api.v1.list_refresh_history_by_source',
+    route_name='api.v1.list_refreshes_by_source_id',
     request_method='GET',
     renderer='json'
 )
 @transform_api_response()
-def list_refresh_history_by_source(request):
+def list_refreshes_by_source_id(request):
     source_id = int(request.matchdict.get('source_id'))
     source = schema_repository.get_source_by_id(source_id)
     if not source:
         raise exceptions_v1.source_not_found_exception()
-    refresh_history = schema_repository.list_refresh_history_by_source(
+    refresh_history = schema_repository.list_refreshes_by_source_id(
         source_id
     )
-    return [refresh.to_dict() for refresh in refresh_history]
+    return [responses_v1.get_refresh_response_from_refresh(refresh)
+            for refresh in refresh_history]

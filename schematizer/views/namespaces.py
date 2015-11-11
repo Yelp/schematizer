@@ -6,6 +6,7 @@ from pyramid.view import view_config
 
 from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
+from schematizer.api.responses import responses_v1
 from schematizer.logic import schema_repository
 
 
@@ -51,4 +52,5 @@ def list_refreshes_by_namespace(request):
     refreshes = []
     for source_id in source_ids:
         refreshes += schema_repository.list_refreshes_by_source_id(source_id)
-    return [refresh.to_dict() for refresh in refreshes]
+    return [responses_v1.get_refresh_response_from_refresh(refresh)
+            for refresh in refreshes]

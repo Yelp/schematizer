@@ -31,11 +31,69 @@
                     "responseMessages": [
                         {
                             "code": 400,
-                            "message": "Invalid table identifier supplied"
+                            "message": "Invalid refresh id supplied"
                         },
                         {
                             "code": 404,
-                            "message": "Table identifier not found"
+                            "message": "Specified refresh cannot be found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/v1/refreshes",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get the refreshes that match the specified criteria. If no criteria is specified, returns all refreshes.",
+                    "type": "array",
+                    "items":{
+                        "$ref": "Refresh"
+                    },
+                    "nickname": "get_refreshes_by_criteria",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "status",
+                            "description": "Current status of the refresh.",
+                            "required": false,
+                            "type": "string",
+                            "enum": [
+                                "NOT_STARTED",
+                                "IN_PROGRESS",
+                                "PAUSED",
+                                "SUCCESS",
+                                "FAILED"
+                            ],
+                            "paramType": "query",
+                            "allowMultiple": false
+                        },
+                        {
+                            "name": "namespace",
+                            "description": "Namespace name of the source of the refresh.",
+                            "required": false,
+                            "type": "string",
+                            "paramType": "query",
+                            "allowMultiple": false
+                        },
+                        {
+                            "name": "created_after",
+                            "description": "Unix timestamp that the refresh was created after. Refreshes created at the same timestamp will be included.",
+                            "required": false,
+                            "type": "integer",
+                            "paramType": "query",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid query parameter(s) supplied"
                         },
                         {
                             "code": 500,
@@ -58,7 +116,7 @@
                         {
                             "name": "body",
                             "required": true,
-                            "type": "UpdateRefreshRequest",
+                            "type": "UpdateRefreshStatusRequest",
                             "paramType": "body"
                         },
                         {
@@ -156,34 +214,40 @@
                 },
                 "source": {
                     "$ref": "Source",
-                    "description": "Source of the refresh."
+                    "description": "Source that this refresh is running on."
                 },
                 "status": {
                     "type": "string",
                     "enum": [
-                        "Not Started",
-                        "In Progress",
-                        "Paused",
-                        "Success",
-                        "Failed"
+                        "NOT_STARTED",
+                        "IN_PROGRESS",
+                        "PAUSED",
+                        "SUCCESS",
+                        "FAILED"
                     ],
                     "description": "Current status of refresh."
                 },
                 "offset": {
                     "type": "integer",
-                    "description": "Last known refresh offset."
+                    "description": "Represents the last known position that has been refreshed."
                 },
                 "batch_size": {
                     "type": "integer",
                     "description": "Number of rows to refresh per batch."
                 },
                 "priority": {
-                    "type": "integer",
+                    "type": "string",
+                    "enum": [
+                        "LOW",
+                        "MEDIUM",
+                        "HIGH",
+                        "MAX"
+                    ],
                     "description": "Priority of this refresh."
                 },
-                "where": {
+                "filter_condition": {
                     "type": "string",
-                    "description": "Where clause that may apply to this refresh."
+                    "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table."
                 },
                 "created_at": {
                     "type": "string",
@@ -193,30 +257,31 @@
                 "updated_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When this refresh is updated."
+                    "description": "When this refresh is last updated."
                 }
             }
         },
-        "UpdateRefreshRequest": {
-            "id": "UpdateRefreshRequest",
+        "UpdateRefreshStatusRequest": {
+            "id": "UpdateRefreshStatusRequest",
             "required": [
-                "status"
+                "status",
+                "offset"
             ],
             "properties": {
                 "status": {
                     "type": "string",
                     "enum": [
-                        "Not Started",
-                        "In Progress",
-                        "Paused",
-                        "Success",
-                        "Failed"
+                        "NOT_STARTED",
+                        "IN_PROGRESS",
+                        "PAUSED",
+                        "SUCCESS",
+                        "FAILED"
                     ],
-                    "description": "Current status of refresh."
+                    "description": "Refresh status to be set."
                 },
                 "offset": {
                     "type": "integer",
-                    "description": "Last known refresh offset."
+                    "description": "Represents the last known position that has been refreshed."
                 }
             }
         }

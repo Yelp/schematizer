@@ -136,27 +136,43 @@ class GetTopicsRequest(RequestBase):
                 if timestamp is not None else None)
 
 
-class RegisterRefreshRequest(RequestBase):
+class GetRefreshesRequest(RequestBase):
+
+    def __init__(self, query_params):
+        super(GetRefreshesRequest, self).__init__()
+        self.namespace = query_params.get('namespace')
+        self.status = query_params.get('status')
+        param = query_params.get('created_after')
+        self.created_after = long(param) if param is not None else None
+        self.created_after_datetime = self._timestamp_to_datetime(
+            self.created_after
+        )
+
+    @classmethod
+    def _timestamp_to_datetime(cls, timestamp):
+        return (datetime.utcfromtimestamp(timestamp)
+                if timestamp is not None else None)
+
+
+class CreateRefreshRequest(RequestBase):
 
     def __init__(
             self,
-            status,
-            offset,
-            batch_size,
-            priority,
-            where
+            offset=None,
+            batch_size=None,
+            priority=None,
+            filter_condition=None
     ):
-        super(RegisterRefreshRequest, self).__init__()
-        self.status = status
+        super(CreateRefreshRequest, self).__init__()
         self.offset = offset
         self.batch_size = batch_size
         self.priority = priority
-        self.where = where
+        self.filter_condition = filter_condition
 
 
-class UpdateRefreshRequest(RequestBase):
+class UpdateRefreshStatusRequest(RequestBase):
 
     def __init__(self, status, offset):
-        super(UpdateRefreshRequest, self).__init__()
+        super(UpdateRefreshStatusRequest, self).__init__()
         self.status = status
         self.offset = offset

@@ -4,6 +4,7 @@ PasteDeploy==1.5.2
 PyStaticConfiguration==0.9.0
 PyYAML==3.11
 SQLAlchemy==0.9.8
+enum34==1.0.4
 WebOb==1.4
 cached-property>=0.1.2
 colander==0.9.9

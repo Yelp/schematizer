@@ -591,7 +591,7 @@ def get_latest_topic_of_source_id(source_id):
     ).first()
 
 
-def list_refresh_history_by_source(source_id):
+def list_refreshes_by_source_id(source_id):
     return session.query(
         models.Refresh
     ).filter(
@@ -601,35 +601,20 @@ def list_refresh_history_by_source(source_id):
     ).all()
 
 
-def list_refreshes_by_source_id(source_id):
-    return session.query(
-        models.Refresh
-    ).filter(
-        models.Refresh.source_id == source_id,
-        models.Refresh.status != models.RefreshStatus.SUCCESS,
-        models.Refresh.status != models.RefreshStatus.FAILED
-    ).order_by(
-        desc(models.Refresh.priority)
-    ).order_by(
-        models.Refresh.id
-    ).all()
-
-
-def register_refresh(
+def create_refresh(
         source_id,
-        status,
         offset,
         batch_size,
         priority,
-        where
+        filter_condition
 ):
+    priority_value = None if not priority else models.Priority[priority].value
     refresh = models.Refresh(
         source_id=source_id,
-        status=status,
         offset=offset,
         batch_size=batch_size,
-        priority=priority,
-        where=where
+        priority=priority_value,
+        filter_condition=filter_condition
     )
     session.add(refresh)
     session.flush()
@@ -683,6 +668,32 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None):
     return qry.order_by(models.Topic.id).all()
 
 
+def get_refreshes_by_criteria(namespace=None, status=None, created_after=None):
+    """Get all the refreshes that match the given filter criteria.
+
+    Args:
+        namespace(Optional[str]): get refreshes of given namespace if specified.
+        status(Optional[int]): get refreshes of given status if specified.
+        created_after(Optional[datetime]): get refreshes created after given utc
+            datetime (inclusive) if specified.
+    """
+    qry = session.query(models.Refresh)
+    if namespace:
+        qry = qry.join(models.Source).filter(
+            models.Source.id == models.Refresh.source_id
+        )
+        qry = qry.join(models.Namespace).filter(
+            models.Namespace.name == namespace,
+            models.Namespace.id == models.Source.namespace_id
+        )
+    if status:
+        status = models.RefreshStatus[status].value
+        qry = qry.filter(models.Refresh.status == status)
+    if created_after:
+        qry = qry.filter(models.Refresh.created_at >= created_after)
+    return qry.order_by(models.Refresh.id).all()
+
+
 def get_refresh_by_id(refresh_id):
     return session.query(
         models.Refresh
@@ -692,13 +703,14 @@ def get_refresh_by_id(refresh_id):
 
 
 def update_refresh(refresh_id, status, offset):
+    status_value = models.RefreshStatus[status].value
     return session.query(
         models.Refresh
     ).filter(
         models.Refresh.id == refresh_id
     ).update(
         {
-            models.Refresh.status: status,
+            models.Refresh.status: status_value,
             models.Refresh.offset: offset
         }
     )

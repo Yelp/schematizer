@@ -5,7 +5,7 @@ Most of them are shared in various API responses, and therefore keep them
 in this module.
 """
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
-
+from schematizer.models.refresh import RefreshStatus, Priority
 
 def _format_datetime(datetime_value):
     return datetime_value.isoformat()
@@ -94,11 +94,11 @@ def get_refresh_response_from_refresh(refresh):
     return {
         'refresh_id': refresh.id,
         'source': get_source_response_from_source(refresh.source),
-        'status': refresh.status,
+        'status': RefreshStatus(refresh.status).name,
         'offset': refresh.offset,
         'batch_size': refresh.batch_size,
-        'priority': refresh.priority,
-        'where': refresh.where,
+        'priority': Priority(refresh.priority).name,
+        'where': refresh.filter_condition,
         'created_at': _format_datetime(refresh.created_at),
         'updated_at': _format_datetime(refresh.updated_at)
     }

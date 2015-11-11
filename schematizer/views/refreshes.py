@@ -33,7 +33,7 @@ def get_refresh_by_id(request):
 @transform_api_response()
 def update_refresh(request):
     refresh_id = request.matchdict.get('refresh_id')
-    req = requests_v1.UpdateRefreshRequest(**request.json_body)
+    req = requests_v1.UpdateRefreshStatusRequest(**request.json_body)
     refresh = schema_repository.get_refresh_by_id(int(refresh_id))
     if refresh is None:
         raise exceptions_v1.refresh_not_found_exception()
@@ -43,3 +43,20 @@ def update_refresh(request):
         offset=req.offset
     )
     return responses_v1.get_refresh_response_from_refresh(refresh)
+
+@view_config(
+    route_name='api.v1.get_refreshes_by_criteria',
+    request_method='GET',
+    renderer='json'
+)
+@transform_api_response()
+def get_refreshes_by_criteria(request):
+    criteria = requests_v1.GetRefreshesRequest(request.params)
+
+    refreshes = schema_repository.get_refreshes_by_criteria(
+        namespace=criteria.namespace,
+        status=criteria.status,
+        created_after=criteria.created_after_datetime
+    )
+    return [responses_v1.get_refresh_response_from_refresh(refresh)
+            for refresh in refreshes]

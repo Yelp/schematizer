@@ -75,7 +75,7 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "List all incomplete refreshes of specified namespace",
+                    "summary": "List all refreshes of specified namespace",
                     "type": "array",
                     "items": {
                         "$ref": "Refresh"
@@ -177,34 +177,40 @@
                 },
                 "source": {
                     "$ref": "Source",
-                    "description": "Source of the refresh."
+                    "description": "Source that this refresh is running on."
                 },
                 "status": {
                     "type": "string",
                     "enum": [
-                        "Not Started",
-                        "In Progress",
-                        "Paused",
-                        "Success",
-                        "Failed"
+                        "NOT_STARTED",
+                        "IN_PROGRESS",
+                        "PAUSED",
+                        "SUCCESS",
+                        "FAILED"
                     ],
                     "description": "Current status of refresh."
                 },
                 "offset": {
                     "type": "integer",
-                    "description": "Last known refresh offset."
+                    "description": "Represents the last known position that has been refreshed."
                 },
                 "batch_size": {
                     "type": "integer",
                     "description": "Number of rows to refresh per batch."
                 },
                 "priority": {
-                    "type": "integer",
+                    "type": "string",
+                    "enum": [
+                        "LOW",
+                        "MEDIUM",
+                        "HIGH",
+                        "MAX"
+                    ],
                     "description": "Priority of this refresh."
                 },
-                "where": {
+                "filter_condition": {
                     "type": "string",
-                    "description": "Where clause that may apply to this refresh."
+                    "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table."
                 },
                 "created_at": {
                     "type": "string",
@@ -214,7 +220,7 @@
                 "updated_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When this refresh is updated."
+                    "description": "When this refresh is last updated."
                 }
             }
         }

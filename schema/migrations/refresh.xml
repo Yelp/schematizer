@@ -35,4 +35,18 @@
             <append value=" ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci"/>
         </modifySql>
     </changeSet>
+    <changeSet author="psuben" id="1447176876">
+        <comment>[2015-11-10] Add an index on the source_id column of the refresh table.</comment>
+        <createIndex indexName="source_id" tableName="refresh" unique="false">
+            <column name="source_id"/>
+        </createIndex>
+        <comment>Changing where to filter_condition.</comment>
+        <renameColumn oldColumnName="where" newColumnName="filter_condition" tableName="refresh" columnDataType="VARCHAR(255) NOT NULL"/>
+        <comment>Changing status column type from string to integer.</comment>
+        <modifyDataType columnName="status" newDataType="INT(11) NOT NULL" tableName="refresh"/>
+    </changeSet>
+    <changeSet author="psuben" id="1447180241">
+        <dropNotNullConstraint columnName="filter_condition" tableName="refresh" columnDataType="VARCHAR(255)"/>
+        <addDefaultValue columnName="filter_condition" tableName="refresh" defaultValue="NULL"/>
+    </changeSet>
 </databaseChangeLog>

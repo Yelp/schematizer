@@ -49,12 +49,12 @@ def routes(config):
         '/v1/sources/{source_id}/topics/latest'
     )
     config.add_route(
-        'api.v1.register_refresh',
+        'api.v1.create_refresh',
         '/v1/sources/{source_id}/refreshes',
         request_method="POST"
     )
     config.add_route(
-        'api.v1.list_refresh_history_by_source',
+        'api.v1.list_refreshes_by_source_id',
         '/v1/sources/{source_id}/refreshes',
         request_method="GET"
     )
@@ -115,6 +115,10 @@ def routes(config):
     config.add_route(
         'doctool.index',
         '/web/'
+    )
+    config.add_route(
+        'api.v1.get_refreshes_by_criteria',
+        '/v1/refreshes'
     )
     config.add_route(
         'api.v1.get_refresh_by_id',
