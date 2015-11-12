@@ -44,6 +44,7 @@ def update_refresh(request):
     )
     return responses_v1.get_refresh_response_from_refresh(refresh)
 
+
 @view_config(
     route_name='api.v1.get_refreshes_by_criteria',
     request_method='GET',

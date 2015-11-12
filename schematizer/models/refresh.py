@@ -73,4 +73,3 @@ class Refresh(Base):
         onupdate_now=True,
         nullable=False
     )
-

@@ -6,50 +6,82 @@ from schematizer.views import refreshes as refresh_views
 from tests.views.api_test_base import TestApiBase
 
 
-class TestRefreshesViewBase(TestApiBase):
+class TestGetRefreshByID(TestApiBase):
 
-    test_view_module = 'schematizer.views.refreshes'
+    def test_happy_case(self, mock_request, refresh, refresh_response):
+        mock_request.matchdict = self.get_mock_dict({
+            'refresh_id': refresh.id
+        })
+        actual = refresh_views.get_refresh_by_id(mock_request)
+        assert actual == refresh_response
 
-
-class TestGetRefreshByID(TestRefreshesViewBase):
-
-    def test_happy_case(self, mock_request, mock_repo):
-        mock_repo.get_refresh_by_id.return_value = self.refresh
-        mock_request.matchdict = self.get_mock_dict({'refresh_id': '1'})
-
-        refresh = refresh_views.get_refresh_by_id(mock_request)
-        assert self.refresh_response == refresh
-        mock_repo.get_refresh_by_id.assert_called_once_with(1)
-
-    def test_non_existing_refresh_id(self, mock_request, mock_repo):
+    def test_non_existing_topic_name(self, mock_request):
         expected_exception = self.get_http_exception(404)
         with pytest.raises(expected_exception) as e:
-            mock_repo.get_refresh_by_id.return_value = None
-            mock_request.matchdict = self.get_mock_dict({'refresh_id': '0'})
+            mock_request.matchdict = self.get_mock_dict({'refresh_id': 0})
             refresh_views.get_refresh_by_id(mock_request)
 
-        assert expected_exception.code == e.value.code
+        assert e.value.code == expected_exception.code
         assert str(e.value) == exceptions_v1.REFRESH_NOT_FOUND_ERROR_MESSAGE
-        mock_repo.get_refresh_by_id.assert_called_once_with(0)
 
 
-class TestUpdateRefresh(TestRefreshesViewBase):
+class TestUpdateRefresh(TestApiBase):
 
-    def test_update_refresh(self, mock_request, mock_repo):
-        mock_request.json_body = self.update_refresh_request
-        mock_request.matchdict = self.get_mock_dict({'refresh_id': '0'})
-        mock_repo.get_refresh_by_id.return_value = self.refresh
+    def test_update_refresh(
+            self,
+            mock_request,
+            refresh,
+            update_refresh_request,
+            updated_refresh_response
+    ):
+        mock_request.json_body = update_refresh_request
+        mock_request.matchdict = self.get_mock_dict({'refresh_id': refresh.id})
         actual = refresh_views.update_refresh(mock_request)
-        assert actual == self.refresh_response
+        assert actual == updated_refresh_response
 
-    def test_non_existing_refresh_id(self, mock_request, mock_repo):
+    def test_non_existing_refresh_id(
+            self,
+            mock_request,
+            update_refresh_request
+    ):
         expected_exception = self.get_http_exception(404)
         with pytest.raises(expected_exception) as e:
-            mock_repo.get_refresh_by_id.return_value = None
-            mock_request.matchdict = self.get_mock_dict({'refresh_id': '0'})
-            mock_request.json_body = self.update_refresh_request
+            mock_request.matchdict = self.get_mock_dict({'refresh_id': 0})
+            mock_request.json_body = update_refresh_request
             refresh_views.update_refresh(mock_request)
 
         assert expected_exception.code == e.value.code
         assert str(e.value) == exceptions_v1.REFRESH_NOT_FOUND_ERROR_MESSAGE
-        mock_repo.get_refresh_by_id.assert_called_once_with(0)
+
+
+class TestGetRefreshesByCriteria(TestApiBase):
+
+    def test_non_existing_namespace(self, mock_request):
+        mock_request.params = self.get_mock_dict({'namespace': 'missing'})
+        actual = refresh_views.get_refreshes_by_criteria(mock_request)
+        assert actual == []
+
+    def test_no_matching_refreshes(self, mock_request, yelp_namespace):
+        mock_request.params = self.get_mock_dict(
+            {
+                'namespace': yelp_namespace.name,
+                'status': 'FAILED'
+            }
+        )
+        actual = refresh_views.get_refreshes_by_criteria(mock_request)
+        assert actual == []
+
+    def test_filter_by_namespace(
+            self,
+            mock_request,
+            yelp_namespace,
+            refresh_response_list
+    ):
+        mock_request.params = self.get_mock_dict(
+            {
+                'namespace': yelp_namespace.name,
+                'status': 'NOT_STARTED'
+            }
+        )
+        actual = refresh_views.get_refreshes_by_criteria(mock_request)
+        assert actual == refresh_response_list

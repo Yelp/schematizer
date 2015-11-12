@@ -5,7 +5,7 @@ CREATE TABLE `refresh` (
   `offset` int(11) NOT NULL,
   `batch_size` int(11) NOT NULL,
   `priority` int(11) NOT NULL,
-  `filter_condition` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `filter_condition` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` int(11) NOT NULL,
   `updated_at` int(11) NOT NULL,
   PRIMARY KEY (`id`),

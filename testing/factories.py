@@ -26,8 +26,11 @@ fake_contains_pii = False
 fake_offset = 0
 fake_updated_offset = 500
 fake_batch_size = 100
-fake_priority = 50
-fake_where = 'None'
+fake_priority = 'MEDIUM'
+fake_priority_value = 50
+fake_status = 'SUCCESS'
+fake_status_value = 3
+fake_filter_condition = 'user=test_user'
 
 
 def create_namespace(namespace_name):
@@ -157,21 +160,20 @@ def create_note(
     return note
 
 
-def register_refresh(
+def create_refresh(
         source_id,
         offset,
         batch_size,
         priority,
-        where,
-        status=models.RefreshStatus.NOT_STARTED
+        filter_condition
 ):
+    priority_value = None if not priority else models.Priority[priority].value
     refresh = models.Refresh(
         source_id=source_id,
-        status=status,
         offset=offset,
         batch_size=batch_size,
-        priority=priority,
-        where=where
+        priority=priority_value,
+        filter_condition=filter_condition
     )
     session.add(refresh)
     session.flush()
@@ -467,32 +469,3 @@ class DataTargetFactory(object):
         session.add(data_target)
         session.flush()
         return data_target
-
-
-class RefreshFactory(object):
-
-    @classmethod
-    def create(
-            cls,
-            fake_id,
-            source,
-            status,
-            offset,
-            batch_size,
-            priority,
-            where,
-            created_at=fake_created_at,
-            updated_at=fake_updated_at
-    ):
-        return models.Refresh(
-            id=fake_id,
-            source_id=source.id,
-            source=source,
-            status=status,
-            offset=offset,
-            batch_size=batch_size,
-            priority=priority,
-            where=where,
-            created_at=created_at,
-            updated_at=updated_at
-        )

@@ -6,7 +6,6 @@ import uuid
 
 import simplejson
 from sqlalchemy import exc
-from sqlalchemy import desc
 from sqlalchemy.orm import exc as orm_exc
 
 from schematizer import models
@@ -672,10 +671,12 @@ def get_refreshes_by_criteria(namespace=None, status=None, created_after=None):
     """Get all the refreshes that match the given filter criteria.
 
     Args:
-        namespace(Optional[str]): get refreshes of given namespace if specified.
-        status(Optional[int]): get refreshes of given status if specified.
-        created_after(Optional[datetime]): get refreshes created after given utc
-            datetime (inclusive) if specified.
+        namespace(Optional[str]): get refreshes of given namespace
+            if specified.
+        status(Optional[int]): get refreshes of given status
+            if specified.
+        created_after(Optional[datetime]): get refreshes created
+            after given utc datetime (inclusive) if specified.
     """
     qry = session.query(models.Refresh)
     if namespace:
