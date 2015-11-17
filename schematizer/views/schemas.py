@@ -41,6 +41,7 @@ def get_schema_by_id(request):
 def register_schema(request):
     try:
         req = requests_v1.RegisterSchemaRequest(**request.json_body)
+        validate_names(req.namespace, req.source)
         return _register_avro_schema(
             schema_json=req.schema_json,
             namespace=req.namespace,
@@ -93,6 +94,7 @@ def _register_avro_schema(
     base_schema_id=None
 ):
     try:
+        validate_names(namespace, source)
         avro_schema = schema_repository.register_avro_schema_from_avro_json(
             avro_schema_json=schema_json,
             namespace_name=namespace,
@@ -122,3 +124,13 @@ def get_schema_elements_by_schema_id(request):
     # Get schema elements
     elements = schema_repository.get_schema_elements_by_schema_id(schema_id)
     return [element.to_dict() for element in elements]
+
+
+def validate_names(namespace, source):
+    if '|' in namespace or '|' in source:
+        # Restrict '|' to avoid ambiguity when parsing input of
+        # data_pipeline tailer. One of the tailer arguments is topic
+        # and optional offset separated by '|'.
+        raise exceptions_v1.restricted_char_exception()
+    if namespace.isdigit() or source.isdigit():
+        raise exceptions_v1.numeric_name_exception()

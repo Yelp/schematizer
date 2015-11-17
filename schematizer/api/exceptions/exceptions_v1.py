@@ -16,6 +16,10 @@ INVALID_REQUEST_ERROR = 'Invalid request.'
 NOTE_NOT_FOUND_ERROR_MESSAGE = 'Note is not found.'
 REFERENCE_NOT_FOUND_ERROR_MESSAGE = 'Reference object not found'
 CATEGORY_NOT_FOUND_ERROR_MESSAGE = 'Category not found for the given source'
+RESTRICTED_CHAR_ERROR_MESSAGE = (
+    'Source name or Namespace name contains the restricted character: |'
+)
+NUMERIC_NAME_ERROR_MESSAGE = 'Source or Namespace name is numeric'
 
 
 def invalid_schema_exception(err_message=INVALID_AVRO_SCHEMA_ERROR):
@@ -68,3 +72,15 @@ def reference_not_found_exception(
 
 def category_not_found_exception(err_message=CATEGORY_NOT_FOUND_ERROR_MESSAGE):
     return httpexceptions.exception_response(404, detail=err_message)
+
+
+def restricted_char_exception(
+        err_message=RESTRICTED_CHAR_ERROR_MESSAGE
+):
+    return httpexceptions.exception_response(400, detail=err_message)
+
+
+def numeric_name_exception(
+        err_message=NUMERIC_NAME_ERROR_MESSAGE
+):
+    return httpexceptions.exception_response(400, detail=err_message)
