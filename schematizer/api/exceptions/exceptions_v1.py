@@ -17,9 +17,10 @@ NOTE_NOT_FOUND_ERROR_MESSAGE = 'Note is not found.'
 REFERENCE_NOT_FOUND_ERROR_MESSAGE = 'Reference object not found'
 CATEGORY_NOT_FOUND_ERROR_MESSAGE = 'Category not found for the given source'
 RESTRICTED_CHAR_ERROR_MESSAGE = (
-    'Source name or Namespace name contains the restricted character: |'
+    'Source name or Namespace name should not contain the '
+    'restricted character: |'
 )
-NUMERIC_NAME_ERROR_MESSAGE = 'Source or Namespace name is numeric'
+NUMERIC_NAME_ERROR_MESSAGE = 'Source or Namespace name should not be numeric'
 
 
 def invalid_schema_exception(err_message=INVALID_AVRO_SCHEMA_ERROR):

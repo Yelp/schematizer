@@ -169,7 +169,7 @@ class TestRegisterSchema(TestSchemasViewBase):
 
         assert expected_exception.code == e.value.code
         assert str(e.value) == (
-            'Source name or Namespace name contains the '
+            'Source name or Namespace name should not contain the '
             'restricted character: |'
         )
 
@@ -185,7 +185,7 @@ class TestRegisterSchema(TestSchemasViewBase):
             schema_views.register_schema(mock_request)
 
         assert expected_exception.code == e.value.code
-        assert str(e.value) == 'Source or Namespace name is numeric'
+        assert str(e.value) == 'Source or Namespace name should not be numeric'
 
 
 class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
