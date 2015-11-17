@@ -5,7 +5,8 @@ Most of them are shared in various API responses, and therefore keep them
 in this module.
 """
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
-from schematizer.models.refresh import RefreshStatus, Priority
+from schematizer.models.refresh import Priority
+from schematizer.models.refresh import RefreshStatus
 
 
 def _format_datetime(datetime_value):

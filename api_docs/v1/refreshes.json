@@ -7,7 +7,7 @@
         "application/json"
     ],
     "consumes": [
-	    "application/json"
+        "application/json"
     ],
     "apis": [
         {
