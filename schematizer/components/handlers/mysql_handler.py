@@ -13,6 +13,7 @@ from schematizer.components.handlers.sql_handler_base import SQLDialect
 from schematizer.components.handlers.sql_handler_base import SQLHandlerBase
 from schematizer.components.handlers.sql_handler_base import \
     SQLHandlerException
+from schematizer.config import log
 from schematizer.models import mysql_data_types as data_types
 from schematizer.models import sql_entities
 
@@ -47,7 +48,16 @@ class ParsedMySQLProcessor(object):
     def is_create_table_sql(self, parsed_sql):
         if parsed_sql.get_type() != 'CREATE':
             return False
+
         token = parsed_sql.token_next_by_type(1, T.Keyword)
+        if token.normalized not in ('TABLE', 'TEMPORARY'):
+            return False
+
+        if token.normalized == 'TABLE':
+            return True
+
+        index = parsed_sql.token_index(token)
+        token = parsed_sql.token_next_by_type(index + 1, T.Keyword)
         return token.normalized == 'TABLE'
 
     def _get_table_name(self, stmt):
@@ -86,11 +96,12 @@ class ParsedMySQLProcessor(object):
 
     def _construct_column(self, col_token):
         name_token = col_token.token_next_by_instance(0, sql.ColumnName)
+        column_type = self._get_column_type(col_token)
         return sql_entities.SQLColumn(
             column_name=name_token.value,
-            column_type=self._get_column_type(col_token),
+            column_type=column_type,
             is_nullable=self._is_column_nullable(col_token),
-            default_value=self._get_default_value(col_token),
+            default_value=self._get_default_value(col_token, column_type),
             attributes=None,
             doc=None
         )
@@ -254,9 +265,10 @@ class ParsedMySQLProcessor(object):
         attr = self._get_attribute_token(attribute_name, attributes)
         return attr.tokens[1].value if attr else None
 
-    def _get_default_value(self, col_token):
+    def _get_default_value(self, col_token, column_type):
         attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
-        return self._get_attribute_value('default', attributes)
+        attr_value = self._get_attribute_value('default', attributes)
+        return column_type.convert_str_to_type_val(attr_value)
 
     def _is_column_nullable(self, col_token):
         attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
@@ -325,3 +337,13 @@ class MySQLHandler(SQLHandlerBase):
         raise SQLHandlerException(
             "Unable to process MySQL statements {0}.".format(parsed_sqls)
         )
+
+
+class LoggingMySQLHandler(MySQLHandler):
+
+    def _parse(self, sql):
+        try:
+            return super(LoggingMySQLHandler, self)._parse(sql)
+        except:
+            log.exception("Parsing MySQL error: {}".format(sql))
+            raise

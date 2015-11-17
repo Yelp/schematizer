@@ -23,6 +23,9 @@ class MySQLBit(SQLColumnDataType):
         super(MySQLBit, self).__init__()
         self.length = length
 
+    def _convert_str_to_type_val(self, val_string):
+        return int(val_string, base=2)
+
 
 class MySQLIntegerType(SQLColumnDataType):
     """Base class for MySQL integer data type. Refer to
@@ -39,6 +42,9 @@ class MySQLIntegerType(SQLColumnDataType):
     @property
     def is_unsigned(self):
         return self.attribute_exists('unsigned')
+
+    def _convert_str_to_type_val(self, val_string):
+        return int(val_string)
 
 
 class MySQLTinyInt(MySQLIntegerType):
@@ -85,6 +91,13 @@ class MySQLBool(SQLColumnDataType):
         super(MySQLBool, self).__init__()
         self.length = 1
 
+    def _convert_str_to_type_val(self, val_string):
+        # MySQL considers any non-zero value as 'True' and aliases the TRUE
+        # and FALSE keywords to 1 and 0 respectively.
+        # For more info see:
+        # http://dev.mysql.com/doc/refman/5.5/en/numeric-type-overview.html
+        return not val_string.lower() in ('false', '0')
+
 
 class MySQLBoolean(MySQLBool):
     """ BOOLEAN is a synonym for BOOL """
@@ -108,6 +121,9 @@ class MySQLRealNumber(SQLColumnDataType):
     @property
     def is_unsigned(self):
         return self.attribute_exists('unsigned')
+
+    def _convert_str_to_type_val(self, val_string):
+        return float(val_string)
 
 
 class MySQLDouble(MySQLRealNumber):
@@ -158,6 +174,9 @@ class MySQLString(SQLColumnDataType):
             )
         super(MySQLString, self).__init__(attributes)
 
+    def _convert_str_to_type_val(self, val_string):
+        return val_string
+
 
 class MySQLChar(MySQLString):
 
@@ -207,6 +226,9 @@ class MySQLBinaryBase(SQLColumnDataType):
     def __init__(self):
         super(MySQLBinaryBase, self).__init__()
 
+    def _convert_str_to_type_val(self, val_string):
+        return val_string
+
 
 class MySQLBinary(MySQLBinaryBase):
 
@@ -254,6 +276,9 @@ class MySQLDateAndTime(SQLColumnDataType):
 
     def __init__(self):
         super(MySQLDateAndTime, self).__init__()
+
+    def _convert_str_to_type_val(self, val_string):
+        return val_string
 
 
 class MySQLDate(MySQLDateAndTime):
@@ -304,6 +329,9 @@ class MySQLEnum(SQLColumnDataType):
         super(MySQLEnum, self).__init__()
         self.values = values  # list of enum values
 
+    def _convert_str_to_type_val(self, val_string):
+        return val_string
+
 
 class MySQLSet(SQLColumnDataType):
     """ Refer to http://dev.mysql.com/doc/refman/5.5/en/set.html for type
@@ -315,3 +343,6 @@ class MySQLSet(SQLColumnDataType):
     def __init__(self, values):
         super(MySQLSet, self).__init__()
         self.values = values  # list of set values
+
+    def _convert_str_to_type_val(self, val_string):
+        return val_string

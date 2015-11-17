@@ -23,7 +23,7 @@ clean-build:
 	rm -fr dist/
 	rm -fr *.egg-info
 
-clean-pyc:
+clean-python:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
@@ -39,9 +39,6 @@ clean-tox:
 
 docs:
 	tox -e docs
-
-lint:
-	tox -e style
 
 test:
 	tox $(REBUILD_FLAG)

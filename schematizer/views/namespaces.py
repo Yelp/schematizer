@@ -14,9 +14,10 @@ from schematizer.logic import schema_repository
     request_method='GET',
     renderer='json'
 )
+@transform_api_response()
 def list_namespaces(request):
     namespaces = schema_repository.get_namespaces()
-    return [namespace.name for namespace in namespaces]
+    return [namespace.to_dict() for namespace in namespaces]
 
 
 @view_config(
@@ -28,7 +29,6 @@ def list_namespaces(request):
 def list_sources_by_namespace(request):
     namespace_name = request.matchdict.get('namespace')
     namespace = schema_repository.get_namespace_by_name(namespace_name)
-    # Raise an exception if this namespace does not exist
     if namespace is None:
         raise exceptions_v1.namespace_not_found_exception()
     sources = schema_repository.get_sources_by_namespace(namespace_name)

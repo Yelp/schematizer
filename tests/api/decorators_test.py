@@ -6,12 +6,16 @@ import copy
 from datetime import datetime
 
 import pytest
+from mock import call
 from mock import Mock
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.httpexceptions import HTTPServerError
+from pyramid.request import Request
+from pyramid.response import Response
 from sqlalchemy.orm.exc import NoResultFound
 
 from schematizer.api.decorators import handle_view_exception
+from schematizer.api.decorators import log_api
 from schematizer.api.decorators import transform_api_response
 from testing import factories
 
@@ -139,3 +143,30 @@ class TestDecorators(object):
         assert namespace['name'] == expected_namespace['name']
         assert namespace['created_at'] == current_time.isoformat()
         assert namespace['updated_at'] == current_time.isoformat()
+
+
+class TestLogApiDecorator(object):
+
+    @pytest.fixture
+    def mock_request(self):
+        return Mock(name='mock_request', spec=Request)
+
+    @pytest.fixture
+    def mock_response(self):
+        return Mock(name='mock_response', spec=Response)
+
+    @pytest.fixture
+    def mock_log(self):
+        return Mock(name='mock_log')
+
+    def test_log_success_response(self, mock_request, mock_response, mock_log):
+
+        @log_api(logger=mock_log)
+        def api_with_success_response(request):
+            return mock_response
+
+        response = api_with_success_response(mock_request)
+        assert response == mock_response
+        assert mock_log.mock_calls == [
+            call.debug("Received request: {}".format(mock_request))
+        ]
