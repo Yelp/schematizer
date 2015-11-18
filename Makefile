@@ -1,14 +1,15 @@
 REBUILD_FLAG =
 
-.PHONY: help all production clean clean-build clean-pyc clean-pycache clean-build clean-docs clean-tox lint test docs install-hooks
+.PHONY: help all production clean docs test debug itest cook-image docker-push install-hooks
 
 help:
 	@echo "clean - remove artifacts"
-	@echo "debug - run tests and allow interactive breaks on `ipbd.set_trace()`"
+	@echo "debug - run tests and allow interactive breaks on ipbd.set_trace()"
 	@echo "docs - generate Sphinx HTML documentation, including API docs"
-	@echo "lint - check style with flake8"
 	@echo "test - run tests quickly with the default Python"
 	@echo "itest - cook the image and do paasta local run acceptance tests"
+	@echo "cook-image - only cook the docker image"
+	@echo "docker-push - push a new docker image"
 	@echo "install-hooks - Install the pre-commit hooks"
 
 all: production install-hooks
@@ -16,25 +17,15 @@ all: production install-hooks
 production:
 	@true
 
-clean: clean-build clean-pyc clean-pycache clean-docs clean-tox
-
-clean-build:
+clean:
 	rm -fr build/
 	rm -fr dist/
 	rm -fr *.egg-info
-
-clean-python:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
-
-clean-pycache:
 	find . -name '__pycache__' -exec rm -rf {} +
-
-clean-docs:
 	rm -rf docs/build/*
-
-clean-tox:
 	rm -rf .tox/
 
 docs:
@@ -57,7 +48,7 @@ cook-image:
 
 export GIT_SHA ?= $(shell git rev-parse --short HEAD)
 
-docker_push:
+docker-push:
 	tox -e docker-push
 
 install-hooks:
