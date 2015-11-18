@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import uuid
 
 import simplejson
+from sqlalchemy import desc
 from sqlalchemy import exc
 from sqlalchemy.orm import exc as orm_exc
 
@@ -693,7 +694,7 @@ def get_refreshes_by_criteria(namespace=None, status=None, created_after=None):
     if created_after:
         qry = qry.filter(models.Refresh.created_at >= created_after)
     return qry.order_by(
-        models.Refresh.priority
+        desc(models.Refresh.priority)
     ).order_by(
         models.Refresh.id
     ).all()
