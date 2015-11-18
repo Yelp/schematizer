@@ -161,7 +161,7 @@ class TestRegisterSchema(TestSchemasViewBase):
         mock_request
     ):
         mock_request.json_body = self.request_json
-        mock_request.json_body['namespace'] = 'invalid|namespace'
+        mock_request.json_body['namespace'] = factories.fake_restricted_name
         expected_exception = self.get_http_exception(400)
 
         with pytest.raises(expected_exception) as e:
@@ -178,7 +178,7 @@ class TestRegisterSchema(TestSchemasViewBase):
         mock_request
     ):
         mock_request.json_body = self.request_json
-        mock_request.json_body['source'] = '12345'
+        mock_request.json_body['source'] = factories.fake_numeric_name
         expected_exception = self.get_http_exception(400)
 
         with pytest.raises(expected_exception) as e:
