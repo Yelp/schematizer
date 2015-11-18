@@ -692,7 +692,11 @@ def get_refreshes_by_criteria(namespace=None, status=None, created_after=None):
         qry = qry.filter(models.Refresh.status == status)
     if created_after:
         qry = qry.filter(models.Refresh.created_at >= created_after)
-    return qry.order_by(models.Refresh.id).all()
+    return qry.order_by(
+        models.Refresh.priority
+    ).order_by(
+        models.Refresh.id
+    ).all()
 
 
 def get_refresh_by_id(refresh_id):
