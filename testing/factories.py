@@ -23,6 +23,8 @@ fake_mysql_alter_stmts = ['create table foo',
                           'alter table foo',
                           'create table foo']
 fake_contains_pii = False
+fake_restricted_name = 'invalid|namespace'
+fake_numeric_name = '12345'
 
 
 def create_namespace(namespace_name):

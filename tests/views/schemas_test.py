@@ -156,6 +156,37 @@ class TestRegisterSchema(TestSchemasViewBase):
         assert expected_exception.code == e.value.code
         assert 'oops' == str(e.value)
 
+    def test_register_invalid_name(
+        self,
+        mock_request
+    ):
+        mock_request.json_body = self.request_json
+        mock_request.json_body['namespace'] = factories.fake_restricted_name
+        expected_exception = self.get_http_exception(400)
+
+        with pytest.raises(expected_exception) as e:
+            schema_views.register_schema(mock_request)
+
+        assert expected_exception.code == e.value.code
+        assert str(e.value) == (
+            'Source name or Namespace name should not contain the '
+            'restricted character: |'
+        )
+
+    def test_register_numeric_name(
+        self,
+        mock_request
+    ):
+        mock_request.json_body = self.request_json
+        mock_request.json_body['source'] = factories.fake_numeric_name
+        expected_exception = self.get_http_exception(400)
+
+        with pytest.raises(expected_exception) as e:
+            schema_views.register_schema(mock_request)
+
+        assert expected_exception.code == e.value.code
+        assert str(e.value) == 'Source or Namespace name should not be numeric'
+
 
 class TestRegisterSchemaFromMySQL(TestSchemasViewBase):
 
