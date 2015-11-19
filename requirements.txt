@@ -21,7 +21,6 @@ pyramid-yelp-conn==0.4.0
 pysubnettree==0.23
 pytz==2014.9
 repoze.lru==0.6
-requests>=2.6.1,<2.7
 simplejson==3.6.5
 six==1.8.0
 -e git://github.com/Yelp/sqlparse.git@bc262696e7c37b289bb4fb2273d08f0f3ede1835#egg=sqlparse

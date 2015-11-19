@@ -14,9 +14,9 @@ from pyramid.request import Request
 from pyramid.response import Response
 from sqlalchemy.orm.exc import NoResultFound
 
+from schematizer.api.decorators import handle_view_exception
 from schematizer.api.decorators import log_api
 from schematizer.api.decorators import transform_api_response
-from schematizer.api.decorators import handle_view_exception
 from testing import factories
 
 

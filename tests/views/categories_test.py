@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from schematizer.views import categories as categories
 from tests.views.api_test_base import TestApiBase
 

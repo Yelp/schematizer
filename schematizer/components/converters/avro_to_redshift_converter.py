@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from avro import schema
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
@@ -7,8 +10,8 @@ from schematizer.components.converters.converter_base \
     import SchemaConversionException
 from schematizer.components.converters.converter_base \
     import UnsupportedTypeException
-from schematizer.models import SchemaKindEnum
 from schematizer.models import redshift_data_types
+from schematizer.models import SchemaKindEnum
 from schematizer.models.sql_entities import MetaDataKey
 from schematizer.models.sql_entities import SQLColumn
 from schematizer.models.sql_entities import SQLTable
@@ -164,7 +167,9 @@ class AvroToRedshiftConverter(BaseConverter):
 
         max_len = field.props.get(AvroMetaDataKeys.MAX_LEN)
         if max_len:
-            return redshift_data_types.RedshiftVarChar(max_len*self.CHAR_BYTES)
+            return redshift_data_types.RedshiftVarChar(
+                max_len * self.CHAR_BYTES
+            )
 
         raise SchemaConversionException(
             "Unable to convert `string` type without metadata {0} or {1}."

@@ -13,8 +13,8 @@ from schematizer.api.requests import requests_v1
 from schematizer.api.responses import responses_v1
 from schematizer.config import log
 from schematizer.logic import schema_repository
-from schematizer.views import view_common
 from schematizer.utils.utils import get_current_func_arg_name_values
+from schematizer.views import view_common
 
 
 @view_config(

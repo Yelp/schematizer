@@ -7,8 +7,8 @@ from pyramid.view import view_config
 from schematizer.api.decorators import log_api
 from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
-from schematizer.api.responses import responses_v1
 from schematizer.api.requests import requests_v1
+from schematizer.api.responses import responses_v1
 from schematizer.logic import doc_tool
 from schematizer.logic import schema_repository
 

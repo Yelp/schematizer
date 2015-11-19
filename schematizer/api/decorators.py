@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
-from pyramid.httpexceptions import HTTPException
 from pyramid.httpexceptions import exception_response
+from pyramid.httpexceptions import HTTPException
 
 from schematizer.config import log
 

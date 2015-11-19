@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import os
 
@@ -8,8 +10,8 @@ import yelp_pyramid
 import yelp_pyramid.healthcheck
 from pyramid.config import Configurator
 from yelp_lib.decorators import memoized
-from yelp_servlib import logging_util
 from yelp_servlib import config_util
+from yelp_servlib import logging_util
 
 import schematizer.config
 import schematizer.models.database

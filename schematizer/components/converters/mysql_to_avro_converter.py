@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from yelp_avro.avro_builder import AvroSchemaBuilder
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
@@ -7,8 +10,8 @@ from schematizer.components.converters.converter_base \
     import SchemaConversionException
 from schematizer.components.converters.converter_base \
     import UnsupportedTypeException
-from schematizer.models import SchemaKindEnum
 from schematizer.models import mysql_data_types as mysql_types
+from schematizer.models import SchemaKindEnum
 from schematizer.models.sql_entities import MetaDataKey
 from schematizer.models.sql_entities import SQLTable
 

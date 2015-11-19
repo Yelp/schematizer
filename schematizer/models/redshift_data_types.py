@@ -4,6 +4,8 @@ This module contains the Redshift specific column data types. Refer to
 http://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html
 for data types definition.
 """
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from schematizer.models.sql_entities import SQLColumnDataType
 

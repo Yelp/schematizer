@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
+from collections import deque
+
 import simplejson
 from avro import schema
-from collections import deque
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer

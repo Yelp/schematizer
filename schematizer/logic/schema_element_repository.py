@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from schematizer import models
 from schematizer.logic import exceptions as sch_exc
 from schematizer.models.database import session

@@ -4,6 +4,9 @@
 Most of them are shared in various API responses, and therefore keep them
 in this module.
 """
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
 

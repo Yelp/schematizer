@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import mock
 import pytest
 from yelp_lib_http.asynchttp import HttpError
 
+from schematizer.views.doctool import doctool_index
 from schematizer.views.doctool import get_admin_user_id_from_request
 from schematizer.views.doctool import get_admin_user_info
-from schematizer.views.doctool import doctool_index
 
 
 class TestDoctool(object):
