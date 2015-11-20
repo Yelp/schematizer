@@ -222,6 +222,81 @@
                     ]
                 }
             ]
+        },
+        {
+            "path": "/v1/sources/{source_id}/refreshes",
+            "operations": [
+                {
+                    "method": "POST",
+                    "summary": "Create a refresh associated with specified source id.",
+                    "type": "Refresh",
+                    "nickname": "create_refresh",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "source_id",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        },
+                        {
+                            "name": "body",
+                            "required": true,
+                            "type": "CreateRefreshRequest",
+                            "paramType": "body"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Source is not found."
+
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                },
+                {
+                    "method": "GET",
+                    "summary": "List the history of refreshes on the specified source id.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "Refresh"
+                    },
+                    "nickname": "list_refreshes_by_source_id",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "source_id",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Namespace is not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "models": {
@@ -346,6 +421,89 @@
                     "type": "string",
                     "format": "date-time",
                     "description": "When this category is last updated"
+                }
+            }
+        },
+        "Refresh": {
+            "id": "Refresh",
+            "properties": {
+                "refresh_id": {
+                    "type": "integer",
+                    "description": "Refresh ID"
+                },
+                "source": {
+                    "$ref": "Source",
+                    "description": "Source that this refresh is running on."
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "NOT_STARTED",
+                        "IN_PROGRESS",
+                        "PAUSED",
+                        "SUCCESS",
+                        "FAILED"
+                    ],
+                    "description": "Current status of refresh."
+                },
+                "offset": {
+                    "type": "integer",
+                    "description": "Represents the last known position that has been refreshed."
+                },
+                "batch_size": {
+                    "type": "integer",
+                    "description": "Number of rows to refresh per batch."
+                },
+                "priority": {
+                    "type": "string",
+                    "enum": [
+                        "LOW",
+                        "MEDIUM",
+                        "HIGH",
+                        "MAX"
+                    ],
+                    "description": "Priority of this refresh."
+                },
+                "filter_condition": {
+                    "type": "string",
+                    "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table."
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this refresh is created."
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this refresh is last updated."
+                }
+            }
+        },
+        "CreateRefreshRequest": {
+            "id": "CreateRefreshRequest",
+            "properties": {
+                "offset": {
+                    "type": "integer",
+                    "description": "Represents the last known position that has been refreshed."
+                },
+                "batch_size": {
+                    "type": "integer",
+                    "description": "Number of rows to refresh per batch."
+                },
+                "priority": {
+                    "type": "string",
+                    "enum": [
+                        "LOW",
+                        "MEDIUM",
+                        "HIGH",
+                        "MAX"
+                    ],
+                    "description": "Priority of this refresh."
+                },
+                "filter_condition": {
+                    "type": "string",
+                    "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table."
                 }
             }
         }

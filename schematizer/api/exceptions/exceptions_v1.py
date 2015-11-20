@@ -21,6 +21,7 @@ RESTRICTED_CHAR_ERROR_MESSAGE = (
     'restricted character: |'
 )
 NUMERIC_NAME_ERROR_MESSAGE = 'Source or Namespace name should not be numeric'
+REFRESH_NOT_FOUND_ERROR_MESSAGE = 'Refresh not found for the given refresh id'
 
 
 def invalid_schema_exception(err_message=INVALID_AVRO_SCHEMA_ERROR):
@@ -85,3 +86,9 @@ def numeric_name_exception(
         err_message=NUMERIC_NAME_ERROR_MESSAGE
 ):
     return httpexceptions.exception_response(400, detail=err_message)
+
+
+def refresh_not_found_exception(
+        err_message=REFRESH_NOT_FOUND_ERROR_MESSAGE
+):
+    return httpexceptions.exception_response(404, detail=err_message)

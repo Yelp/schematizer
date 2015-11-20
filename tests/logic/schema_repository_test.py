@@ -72,6 +72,48 @@ class TestSchemaRepository(DBTestCase):
         )
 
     @property
+    def source_id(self):
+        return factories.fake_default_id
+
+    @property
+    def offset(self):
+        return factories.fake_offset
+
+    @property
+    def batch_size(self):
+        return factories.fake_batch_size
+
+    @property
+    def priority(self):
+        return factories.fake_priority
+
+    @property
+    def priority_value(self):
+        return factories.fake_priority_value
+
+    @property
+    def filter_condition(self):
+        return factories.fake_filter_condition
+
+    @property
+    def status(self):
+        return factories.fake_status
+
+    @property
+    def status_value(self):
+        return factories.fake_status_value
+
+    @pytest.fixture
+    def refresh(self, source):
+        return factories.create_refresh(
+            source_id=source.id,
+            offset=self.offset,
+            batch_size=self.batch_size,
+            priority=self.priority,
+            filter_condition=self.filter_condition
+        )
+
+    @property
     def rw_schema_name(self):
         return "foo"
 
@@ -775,6 +817,65 @@ class TestSchemaRepository(DBTestCase):
                 self.rw_schema_elements[i]
             )
 
+    def test_create_refresh(self):
+        actual_refresh = schema_repo.create_refresh(
+            self.source_id,
+            self.offset,
+            self.batch_size,
+            self.priority,
+            self.filter_condition
+        )
+        expected_refresh = models.Refresh(
+            source_id=self.source_id,
+            status=0,
+            offset=self.offset,
+            batch_size=self.batch_size,
+            priority=self.priority_value,
+            filter_condition=self.filter_condition
+        )
+        self.assert_equal_refresh_partial(expected_refresh, actual_refresh)
+
+    def test_get_refresh_by_id(self, refresh):
+        actual_refresh = schema_repo.get_refresh_by_id(refresh.id)
+        self.assert_equal_refresh(refresh, actual_refresh)
+
+    def test_update_refresh(self, refresh):
+        new_status = models.RefreshStatus.IN_PROGRESS
+        new_offset = 500
+        schema_repo.update_refresh(
+            refresh.id,
+            new_status.name,
+            new_offset
+        )
+        actual_refresh = schema_repo.get_refresh_by_id(refresh.id)
+        expected_refresh = models.Refresh(
+            source_id=refresh.source_id,
+            status=new_status.value,
+            offset=new_offset,
+            batch_size=refresh.batch_size,
+            priority=refresh.priority,
+            filter_condition=refresh.filter_condition
+        )
+        self.assert_equal_refresh_partial(expected_refresh, actual_refresh)
+
+    def test_list_refreshes_source_id(self, refresh, source):
+        refreshes = schema_repo.list_refreshes_by_source_id(source.id)
+        expected_refresh = models.Refresh(
+            source_id=refresh.source_id,
+            status=refresh.status,
+            offset=refresh.offset,
+            batch_size=refresh.batch_size,
+            priority=refresh.priority,
+            filter_condition=refresh.filter_condition
+        )
+        assert len(refreshes) == 1
+        self.assert_equal_refresh_partial(refreshes[0], expected_refresh)
+
+    def test_list_refreshes_by_source_id(self, source, refresh):
+        actual = schema_repo.list_refreshes_by_source_id(source.id)
+        assert 1 == len(actual)
+        self.assert_equal_refresh(actual[0], refresh)
+
     def assert_equal_namespace(self, expected, actual):
         assert expected.id == actual.id
         assert expected.name == actual.name
@@ -854,9 +955,23 @@ class TestSchemaRepository(DBTestCase):
         assert expected.updated_at == actual.updated_at
         self.assert_equal_avro_schema_element_partial(expected, actual)
 
+    def assert_equal_refresh(self, expected, actual):
+        assert expected.id == actual.id
+        assert expected.created_at == actual.created_at
+        assert expected.updated_at == actual.updated_at
+        self.assert_equal_refresh_partial(expected, actual)
 
-@pytest.mark.usefixtures('sorted_topics')
-class TestGetTopicsByCriteira(DBTestCase):
+    def assert_equal_refresh_partial(self, expected, actual):
+        assert expected.source_id == actual.source_id
+        assert expected.status == actual.status
+        assert expected.offset == actual.offset
+        assert expected.batch_size == actual.batch_size
+        assert expected.priority == actual.priority
+        assert expected.filter_condition == actual.filter_condition
+
+
+@pytest.mark.usefixtures('sorted_topics', 'sorted_refreshes')
+class TestByCriteria(DBTestCase):
 
     @pytest.fixture
     def yelp_namespace(self):
@@ -881,6 +996,36 @@ class TestGetTopicsByCriteira(DBTestCase):
     @property
     def some_datetime(self):
         return datetime.datetime(2015, 3, 1, 10, 23, 5, 254)
+
+    @pytest.fixture
+    def biz_refresh(self, biz_source):
+        return factories.create_refresh(
+            source_id=biz_source.id,
+            offset=factories.fake_offset,
+            batch_size=factories.fake_batch_size,
+            priority=factories.fake_priority,
+            filter_condition=factories.fake_filter_condition
+        )
+
+    @pytest.fixture
+    def user_refresh(self, user_source):
+        return factories.create_refresh(
+            source_id=user_source.id,
+            offset=factories.fake_offset,
+            batch_size=factories.fake_batch_size,
+            priority=factories.fake_priority,
+            filter_condition=factories.fake_filter_condition
+        )
+
+    @pytest.fixture
+    def cta_refresh(self, cta_source):
+        return factories.create_refresh(
+            source_id=cta_source.id,
+            offset=factories.fake_offset,
+            batch_size=factories.fake_batch_size,
+            priority=factories.fake_priority,
+            filter_condition=factories.fake_filter_condition
+        )
 
     @pytest.fixture
     def biz_topic(self, biz_source):
@@ -919,10 +1064,60 @@ class TestGetTopicsByCriteira(DBTestCase):
         )
 
     @pytest.fixture
+    def sorted_refreshes(self, biz_refresh, user_refresh, cta_refresh):
+        return sorted(
+            [biz_refresh, user_refresh, cta_refresh],
+            key=lambda refresh: refresh.created_at
+        )
+
+    @pytest.fixture
     def sorted_topics(self, user_topic_1, user_topic_2, biz_topic, cta_topic):
         return sorted(
             [user_topic_1, biz_topic, user_topic_2, cta_topic],
             key=lambda topic: topic.created_at
+        )
+
+    def test_get_refreshes_after_given_timestamp(self, sorted_refreshes):
+        expected = sorted_refreshes[1:]
+        after_dt = expected[0].created_at
+
+        actual = schema_repo.get_refreshes_by_criteria(created_after=after_dt)
+        assert all(refresh.created_at >= after_dt for refresh in actual)
+
+    def test_no_newer_refresh(self, sorted_refreshes):
+        last_refresh = sorted_refreshes[-1]
+        after_dt = last_refresh.created_at + datetime.timedelta(seconds=1)
+        actual = schema_repo.get_refreshes_by_criteria(created_after=after_dt)
+        assert actual == []
+
+    def test_refresh_get_yelp_namespace_only(
+            self,
+            biz_refresh,
+            user_refresh,
+            yelp_namespace
+    ):
+        self.assert_equal_refreshes(
+            actual_refreshes=schema_repo.get_refreshes_by_criteria(
+                namespace=yelp_namespace.name
+            ),
+            expected_refreshes=self._sort_refreshes_by_id(
+                [biz_refresh, user_refresh]
+            )
+        )
+
+    def test_get_by_refresh_status_only(
+            self,
+            biz_refresh,
+            user_refresh,
+            cta_refresh
+    ):
+        self.assert_equal_refreshes(
+            actual_refreshes=schema_repo.get_refreshes_by_criteria(
+                status='NOT_STARTED'
+            ),
+            expected_refreshes=self._sort_refreshes_by_id(
+                [biz_refresh, user_refresh, cta_refresh]
+            )
         )
 
     def test_get_topics_after_given_timestamp(self, sorted_topics):
@@ -944,7 +1139,7 @@ class TestGetTopicsByCriteira(DBTestCase):
         actual = schema_repo.get_topics_by_criteria(source=biz_source.name)
         self.assert_equal_topics(actual, [biz_topic])
 
-    def test_get_yelp_namespace_only(
+    def test_topic_get_yelp_namespace_only(
         self,
         biz_topic,
         user_topic_1,
@@ -977,10 +1172,18 @@ class TestGetTopicsByCriteira(DBTestCase):
             )
         )
 
+    def assert_equal_refreshes(self, expected_refreshes, actual_refreshes):
+        assert len(actual_refreshes) == len(expected_refreshes)
+        for i, actual_refresh in enumerate(actual_refreshes):
+            assert actual_refresh == expected_refreshes[i]
+
     def assert_equal_topics(self, expected_topics, actual_topics):
         assert len(actual_topics) == len(expected_topics)
         for i, actual_topic in enumerate(actual_topics):
             assert actual_topic == expected_topics[i]
+
+    def _sort_refreshes_by_id(self, refreshes):
+        return sorted(refreshes, key=lambda refresh: refresh.id)
 
     def _sort_topics_by_id(self, topics):
         return sorted(topics, key=lambda topic: topic.id)

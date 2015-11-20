@@ -9,6 +9,9 @@ from __future__ import unicode_literals
 
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
+from schematizer.models.refresh import Priority
+from schematizer.models.refresh import RefreshStatus
+
 
 def _format_datetime(datetime_value):
     return datetime_value.isoformat()
@@ -90,4 +93,18 @@ def get_category_response_from_source_category(source_category):
         'category': source_category.category,
         'created_at': _format_datetime(source_category.created_at),
         'updated_at': _format_datetime(source_category.updated_at)
+    }
+
+
+def get_refresh_response_from_refresh(refresh):
+    return {
+        'refresh_id': refresh.id,
+        'source': get_source_response_from_source(refresh.source),
+        'status': RefreshStatus(refresh.status).name,
+        'offset': refresh.offset,
+        'batch_size': refresh.batch_size,
+        'priority': Priority(refresh.priority).name,
+        'filter_condition': refresh.filter_condition,
+        'created_at': _format_datetime(refresh.created_at),
+        'updated_at': _format_datetime(refresh.updated_at)
     }

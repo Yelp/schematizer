@@ -28,6 +28,14 @@ fake_mysql_alter_stmts = ['create table foo',
 fake_contains_pii = False
 fake_restricted_name = 'invalid|namespace'
 fake_numeric_name = '12345'
+fake_offset = 0
+fake_updated_offset = 500
+fake_batch_size = 100
+fake_priority = 'MEDIUM'
+fake_priority_value = 50
+fake_status = 'SUCCESS'
+fake_status_value = 3
+fake_filter_condition = 'user=test_user'
 
 
 def create_namespace(namespace_name):
@@ -155,6 +163,26 @@ def create_note(
     session.add(note)
     session.flush()
     return note
+
+
+def create_refresh(
+        source_id,
+        offset,
+        batch_size,
+        priority,
+        filter_condition
+):
+    priority_value = None if not priority else models.Priority[priority].value
+    refresh = models.Refresh(
+        source_id=source_id,
+        offset=offset,
+        batch_size=batch_size,
+        priority=priority_value,
+        filter_condition=filter_condition
+    )
+    session.add(refresh)
+    session.flush()
+    return refresh
 
 
 def create_source_category(source_id, category):

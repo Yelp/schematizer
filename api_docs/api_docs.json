@@ -24,11 +24,15 @@
         },
         {
             "path": "/v1/notes",
-            "description": "Operations about notes"
+            "description": "Operations about notes."
         },
         {
             "path": "/v1/categories",
-            "description": "Operations about categories"
+            "description": "Operations about categories."
+        },
+        {
+            "path": "/v1/refreshes",
+            "description": "Operations about full refreshes."
         }
     ],
     "info": {

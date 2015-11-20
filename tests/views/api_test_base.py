@@ -7,6 +7,8 @@ import pytest
 from pyramid import httpexceptions
 
 from schematizer.models import Note
+from schematizer.models import Priority
+from schematizer.models import RefreshStatus
 from schematizer.models import SourceCategory
 from schematizer.models.avro_schema import AvroSchemaStatus
 from testing import factories
@@ -271,6 +273,75 @@ class TestApiBase(DBTestCase):
             'created_at': factories.fake_created_at.isoformat(),
             'updated_at': factories.fake_updated_at.isoformat()
         }
+
+    @pytest.fixture
+    def refresh_source(self, yelp_namespace):
+        return factories.create_source(
+            namespace_name=yelp_namespace.name,
+            source_name='test_src',
+            owner_email='test-dev@yelp.com'
+        )
+
+    @pytest.fixture
+    def refresh_source_response(self, refresh_source, yelp_namespace_response):
+        return {
+            'source_id': refresh_source.id,
+            'namespace': yelp_namespace_response,
+            'name': refresh_source.name,
+            'owner_email': refresh_source.owner_email,
+            'created_at': refresh_source.created_at.isoformat(),
+            'updated_at': refresh_source.updated_at.isoformat()
+        }
+
+    @pytest.fixture
+    def refresh(self, refresh_source):
+        return factories.create_refresh(
+            source_id=refresh_source.id,
+            offset=factories.fake_offset,
+            batch_size=factories.fake_batch_size,
+            priority=factories.fake_priority,
+            filter_condition=factories.fake_filter_condition,
+        )
+
+    @pytest.fixture
+    def refresh_response(self, refresh, refresh_source_response):
+        return {
+            'refresh_id': refresh.id,
+            'source': refresh_source_response,
+            'status': RefreshStatus(refresh.status).name,
+            'offset': refresh.offset,
+            'batch_size': refresh.batch_size,
+            'priority': Priority(refresh.priority).name,
+            'filter_condition': refresh.filter_condition,
+            'created_at': refresh.created_at.isoformat(),
+            'updated_at': refresh.updated_at.isoformat()
+        }
+
+    @pytest.fixture
+    def update_refresh_request(self):
+        return {
+            'status': factories.fake_status,
+            'offset': factories.fake_updated_offset
+        }
+
+    @pytest.fixture
+    def updated_refresh_response(self, refresh_response):
+        refresh_response['status'] = factories.fake_status
+        refresh_response['offset'] = factories.fake_updated_offset
+        return refresh_response
+
+    @pytest.fixture
+    def create_refresh_request(self):
+        return {
+            'offset': factories.fake_offset,
+            'batch_size': factories.fake_batch_size,
+            'priority': factories.fake_priority,
+            'filter_condition': factories.fake_filter_condition
+        }
+
+    @pytest.fixture
+    def refresh_response_list(self, refresh_response):
+        return [refresh_response]
 
     @property
     def category(self):

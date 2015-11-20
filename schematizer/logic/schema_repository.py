@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import uuid
 
 import simplejson
+from sqlalchemy import desc
 from sqlalchemy import exc
 from sqlalchemy.orm import exc as orm_exc
 
@@ -590,6 +591,36 @@ def get_latest_topic_of_source_id(source_id):
     ).first()
 
 
+def list_refreshes_by_source_id(source_id):
+    return session.query(
+        models.Refresh
+    ).filter(
+        models.Refresh.source_id == source_id
+    ).order_by(
+        models.Refresh.id
+    ).all()
+
+
+def create_refresh(
+        source_id,
+        offset,
+        batch_size,
+        priority,
+        filter_condition
+):
+    priority_value = None if not priority else models.Priority[priority].value
+    refresh = models.Refresh(
+        source_id=source_id,
+        offset=offset,
+        batch_size=batch_size,
+        priority=priority_value,
+        filter_condition=filter_condition
+    )
+    session.add(refresh)
+    session.flush()
+    return refresh
+
+
 def get_schema_element_by_id(schema_id):
     return session.query(
         models.AvroSchemaElement
@@ -635,3 +666,57 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None):
     if created_after:
         qry = qry.filter(models.Topic.created_at >= created_after)
     return qry.order_by(models.Topic.id).all()
+
+
+def get_refreshes_by_criteria(namespace=None, status=None, created_after=None):
+    """Get all the refreshes that match the given filter criteria.
+
+    Args:
+        namespace(Optional[str]): get refreshes of given namespace
+            if specified.
+        status(Optional[int]): get refreshes of given status
+            if specified.
+        created_after(Optional[datetime]): get refreshes created
+            after given utc datetime (inclusive) if specified.
+    """
+    qry = session.query(models.Refresh)
+    if namespace:
+        qry = qry.join(models.Source).filter(
+            models.Source.id == models.Refresh.source_id
+        )
+        qry = qry.join(models.Namespace).filter(
+            models.Namespace.name == namespace,
+            models.Namespace.id == models.Source.namespace_id
+        )
+    if status:
+        status = models.RefreshStatus[status].value
+        qry = qry.filter(models.Refresh.status == status)
+    if created_after:
+        qry = qry.filter(models.Refresh.created_at >= created_after)
+    return qry.order_by(
+        desc(models.Refresh.priority)
+    ).order_by(
+        models.Refresh.id
+    ).all()
+
+
+def get_refresh_by_id(refresh_id):
+    return session.query(
+        models.Refresh
+    ).filter(
+        models.Refresh.id == refresh_id
+    ).first()
+
+
+def update_refresh(refresh_id, status, offset):
+    status_value = models.RefreshStatus[status].value
+    return session.query(
+        models.Refresh
+    ).filter(
+        models.Refresh.id == refresh_id
+    ).update(
+        {
+            models.Refresh.status: status_value,
+            models.Refresh.offset: offset
+        }
+    )
