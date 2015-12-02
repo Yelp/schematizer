@@ -49,3 +49,14 @@ module_config:
 
     -   namespace: services
         file: /nail/srv/configs/services.yaml
+
+    -   namespace: yelp_profiling
+        config:
+            profiler_name: schematizer
+            cprofile_scribe_log: service_schematizer_cprofiles
+            cprofile_sampling_enabled: true
+            cprofile_sampling_probability: 0.01
+
+
+
+
