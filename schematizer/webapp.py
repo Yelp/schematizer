@@ -10,6 +10,7 @@ import yelp_pyramid
 import yelp_pyramid.healthcheck
 from pyramid.config import Configurator
 from yelp_lib.decorators import memoized
+from yelp_pyramid.tweens import dump_logging_data
 from yelp_servlib import config_util
 from yelp_servlib import logging_util
 
@@ -85,6 +86,10 @@ def _create_application():
 
     # Scan the service package to attach any decorated views.
     config.scan('schematizer')
+
+    # Including the yelp profiling tween and provide access to the request log data.
+    config.registry.settings['log_data_accessor'] = dump_logging_data
+    config.include(yelp_profiling)
 
     return config.make_wsgi_app()
 
