@@ -87,9 +87,9 @@ def _create_application():
     # Scan the service package to attach any decorated views.
     config.scan('schematizer')
 
-    # Including the yelp profiling tween and provide access to the request log data.
+    # Including the yelp profiling tween and providing access to the request log data.
     config.registry.settings['log_data_accessor'] = dump_logging_data
-    config.include(yelp_profiling)
+    config.include('yelp_profiling')
 
     return config.make_wsgi_app()
 
