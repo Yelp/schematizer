@@ -1,0 +1,5 @@
+- cidr: 0.0.0.0/0
+  description: all our internal addresses
+  lifespans:
+  - begin: '2010-01-08T21:27:37'
+    end: null
