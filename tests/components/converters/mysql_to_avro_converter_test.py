@@ -65,6 +65,16 @@ class TestMySQLToAvroConverter(object):
             {'name': 'col_integer', 'type': ['null', 'int'], 'default': None}
         )
 
+    def test_convert_with_unsigned_int_column(self, converter):
+        self._convert_and_assert_with_one_column(
+            converter,
+            SQLColumn('col', mysql_data_types.MySQLInt(11, unsigned=True)),
+            {'name': 'col',
+             'type': ['null', 'long'],
+             'default': None,
+             'unsigned': True}
+        )
+
     def test_convert_with_col_bigint(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
@@ -72,11 +82,33 @@ class TestMySQLToAvroConverter(object):
             {'name': 'col_bigint', 'type': ['null', 'long'], 'default': None}
         )
 
+    def test_convert_with_unsigned_bigint_column(self, converter):
+        with pytest.raises(UnsupportedTypeException):
+            sql_column = SQLColumn(
+                'col_bigint',
+                mysql_data_types.MySQLBigInt(11, unsigned=True)
+            )
+            sql_table = SQLTable(self.table_name, [sql_column])
+            converter.convert(sql_table)
+
     def test_convert_with_col_tinyint(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_tinyint', mysql_data_types.MySQLTinyInt(11)),
             {'name': 'col_tinyint', 'type': ['null', 'int'], 'default': None}
+        )
+
+    def test_convert_with_unsigned_tinyint_column(self, converter):
+        self._convert_and_assert_with_one_column(
+            converter,
+            SQLColumn(
+                'col_tinyint',
+                mysql_data_types.MySQLTinyInt(11, unsigned=True)
+            ),
+            {'name': 'col_tinyint',
+             'type': ['null', 'int'],
+             'default': None,
+             'unsigned': True}
         )
 
     def test_convert_with_col_double(self, converter):
@@ -268,16 +300,6 @@ class TestMySQLToAvroConverter(object):
             converter,
             SQLColumn('col', mysql_data_types.MySQLInt(11), default_value=10),
             {'name': 'col', 'type': ['int', 'null'], 'default': 10}
-        )
-
-    def test_convert_with_unsigned_int_column(self, converter):
-        self._convert_and_assert_with_one_column(
-            converter,
-            SQLColumn('col', mysql_data_types.MySQLInt(11, unsigned=True)),
-            {'name': 'col',
-             'type': ['null', 'int'],
-             'default': None,
-             'unsigned': True}
         )
 
     def test_convert_with_non_nullable_without_default_column(self, converter):
