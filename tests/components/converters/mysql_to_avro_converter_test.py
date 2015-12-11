@@ -69,10 +69,12 @@ class TestMySQLToAvroConverter(object):
         self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col', mysql_data_types.MySQLInt(11, unsigned=True)),
-            {'name': 'col',
-             'type': ['null', 'long'],
-             'default': None,
-             'unsigned': True}
+            {
+                'name': 'col',
+                'type': ['null', 'long'],
+                'default': None,
+                'unsigned': True
+            }
         )
 
     def test_convert_with_col_bigint(self, converter):
@@ -83,13 +85,19 @@ class TestMySQLToAvroConverter(object):
         )
 
     def test_convert_with_unsigned_bigint_column(self, converter):
-        with pytest.raises(UnsupportedTypeException):
-            sql_column = SQLColumn(
+        self._convert_and_assert_with_one_column(
+            converter,
+            SQLColumn(
                 'col_bigint',
                 mysql_data_types.MySQLBigInt(11, unsigned=True)
-            )
-            sql_table = SQLTable(self.table_name, [sql_column])
-            converter.convert(sql_table)
+            ),
+            {
+                'name': 'col_bigint',
+                'type': ['null', 'long'],
+                'default': None,
+                'unsigned': True
+            }
+        )
 
     def test_convert_with_col_tinyint(self, converter):
         self._convert_and_assert_with_one_column(
@@ -105,10 +113,12 @@ class TestMySQLToAvroConverter(object):
                 'col_tinyint',
                 mysql_data_types.MySQLTinyInt(11, unsigned=True)
             ),
-            {'name': 'col_tinyint',
-             'type': ['null', 'int'],
-             'default': None,
-             'unsigned': True}
+            {
+                'name': 'col_tinyint',
+                'type': ['null', 'int'],
+                'default': None,
+                'unsigned': True
+            }
         )
 
     def test_convert_with_col_double(self, converter):

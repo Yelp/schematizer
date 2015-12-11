@@ -151,13 +151,6 @@ class MySQLToAvroConverter(BaseConverter):
                 if is_unsigned else {})
 
     def _convert_bigint_type(self, column):
-        # Avro doesn't support unsigned long type (8-byte) so cannot be used
-        # for MySQL unsigned bigint type.
-        if column.type.is_unsigned:
-            raise UnsupportedTypeException(
-                "Unable to convert MySQL unsigned {} to Avro schema type."
-                .format(column.type)
-            )
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         return self._builder.create_long(), metadata
