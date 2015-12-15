@@ -86,6 +86,9 @@ def _create_application():
     # Scan the service package to attach any decorated views.
     config.scan('schematizer')
 
+    # Including the yelp profiling tween.
+    config.include('yelp_profiling')
+
     return config.make_wsgi_app()
 
 

@@ -49,3 +49,10 @@ module_config:
 
     -   namespace: services
         file: /nail/srv/configs/services.yaml
+
+    -   namespace: yelp_profiling
+        config:
+            cprofile_scribe_log: service_schematizer_cprofiles
+            cprofile_sampling_enabled: true
+            cprofile_sampling_probability: 0.05
+            email_smtp_server: 169.254.255.254
