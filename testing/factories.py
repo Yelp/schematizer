@@ -54,7 +54,7 @@ def get_or_create_namespace(namespace_name):
     return namespace or create_namespace(namespace_name)
 
 
-def create_source(namespace_name, source_name, owner_email=fake_owner_email):
+def create_source(namespace_name, source_name, owner_email='src@test.com'):
     namespace = get_or_create_namespace(namespace_name)
     source = models.Source(
         namespace_id=namespace.id,
@@ -66,11 +66,8 @@ def create_source(namespace_name, source_name, owner_email=fake_owner_email):
     return source
 
 
-def get_or_create_source(
-    namespace_name,
-    source_name,
-    owner_email=fake_owner_email
-):
+def get_or_create_source(namespace_name, source_name, owner_email=None):
+    owner_email = owner_email or 'src@test.com'
     source = session.query(
         models.Source
     ).join(
@@ -103,11 +100,10 @@ def create_topic(topic_name, namespace_name, source_name, **overrides):
     return topic
 
 
-def get_or_create_topic(
-    topic_name,
-    namespace=fake_namespace,
-    source=fake_source
-):
+def get_or_create_topic(topic_name, namespace_name=None, source_name=None):
+    """Get the topic of specified topic name. If it doesn't exist, create it
+    in the specified namespace name and source name.
+    """
     topic = session.query(
         models.Topic
     ).filter(
@@ -115,21 +111,25 @@ def get_or_create_topic(
     ).first()
     return topic or create_topic(
         topic_name,
-        namespace=namespace,
-        source=source
+        namespace_name=namespace_name,
+        source_name=source_name
     )
 
 
 def create_avro_schema(
         schema_json,
         schema_elements,
-        topic_name=fake_topic_name,
-        namespace=fake_namespace,
-        source=fake_source,
+        topic_name=None,
+        namespace=None,
+        source=None,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
         base_schema_id=None
 ):
-    topic = get_or_create_topic(topic_name, namespace=namespace, source=source)
+    topic = get_or_create_topic(
+        topic_name,
+        namespace_name=namespace,
+        source_name=source
+    )
 
     avro_schema = models.AvroSchema(
         avro_schema_json=schema_json,
@@ -148,12 +148,7 @@ def create_avro_schema(
     return avro_schema
 
 
-def create_note(
-    reference_type,
-    reference_id,
-    note_text,
-    last_updated_by
-):
+def create_note(reference_type, reference_id, note_text, last_updated_by):
     note = models.Note(
         reference_type=reference_type,
         reference_id=reference_id,
@@ -384,93 +379,3 @@ class AvroSchemaElementFactory(object):
         if fake_id:
             avro_schema_element.id = fake_id
         return avro_schema_element
-
-
-class ConsumerFactory(object):
-
-    @classmethod
-    def create(cls, job_name, schema, consumer_group):
-        return models.Consumer(
-            email=fake_consumer_email,
-            job_name=job_name,
-            expected_frequency=fake_frequency,
-            schema_id=schema.id,
-            last_used_at=None,
-            created_at=fake_created_at,
-            updated_at=fake_updated_at,
-            consumer_group_id=consumer_group.id
-        )
-
-    @classmethod
-    def create_in_db(cls, job_name, schema, consumer_group):
-        consumer = cls.create(job_name, schema, consumer_group)
-        session.add(consumer)
-        session.flush()
-        return consumer
-
-
-class ConsumerGroupFactory(object):
-
-    @classmethod
-    def create(cls, group_name, group_type, data_target):
-        return models.ConsumerGroup(
-            group_name=group_name,
-            group_type=group_type,
-            data_target_id=data_target.id
-        )
-
-    @classmethod
-    def create_in_db(cls, group_name, group_type, data_target):
-        consumer_group = cls.create(group_name, group_type, data_target)
-        session.add(consumer_group)
-        session.flush()
-        return consumer_group
-
-
-class ConsumerGroupDataSourceFactory(object):
-
-    @classmethod
-    def create(
-        cls,
-        consumer_group,
-        data_source_type,
-        data_source_id
-    ):
-        return models.ConsumerGroupDataSource(
-            consumer_group_id=consumer_group.id,
-            data_source_type=data_source_type,
-            data_source_id=data_source_id
-        )
-
-    @classmethod
-    def create_in_db(
-        cls,
-        consumer_group,
-        data_source_type,
-        data_source_id
-    ):
-        consumer_group_data_source = cls.create(
-            consumer_group,
-            data_source_type,
-            data_source_id
-        )
-        session.add(consumer_group_data_source)
-        session.flush()
-        return consumer_group_data_source
-
-
-class DataTargetFactory(object):
-
-    @classmethod
-    def create(cls, target_type, destination):
-        return models.DataTarget(
-            target_type=target_type,
-            destination=destination
-        )
-
-    @classmethod
-    def create_in_db(cls, target_type, destination):
-        data_target = cls.create(target_type, destination)
-        session.add(data_target)
-        session.flush()
-        return data_target

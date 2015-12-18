@@ -15,6 +15,69 @@ from testing import factories
 from tests.models.testing_db import DBTestCase
 
 
+class ApiTestBase(DBTestCase):
+
+    @pytest.yield_fixture
+    def mock_request(self):
+        with mock.patch('pyramid.request.Request', autospec=True) as mock_req:
+            yield mock_req
+
+    @pytest.fixture
+    def yelp_namespace_response(self, yelp_namespace):
+        return {
+            'namespace_id': yelp_namespace.id,
+            'name': yelp_namespace.name,
+            'created_at': yelp_namespace.created_at.isoformat(),
+            'updated_at': yelp_namespace.updated_at.isoformat()
+        }
+
+    @pytest.fixture
+    def biz_source_response(self, biz_source, yelp_namespace_response):
+        return {
+            'source_id': biz_source.id,
+            'namespace': yelp_namespace_response,
+            'name': biz_source.name,
+            'owner_email': biz_source.owner_email,
+            'created_at': biz_source.created_at.isoformat(),
+            'updated_at': biz_source.updated_at.isoformat()
+        }
+
+    @pytest.fixture
+    def biz_topic_response(self, biz_topic, biz_source_response):
+        return {
+            'topic_id': biz_topic.id,
+            'name': biz_topic.name,
+            'source': biz_source_response,
+            'contains_pii': False,
+            'created_at': biz_topic.created_at.isoformat(),
+            'updated_at': biz_topic.updated_at.isoformat(),
+        }
+
+    @pytest.fixture
+    def biz_src_refresh_response(self, biz_src_refresh, biz_source_response):
+        return {
+            'refresh_id': biz_src_refresh.id,
+            'source': biz_source_response,
+            'status': RefreshStatus(biz_src_refresh.status).name,
+            'offset': biz_src_refresh.offset,
+            'batch_size': biz_src_refresh.batch_size,
+            'priority': Priority(biz_src_refresh.priority).name,
+            'created_at': biz_src_refresh.created_at.isoformat(),
+            'updated_at': biz_src_refresh.updated_at.isoformat()
+        }
+
+    @classmethod
+    def get_mock_dict(cls, dict_value):
+        mock_dict = mock.MagicMock(spec=dict)
+        mock_dict.get.side_effect = lambda k: dict_value.get(k)
+        mock_dict.__getitem__.side_effect = lambda k: dict_value[k]
+        return mock_dict
+
+    @classmethod
+    def get_http_exception(cls, http_status_code):
+        return httpexceptions.status_map[http_status_code]
+
+
 class TestApiBase(DBTestCase):
 
     test_view_module = None
