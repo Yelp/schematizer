@@ -14,16 +14,14 @@ class TestListSourcesByNamespace(ApiTestBase):
     def test_non_existing_namespace(self, mock_request):
         expected_exception = self.get_http_exception(404)
         with pytest.raises(expected_exception) as e:
-            mock_request.matchdict = self.get_mock_dict({'namespace': 'foo'})
+            mock_request.matchdict = {'namespace': 'foo'}
             namespace_views.list_sources_by_namespace(mock_request)
 
         assert e.value.code == expected_exception.code
         assert str(e.value) == exceptions_v1.NAMESPACE_NOT_FOUND_ERROR_MESSAGE
 
     def test_happy_case(self, mock_request, biz_source, biz_source_response):
-        mock_request.matchdict = self.get_mock_dict(
-            {'namespace': biz_source.namespace.name}
-        )
+        mock_request.matchdict = {'namespace': biz_source.namespace.name}
         actual = namespace_views.list_sources_by_namespace(mock_request)
         assert actual == [biz_source_response]
 
@@ -44,7 +42,7 @@ class TestListRefreshesByNamespace(ApiTestBase):
     def test_non_existing_namespace(self, mock_request):
         expected_exception = self.get_http_exception(404)
         with pytest.raises(expected_exception) as e:
-            mock_request.matchdict = self.get_mock_dict({'namespace': 'foo'})
+            mock_request.matchdict = {'namespace': 'foo'}
             namespace_views.list_refreshes_by_namespace(mock_request)
 
         assert e.value.code == expected_exception.code
@@ -52,8 +50,6 @@ class TestListRefreshesByNamespace(ApiTestBase):
 
     def test_happy_case(self, mock_request, yelp_namespace,
                         biz_src_refresh_response):
-        mock_request.matchdict = self.get_mock_dict(
-            {'namespace': yelp_namespace.name}
-        )
+        mock_request.matchdict = {'namespace': yelp_namespace.name}
         actual = namespace_views.list_refreshes_by_namespace(mock_request)
         assert actual == [biz_src_refresh_response]
