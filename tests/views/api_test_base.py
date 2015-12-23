@@ -67,13 +67,6 @@ class ApiTestBase(DBTestCase):
         }
 
     @classmethod
-    def get_mock_dict(cls, dict_value):
-        mock_dict = mock.MagicMock(spec=dict)
-        mock_dict.get.side_effect = lambda k: dict_value.get(k)
-        mock_dict.__getitem__.side_effect = lambda k: dict_value[k]
-        return mock_dict
-
-    @classmethod
     def get_http_exception(cls, http_status_code):
         return httpexceptions.status_map[http_status_code]
 
