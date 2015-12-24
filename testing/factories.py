@@ -54,7 +54,8 @@ def get_or_create_namespace(namespace_name):
     return namespace or create_namespace(namespace_name)
 
 
-def create_source(namespace_name, source_name, owner_email='src@test.com'):
+def create_source(namespace_name, source_name, owner_email=None):
+    owner_email = owner_email or 'src@test.com'
     namespace = get_or_create_namespace(namespace_name)
     source = models.Source(
         namespace_id=namespace.id,
@@ -67,7 +68,6 @@ def create_source(namespace_name, source_name, owner_email='src@test.com'):
 
 
 def get_or_create_source(namespace_name, source_name, owner_email=None):
-    owner_email = owner_email or 'src@test.com'
     source = session.query(
         models.Source
     ).join(
