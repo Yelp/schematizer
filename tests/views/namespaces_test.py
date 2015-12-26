@@ -20,10 +20,11 @@ class TestListSourcesByNamespace(ApiTestBase):
         assert e.value.code == expected_exception.code
         assert str(e.value) == exceptions_v1.NAMESPACE_NOT_FOUND_ERROR_MESSAGE
 
-    def test_happy_case(self, mock_request, biz_source, biz_source_response):
-        mock_request.matchdict = {'namespace': biz_source.namespace.name}
+    def test_happy_case(self, mock_request, yelp_namespace, biz_source):
+        mock_request.matchdict = {'namespace': yelp_namespace.name}
         actual = namespace_views.list_sources_by_namespace(mock_request)
-        assert actual == [biz_source_response]
+        expected = [self.get_expected_src_resp(biz_source.id)]
+        assert actual == expected
 
 
 class TestListNamespaces(ApiTestBase):
@@ -32,9 +33,10 @@ class TestListNamespaces(ApiTestBase):
         actual = namespace_views.list_namespaces(mock_request)
         assert actual == []
 
-    def test_happy_case(self, mock_request, yelp_namespace_response):
+    def test_happy_case(self, mock_request, yelp_namespace):
         actual = namespace_views.list_namespaces(mock_request)
-        assert actual == [yelp_namespace_response]
+        expected = [self.get_expected_namespace_resp(yelp_namespace.id)]
+        assert actual == expected
 
 
 class TestListRefreshesByNamespace(ApiTestBase):
@@ -48,8 +50,8 @@ class TestListRefreshesByNamespace(ApiTestBase):
         assert e.value.code == expected_exception.code
         assert str(e.value) == exceptions_v1.NAMESPACE_NOT_FOUND_ERROR_MESSAGE
 
-    def test_happy_case(self, mock_request, yelp_namespace,
-                        biz_src_refresh_response):
+    def test_happy_case(self, mock_request, yelp_namespace, biz_src_refresh):
         mock_request.matchdict = {'namespace': yelp_namespace.name}
         actual = namespace_views.list_refreshes_by_namespace(mock_request)
-        assert actual == [biz_src_refresh_response]
+        expected = [self.get_expected_src_refresh_resp(biz_src_refresh.id)]
+        assert actual == expected

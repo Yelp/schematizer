@@ -42,25 +42,16 @@ def biz_topic(biz_source):
 
 
 @pytest.fixture
-def biz_two_topic(biz_source):
-    return factories.create_topic(
-        topic_name='yelp.biz.two',
-        namespace_name=biz_source.namespace.name,
-        source_name=biz_source.name,
-    )
-
-
-@pytest.fixture
 def biz_schema_json():
     return {
         "name": "biz",
         "type": "record",
-        "fields": [{"name": "id", "type": "int", "doc": "id"}],
+        "fields": [{"name": "id", "type": "int", "doc": "id", "default": 0}],
         "doc": "biz table"
     }
 
 
-@property
+@pytest.fixture
 def biz_schema_elements():
     return [
         models.AvroSchemaElement(
@@ -77,7 +68,7 @@ def biz_schema_elements():
 
 
 @pytest.fixture
-def biz_schema(biz_topic, biz_schema_json):
+def biz_schema(biz_topic, biz_schema_json, biz_schema_elements):
     return factories.create_avro_schema(
         biz_schema_json,
         biz_schema_elements,
@@ -97,7 +88,7 @@ def disabled_schema_json():
     }
 
 
-@property
+@pytest.fixture
 def disabled_schema_elements():
     return [
         models.AvroSchemaElement(
@@ -114,7 +105,7 @@ def disabled_schema_elements():
 
 
 @pytest.fixture
-def disabled_schema(biz_topic, disabled_schema_json):
+def disabled_schema(biz_topic, disabled_schema_json, disabled_schema_elements):
     return factories.create_avro_schema(
         disabled_schema_json,
         disabled_schema_elements,
@@ -129,6 +120,6 @@ def biz_src_refresh(biz_source):
         source_id=biz_source.id,
         offset=0,
         batch_size=500,
-        priority='MEDIUM',
+        priority=models.Priority.MEDIUM.name,
         filter_condition=None,
     )
