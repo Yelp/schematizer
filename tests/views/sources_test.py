@@ -119,7 +119,7 @@ class TestUpdateCategory(ApiTestBase):
         assert actual == expected
 
     def test_update_existing_source_category(self, mock_request, biz_source):
-        doc_tool.create_source_category(biz_source.id, 'Biz')
+        factories.create_source_category(biz_source.id, 'Biz')
         mock_request.matchdict = {'source_id': '{}'.format(biz_source.id)}
         mock_request.json_body = {'category': 'Sales'}
         actual = source_views.update_category(mock_request)
@@ -130,7 +130,7 @@ class TestUpdateCategory(ApiTestBase):
     def _get_expected_category_response(self, source_id, expected_category):
         src_category = doc_tool.get_source_category_by_source_id(source_id)
         return {
-            'source_id': src_category.source_id,
+            'source_id': source_id,
             'category': expected_category,
             'created_at': src_category.created_at.isoformat(),
             'updated_at': src_category.updated_at.isoformat()
