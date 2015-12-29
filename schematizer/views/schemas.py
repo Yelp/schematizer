@@ -3,7 +3,6 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import simplejson
-from avro import schema
 from pyramid.view import view_config
 
 from schematizer.api.decorators import log_api
@@ -104,7 +103,7 @@ def _register_avro_schema(
             base_schema_id=base_schema_id
         )
         return responses_v1.get_schema_response_from_avro_schema(avro_schema)
-    except schema.AvroException as e:
+    except ValueError as e:
         log.exception('{0}'.format(get_current_func_arg_name_values()))
         raise exceptions_v1.invalid_schema_exception(e.message)
 
