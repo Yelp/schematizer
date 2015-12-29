@@ -8,7 +8,6 @@ import simplejson
 
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
-from schematizer.logic import schema_repository
 from schematizer.views import schemas as schema_views
 from tests.views.api_test_base import ApiTestBase
 
@@ -25,14 +24,14 @@ class TestGetSchemaByID(ApiTestBase):
         assert str(e.value) == exceptions_v1.SCHEMA_NOT_FOUND_ERROR_MESSAGE
 
     def test_get_schema_by_id(self, mock_request, biz_schema):
-        mock_request.matchdict = {'schema_id': '{}'.format(biz_schema.id)}
+        mock_request.matchdict = {'schema_id': str(biz_schema.id)}
         actual = schema_views.get_schema_by_id(mock_request)
         expected = self.get_expected_schema_resp(biz_schema.id)
         assert actual == expected
 
     def test_get_schema_with_base_schema(self, mock_request, biz_schema):
         biz_schema.base_schema_id = 2
-        mock_request.matchdict = {'schema_id': '{}'.format(biz_schema.id)}
+        mock_request.matchdict = {'schema_id': str(biz_schema.id)}
         actual = schema_views.get_schema_by_id(mock_request)
 
         expected = self.get_expected_schema_resp(
@@ -54,11 +53,12 @@ class RegisterSchemaTestBase(ApiTestBase):
         )
         assert actual == expected
 
-        expected_src = schema_repository.get_source_by_fullname(
-            request_json['namespace'],
-            request_json['source']
-        )
-        assert actual['topic']['source']['source_id'] == expected_src.id
+        # verify to ensure the source is correct.
+        actual_src_name = actual['topic']['source']['name']
+        assert actual_src_name == request_json['source']
+
+        actual_namespace_name = actual['topic']['source']['namespace']['name']
+        assert actual_namespace_name == request_json['namespace']
 
 
 class TestRegisterSchema(RegisterSchemaTestBase):
@@ -240,7 +240,7 @@ class TestGetSchemaElements(ApiTestBase):
         assert str(e.value) == exceptions_v1.SCHEMA_NOT_FOUND_ERROR_MESSAGE
 
     def test_get_schema_elements(self, mock_request, biz_schema):
-        mock_request.matchdict = {'schema_id': '{}'.format(biz_schema.id)}
+        mock_request.matchdict = {'schema_id': str(biz_schema.id)}
         actual = schema_views.get_schema_elements_by_schema_id(mock_request)
         assert actual == self._get_expected_elements_response(biz_schema)
 
