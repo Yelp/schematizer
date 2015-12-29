@@ -41,6 +41,7 @@ class TestAvroSchemaCompatibility(ApiTestBase):
         request_json,
         biz_schema_json
     ):
+        # change the field type from int to string
         new_schema_json = copy.deepcopy(biz_schema_json)
         new_schema_json['fields'][-1]['type'] = 'string'
         request_json['schema'] = simplejson.dumps(new_schema_json)
