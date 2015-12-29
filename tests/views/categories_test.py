@@ -16,7 +16,7 @@ class TestListCategories(ApiTestBase):
         assert actual == []
 
     @pytest.fixture
-    def biz_biz_category(self, biz_source):
+    def biz_category_assigned_to_biz_src(self, biz_source):
         return factories.create_source_category(biz_source.id, 'biz')
 
     @pytest.fixture
@@ -24,7 +24,7 @@ class TestListCategories(ApiTestBase):
         return factories.create_source(yelp_namespace_name, 'review')
 
     @pytest.fixture
-    def biz_review_category(self, review_source):
+    def review_category_assigned_to_review_src(self, review_source):
         return factories.create_source_category(review_source.id, 'review')
 
     @pytest.fixture
@@ -32,15 +32,15 @@ class TestListCategories(ApiTestBase):
         return factories.create_source(yelp_namespace_name, 'deal')
 
     @pytest.fixture
-    def deal_biz_category(self, deal_source):
+    def biz_category_assigned_to_deal_src(self, deal_source):
         return factories.create_source_category(deal_source.id, 'biz')
 
     def test_happy_case(
         self,
         mock_request,
-        biz_biz_category,
-        biz_review_category,
-        deal_biz_category
+        biz_category_assigned_to_biz_src,
+        review_category_assigned_to_review_src,
+        biz_category_assigned_to_deal_src
     ):
         actual = categories.list_categories(mock_request)
         expected = ['biz', 'review']

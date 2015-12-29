@@ -35,7 +35,7 @@ class TestGetSourceByID(ApiTestBase):
         assert str(e.value) == exc_v1.SOURCE_NOT_FOUND_ERROR_MESSAGE
 
     def test_happy_case(self, mock_request, biz_source):
-        mock_request.matchdict = {'source_id': '{}'.format(biz_source.id)}
+        mock_request.matchdict = {'source_id': str(biz_source.id)}
         actual = source_views.get_source_by_id(mock_request)
         expected = self.get_expected_src_resp(biz_source.id)
         assert actual == expected
@@ -53,12 +53,12 @@ class TestListTopicsBySourceID(ApiTestBase):
         assert str(e.value) == exc_v1.SOURCE_NOT_FOUND_ERROR_MESSAGE
 
     def test_no_topics(self, mock_request, biz_source):
-        mock_request.matchdict = {'source_id': '{}'.format(biz_source.id)}
+        mock_request.matchdict = {'source_id': str(biz_source.id)}
         actual = source_views.list_topics_by_source_id(mock_request)
         assert actual == []
 
     def test_happy_case(self, mock_request, biz_source, biz_topic):
-        mock_request.matchdict = {'source_id': '{}'.format(biz_source.id)}
+        mock_request.matchdict = {'source_id': str(biz_source.id)}
         actual = source_views.list_topics_by_source_id(mock_request)
         expected = [self.get_expected_topic_resp(biz_topic.id)]
         assert actual == expected
@@ -78,7 +78,7 @@ class TestGetLatestTopicBySourceID(ApiTestBase):
     def test_no_latest_topic(self, mock_request, biz_source):
         expected_exception = self.get_http_exception(404)
         with pytest.raises(expected_exception) as e:
-            mock_request.matchdict = {'source_id': '{}'.format(biz_source.id)}
+            mock_request.matchdict = {'source_id': str(biz_source.id)}
             source_views.get_latest_topic_by_source_id(mock_request)
 
         assert e.value.code == expected_exception.code
@@ -93,7 +93,7 @@ class TestGetLatestTopicBySourceID(ApiTestBase):
         )
         expected = self.get_expected_topic_resp(latest_topic.id)
 
-        mock_request.matchdict = {'source_id': '{}'.format(biz_source.id)}
+        mock_request.matchdict = {'source_id': str(biz_source.id)}
         actual = source_views.get_latest_topic_by_source_id(mock_request)
 
         assert actual == expected
@@ -111,7 +111,7 @@ class TestUpdateCategory(ApiTestBase):
         assert str(e.value) == exc_v1.SOURCE_NOT_FOUND_ERROR_MESSAGE
 
     def test_add_new_source_category(self, mock_request, biz_source):
-        mock_request.matchdict = {'source_id': '{}'.format(biz_source.id)}
+        mock_request.matchdict = {'source_id': str(biz_source.id)}
         mock_request.json_body = {'category': 'Deals'}
         actual = source_views.update_category(mock_request)
 
@@ -120,7 +120,7 @@ class TestUpdateCategory(ApiTestBase):
 
     def test_update_existing_source_category(self, mock_request, biz_source):
         factories.create_source_category(biz_source.id, 'Biz')
-        mock_request.matchdict = {'source_id': '{}'.format(biz_source.id)}
+        mock_request.matchdict = {'source_id': str(biz_source.id)}
         mock_request.json_body = {'category': 'Sales'}
         actual = source_views.update_category(mock_request)
 
@@ -151,7 +151,7 @@ class TestDeleteCategory(ApiTestBase):
     def test_non_existing_category(self, mock_request, biz_source):
         expected_exception = self.get_http_exception(404)
         with pytest.raises(expected_exception) as e:
-            mock_request.matchdict = {'source_id': '{}'.format(biz_source.id)}
+            mock_request.matchdict = {'source_id': str(biz_source.id)}
             source_views.delete_category(mock_request)
 
         assert e.value.code == expected_exception.code
@@ -167,7 +167,7 @@ class TestDeleteCategory(ApiTestBase):
             'updated_at': src_category.updated_at.isoformat()
         }
 
-        mock_request.matchdict = {'source_id': '{}'.format(biz_source.id)}
+        mock_request.matchdict = {'source_id': str(biz_source.id)}
         actual = source_views.delete_category(mock_request)
         assert actual == expected
 
