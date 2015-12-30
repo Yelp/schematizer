@@ -20,7 +20,7 @@ class TestGetRefreshByID(ApiTestBase):
     def test_non_existing_topic_name(self, mock_request):
         expected_exception = self.get_http_exception(404)
         with pytest.raises(expected_exception) as e:
-            mock_request.matchdict = {'refresh_id': 0}
+            mock_request.matchdict = {'refresh_id': '0'}
             refresh_views.get_refresh_by_id(mock_request)
 
         assert e.value.code == expected_exception.code
@@ -38,7 +38,7 @@ class TestUpdateRefresh(ApiTestBase):
 
     def test_update_refresh(self, mock_request, biz_src_refresh):
         mock_request.json_body = self.update_request
-        mock_request.matchdict = {'refresh_id': biz_src_refresh.id}
+        mock_request.matchdict = {'refresh_id': str(biz_src_refresh.id)}
         actual = refresh_views.update_refresh(mock_request)
 
         expected = self.get_expected_src_refresh_resp(
@@ -51,7 +51,7 @@ class TestUpdateRefresh(ApiTestBase):
     def test_non_existing_refresh_id(self, mock_request):
         expected_exception = self.get_http_exception(404)
         with pytest.raises(expected_exception) as e:
-            mock_request.matchdict = {'refresh_id': 0}
+            mock_request.matchdict = {'refresh_id': '0'}
             mock_request.json_body = self.update_request
             refresh_views.update_refresh(mock_request)
 

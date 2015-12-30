@@ -106,7 +106,7 @@ class TestUpdateNote(NotesViewTestBase):
         update_note_request
     ):
         mock_request.json_body = update_note_request
-        mock_request.matchdict = {'note_id': '{}'.format(biz_schema_note.id)}
+        mock_request.matchdict = {'note_id': str(biz_schema_note.id)}
         actual = note_views.update_note(mock_request)
         expected = self._get_expected_note_response(
             note_id=biz_schema_note.id,
