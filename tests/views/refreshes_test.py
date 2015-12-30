@@ -12,7 +12,7 @@ from tests.views.api_test_base import ApiTestBase
 class TestGetRefreshByID(ApiTestBase):
 
     def test_happy_case(self, mock_request, biz_src_refresh):
-        mock_request.matchdict = {'refresh_id': biz_src_refresh.id}
+        mock_request.matchdict = {'refresh_id': str(biz_src_refresh.id)}
         actual = refresh_views.get_refresh_by_id(mock_request)
         expected = self.get_expected_src_refresh_resp(biz_src_refresh.id)
         assert actual == expected
