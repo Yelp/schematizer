@@ -26,7 +26,7 @@ def get_note_by_id(id):
 
 
 def update_note(id, note_text, last_updated_by):
-    return session.query(
+    return_value = session.query(
         models.Note
     ).filter(
         models.Note.id == id
@@ -37,6 +37,8 @@ def update_note(id, note_text, last_updated_by):
             models.Note.updated_at: datetime.datetime.utcnow()
         }
     )
+    session.commit()
+    return return_value
 
 
 def create_note(reference_type, reference_id, note_text, last_updated_by):
