@@ -80,8 +80,8 @@ class TestCreateNote(NotesViewTestBase):
 class TestUpdateNote(NotesViewTestBase):
 
     @property
-    def new_note(self):
-        return 'add some updated note.'
+    def new_note_text(self):
+        return 'add some updated notes.'
 
     @pytest.fixture
     def biz_schema_note(self, biz_schema):
@@ -95,7 +95,7 @@ class TestUpdateNote(NotesViewTestBase):
     @pytest.fixture
     def update_note_request(self):
         return {
-            'note': self.new_note,
+            'note': self.new_note_text,
             'last_updated_by': self.user_email
         }
 
@@ -112,7 +112,7 @@ class TestUpdateNote(NotesViewTestBase):
             note_id=biz_schema_note.id,
             ref_id=biz_schema_note.reference_id,
             ref_type=biz_schema_note.reference_type,
-            note_text=self.new_note,
+            note_text=self.new_note_text,
             updated_by=self.user_email
         )
         assert actual == expected
