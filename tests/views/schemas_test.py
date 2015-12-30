@@ -123,7 +123,7 @@ class TestRegisterSchema(RegisterSchemaTestBase):
             'restricted character: |'
         )
 
-    def test_register_numeric_src_name(self, mock_request, request_json):
+    def test_register_invalid_numeric_src_name(self, mock_request, request_json):
         request_json['source'] = '12345'
         mock_request.json_body = request_json
 
