@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 
 import pytest
 
+from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
-from schematizer.logic import doc_tool
 from schematizer.models.note import ReferenceTypeEnum
 from schematizer.views import notes as note_views
 from testing import factories
@@ -26,7 +26,7 @@ class NotesViewTestBase(ApiTestBase):
         note_text,
         updated_by
     ):
-        note = doc_tool.get_note_by_id(note_id)
+        note = self._get_entity_by_id(models.Note, note_id)
         return {
             'id': note.id,
             'reference_id': ref_id,
