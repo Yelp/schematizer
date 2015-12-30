@@ -26,7 +26,7 @@ def get_note_by_id(id):
 
 
 def update_note(id, note_text, last_updated_by):
-    return_value = session.query(
+    return session.query(
         models.Note
     ).filter(
         models.Note.id == id
@@ -37,8 +37,6 @@ def update_note(id, note_text, last_updated_by):
             models.Note.updated_at: datetime.datetime.utcnow()
         }
     )
-    session.commit()
-    return return_value
 
 
 def create_note(reference_type, reference_id, note_text, last_updated_by):
@@ -73,9 +71,7 @@ def update_source_category(source_id, category):
     ).filter(
         models.SourceCategory.source_id == source_id
     ).update(
-        {
-            models.SourceCategory.category: category
-        }
+        {models.SourceCategory.category: category}
     )
 
 
