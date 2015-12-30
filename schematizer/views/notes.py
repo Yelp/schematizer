@@ -56,7 +56,8 @@ def assert_reference_exists(reference_type, reference_id):
 @log_api()
 def update_note(request):
     req = requests_v1.UpdateNoteRequest(**request.json_body)
-    note_id = request.matchdict.get('note_id')
+    note_id_str = request.matchdict.get('note_id')
+    note_id = int(note_id_str)
     note = doc_tool.get_note_by_id(note_id)
     # Raise an exception if the note cannot be found
     if note is None:

@@ -71,9 +71,7 @@ def update_source_category(source_id, category):
     ).filter(
         models.SourceCategory.source_id == source_id
     ).update(
-        {
-            models.SourceCategory.category: category
-        }
+        {models.SourceCategory.category: category}
     )
 
 

@@ -32,9 +32,10 @@ def get_refresh_by_id(request):
 )
 @transform_api_response()
 def update_refresh(request):
-    refresh_id = request.matchdict.get('refresh_id')
+    refresh_id_str = request.matchdict.get('refresh_id')
+    refresh_id = int(refresh_id_str)
     req = requests_v1.UpdateRefreshStatusRequest(**request.json_body)
-    refresh = schema_repository.get_refresh_by_id(int(refresh_id))
+    refresh = schema_repository.get_refresh_by_id(refresh_id)
     if refresh is None:
         raise exceptions_v1.refresh_not_found_exception()
     schema_repository.update_refresh(
