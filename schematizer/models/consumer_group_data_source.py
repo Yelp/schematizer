@@ -7,6 +7,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy.types import Enum
 
+from schematizer.models.base_model import BaseModel
 from schematizer.models.database import Base
 from schematizer.models.types.time import build_time_column
 
@@ -18,9 +19,10 @@ class DataSourceTypeEnum(object):
     SCHEMA = 'Schema'
 
 
-class ConsumerGroupDataSource(Base):
+class ConsumerGroupDataSource(Base, BaseModel):
 
     __tablename__ = 'consumer_group_data_source'
+
     id = Column(Integer, primary_key=True)
     consumer_group_id = Column(
         Integer,
@@ -29,7 +31,7 @@ class ConsumerGroupDataSource(Base):
     )
 
     # The level that this consumer group is interested in.
-    # Value from ConsumerGroupType.
+    # Value from DataSourceTypeEnum.
     data_source_type = Column(
         Enum(
             DataSourceTypeEnum.NAMESPACE,
