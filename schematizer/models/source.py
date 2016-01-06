@@ -9,6 +9,7 @@ from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 
+from schematizer.models.base_model import BaseModel
 from schematizer.models.database import Base
 from schematizer.models.refresh import Refresh
 from schematizer.models.source_category import SourceCategory
@@ -16,7 +17,7 @@ from schematizer.models.topic import Topic
 from schematizer.models.types.time import build_time_column
 
 
-class Source(Base):
+class Source(Base, BaseModel):
 
     __tablename__ = 'source'
     __table_args__ = (
