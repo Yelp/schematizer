@@ -3,9 +3,9 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import pytest
-from sqlalchemy.orm import exc as orm_exc
 
 from schematizer import models
+from schematizer.models import exceptions as sch_exc
 from schematizer.models.database import session
 from testing import asserts
 from testing import factories
@@ -60,5 +60,5 @@ class TestGetModelById(DBTestCase):
         models.ConsumerGroupDataSource
     ])
     def test_get_invalid_id(self, model_cls):
-        with pytest.raises(orm_exc.NoResultFound):
+        with pytest.raises(sch_exc.EntityNotFoundError):
             model_cls.get_by_id(session, 0)

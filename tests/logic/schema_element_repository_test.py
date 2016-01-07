@@ -5,8 +5,8 @@ from __future__ import unicode_literals
 import pytest
 
 from schematizer import models
-from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_element_repository as repo
+from schematizer.models import exceptions as sch_exc
 from testing import factories
 from tests.models.testing_db import DBTestCase
 
@@ -128,7 +128,7 @@ class TestSchemaElementRepository(DBTestCase):
         )
 
     def test_get_element_chains_by_schema_id_with_nonexistent_schema(self):
-        with pytest.raises(sch_exc.EntityNotFoundException):
+        with pytest.raises(sch_exc.EntityNotFoundError):
             repo.get_element_chains_by_schema_id(0)
 
     def test_get_element_chains_by_schema_id_with_no_element(

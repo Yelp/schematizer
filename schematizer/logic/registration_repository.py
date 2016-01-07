@@ -2,15 +2,12 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from sqlalchemy.orm import exc as orm_exc
-
 from schematizer import models
-from schematizer.logic import exceptions as sch_exc
 from schematizer.models.database import session
 
 
-def add_data_target(target_type, destination):
-    """Add a new data target of specified target type and destination.
+def create_data_target(target_type, destination):
+    """Create a new data target of specified target type and destination.
 
     Args:
         target_type (string): string describing the type of the data target
@@ -37,7 +34,7 @@ def add_data_target(target_type, destination):
     return data_target
 
 
-def add_consumer_group(group_name, data_target_id):
+def create_consumer_group(group_name, data_target_id):
     """Add a new consumer group that associates to given data target.
 
     Args:
@@ -51,19 +48,16 @@ def add_consumer_group(group_name, data_target_id):
 
     Raises:
         ValueError: if group name is empty
-        :class:schematizer.logic.exceptions.EntityNotFound: if specified data
-        target id is not found.
+        :class:schematizer.models.exceptions.EntityNotFoundError: if specified
+            data target id is not found.
 
     """
     if not group_name:
         raise ValueError("consumer group name cannot be empty.")
 
-    try:
-        models.DataTarget.get_by_id(session, data_target_id)
-    except orm_exc.NoResultFound:
-        raise sch_exc.EntityNotFoundException(
-            "Cannot find DataTarget id {}.".format(data_target_id)
-        )
+    # Check if the data target id exists by trying to get the object. If it
+    # doesn't exist, the EntityNotFoundException will be thrown.
+    models.DataTarget.get_by_id(session, data_target_id)
 
     consumer_group = models.ConsumerGroup(
         group_name=group_name,
@@ -95,16 +89,12 @@ def register_consumer_group_data_source(
 
     Raises:
         ValueError: if given data source type is invalid
-        :class:schematizer.logic.exceptions.EntityNotFound: if specified data
-        source id is not found or consumer group id is not found.
+        :class:schematizer.models.exceptions.EntityNotFoundError: if specified
+            data source id is not found or consumer group id is not found.
     """
-    # Verify if the consumer group exists
-    try:
-        models.ConsumerGroup.get_by_id(session, consumer_group_id)
-    except orm_exc.NoResultFound:
-        raise sch_exc.EntityNotFoundException(
-            "Cannot find ConsumerGroup id {}.".format(consumer_group_id)
-        )
+    # Verify if the consumer group exists by trying to retrieving it
+    models.ConsumerGroup.get_by_id(session, consumer_group_id)
+
     # Verify if the data source exists
     _validate_data_source_exists(data_source_type, data_source_id)
 
@@ -133,8 +123,8 @@ def _validate_data_source_exists(data_src_type, data_src_id):
 
     Raises:
         ValueError: if given data source type is invalid
-        :class:schematizer.logic.exceptions.EntityNotFound: if specified data
-            source id is not found.
+        :class:schematizer.models.exceptions.EntityNotFoundError: if specified
+            data source id is not found.
     """
     data_model_map = {
         models.DataSourceTypeEnum.NAMESPACE: models.Namespace,
@@ -148,10 +138,34 @@ def _validate_data_source_exists(data_src_type, data_src_id):
             .format(data_src_type, models.DataSourceTypeEnum.__name__)
         )
 
-    try:
-        data_model.get_by_id(session, data_src_id)
-        return True
-    except orm_exc.NoResultFound:
-        raise sch_exc.EntityNotFoundException(
-            "Cannot find {} id {}.".format(data_src_type, data_src_id)
-        )
+    # Check if the data target id exists by trying to get the object. If it
+    # doesn't exist, the EntityNotFoundException will be thrown.
+    data_model.get_by_id(session, data_src_id)
+
+
+def get_data_sources_by_data_target_id(data_target_id):
+    """Get all the data sources that associate to the given data target.
+
+    Args:
+        data_target_id (int): Id of the data target.
+
+    Returns:
+        List[]
+
+    Raises:
+        :class:schematizer.models.exceptions.EntityNotFoundError: if specified
+            data target id is not found.
+    """
+    data_srcs = session.query(models.ConsumerGroupDataSource).join(
+        models.ConsumerGroup
+    ).filter(
+        models.ConsumerGroup.data_target_id == data_target_id,
+        models.ConsumerGroup.id == (models.ConsumerGroupDataSource
+                                    .consumer_group_id)
+    ).all()
+
+    if not data_srcs:
+        # Check if the data_target_id exists
+        models.DataTarget.get_by_id(session, data_target_id)
+
+    return data_srcs
