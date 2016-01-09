@@ -128,6 +128,37 @@ def routes(config):
         'api.v1.update_refresh',
         '/v1/refreshes/{refresh_id}/status'
     )
+
+    config.add_route(
+        'api.v1.get_data_targets',
+        '/v1/data_targets',
+        request_method="GET"
+    )
+    config.add_route(
+        'api.v1.create_data_target',
+        '/v1/data_targets',
+        request_method="POST"
+    )
+    config.add_route(
+        'api.v1.get_data_target_by_id',
+        '/v1/data_targets/{data_target_id}',
+        request_method="GET"
+    )
+    config.add_route(
+        'api.v1.get_consumer_groups_by_data_target_id',
+        '/v1/data_targets/{data_target_id}/consumer_groups',
+        request_method="GET"
+    )
+    config.add_route(
+        'api.v1.create_consumer_group',
+        '/v1/data_targets/{data_target_id}/consumer_groups',
+        request_method="POST"
+    )
+    config.add_route(
+        'api.v1.get_topics_by_data_target_id',
+        '/v1/data_targets/{data_target_id}/topics',
+        request_method="GET"
+    )
     # Serve the documentation tool from /web/
     config.add_static_view(name='web', path='static/html/')
     config.add_static_view(name='static', path='static/')

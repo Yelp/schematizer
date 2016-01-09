@@ -108,3 +108,25 @@ def get_refresh_response_from_refresh(refresh):
         'created_at': _format_datetime(refresh.created_at),
         'updated_at': _format_datetime(refresh.updated_at)
     }
+
+
+def get_data_target_response_from_data_target(data_target):
+    return {
+        'data_target_id': data_target.id,
+        'target_type': data_target.target_type,
+        'destination': data_target.destination,
+        'created_at': _format_datetime(data_target.created_at),
+        'updated_at': _format_datetime(data_target.updated_at)
+    }
+
+
+def get_consumer_group_response_from_consumer_group(consumer_group):
+    return {
+        'consumer_group_id': consumer_group.id,
+        'group_name': consumer_group.group_name,
+        'data_target': get_data_target_response_from_data_target(
+            consumer_group.data_target
+        ),
+        'created_at': _format_datetime(consumer_group.created_at),
+        'updated_at': _format_datetime(consumer_group.updated_at)
+    }

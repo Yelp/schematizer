@@ -68,6 +68,28 @@ def create_consumer_group(group_name, data_target_id):
     return consumer_group
 
 
+def get_consumer_groups_by_data_target_id(data_target_id):
+    """Get the list of consumer groups that associate to the given data target.
+
+    Args:
+        data_target_id (int): Id of the data target
+
+    Returns:
+        List[:class: schematizer.models.consumer_group.ConsumerGroup]: List of
+            consumer group objects.
+
+    Raises:
+        :class:schematizer.models.exceptions.EntityNotFoundError: if specified
+            data target id is not found.
+    """
+    groups = session.query(models.ConsumerGroup).filter(
+        models.ConsumerGroup.data_target_id == data_target_id
+    ).all()
+    if not groups:
+        models.DataTarget.get_by_id(session, data_target_id)
+    return groups
+
+
 def register_consumer_group_data_source(
     consumer_group_id,
     data_source_type,
@@ -165,7 +187,52 @@ def get_data_sources_by_data_target_id(data_target_id):
     ).all()
 
     if not data_srcs:
-        # Check if the data_target_id exists
+        # Check if the data_target_id exists and throw exception if not
         models.DataTarget.get_by_id(session, data_target_id)
 
     return data_srcs
+
+
+def get_topics_by_data_target_id(data_target_id, created_after=None):
+    """Get all the topics that associate to the given data target, and
+    optionally filtered by topic creation timestamp.
+
+    A data target may be associated to multiple consumer groups, and each
+    consumer group may have multiple data sources (which could be a namespace
+    or a source).  This function returns all the topics under all the data
+    sources that link to the given data target.
+
+    Args:
+        data_target_id (int): get topics of given data target
+        created_after(Optional[datetime]): get topics created after given utc
+            datetime (inclusive) if specified.
+    Returns:
+        List[:class:schematizer.models.topic.Topic]: List of topic models
+        sorted by their ids.
+    """
+    data_srcs = get_data_sources_by_data_target_id(data_target_id)
+    source_ids = {
+        data_src.data_source_id for data_src in data_srcs
+        if data_src.data_source_type == models.DataSourceTypeEnum.SOURCE
+    }
+
+    namespace_ids = {
+        data_src.data_source_id for data_src in data_srcs
+        if data_src.data_source_type == models.DataSourceTypeEnum.NAMESPACE
+    }
+    if namespace_ids:
+        sources = session.query(models.Source).filter(
+            models.Source.namespace_id.in_(namespace_ids)
+        ).all()
+        source_ids.update(source.id for source in sources)
+
+    if not source_ids:
+        return []
+
+    qry = session.query(models.Topic).join(models.Source).filter(
+        models.Source.id.in_(source_ids),
+        models.Source.id == models.Topic.source_id
+    )
+    if created_after:
+        qry = qry.filter(models.Topic.created_at >= created_after)
+    return qry.order_by(models.Topic.id).all()

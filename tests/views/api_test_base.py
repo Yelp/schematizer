@@ -7,7 +7,7 @@ import pytest
 from pyramid import httpexceptions
 
 from schematizer import models
-from schematizer.models.database import session
+from testing import utils
 from tests.models.testing_db import DBTestCase
 
 
@@ -19,7 +19,7 @@ class ApiTestBase(DBTestCase):
             yield mock_req
 
     def get_expected_namespace_resp(self, namespace_id):
-        namespace = self._get_entity_by_id(models.Namespace, namespace_id)
+        namespace = utils.get_entity_by_id(models.Namespace, namespace_id)
         return {
             'namespace_id': namespace.id,
             'name': namespace.name,
@@ -28,7 +28,7 @@ class ApiTestBase(DBTestCase):
         }
 
     def get_expected_src_resp(self, source_id):
-        src = self._get_entity_by_id(models.Source, source_id)
+        src = utils.get_entity_by_id(models.Source, source_id)
         return {
             'source_id': src.id,
             'namespace': self.get_expected_namespace_resp(src.namespace.id),
@@ -39,7 +39,7 @@ class ApiTestBase(DBTestCase):
         }
 
     def get_expected_topic_resp(self, topic_id):
-        topic = self._get_entity_by_id(models.Topic, topic_id)
+        topic = utils.get_entity_by_id(models.Topic, topic_id)
         return {
             'topic_id': topic.id,
             'name': topic.name,
@@ -50,7 +50,7 @@ class ApiTestBase(DBTestCase):
         }
 
     def get_expected_schema_resp(self, schema_id, **overrides):
-        avro_schema = self._get_entity_by_id(models.AvroSchema, schema_id)
+        avro_schema = utils.get_entity_by_id(models.AvroSchema, schema_id)
         expected = {
             'schema_id': avro_schema.id,
             'schema': avro_schema.avro_schema,
@@ -65,7 +65,7 @@ class ApiTestBase(DBTestCase):
         return expected
 
     def get_expected_src_refresh_resp(self, src_refresh_id, **overrides):
-        src_refresh = self._get_entity_by_id(models.Refresh, src_refresh_id)
+        src_refresh = utils.get_entity_by_id(models.Refresh, src_refresh_id)
         expected = {
             'refresh_id': src_refresh.id,
             'source': self.get_expected_src_resp(src_refresh.source_id),
@@ -80,10 +80,33 @@ class ApiTestBase(DBTestCase):
             expected.update(overrides)
         return expected
 
-    def _get_entity_by_id(self, entity_cls, entity_id):
-        return session.query(entity_cls).filter(
-            getattr(entity_cls, 'id') == entity_id
-        ).one()
+    def get_expected_data_target_resp(self, data_target_id, **overrides):
+        data_target = utils.get_entity_by_id(models.DataTarget, data_target_id)
+        expected = {
+            'data_target_id': data_target.id,
+            'target_type': data_target.target_type,
+            'destination': data_target.destination,
+            'created_at': data_target.created_at.isoformat(),
+            'updated_at': data_target.updated_at.isoformat()
+        }
+        if overrides:
+            expected.update(overrides)
+        return expected
+
+    def get_expected_consumer_group_resp(self, consumer_group_id, **overrides):
+        group = utils.get_entity_by_id(models.ConsumerGroup, consumer_group_id)
+        expected = {
+            'consumer_group_id': group.id,
+            'group_name': group.group_name,
+            'data_target': self.get_expected_data_target_resp(
+                group.data_target.id
+            ),
+            'created_at': group.created_at.isoformat(),
+            'updated_at': group.updated_at.isoformat()
+        }
+        if overrides:
+            expected.update(overrides)
+        return expected
 
     @classmethod
     def get_http_exception(cls, http_status_code):

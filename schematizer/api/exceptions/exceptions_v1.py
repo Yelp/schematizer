@@ -22,10 +22,15 @@ RESTRICTED_CHAR_ERROR_MESSAGE = (
 )
 NUMERIC_NAME_ERROR_MESSAGE = 'Source or Namespace name should not be numeric'
 REFRESH_NOT_FOUND_ERROR_MESSAGE = 'Refresh not found for the given refresh id'
+ENTITY_NOT_FOUND_ERROR = 'Entity not found.'
 
 
 def invalid_schema_exception(err_message=INVALID_AVRO_SCHEMA_ERROR):
     return httpexceptions.exception_response(422, detail=err_message)
+
+
+def entity_not_found_exception(err_message=ENTITY_NOT_FOUND_ERROR):
+    return httpexceptions.exception_response(404, detail=err_message)
 
 
 def schema_not_found_exception(err_message=SCHEMA_NOT_FOUND_ERROR_MESSAGE):

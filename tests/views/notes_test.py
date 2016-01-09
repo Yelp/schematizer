@@ -9,6 +9,7 @@ from schematizer.api.exceptions import exceptions_v1
 from schematizer.models.note import ReferenceTypeEnum
 from schematizer.views import notes as note_views
 from testing import factories
+from testing import utils
 from tests.views.api_test_base import ApiTestBase
 
 
@@ -26,7 +27,7 @@ class NotesViewTestBase(ApiTestBase):
         note_text,
         updated_by
     ):
-        note = self._get_entity_by_id(models.Note, note_id)
+        note = utils.get_entity_by_id(models.Note, note_id)
         return {
             'id': note.id,
             'reference_id': ref_id,

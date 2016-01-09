@@ -123,3 +123,34 @@ def biz_src_refresh(biz_source):
         priority=models.Priority.MEDIUM.name,
         filter_condition=None,
     )
+
+
+@pytest.fixture
+def dw_data_target():
+    return factories.create_data_target(
+        target_type='dw_redshift',
+        destination='dwv1.redshift.yelpcorp.com'
+    )
+
+
+@pytest.fixture
+def dw_consumer_group(dw_data_target):
+    return factories.create_consumer_group('dw', dw_data_target)
+
+
+@pytest.fixture
+def dw_consumer_group_namespace_data_src(dw_consumer_group, yelp_namespace):
+    return factories.create_consumer_group_data_source(
+        dw_consumer_group,
+        data_src_type=models.DataSourceTypeEnum.NAMESPACE,
+        data_src_id=yelp_namespace.id
+    )
+
+
+@pytest.fixture
+def dw_consumer_group_source_data_src(dw_consumer_group, biz_source):
+    return factories.create_consumer_group_data_source(
+        dw_consumer_group,
+        data_src_type=models.DataSourceTypeEnum.SOURCE,
+        data_src_id=biz_source.id
+    )

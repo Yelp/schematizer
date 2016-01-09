@@ -33,6 +33,10 @@
         {
             "path": "/v1/refreshes",
             "description": "Operations about full refreshes."
+        },
+        {
+            "path": "/v1/data_targets",
+            "description": "Operations about data targets."
         }
     ],
     "info": {

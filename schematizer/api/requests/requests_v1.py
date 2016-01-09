@@ -176,3 +176,34 @@ class UpdateRefreshStatusRequest(RequestBase):
         super(UpdateRefreshStatusRequest, self).__init__()
         self.status = status
         self.offset = offset
+
+
+class CreateDataTargetRequest(RequestBase):
+
+    def __init__(self, target_type, destination):
+        super(CreateDataTargetRequest, self).__init__()
+        self.target_type = target_type
+        self.destination = destination
+
+
+class CreateConsumerGroupRequest(RequestBase):
+
+    def __init__(self, group_name):
+        super(CreateConsumerGroupRequest, self).__init__()
+        self.group_name = group_name
+
+
+class GetTopicsByDataTargetIdRequest(RequestBase):
+
+    def __init__(self, query_params):
+        super(GetTopicsByDataTargetIdRequest, self).__init__()
+        param = query_params.get('created_after')
+        self.created_after = long(param) if param is not None else None
+        self.created_after_datetime = self._timestamp_to_datetime(
+            self.created_after
+        )
+
+    @classmethod
+    def _timestamp_to_datetime(cls, timestamp):
+        return (datetime.utcfromtimestamp(timestamp)
+                if timestamp is not None else None)
