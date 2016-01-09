@@ -113,7 +113,12 @@ class TestCreateConsumerGroup(ApiTestBase):
         assert e.value.code == expected_exception.code
         assert str(e.value) == "DataTarget id 0 not found."
 
-    def test_invalid_empty_group_name(self, mock_request, dw_data_target, request_json):
+    def test_invalid_empty_group_name(
+        self,
+        mock_request,
+        dw_data_target,
+        request_json
+    ):
         invalid_request = copy.deepcopy(request_json)
         invalid_request['group_name'] = ''
 

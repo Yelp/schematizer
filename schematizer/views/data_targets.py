@@ -43,8 +43,6 @@ def create_data_target(request):
         return resp_v1.get_data_target_response_from_data_target(data_target)
     except ValueError as e:
         raise exc_v1.invalid_request_exception(e.message)
-    except Exception as ee:
-        raise exc_v1.ENTITY_NOT_FOUND_ERROR(ee.message)
 
 
 @view_config(

@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+"""
+This module contains the helper functions for testing assertions.
+
+The equality assertion functions are used instead of overriding the __eq__
+function of each data model because the data model may be mutable. Also it may
+be easier to see which one fails when asserting each value separately.
+"""
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
@@ -36,9 +43,9 @@ def assert_equal_avro_schema(actual, expected):
     assert actual.created_at == expected.created_at
     assert actual.updated_at == expected.updated_at
     assert_equal_entities(
-        actual.avro_schema_elements,
-        expected.avro_schema_elements,
-        assert_equal_avro_schema_element
+        actual_entities=actual.avro_schema_elements,
+        expected_entities=expected.avro_schema_elements,
+        assert_func=assert_equal_avro_schema_element
     )
 
 

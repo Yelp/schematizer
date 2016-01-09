@@ -155,6 +155,10 @@
                             "message": "Invalid request"
                         },
                         {
+                            "code": 404,
+                            "message": "Data target ID not found"
+                        },
+                        {
                             "code": 500,
                             "message": "Server side error"
                         }

@@ -172,7 +172,9 @@ def get_data_sources_by_data_target_id(data_target_id):
         data_target_id (int): Id of the data target.
 
     Returns:
-        List[]
+        List[:class:schematizer.models.consumer_group_data_source
+        .ConsumerGroupDataSource]: List of data sources associated to the
+        given data target.
 
     Raises:
         :class:schematizer.models.exceptions.EntityNotFoundError: if specified
@@ -203,9 +205,10 @@ def get_topics_by_data_target_id(data_target_id, created_after=None):
     sources that link to the given data target.
 
     Args:
-        data_target_id (int): get topics of given data target
+        data_target_id (int): data target id
         created_after(Optional[datetime]): get topics created after given utc
             datetime (inclusive) if specified.
+
     Returns:
         List[:class:schematizer.models.topic.Topic]: List of topic models
         sorted by their ids.

@@ -68,8 +68,8 @@ class TestGetConsumerGroupsByDataTargetId(DBTestCase):
             dw_data_target.id
         )
         asserts.assert_equal_entities(
-            expected_entities=[dw_consumer_group],
             actual_entities=actual,
+            expected_entities=[dw_consumer_group],
             assert_func=asserts.assert_equal_consumer_group
         )
 
@@ -185,8 +185,8 @@ class TestGetTopicsByDataTargetId(DBTestCase):
         actual = reg_repo.get_topics_by_data_target_id(dw_data_target.id)
         expected = sorted((biz_topic, foo_topic), key=lambda t: t.id)
         asserts.assert_equal_entities(
-            expected_entities=expected,
             actual_entities=actual,
+            expected_entities=expected,
             assert_func=asserts.assert_equal_topic
         )
 
@@ -211,8 +211,8 @@ class TestGetTopicsByDataTargetId(DBTestCase):
             created_after=new_created_at + datetime.timedelta(seconds=-1)
         )
         asserts.assert_equal_entities(
-            expected_entities=[foo_topic],
             actual_entities=actual,
+            expected_entities=[foo_topic],
             assert_func=asserts.assert_equal_topic
         )
 
