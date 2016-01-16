@@ -1,8 +1,16 @@
 # -*- coding: utf-8 -*-
+"""
+This module contains the logic that manages producers, consumers, and related
+data, such as data sources and data targets.
+"""
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from sqlalchemy import exc
+
 from schematizer import models
+from schematizer.logic.validators import verify_entity_exists
+from schematizer.logic.validators import verify_truthy_value
 from schematizer.models.database import session
 
 
@@ -20,18 +28,14 @@ def create_data_target(target_type, destination):
     Raises:
         ValueError: if given target type or destination is empty.
     """
-    if not target_type:
-        raise ValueError("data target type cannot be empty.")
-    if not destination:
-        raise ValueError("destination of data target cannot be empty.")
+    verify_truthy_value(target_type, "data target type")
+    verify_truthy_value(destination, "destination of data target")
 
-    data_target = models.DataTarget(
+    return models.DataTarget.create(
+        session,
         target_type=target_type,
         destination=destination
     )
-    session.add(data_target)
-    session.flush()
-    return data_target
 
 
 def create_consumer_group(group_name, data_target_id):
@@ -47,25 +51,24 @@ def create_consumer_group(group_name, data_target_id):
         :class:models.consumer_group.ConsumerGroup: the created consumer group.
 
     Raises:
-        ValueError: if group name is empty
+        ValueError: if group name is empty or already exists.
         :class:schematizer.models.exceptions.EntityNotFoundError: if specified
             data target id is not found.
 
     """
-    if not group_name:
-        raise ValueError("consumer group name cannot be empty.")
+    verify_truthy_value(group_name, "Consumer group name")
+    verify_entity_exists(session, models.DataTarget, data_target_id)
 
-    # Check if the data target id exists by trying to get the object. If it
-    # doesn't exist, the EntityNotFoundException will be thrown.
-    models.DataTarget.get_by_id(session, data_target_id)
-
-    consumer_group = models.ConsumerGroup(
-        group_name=group_name,
-        data_target_id=data_target_id
-    )
-    session.add(consumer_group)
-    session.flush()
-    return consumer_group
+    try:
+        return models.ConsumerGroup.create(
+            session,
+            group_name=group_name,
+            data_target_id=data_target_id
+        )
+    except exc.IntegrityError:
+        raise ValueError(
+            "Consumer group {} already exists.".format(group_name)
+        )
 
 
 def get_consumer_groups_by_data_target_id(data_target_id):
@@ -86,7 +89,7 @@ def get_consumer_groups_by_data_target_id(data_target_id):
         models.ConsumerGroup.data_target_id == data_target_id
     ).all()
     if not groups:
-        models.DataTarget.get_by_id(session, data_target_id)
+        verify_entity_exists(session, models.DataTarget, data_target_id)
     return groups
 
 
@@ -114,23 +117,18 @@ def register_consumer_group_data_source(
         :class:schematizer.models.exceptions.EntityNotFoundError: if specified
             data source id is not found or consumer group id is not found.
     """
-    # Verify if the consumer group exists by trying to retrieving it
-    models.ConsumerGroup.get_by_id(session, consumer_group_id)
+    verify_entity_exists(session, models.ConsumerGroup, consumer_group_id)
+    _verify_data_source_exists(data_source_type, data_source_id)
 
-    # Verify if the data source exists
-    _validate_data_source_exists(data_source_type, data_source_id)
-
-    consumer_grp_data_src = models.ConsumerGroupDataSource(
+    return models.ConsumerGroupDataSource.create(
+        session,
         consumer_group_id=consumer_group_id,
         data_source_type=data_source_type,
         data_source_id=data_source_id
     )
-    session.add(consumer_grp_data_src)
-    session.flush()
-    return consumer_grp_data_src
 
 
-def _validate_data_source_exists(data_src_type, data_src_id):
+def _verify_data_source_exists(data_src_type, data_src_id):
     """Check if the data source object of specified data source type and id
     exists.
 
@@ -148,21 +146,19 @@ def _validate_data_source_exists(data_src_type, data_src_id):
         :class:schematizer.models.exceptions.EntityNotFoundError: if specified
             data source id is not found.
     """
-    data_model_map = {
+    data_src_type_to_cls_map = {
         models.DataSourceTypeEnum.NAMESPACE: models.Namespace,
         models.DataSourceTypeEnum.SOURCE: models.Source
     }
 
-    data_model = data_model_map.get(data_src_type)
-    if not data_model:
+    data_src_cls = data_src_type_to_cls_map.get(data_src_type)
+    if not data_src_cls:
         raise ValueError(
             "Invalid data source type {}. It should be one of {}."
             .format(data_src_type, models.DataSourceTypeEnum.__name__)
         )
 
-    # Check if the data target id exists by trying to get the object. If it
-    # doesn't exist, the EntityNotFoundException will be thrown.
-    data_model.get_by_id(session, data_src_id)
+    verify_entity_exists(session, data_src_cls, data_src_id)
 
 
 def get_data_sources_by_data_target_id(data_target_id):
@@ -189,8 +185,7 @@ def get_data_sources_by_data_target_id(data_target_id):
     ).all()
 
     if not data_srcs:
-        # Check if the data_target_id exists and throw exception if not
-        models.DataTarget.get_by_id(session, data_target_id)
+        verify_entity_exists(session, models.DataTarget, data_target_id)
 
     return data_srcs
 

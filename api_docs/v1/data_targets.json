@@ -232,7 +232,7 @@
                 "created_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When this data target is created"
+                    "description": "When this data target is created. This should be a datetime string in UTC."
                 },
                 "updated_at": {
                     "type": "string",

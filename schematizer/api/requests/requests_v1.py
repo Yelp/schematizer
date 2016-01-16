@@ -15,6 +15,14 @@ class RequestBase(object):
         request_json = simplejson.loads(request_body_string)
         return cls(**request_json)
 
+    @classmethod
+    def _get_datetime(cls, request_timestamp):
+        if request_timestamp is None:
+            return None, None
+
+        long_timestamp = long(request_timestamp)
+        return long_timestamp, datetime.utcfromtimestamp(long_timestamp)
+
 
 class RegisterSchemaRequest(RequestBase):
 
@@ -124,10 +132,8 @@ class GetTopicsRequest(RequestBase):
         super(GetTopicsRequest, self).__init__()
         self.namespace = query_params.get('namespace')
         self.source = query_params.get('source')
-        param = query_params.get('created_after')
-        self.created_after = long(param) if param is not None else None
-        self.created_after_datetime = self._timestamp_to_datetime(
-            self.created_after
+        self.created_after, self.created_after_datetime = self._get_datetime(
+            query_params.get('created_after')
         )
 
     @classmethod
@@ -142,16 +148,9 @@ class GetRefreshesRequest(RequestBase):
         super(GetRefreshesRequest, self).__init__()
         self.namespace = query_params.get('namespace')
         self.status = query_params.get('status')
-        param = query_params.get('created_after')
-        self.created_after = long(param) if param is not None else None
-        self.created_after_datetime = self._timestamp_to_datetime(
-            self.created_after
+        self.created_after, self.created_after_datetime = self._get_datetime(
+            query_params.get('created_after')
         )
-
-    @classmethod
-    def _timestamp_to_datetime(cls, timestamp):
-        return (datetime.utcfromtimestamp(timestamp)
-                if timestamp is not None else None)
 
 
 class CreateRefreshRequest(RequestBase):
@@ -197,13 +196,6 @@ class GetTopicsByDataTargetIdRequest(RequestBase):
 
     def __init__(self, query_params):
         super(GetTopicsByDataTargetIdRequest, self).__init__()
-        param = query_params.get('created_after')
-        self.created_after = long(param) if param is not None else None
-        self.created_after_datetime = self._timestamp_to_datetime(
-            self.created_after
+        self.created_after, self.created_after_datetime = self._get_datetime(
+            query_params.get('created_after')
         )
-
-    @classmethod
-    def _timestamp_to_datetime(cls, timestamp):
-        return (datetime.utcfromtimestamp(timestamp)
-                if timestamp is not None else None)

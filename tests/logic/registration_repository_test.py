@@ -37,7 +37,7 @@ class TestCreateDataTarget(DBTestCase):
 
 class TestCreateConsumerGroup(DBTestCase):
 
-    @pytest.fixture(scope="class")
+    @pytest.fixture
     def dw_data_target(self):
         return factories.create_data_target(
             target_type='dw_redshift',
@@ -50,15 +50,28 @@ class TestCreateConsumerGroup(DBTestCase):
         asserts.assert_equal_consumer_group(actual, expected)
 
     def test_add_invalid_empty_consumer_group_name(self, dw_data_target):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as e:
             reg_repo.create_consumer_group(
                 group_name='',
                 data_target_id=dw_data_target.id
             )
+            assert e.value == "Consumer group name cannot be empty."
 
     def test_add_consumer_group_with_non_existing_data_target(self):
         with pytest.raises(sch_exc.EntityNotFoundError):
             reg_repo.create_consumer_group('dw', data_target_id=0)
+
+    def test_add_same_consumer_group_name_twice(self, dw_data_target):
+        reg_repo.create_consumer_group(
+            group_name='foo',
+            data_target_id=dw_data_target.id
+        )
+        with pytest.raises(ValueError) as e:
+            reg_repo.create_consumer_group(
+                group_name='foo',
+                data_target_id=dw_data_target.id
+            )
+            assert e.value == "Consumer group name foo already exists."
 
 
 class TestGetConsumerGroupsByDataTargetId(DBTestCase):
@@ -67,9 +80,9 @@ class TestGetConsumerGroupsByDataTargetId(DBTestCase):
         actual = reg_repo.get_consumer_groups_by_data_target_id(
             dw_data_target.id
         )
-        asserts.assert_equal_entities(
-            actual_entities=actual,
-            expected_entities=[dw_consumer_group],
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=[dw_consumer_group],
             assert_func=asserts.assert_equal_consumer_group
         )
 
@@ -140,7 +153,12 @@ class TestGetDataSourcesByDataTargetId(DBTestCase):
             dw_consumer_group_namespace_data_src,
             dw_consumer_group_source_data_src
         }
-        assert set(actual) == expected
+        asserts.assert_equal_entity_set(
+            actual_set=actual,
+            expected_set=expected,
+            assert_func=asserts.assert_equal_consumer_group_data_source,
+            id_attr='id'
+        )
 
     def test_data_target_with_no_data_source(self, dw_data_target):
         actual = reg_repo.get_data_sources_by_data_target_id(dw_data_target.id)
@@ -184,9 +202,9 @@ class TestGetTopicsByDataTargetId(DBTestCase):
     ):
         actual = reg_repo.get_topics_by_data_target_id(dw_data_target.id)
         expected = sorted((biz_topic, foo_topic), key=lambda t: t.id)
-        asserts.assert_equal_entities(
-            actual_entities=actual,
-            expected_entities=expected,
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=expected,
             assert_func=asserts.assert_equal_topic
         )
 
@@ -210,9 +228,9 @@ class TestGetTopicsByDataTargetId(DBTestCase):
             dw_data_target.id,
             created_after=new_created_at + datetime.timedelta(seconds=-1)
         )
-        asserts.assert_equal_entities(
-            actual_entities=actual,
-            expected_entities=[foo_topic],
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=[foo_topic],
             assert_func=asserts.assert_equal_topic
         )
 

@@ -25,3 +25,23 @@ class BaseModel(object):
     @classmethod
     def get_all(cls, session):
         return session.query(cls).all()
+
+    @classmethod
+    def create(cls, session, **kwargs):
+        """Create this entity in the database.  Note this function will call
+        `session.flush()`, so do not use this function if there are other
+        operations that need to happen before the flush is called.
+
+        Args:
+            session (:class:yelp_conn.session.YelpConnScopedSession) global
+                session manager used to provide sessions.
+            kwargs (dict): pairs of model attributes and their values.
+
+        Returns:
+            :class:schematizer.models.[cls]: object that is newly created in
+            the database.
+        """
+        entity = cls(**kwargs)
+        session.add(entity)
+        session.flush()
+        return entity

@@ -11,80 +11,79 @@ from __future__ import unicode_literals
 
 
 def assert_equal_namespace(actual, expected):
-    assert actual.id == expected.id
-    assert actual.name == expected.name
-    assert actual.created_at == expected.created_at
-    assert actual.updated_at == expected.updated_at
+    attrs = ('id', 'name', 'created_at', 'updated_at')
+    _assert_equal_multi_attrs(actual, expected, *attrs)
 
 
 def assert_equal_source(actual, expected):
-    assert actual.id == expected.id
+    attrs = ('id', 'name', 'owner_email', 'created_at', 'updated_at')
+    _assert_equal_multi_attrs(actual, expected, *attrs)
     assert_equal_namespace(actual.namespace, expected.namespace)
-    assert actual.name == expected.name
-    assert actual.owner_email == expected.owner_email
-    assert actual.created_at == expected.created_at
-    assert actual.updated_at == expected.updated_at
 
 
 def assert_equal_topic(actual, expected):
-    assert actual.id == expected.id
-    assert actual.name == expected.name
+    attrs = ('id', 'name', 'created_at', 'updated_at')
+    _assert_equal_multi_attrs(actual, expected, *attrs)
     assert_equal_source(actual.source, expected.source)
-    assert actual.created_at == expected.created_at
-    assert actual.updated_at == expected.updated_at
 
 
 def assert_equal_avro_schema(actual, expected):
-    assert actual.id == expected.id
-    assert actual.avro_schema == expected.avro_schema
+    attrs = ('id', 'avro_schema', 'base_schema_id', 'status',
+             'created_at', 'updated_at')
+    _assert_equal_multi_attrs(actual, expected, *attrs)
     assert_equal_topic(actual.topic, expected.topic)
-    assert actual.base_schema_id == expected.base_schema_id
-    assert actual.status == expected.status
-    assert actual.created_at == expected.created_at
-    assert actual.updated_at == expected.updated_at
-    assert_equal_entities(
-        actual_entities=actual.avro_schema_elements,
-        expected_entities=expected.avro_schema_elements,
+    assert_equal_entity_list(
+        actual_list=actual.avro_schema_elements,
+        expected_list=expected.avro_schema_elements,
         assert_func=assert_equal_avro_schema_element
     )
 
 
 def assert_equal_avro_schema_element(actual, expected):
-    assert actual.id == expected.id
-    assert actual.avro_schema_id == expected.avro_schema_id
-    assert actual.key == expected.key
-    assert actual.element_type == expected.element_type
-    assert actual.doc == expected.doc
-    assert actual.created_at == expected.created_at
-    assert actual.updated_at == expected.updated_at
+    attrs = ('id', 'avro_schema_id', 'key', 'element_type', 'doc',
+             'created_at', 'updated_at')
+    _assert_equal_multi_attrs(actual, expected, *attrs)
 
 
 def assert_equal_data_target(actual, expected):
-    assert actual.id == expected.id
-    assert actual.target_type == expected.target_type
-    assert actual.destination == expected.destination
-    assert actual.created_at == expected.created_at
-    assert actual.updated_at == expected.updated_at
+    attrs = ('id', 'target_type', 'destination', 'created_at', 'updated_at')
+    _assert_equal_multi_attrs(actual, expected, *attrs)
 
 
 def assert_equal_consumer_group(actual, expected):
-    assert actual.id == expected.id
-    assert actual.group_name == expected.group_name
+    attrs = ('id', 'group_name', 'created_at', 'updated_at')
+    _assert_equal_multi_attrs(actual, expected, *attrs)
     assert_equal_data_target(actual.data_target, expected.data_target)
-    assert actual.created_at == expected.created_at
-    assert actual.updated_at == expected.updated_at
 
 
 def assert_equal_consumer_group_data_source(actual, expected):
-    assert actual.id == expected.id
+    attrs = ('id', 'data_source_type', 'data_source_id',
+             'created_at', 'updated_at')
+    _assert_equal_multi_attrs(actual, expected, *attrs)
     assert_equal_consumer_group(actual.consumer_group, expected.consumer_group)
-    assert actual.data_source_type == expected.data_source_type
-    assert actual.data_source_id == expected.data_source_id
-    assert actual.created_at == expected.created_at
-    assert actual.updated_at == expected.updated_at
 
 
-def assert_equal_entities(expected_entities, actual_entities, assert_func):
-    assert len(actual_entities) == len(expected_entities)
-    for expected, actual in zip(expected_entities, actual_entities):
-        assert_func(expected, actual)
+def assert_equal_entity_list(expected_list, actual_list, assert_func):
+    assert len(actual_list) == len(expected_list)
+    for expected, actual in zip(expected_list, actual_list):
+        assert_func(actual, expected)
+
+
+def assert_equal_entity_set(expected_set, actual_set, assert_func, id_attr):
+    for actual in actual_set:
+        actual_id = getattr(actual, id_attr)
+        expected = next(
+            o for o in expected_set if actual_id == getattr(o, id_attr)
+        )
+        assert_func(actual, expected)
+
+    for expected in expected_set:
+        # only need to ensure all the expected entities can be found in the
+        # actual entity set.
+        expected_id = getattr(expected, id_attr)
+        next(o for o in actual_set if expected_id == getattr(o, id_attr))
+
+
+def _assert_equal_multi_attrs(expected_entity, actual_entity, *attrs):
+    for attr in attrs:
+        assert getattr(actual_entity, attr) == getattr(expected_entity, attr)

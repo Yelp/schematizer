@@ -22,8 +22,8 @@ from schematizer.models.database import session
 )
 @transform_api_response()
 def get_data_targets(request):
-    return [resp_v1.get_data_target_response_from_data_target(o)
-            for o in models.DataTarget.get_all(session)]
+    return [resp_v1.get_data_target_response_from_data_target(data_target)
+            for data_target in models.DataTarget.get_all(session)]
 
 
 @view_config(
