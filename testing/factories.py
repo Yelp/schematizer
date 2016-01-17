@@ -29,8 +29,7 @@ fake_filter_condition = 'user=test_user'
 
 
 def create_namespace(namespace_name):
-    namespace = models.Namespace(name=namespace_name)
-    return _create_entity(session, namespace)
+    return models.Namespace.create(session, name=namespace_name)
 
 
 def get_or_create_namespace(namespace_name):
@@ -45,12 +44,12 @@ def get_or_create_namespace(namespace_name):
 def create_source(namespace_name, source_name, owner_email=None):
     owner_email = owner_email or 'src@test.com'
     namespace = get_or_create_namespace(namespace_name)
-    source = models.Source(
+    return models.Source.create(
+        session,
         namespace_id=namespace.id,
         name=source_name,
         owner_email=owner_email
     )
-    return _create_entity(session, source)
 
 
 def get_or_create_source(namespace_name, source_name, owner_email=None):
@@ -80,8 +79,7 @@ def create_topic(topic_name, namespace_name, source_name, **overrides):
         'contains_pii': False
     }
     params.update(overrides)
-    topic = models.Topic(**params)
-    return _create_entity(session, topic)
+    return models.Topic.create(session, **params)
 
 
 def get_or_create_topic(topic_name, namespace_name=None, source_name=None):
@@ -115,13 +113,13 @@ def create_avro_schema(
         source_name=source
     )
 
-    avro_schema = models.AvroSchema(
+    avro_schema = models.AvroSchema.create(
+        session,
         avro_schema_json=schema_json,
         topic_id=topic.id,
         status=status,
         base_schema_id=base_schema_id
     )
-    _create_entity(session, avro_schema)
 
     for schema_element in schema_elements:
         schema_element.avro_schema_id = avro_schema.id
@@ -132,13 +130,13 @@ def create_avro_schema(
 
 
 def create_note(reference_type, reference_id, note_text, last_updated_by):
-    note = models.Note(
+    return models.Note.create(
+        session,
         reference_type=reference_type,
         reference_id=reference_id,
         note=note_text,
         last_updated_by=last_updated_by
     )
-    return _create_entity(session, note)
 
 
 def create_refresh(
@@ -149,38 +147,38 @@ def create_refresh(
         filter_condition
 ):
     priority_value = None if not priority else models.Priority[priority].value
-    refresh = models.Refresh(
+    return models.Refresh.create(
+        session,
         source_id=source_id,
         offset=offset,
         batch_size=batch_size,
         priority=priority_value,
         filter_condition=filter_condition
     )
-    return _create_entity(session, refresh)
 
 
 def create_source_category(source_id, category):
-    source_category = models.SourceCategory(
+    return models.SourceCategory.create(
+        session,
         source_id=source_id,
         category=category
     )
-    return _create_entity(session, source_category)
 
 
 def create_data_target(target_type, destination):
-    data_target = models.DataTarget(
+    return models.DataTarget.create(
+        session,
         target_type=target_type,
         destination=destination
     )
-    return _create_entity(session, data_target)
 
 
 def create_consumer_group(group_name, data_target):
-    consumer = models.ConsumerGroup(
+    return models.ConsumerGroup.create(
+        session,
         group_name=group_name,
         data_target_id=data_target.id
     )
-    return _create_entity(session, consumer)
 
 
 def create_consumer_group_data_source(
@@ -188,18 +186,12 @@ def create_consumer_group_data_source(
     data_src_type,
     data_src_id
 ):
-    consumer_grp_data_src = models.ConsumerGroupDataSource(
+    return models.ConsumerGroupDataSource.create(
+        session,
         consumer_group_id=consumer_group.id,
         data_source_type=data_src_type,
         data_source_id=data_src_id
     )
-    return _create_entity(session, consumer_grp_data_src)
-
-
-def _create_entity(session, entity):
-    session.add(entity)
-    session.flush()
-    return entity
 
 
 class NamespaceFactory(object):

@@ -9,6 +9,7 @@ from sqlalchemy import String
 from sqlalchemy import Text
 from sqlalchemy import UniqueConstraint
 
+from schematizer.models.base_model import BaseModel
 from schematizer.models.database import Base
 from schematizer.models.types.time import build_time_column
 
@@ -23,7 +24,7 @@ class ReferenceTypeEnum(object):
     SCHEMA_ELEMENT = 'schema_element'
 
 
-class Note(Base):
+class Note(Base, BaseModel):
 
     __tablename__ = 'note'
     __table_args__ = (

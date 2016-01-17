@@ -10,11 +10,12 @@ from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from schematizer.models.avro_schema import AvroSchema
+from schematizer.models.base_model import BaseModel
 from schematizer.models.database import Base
 from schematizer.models.types.time import build_time_column
 
 
-class Topic(Base):
+class Topic(Base, BaseModel):
 
     __tablename__ = 'topic'
     __table_args__ = (

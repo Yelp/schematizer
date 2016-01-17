@@ -136,11 +136,6 @@ class GetTopicsRequest(RequestBase):
             query_params.get('created_after')
         )
 
-    @classmethod
-    def _timestamp_to_datetime(cls, timestamp):
-        return (datetime.utcfromtimestamp(timestamp)
-                if timestamp is not None else None)
-
 
 class GetRefreshesRequest(RequestBase):
 

@@ -45,6 +45,12 @@ def assert_equal_avro_schema_element(actual, expected):
     _assert_equal_multi_attrs(actual, expected, *attrs)
 
 
+def assert_equal_refresh(actual, expected):
+    attrs = ('id', 'source_id', 'status', 'offset', 'batch_size', 'priority',
+             'filter_condition', 'created_at', 'updated_at')
+    _assert_equal_multi_attrs(actual, expected, *attrs)
+
+
 def assert_equal_data_target(actual, expected):
     attrs = ('id', 'target_type', 'destination', 'created_at', 'updated_at')
     _assert_equal_multi_attrs(actual, expected, *attrs)
@@ -70,18 +76,20 @@ def assert_equal_entity_list(expected_list, actual_list, assert_func):
 
 
 def assert_equal_entity_set(expected_set, actual_set, assert_func, id_attr):
-    for actual in actual_set:
-        actual_id = getattr(actual, id_attr)
+    actual_id_to_obj_map = {getattr(o, id_attr): o for o in actual_set}
+
+    for actual_id, actual in actual_id_to_obj_map.iteritems():
         expected = next(
             o for o in expected_set if actual_id == getattr(o, id_attr)
         )
         assert_func(actual, expected)
 
+    err_msg = 'Expected id {} is missing in actual result.'
     for expected in expected_set:
         # only need to ensure all the expected entities can be found in the
         # actual entity set.
         expected_id = getattr(expected, id_attr)
-        next(o for o in actual_set if expected_id == getattr(o, id_attr))
+        assert expected_id in actual_id_to_obj_map, err_msg.format(expected_id)
 
 
 def _assert_equal_multi_attrs(expected_entity, actual_entity, *attrs):
