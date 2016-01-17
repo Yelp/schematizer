@@ -56,7 +56,7 @@ def create_consumer_group(group_name, data_target_id):
             data target id is not found.
 
     """
-    verify_truthy_value(group_name, "Consumer group name")
+    verify_truthy_value(group_name, "consumer group name")
     verify_entity_exists(session, models.DataTarget, data_target_id)
 
     try:

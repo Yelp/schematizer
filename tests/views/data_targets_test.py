@@ -129,7 +129,7 @@ class TestCreateConsumerGroup(ApiTestBase):
             data_target_views.create_consumer_group(mock_request)
 
         assert e.value.code == expected_exception.code
-        assert str(e.value) == "Consumer group name cannot be empty."
+        assert str(e.value) == "consumer group name cannot be empty."
 
 
 class TestGetConsumerGroupsByDataTargetId(ApiTestBase):
