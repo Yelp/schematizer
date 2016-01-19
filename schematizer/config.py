@@ -159,6 +159,27 @@ def routes(config):
         '/v1/data_targets/{data_target_id}/topics',
         request_method="GET"
     )
+
+    config.add_route(
+        'api.v1.get_consumer_groups',
+        '/v1/consumer_groups',
+        request_method="GET"
+    )
+    config.add_route(
+        'api.v1.get_consumer_group_by_id',
+        '/v1/consumer_groups/{consumer_group_id}',
+        request_method="GET"
+    )
+    config.add_route(
+        'api.v1.get_data_sources_by_consumer_group_id',
+        '/v1/consumer_groups/{consumer_group_id}/data_sources',
+        request_method="GET"
+    )
+    config.add_route(
+        'api.v1.create_consumer_group_data_source',
+        '/v1/consumer_groups/{consumer_group_id}/data_sources',
+        request_method="POST"
+    )
     # Serve the documentation tool from /web/
     config.add_static_view(name='web', path='static/html/')
     config.add_static_view(name='static', path='static/')

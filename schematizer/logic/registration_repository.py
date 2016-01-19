@@ -161,6 +161,31 @@ def _verify_data_source_exists(data_src_type, data_src_id):
     verify_entity_exists(session, data_src_cls, data_src_id)
 
 
+def get_data_sources_by_consumer_group_id(consumer_group_id):
+    """Get all the data sources that associate to the given consumer group.
+
+    Args:
+        consumer_group_id (int): Id of the consumer group.
+
+    Returns:
+        List[:class:schematizer.models.consumer_group_data_source
+        .ConsumerGroupDataSource]: List of data sources associated to the
+        given data target.
+
+    Raises:
+        :class:schematizer.models.exceptions.EntityNotFoundError: if specified
+            consumer group id is not found.
+    """
+    data_srcs = session.query(models.ConsumerGroupDataSource).filter(
+        models.ConsumerGroupDataSource.consumer_group_id == consumer_group_id
+    ).all()
+
+    if not data_srcs:
+        verify_entity_exists(session, models.ConsumerGroup, consumer_group_id)
+
+    return data_srcs
+
+
 def get_data_sources_by_data_target_id(data_target_id):
     """Get all the data sources that associate to the given data target.
 

@@ -1,0 +1,251 @@
+{
+    "apiVersion": "1.0.0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://169.254.255.254:20912",
+    "resourcePath": "/v1/consumer_groups",
+    "produces": [
+        "application/json"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "apis": [
+        {
+            "path": "/v1/consumer_groups",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "List all the consumer groups.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "ConsumerGroup"
+                    },
+                    "nickname": "get_consumer_groups",
+                    "authorizations": {},
+                    "parameters": [],
+                    "responseMessages": [
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/v1/consumer_groups/{consumer_group_id}",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get the consumer group of specified ID",
+                    "type": "ConsumerGroup",
+                    "nickname": "get_consumer_group_by_id",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "consumer_group_id",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid consumer group ID supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Consumer group ID not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/v1/consumer_groups/{consumer_group_id}/data_sources",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "List the data sources associated to this consumer group.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "ConsumerGroupDataSource"
+                    },
+                    "nickname": "get_data_sources_by_consumer_group_id",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "consumer_group_id",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                       {
+                            "code": 400,
+                            "message": "Invalid request supplied."
+                        },
+                        {
+                            "code": 404,
+                            "message": "Consumer group ID not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                     ]
+                },
+                {
+                    "method": "POST",
+                    "summary": "Add a data source to this consumer group.",
+                    "type": "ConsumerGroupDataSource",
+                    "nickname": "create_consumer_group_data_source",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "consumer_group_id",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        },
+                        {
+                            "name": "body",
+                            "required": true,
+                            "type": "CreateConsumerGroupDataSourceRequest",
+                            "paramType": "body"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Consumer group ID not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "DataTarget": {
+            "id": "DataTarget",
+            "properties": {
+                "data_target_id": {
+                    "type": "integer",
+                    "description": "Data target ID"
+                },
+                "target_type": {
+                    "type": "string",
+                    "description": "Short description of the data target type, such as Redshift."
+                },
+                "destination": {
+                    "type": "string",
+                    "description": "Url that connects to the data target, such as Redshift cluster connection url."
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this data target is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this data target is last updated"
+                }
+            }
+        },
+        "ConsumerGroup": {
+            "id": "ConsumerGroup",
+            "properties": {
+                "consumer_group_id": {
+                    "type": "integer",
+                    "description": "Consumer group ID"
+                },
+                "group_name": {
+                    "type": "string",
+                    "description": "Name of the consumer group."
+                },
+                "data_target": {
+                    "type": "DataTarget",
+                    "description": "The data target is where the messages consumed by this consumer group will be sent to."
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this consumer group is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this consumer group is last updated"
+                }
+            }
+        },
+        "ConsumerGroupDataSource": {
+            "id": "ConsumerGroupDataSource",
+            "properties": {
+                "consumer_group_data_source_id": {
+                    "type": "integer",
+                    "description": "Consumer group data source ID"
+                },
+                "data_source_type": {
+                    "type": "string",
+                    "enum": ["Namespace", "Source"],
+                    "description": "Type of the data source."
+                },
+                "data_source_id": {
+                    "type": "integer",
+                    "description": "Id of the data source object, such as namespace id or source id."
+                },
+                "consumer_group_id": {
+                    "type": "integer",
+                    "description": "The id of the consumer group the data source is consumed by."
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this consumer group is created"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this consumer group is last updated"
+                }
+            }
+        },
+        "CreateConsumerGroupDataSourceRequest": {
+            "id": "CreateConsumerGroupDataSourceRequest",
+            "required": [
+                "data_source_type",
+                "data_source_id"
+            ],
+            "properties": {
+                "data_source_type": {
+                    "type": "string",
+                    "enum": ["Namespace", "Source"],
+                    "description": "Type of the data source. Must be one of the following values: Namespace, Source."
+                },
+                "data_source_id": {
+                    "type": "integer",
+                    "description": "Id of the data source object, such as namespace id or source id."
+                }
+            }
+        }
+    }
+}

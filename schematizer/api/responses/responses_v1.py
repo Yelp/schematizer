@@ -130,3 +130,14 @@ def get_consumer_group_response_from_consumer_group(consumer_group):
         'created_at': _format_datetime(consumer_group.created_at),
         'updated_at': _format_datetime(consumer_group.updated_at)
     }
+
+
+def get_response_from_consumer_group_data_source(consumer_group_data_source):
+    return {
+        'consumer_group_data_source_id': consumer_group_data_source.id,
+        'data_source_type': consumer_group_data_source.data_source_type,
+        'data_source_id': consumer_group_data_source.data_source_id,
+        'consumer_group_id': consumer_group_data_source.consumer_group_id,
+        'created_at': _format_datetime(consumer_group_data_source.created_at),
+        'updated_at': _format_datetime(consumer_group_data_source.updated_at)
+    }

@@ -140,6 +140,34 @@ class TestRegisterConsumerGroupDataSource(DBTestCase):
             )
 
 
+class TestGetDataSourcesByConsumerGroupId(DBTestCase):
+
+    def test_get_data_sources_by_consumer_group_id(
+        self,
+        dw_consumer_group,
+        dw_consumer_group_namespace_data_src
+    ):
+        actual = reg_repo.get_data_sources_by_consumer_group_id(
+            dw_consumer_group.id
+        )
+        expected = [dw_consumer_group_namespace_data_src]
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=expected,
+            assert_func=asserts.assert_equal_consumer_group_data_source
+        )
+
+    def test_consumer_group_without_data_source(self, dw_consumer_group):
+        actual = reg_repo.get_data_sources_by_consumer_group_id(
+            dw_consumer_group.id
+        )
+        assert actual == []
+
+    def test_non_existing_consumer_group(self):
+        with pytest.raises(sch_exc.EntityNotFoundError):
+            reg_repo.get_data_sources_by_consumer_group_id(consumer_group_id=0)
+
+
 class TestGetDataSourcesByDataTargetId(DBTestCase):
 
     def test_get_data_sources_by_data_target_id(

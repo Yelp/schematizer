@@ -108,6 +108,27 @@ class ApiTestBase(DBTestCase):
             expected.update(overrides)
         return expected
 
+    def get_expected_consumer_group_data_src_resp(
+        self,
+        consumer_group_data_source_id,
+        **overrides
+    ):
+        data_source = utils.get_entity_by_id(
+            models.ConsumerGroupDataSource,
+            consumer_group_data_source_id
+        )
+        expected = {
+            'consumer_group_data_source_id': data_source.id,
+            'consumer_group_id': data_source.consumer_group.id,
+            'data_source_type': data_source.data_source_type,
+            'data_source_id': data_source.data_source_id,
+            'created_at': data_source.created_at.isoformat(),
+            'updated_at': data_source.updated_at.isoformat()
+        }
+        if overrides:
+            expected.update(overrides)
+        return expected
+
     @classmethod
     def get_http_exception(cls, http_status_code):
         return httpexceptions.status_map[http_status_code]

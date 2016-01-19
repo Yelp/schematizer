@@ -37,6 +37,10 @@
         {
             "path": "/v1/data_targets",
             "description": "Operations about data targets."
+        },
+        {
+            "path": "/v1/consumer_groups",
+            "description": "Operations about the consumer groups."
         }
     ],
     "info": {

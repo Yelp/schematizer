@@ -69,13 +69,13 @@ def assert_equal_consumer_group_data_source(actual, expected):
     assert_equal_consumer_group(actual.consumer_group, expected.consumer_group)
 
 
-def assert_equal_entity_list(expected_list, actual_list, assert_func):
+def assert_equal_entity_list(actual_list, expected_list, assert_func):
     assert len(actual_list) == len(expected_list)
     for expected, actual in zip(expected_list, actual_list):
         assert_func(actual, expected)
 
 
-def assert_equal_entity_set(expected_set, actual_set, assert_func, id_attr):
+def assert_equal_entity_set(actual_set, expected_set, assert_func, id_attr):
     actual_id_to_obj_map = {getattr(o, id_attr): o for o in actual_set}
 
     for actual_id, actual in actual_id_to_obj_map.iteritems():
