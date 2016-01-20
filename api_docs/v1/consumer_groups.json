@@ -220,12 +220,12 @@
                 "created_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When this consumer group is created"
+                    "description": "When this data source is initially added to the consumer group."
                 },
                 "updated_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When this consumer group is last updated"
+                    "description": "When this consumer group - data source mapping is last updated."
                 }
             }
         },
