@@ -182,7 +182,7 @@
                     "description": "Name of the consumer group."
                 },
                 "data_target": {
-                    "type": "DataTarget",
+                    "$ref": "DataTarget",
                     "description": "The data target is where the messages consumed by this consumer group will be sent to."
                 },
                 "created_at": {
