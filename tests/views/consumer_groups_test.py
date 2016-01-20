@@ -7,6 +7,7 @@ import copy
 import pytest
 
 from schematizer.views import consumer_groups as con_group_views
+from testing.factories import create_consumer_group
 from tests.views.api_test_base import ApiTestBase
 
 
@@ -16,10 +17,20 @@ class TestGetConsumerGroups(ApiTestBase):
         actual = con_group_views.get_consumer_groups(mock_request)
         assert actual == []
 
-    def test_one_consumer_group(self, mock_request, dw_consumer_group):
+    def test_one_consumer_group(
+        self,
+        mock_request,
+        dw_consumer_group,
+        dw_data_target
+    ):
+        another_consumer_group = create_consumer_group(
+            'another_consumer_group',
+            data_target=dw_data_target
+        )
         actual = con_group_views.get_consumer_groups(mock_request)
         expected = [
-            self.get_expected_consumer_group_resp(dw_consumer_group.id)
+            self.get_expected_consumer_group_resp(dw_consumer_group.id),
+            self.get_expected_consumer_group_resp(another_consumer_group.id)
         ]
         assert actual == expected
 
@@ -111,8 +122,7 @@ class TestCreateConsumerGroupDataSource(ApiTestBase):
             **request_json
         )
         assert actual == expected
-        actual_consumer_group_id = actual['consumer_group_id']
-        assert actual_consumer_group_id == dw_consumer_group.id
+        assert actual['consumer_group_id'] == dw_consumer_group.id
 
     def test_non_existing_consumer_group_id(self, mock_request, request_json):
         expected_exception = self.get_http_exception(404)
