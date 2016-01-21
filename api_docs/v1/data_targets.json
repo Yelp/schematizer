@@ -131,7 +131,7 @@
                 {
                     "method": "POST",
                     "summary": "Create a consumer group that is associated to this data target.",
-                    "type": "DataTarget",
+                    "type": "ConsumerGroup",
                     "nickname": "create_consumer_group",
                     "authorizations": {},
                     "parameters": [
