@@ -39,4 +39,10 @@
             <column name="source_id"/>
         </createIndex>
     </changeSet>
+    <changeSet author="keegan" id="1453764057">
+        <comment>[2016-01-25] Add "optional" column to handle throughput throttle (--avg-rows-per-second-cap)</comment>
+        <addColumn tableName="refresh">
+            <column name="avg_rows_per_second_cap" type="INT(11)" defaultValue="NULL"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

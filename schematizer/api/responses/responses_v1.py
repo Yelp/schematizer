@@ -106,7 +106,8 @@ def get_refresh_response_from_refresh(refresh):
         'priority': Priority(refresh.priority).name,
         'filter_condition': refresh.filter_condition,
         'created_at': _format_datetime(refresh.created_at),
-        'updated_at': _format_datetime(refresh.updated_at)
+        'updated_at': _format_datetime(refresh.updated_at),
+        'avg_rows_per_second_cap': refresh.avg_rows_per_second_cap
     }
 
 

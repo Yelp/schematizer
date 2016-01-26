@@ -74,3 +74,8 @@ class Refresh(Base, BaseModel):
         onupdate_now=True,
         nullable=False
     )
+
+    avg_rows_per_second_cap = Column(
+        Integer,
+        default=None
+    )

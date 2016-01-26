@@ -147,7 +147,6 @@ class GetRefreshesRequest(RequestBase):
             query_params.get('created_after')
         )
 
-
 class CreateRefreshRequest(RequestBase):
 
     def __init__(
@@ -155,13 +154,15 @@ class CreateRefreshRequest(RequestBase):
             offset=None,
             batch_size=None,
             priority=None,
-            filter_condition=None
+            filter_condition=None,
+            avg_rows_per_second_cap=None
     ):
         super(CreateRefreshRequest, self).__init__()
         self.offset = offset
         self.batch_size = batch_size
         self.priority = priority
         self.filter_condition = filter_condition
+        self.avg_rows_per_second_cap=avg_rows_per_second_cap
 
 
 class UpdateRefreshStatusRequest(RequestBase):

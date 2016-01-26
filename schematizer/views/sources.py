@@ -132,7 +132,8 @@ def create_refresh(request):
         offset=req.offset,
         batch_size=req.batch_size,
         priority=req.priority,
-        filter_condition=req.filter_condition
+        filter_condition=req.filter_condition,
+        avg_rows_per_second_cap=req.avg_rows_per_second_cap
     )
     return responses_v1.get_refresh_response_from_refresh(refresh)
 

@@ -8,6 +8,7 @@ CREATE TABLE `refresh` (
   `filter_condition` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` int(11) NOT NULL,
   `updated_at` int(11) NOT NULL,
+  `avg_rows_per_second_cap` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `source_id` (`source_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

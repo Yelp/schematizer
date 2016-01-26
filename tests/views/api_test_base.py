@@ -74,10 +74,12 @@ class ApiTestBase(DBTestCase):
             'batch_size': src_refresh.batch_size,
             'priority': models.Priority(src_refresh.priority).name,
             'created_at': src_refresh.created_at.isoformat(),
-            'updated_at': src_refresh.updated_at.isoformat()
+            'updated_at': src_refresh.updated_at.isoformat(),
         }
         if overrides:
             expected.update(overrides)
+        if src_refresh.avg_rows_per_second_cap is not None:
+            expected['avg_rows_per_second_cap'] = src_refresh.avg_rows_per_second_cap
         return expected
 
     def get_expected_data_target_resp(self, data_target_id, **overrides):
