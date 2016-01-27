@@ -74,7 +74,7 @@ class ApiTestBase(DBTestCase):
             'batch_size': src_refresh.batch_size,
             'priority': models.Priority(src_refresh.priority).name,
             'created_at': src_refresh.created_at.isoformat(),
-            'updated_at': src_refresh.updated_at.isoformat(),
+            'updated_at': src_refresh.updated_at.isoformat()
         }
         if overrides:
             expected.update(overrides)
