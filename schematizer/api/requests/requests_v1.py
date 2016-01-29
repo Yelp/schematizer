@@ -163,7 +163,7 @@ class CreateRefreshRequest(RequestBase):
         self.batch_size = batch_size
         self.priority = priority
         self.filter_condition = filter_condition
-        self.avg_rows_per_second_cap=avg_rows_per_second_cap
+        self.avg_rows_per_second_cap = avg_rows_per_second_cap
 
 
 class UpdateRefreshStatusRequest(RequestBase):

@@ -77,7 +77,9 @@ class ApiTestBase(DBTestCase):
             'updated_at': src_refresh.updated_at.isoformat()
         }
         if src_refresh.avg_rows_per_second_cap is not None:
-            expected['avg_rows_per_second_cap'] = src_refresh.avg_rows_per_second_cap
+            expected[
+                'avg_rows_per_second_cap'
+            ] = src_refresh.avg_rows_per_second_cap
         if overrides:
             expected.update(overrides)
         return expected
