@@ -97,7 +97,7 @@ class TestSchemaRepository(DBTestCase):
 
     @property
     def avg_rows_per_second_cap(self):
-        return factories.fake_avg_rows_per_second_cap
+        return 1000
 
     @property
     def status(self):
@@ -1012,7 +1012,7 @@ class TestByCriteria(DBTestCase):
             batch_size=factories.fake_batch_size,
             priority=factories.fake_priority,
             filter_condition=factories.fake_filter_condition,
-            avg_rows_per_second_cap=factories.fake_avg_rows_per_second_cap
+            avg_rows_per_second_cap=self.avg_rows_per_second_cap
         )
 
     @pytest.fixture
@@ -1023,7 +1023,7 @@ class TestByCriteria(DBTestCase):
             batch_size=factories.fake_batch_size,
             priority=factories.fake_priority,
             filter_condition=factories.fake_filter_condition,
-            avg_rows_per_second_cap=factories.fake_avg_rows_per_second_cap
+            avg_rows_per_second_cap=self.avg_rows_per_second_cap
         )
 
     @pytest.fixture
@@ -1034,7 +1034,7 @@ class TestByCriteria(DBTestCase):
             batch_size=factories.fake_batch_size,
             priority=factories.fake_priority,
             filter_condition=factories.fake_filter_condition,
-            avg_rows_per_second_cap=factories.fake_avg_rows_per_second_cap
+            avg_rows_per_second_cap=self.avg_rows_per_second_cap
         )
 
     @pytest.fixture

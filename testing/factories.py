@@ -26,7 +26,6 @@ fake_priority_value = 50
 fake_status = 'SUCCESS'
 fake_status_value = 3
 fake_filter_condition = 'user=test_user'
-fake_avg_rows_per_second_cap = 1000
 
 
 def create_namespace(namespace_name):

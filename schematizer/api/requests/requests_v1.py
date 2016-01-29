@@ -147,6 +147,7 @@ class GetRefreshesRequest(RequestBase):
             query_params.get('created_after')
         )
 
+
 class CreateRefreshRequest(RequestBase):
 
     def __init__(

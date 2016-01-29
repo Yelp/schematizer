@@ -194,7 +194,7 @@ class TestCreateRefresh(ApiTestBase):
         assert str(e.value) == exc_v1.SOURCE_NOT_FOUND_ERROR_MESSAGE
 
     def test_happy_case(self, mock_request, biz_source, request_json):
-        mock_request.matchdict = {'source_id': biz_source.id}
+        mock_request.matchdict = {'source_id': str(biz_source.id)}
         mock_request.json_body = request_json
         actual = source_views.create_refresh(mock_request)
 
@@ -209,7 +209,7 @@ class TestCreateRefresh(ApiTestBase):
         assert actual['source']['source_id'] == biz_source.id
 
     def test_happy_case_no_cap(self, mock_request, biz_source, request_json):
-        mock_request.matchdict = {'source_id': biz_source.id}
+        mock_request.matchdict = {'source_id': str(biz_source.id)}
         mock_request.json_body = request_json
         del request_json['avg_rows_per_second_cap']
         actual = source_views.create_refresh(mock_request)

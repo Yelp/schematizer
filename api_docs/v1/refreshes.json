@@ -251,8 +251,8 @@
                 },
                 "avg_rows_per_second_cap": {
                     "type": "integer",
-                    "description": "This field throttles the throughput of the refresh runner once the refresh is actually run. We will sleep in between batch row gets to limit it to this cap. Can potentially be null"
-                }
+                    "description": "This field throttles the throughput of the refresh runner once the refresh is actually run. We will sleep in between batch row gets to limit it to this cap (default: null)"
+                },
                 "created_at": {
                     "type": "string",
                     "format": "date-time",
