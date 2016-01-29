@@ -1004,6 +1004,10 @@ class TestByCriteria(DBTestCase):
     def some_datetime(self):
         return datetime.datetime(2015, 3, 1, 10, 23, 5, 254)
 
+    @property
+    def avg_rows_per_second_cap(self):
+        return 1000
+
     @pytest.fixture
     def biz_refresh(self, biz_source):
         return factories.create_refresh(
