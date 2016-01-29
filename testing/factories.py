@@ -144,7 +144,8 @@ def create_refresh(
         offset,
         batch_size,
         priority,
-        filter_condition
+        filter_condition,
+        avg_rows_per_second_cap
 ):
     priority_value = None if not priority else models.Priority[priority].value
     return models.Refresh.create(
@@ -153,7 +154,8 @@ def create_refresh(
         offset=offset,
         batch_size=batch_size,
         priority=priority_value,
-        filter_condition=filter_condition
+        filter_condition=filter_condition,
+        avg_rows_per_second_cap=avg_rows_per_second_cap
     )
 
 

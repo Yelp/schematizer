@@ -504,6 +504,11 @@
                 "filter_condition": {
                     "type": "string",
                     "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table."
+                },
+                "avg_rows_per_second_cap": {
+                    "type": "integer",
+                    "description": "This field throttles the throughput of the refresh runner once the refresh is actually run. It will sleep in between batch row gets to limit it to this cap",
+                    "required": false
                 }
             }
         }

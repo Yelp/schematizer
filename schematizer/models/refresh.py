@@ -64,6 +64,11 @@ class Refresh(Base, BaseModel):
     # if the source of the refresh is a MySQL table.
     filter_condition = Column(String, default=None)
 
+    avg_rows_per_second_cap = Column(
+        Integer,
+        default=None
+    )
+
     created_at = build_time_column(
         default_now=True,
         nullable=False

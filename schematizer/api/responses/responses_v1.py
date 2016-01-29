@@ -105,6 +105,7 @@ def get_refresh_response_from_refresh(refresh):
         'batch_size': refresh.batch_size,
         'priority': Priority(refresh.priority).name,
         'filter_condition': refresh.filter_condition,
+        'avg_rows_per_second_cap': refresh.avg_rows_per_second_cap,
         'created_at': _format_datetime(refresh.created_at),
         'updated_at': _format_datetime(refresh.updated_at)
     }

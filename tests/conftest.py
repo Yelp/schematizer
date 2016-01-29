@@ -122,6 +122,7 @@ def biz_src_refresh(biz_source):
         batch_size=500,
         priority=models.Priority.MEDIUM.name,
         filter_condition=None,
+        avg_rows_per_second_cap=1000
     )
 
 

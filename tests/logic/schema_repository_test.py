@@ -96,6 +96,10 @@ class TestSchemaRepository(DBTestCase):
         return factories.fake_filter_condition
 
     @property
+    def avg_rows_per_second_cap(self):
+        return 1000
+
+    @property
     def status(self):
         return factories.fake_status
 
@@ -110,7 +114,8 @@ class TestSchemaRepository(DBTestCase):
             offset=self.offset,
             batch_size=self.batch_size,
             priority=self.priority,
-            filter_condition=self.filter_condition
+            filter_condition=self.filter_condition,
+            avg_rows_per_second_cap=self.avg_rows_per_second_cap
         )
 
     @property
@@ -823,7 +828,8 @@ class TestSchemaRepository(DBTestCase):
             self.offset,
             self.batch_size,
             self.priority,
-            self.filter_condition
+            self.filter_condition,
+            self.avg_rows_per_second_cap
         )
         expected_refresh = models.Refresh(
             source_id=self.source_id,
@@ -831,7 +837,8 @@ class TestSchemaRepository(DBTestCase):
             offset=self.offset,
             batch_size=self.batch_size,
             priority=self.priority_value,
-            filter_condition=self.filter_condition
+            filter_condition=self.filter_condition,
+            avg_rows_per_second_cap=self.avg_rows_per_second_cap
         )
         self.assert_equal_refresh_partial(expected_refresh, actual_refresh)
 
@@ -997,6 +1004,10 @@ class TestByCriteria(DBTestCase):
     def some_datetime(self):
         return datetime.datetime(2015, 3, 1, 10, 23, 5, 254)
 
+    @property
+    def avg_rows_per_second_cap(self):
+        return 1000
+
     @pytest.fixture
     def biz_refresh(self, biz_source):
         return factories.create_refresh(
@@ -1004,7 +1015,8 @@ class TestByCriteria(DBTestCase):
             offset=factories.fake_offset,
             batch_size=factories.fake_batch_size,
             priority=factories.fake_priority,
-            filter_condition=factories.fake_filter_condition
+            filter_condition=factories.fake_filter_condition,
+            avg_rows_per_second_cap=self.avg_rows_per_second_cap
         )
 
     @pytest.fixture
@@ -1014,7 +1026,8 @@ class TestByCriteria(DBTestCase):
             offset=factories.fake_offset,
             batch_size=factories.fake_batch_size,
             priority=factories.fake_priority,
-            filter_condition=factories.fake_filter_condition
+            filter_condition=factories.fake_filter_condition,
+            avg_rows_per_second_cap=self.avg_rows_per_second_cap
         )
 
     @pytest.fixture
@@ -1024,7 +1037,8 @@ class TestByCriteria(DBTestCase):
             offset=factories.fake_offset,
             batch_size=factories.fake_batch_size,
             priority=factories.fake_priority,
-            filter_condition=factories.fake_filter_condition
+            filter_condition=factories.fake_filter_condition,
+            avg_rows_per_second_cap=self.avg_rows_per_second_cap
         )
 
     @pytest.fixture
