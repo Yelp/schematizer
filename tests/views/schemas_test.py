@@ -192,7 +192,8 @@ class TestRegisterSchemaFromMySQL(RegisterSchemaTestBase):
         mock_request,
         request_json
     ):
-        request_json["new_create_table_stmt"] = 'create table biz (t blob);'
+        request_json["new_create_table_stmt"] = ('create table dummy '
+                                                 '(col set("a", "b"));')
         mock_request.json_body = request_json
 
         expected_exception = self.get_http_exception(422)

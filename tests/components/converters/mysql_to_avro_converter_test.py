@@ -273,9 +273,45 @@ class TestMySQLToAvroConverter(object):
              'default': None}
         )
 
+    def test_convert_with_col_binary(self, converter):
+        self._convert_and_assert_with_one_column(
+            converter,
+            SQLColumn('col_binary', mysql_data_types.MySQLBinary(16)),
+            {'name': 'col_binary',
+             'type': ['null', 'bytes'],
+             'default': None,
+             AvroMetaDataKeys.FIX_LEN: 16}
+        )
+
+    def test_convert_with_col_varbinary(self, converter):
+        self._convert_and_assert_with_one_column(
+            converter,
+            SQLColumn('col_varbinary', mysql_data_types.MySQLVarBinary(16)),
+            {'name': 'col_varbinary',
+             'type': ['null', 'bytes'],
+             'default': None,
+             AvroMetaDataKeys.MAX_LEN: 16}
+        )
+
+    def test_convert_with_col_blob(self, converter):
+        data_type_to_column_name = {
+            mysql_data_types.MySQLBlob: 'col_blob',
+            mysql_data_types.MySQLTinyBlob: 'col_tiny_blob',
+            mysql_data_types.MySQLMediumBlob: 'col_medium_blob',
+            mysql_data_types.MySQLLongBlob: 'col_long_blob',
+        }
+        for data_type, column_name in data_type_to_column_name.iteritems():
+            self._convert_and_assert_with_one_column(
+                converter,
+                SQLColumn(column_name, data_type()),
+                {'name': column_name,
+                 'type': ['null', 'bytes'],
+                 'default': None},
+            )
+
     def test_convert_with_unsupported_type(self, converter):
         with pytest.raises(UnsupportedTypeException):
-            column = SQLColumn('col', mysql_data_types.MySQLBlob())
+            column = SQLColumn('col', mysql_data_types.MySQLSet(['dummy']))
             sql_table = SQLTable(self.table_name, [column])
             converter.convert(sql_table)
 

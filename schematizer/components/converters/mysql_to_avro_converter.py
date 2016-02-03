@@ -126,6 +126,14 @@ class MySQLToAvroConverter(BaseConverter):
             mysql_types.MySQLYear: self._convert_year_type,
             mysql_types.MySQLTimestamp: self._convert_timestamp_type,
             mysql_types.MySQLEnum: self._convert_enum_type,
+
+            mysql_types.MySQLBlob: self._convert_blob_type,
+            mysql_types.MySQLTinyBlob: self._convert_blob_type,
+            mysql_types.MySQLMediumBlob: self._convert_blob_type,
+            mysql_types.MySQLLongBlob: self._convert_blob_type,
+
+            mysql_types.MySQLBinary: self._convert_binary_type,
+            mysql_types.MySQLVarBinary: self._convert_varbinary_type
         }
 
     def _convert_small_integer_type(self, column):
@@ -252,6 +260,20 @@ class MySQLToAvroConverter(BaseConverter):
             self.get_enum_type_name(column),
             column.type.values
         ).end(), {}
+
+    def _convert_blob_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        return self._builder.create_bytes(), metadata
+
+    def _convert_binary_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeys.FIX_LEN] = column.type.length
+        return self._builder.create_bytes(), metadata
+
+    def _convert_varbinary_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeys.MAX_LEN] = column.type.length
+        return self._builder.create_bytes(), metadata
 
     @classmethod
     def get_enum_type_name(cls, column):
