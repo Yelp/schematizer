@@ -78,7 +78,7 @@
                             <div class="row">
                                 <div class="col-md-2"><b>Notes (<a href="" ng-click="editTableNote()">Edit</a>)</b></div>
                                 <div class="col-md-10" id="table_notes" ng-hide="isEditingTableNote">
-                                    <p id="table_notes_content" title="Last edited by {{tableNote.last_updated_by}}">{{tableNote.note}}</p>
+                                    <p id="table_notes_content" title="Last edited by {{tableNote.last_updated_by}}" class="preserve-white-space">{{tableNote.note}}</p>
                                 </div>
                                 <div class="col-md-10" ng-show="isEditingTableNote">
                                     <textarea id="table_notes_form" class="form-control" rows=4 ng-model="tableNoteEdit"></textarea>
