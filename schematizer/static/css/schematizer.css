@@ -80,5 +80,5 @@ legend {
 }
 
 .preserve-white-space {
-    white-space: pre;
+    white-space: pre-wrap;
 }

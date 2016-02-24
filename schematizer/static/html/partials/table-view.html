@@ -103,11 +103,11 @@
                     <td>{{field.name}}</td>
                     <td>{{field.type}}</td>
                     <td>
-                        <div ng-hide="field.doc.length == 0">{{field.doc}}</div>
-                        <div ng-show="field.doc.length == 0">No description found.</div>
+                        <div ng-hide="field.doc.length == 0" class="preserve-white-space">{{field.doc}}</div>
+                        <div ng-show="field.doc.length == 0" class="preserve-white-space">No description found.</div>
                     </td>
                     <td id="comment_note" class="comment_note-cell">
-                        <p title="Last updated by {{field.note.last_updated_by}}" ng-hide="columnNoteEdit[field.id].isEditing">
+                        <p title="Last updated by {{field.note.last_updated_by}}" ng-hide="columnNoteEdit[field.id].isEditing" class="preserve-white-space">
                             {{columnNoteEdit[field.id].note.note}}
                             <span class="pull-right"><a href="" ng-click="editColumnNote(field.id)">Edit</a></span>
                         </p>
