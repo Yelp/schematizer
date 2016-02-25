@@ -133,7 +133,9 @@ class MySQLToAvroConverter(BaseConverter):
             mysql_types.MySQLLongBlob: self._convert_blob_type,
 
             mysql_types.MySQLBinary: self._convert_binary_type,
-            mysql_types.MySQLVarBinary: self._convert_varbinary_type
+            mysql_types.MySQLVarBinary: self._convert_varbinary_type,
+
+            mysql_types.MySQLSet: self._convert_set_type,
         }
 
     def _convert_small_integer_type(self, column):
@@ -274,6 +276,16 @@ class MySQLToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.MAX_LEN] = column.type.length
         return self._builder.create_bytes(), metadata
+
+    def _convert_set_type(self, column):
+        schema = self._builder.begin_array(
+            self._builder.begin_enum(
+                column.name,
+                column.type.values
+            ).end()
+        ).end()
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        return schema, metadata
 
     @classmethod
     def get_enum_type_name(cls, column):

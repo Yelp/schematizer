@@ -136,7 +136,7 @@ class TestMySQLSchemaCompatibility(ApiTestBase):
 
     def test_unsupported_avro_type(self, mock_request, request_json):
         request_json["new_create_table_stmt"] = ('create table dummy '
-                                                 '(col set("a", "b"));')
+                                                 '(foo bar);')
         mock_request.json_body = request_json
 
         expected_exception = self.get_http_exception(422)
@@ -144,7 +144,7 @@ class TestMySQLSchemaCompatibility(ApiTestBase):
             compatibility_views.is_mysql_schema_compatible(mock_request)
 
         assert e.value.code == expected_exception.code
-        assert 'Unable to convert MySQL data type' in str(e.value)
+        assert 'Unknown MySQL column type' in str(e.value)
 
     def test_invalid_request(self, mock_request, request_json):
         request_json["old_create_table_stmt"] = self.old_create_table_stmt
