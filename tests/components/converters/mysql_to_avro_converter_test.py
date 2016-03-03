@@ -14,6 +14,7 @@ from schematizer.models import mysql_data_types
 from schematizer.models.sql_entities import MetaDataKey
 from schematizer.models.sql_entities import SQLColumn
 from schematizer.models.sql_entities import SQLTable
+from testing.models.mysql_data_types import MySQLUnsupportedType
 
 
 class TestMySQLToAvroConverter(object):
@@ -309,9 +310,29 @@ class TestMySQLToAvroConverter(object):
                  'default': None},
             )
 
+    def test_convert_with_set(self, converter):
+        avro_set = {
+            'items': {
+                'namespace': '',
+                'name': 'col_set',
+                'symbols': ['a', 'b'],
+                'type': 'enum'},
+            'type': 'array'
+        }
+
+        self._convert_and_assert_with_one_column(
+            converter,
+            SQLColumn('col_set', mysql_data_types.MySQLSet(['a', 'b'])),
+            {
+                'name': 'col_set',
+                'type': ['null', avro_set],
+                'default': None,
+            }
+        )
+
     def test_convert_with_unsupported_type(self, converter):
         with pytest.raises(UnsupportedTypeException):
-            column = SQLColumn('col', mysql_data_types.MySQLSet(['dummy']))
+            column = SQLColumn('col', MySQLUnsupportedType())
             sql_table = SQLTable(self.table_name, [column])
             converter.convert(sql_table)
 

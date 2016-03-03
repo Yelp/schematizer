@@ -193,7 +193,7 @@ class TestRegisterSchemaFromMySQL(RegisterSchemaTestBase):
         request_json
     ):
         request_json["new_create_table_stmt"] = ('create table dummy '
-                                                 '(col set("a", "b"));')
+                                                 '(foo bar);')
         mock_request.json_body = request_json
 
         expected_exception = self.get_http_exception(422)
@@ -201,7 +201,7 @@ class TestRegisterSchemaFromMySQL(RegisterSchemaTestBase):
             schema_views.register_schema_from_mysql_stmts(mock_request)
 
         assert e.value.code == expected_exception.code
-        assert 'Unable to convert MySQL data type' in str(e.value)
+        assert 'Unknown MySQL column type' in str(e.value)
 
     def test_register_invalid_avro_schema(self, mock_request, request_json):
         mock_request.json_body = request_json
