@@ -288,6 +288,57 @@ class TestSchemaRepository(DBTestCase):
             status=models.AvroSchemaStatus.DISABLED
         )
 
+    @property
+    def pkey_schema_json(self):
+        return {
+            "type": "record",
+            "name": "table_pkey",
+            "namespace": self.namespace_name,
+            "fields": [
+                {"name": "field_1", "type": "int", "doc": "", "pkey": 1},
+                {"name": "field_2", "type": "int", "doc": "", "pkey": 2},
+            ],
+            "doc": "I have a pkey!"
+        }
+
+    @property
+    def transformed_pkey_schema_json(self):
+        return {
+            "type": "record",
+            "name": "table_pkey",
+            "namespace": self.namespace_name,
+            "fields": [
+                {"name": "field_1", "type": "int", "doc": "", "pkey": 1},
+                {"name": "field_3", "type": "int", "doc": "", "pkey": 2}
+            ],
+            "doc": "I have a pkey!"
+        }
+
+    @property
+    def another_pkey_schema_json(self):
+        return {
+            "type": "record",
+            "name": "table_pkey",
+            "namespace": self.namespace_name,
+            "fields": [
+                {"name": "field_1", "type": "int", "doc": "", "pkey": 1},
+                {"name": "field_2", "type": "int", "doc": "", "pkey": 2},
+            ],
+            "doc": "I have a pkey!"
+        }
+
+    def test_is_pkey_compatible_in_topic(self):
+        actual_false = schema_repo.is_pkey_compatible_in_topic(
+            self.pkey_schema_json, 
+            self.transformed_pkey_schema_json
+        )
+        actual_true = schema_repo.is_pkey_compatible_in_topic(
+            self.pkey_schema_json, 
+            self.another_pkey_schema_json
+        )
+        assert actual_false == False
+        assert actual_true == True
+
     @pytest.yield_fixture
     def mock_compatible_func(self):
         with mock.patch(
@@ -569,18 +620,25 @@ class TestSchemaRepository(DBTestCase):
 
     @pytest.mark.usefixtures('source', 'rw_schema', 'disabled_schema')
     @pytest.mark.parametrize("is_compatible", [True, False])
+    @pytest.mark.parametrize("is_pkey_compatible", [True, False])
     def test_is_schema_compatible_in_topic(
             self,
             topic,
             mock_compatible_func,
-            is_compatible
+            is_compatible,
+            is_pkey_compatible
     ):
-        mock_compatible_func.return_value = is_compatible
-        actual = schema_repo.is_schema_compatible_in_topic(
-            self.rw_schema_json,
-            topic.name
-        )
-        assert is_compatible == actual
+        with mock.patch.object(
+            schema_repo,
+            'is_pkey_compatible_in_topic'
+        ) as mock_is_pkey_compatible_in_topic:
+            mock_is_pkey_compatible_in_topic.return_value = is_pkey_compatible
+            mock_compatible_func.return_value = is_compatible
+            actual = schema_repo.is_schema_compatible_in_topic(
+                self.rw_schema_json,
+                topic.name
+            )
+            assert (is_compatible and is_pkey_compatible) == actual
 
     @pytest.mark.usefixtures('disabled_schema')
     def test_is_schema_compatible_in_topic_with_no_enabled_schema(self, topic):

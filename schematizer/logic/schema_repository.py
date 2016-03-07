@@ -358,8 +358,19 @@ def is_schema_compatible_in_topic(target_schema, topic_name):
     enabled_schemas = get_schemas_by_topic_name(topic_name)
     for enabled_schema in enabled_schemas:
         schema_json = simplejson.loads(enabled_schema.avro_schema)
-        if not is_full_compatible(schema_json, target_schema):
+        if not is_full_compatible(schema_json, target_schema) or \
+                not is_pkey_compatible_in_topic(schema_json, target_schema):
             return False
+    return True
+
+
+def is_pkey_compatible_in_topic(old_schema_json, new_schema_json):
+    """Check whether given schema has not mutated any pkey.
+    """
+    for old_field in old_schema_json.get('fields'):
+        if old_field.get('pkey'):
+            if all(not new_field == old_field for new_field in new_schema_json.get('fields') if new_field.get('pkey')):
+                 return False
     return True
 
 
