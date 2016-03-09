@@ -151,7 +151,7 @@ def _is_topic_compatible(topic, avro_schema_json, contains_pii):
     return (topic and
             topic.contains_pii == contains_pii and
             is_schema_compatible_in_topic(avro_schema_json, topic.name) and
-            _is_pkey_changed(avro_schema_json, topic.name))
+            _is_pkey_identical(avro_schema_json, topic.name))
 
 
 def _create_topic_for_source(namespace_name, source, contains_pii):
@@ -364,18 +364,18 @@ def is_schema_compatible_in_topic(target_schema, topic_name):
     return True
 
 
-def _is_pkey_changed(new_schema_json, topic_name):
-    """Check whether given schema has not mutated any pkey.
+def _is_pkey_identical(new_schema_json, topic_name):
+    """Check whether given schema has not mutated any primary key.
     """
     old_schema_json = get_latest_schema_by_topic_name(topic_name).avro_schema_json
     old_pkey_set = set(
-        [(old_field['name'], old_field['pkey']) 
-        for old_field in old_schema_json.get('fields') 
+        [(old_field['name'], old_field['pkey'])
+        for old_field in old_schema_json.get('fields', [])
             if old_field.get('pkey')]
     )
     new_pkey_set = set(
-        [(new_field['name'], new_field['pkey']) 
-        for new_field in new_schema_json.get('fields') 
+        [(new_field['name'], new_field['pkey'])
+        for new_field in new_schema_json.get('fields', [])
             if new_field.get('pkey')]
     )
     return old_pkey_set == new_pkey_set

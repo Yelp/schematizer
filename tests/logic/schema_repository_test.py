@@ -303,16 +303,18 @@ class TestSchemaRepository(DBTestCase):
         }
 
     @property
-    def pkey_schema_elements(self):
-        return self._build_elements(self.pkey_schema_json)
-
-    @pytest.fixture
-    def pkey_schema(self, topic):
-        return factories.create_avro_schema(
-            self.pkey_schema_json,
-            self.pkey_schema_elements,
-            topic_name=topic.name
-        )
+    def added_pkey_schema_json(self):
+        return {
+            "type": "record",
+            "name": "table_pkey",
+            "namespace": self.namespace_name,
+            "fields": [
+                {"name": "field_1", "type": "int", "doc": "", "pkey": 1},
+                {"name": "field_2", "type": "int", "doc": "", "pkey": 2},
+                {"name": "field_3", "type": "int", "doc": "", "pkey": 3}
+            ],
+            "doc": "I have a pkey!"
+        }
 
     @property
     def yet_another_pkey_schema_json(self):
@@ -328,18 +330,6 @@ class TestSchemaRepository(DBTestCase):
         }
 
     @property
-    def yet_another_pkey_schema_elements(self):
-        return self._build_elements(self.pkey_schema_json)
-
-    @pytest.fixture
-    def yet_another_pkey_schema(self, transformed_topic):
-        return factories.create_avro_schema(
-            self.yet_another_pkey_schema_json,
-            self.yet_another_pkey_schema_elements,
-            topic_name=transformed_topic.name
-        )
-
-    @property
     def another_pkey_schema_json(self):
         return {
             "type": "record",
@@ -348,36 +338,16 @@ class TestSchemaRepository(DBTestCase):
             "fields": [
                 {"name": "field_1", "type": "int", "doc": "", "pkey": 1},
                 {"name": "field_2", "type": "int", "doc": "", "pkey": 2},
-                {"name": "field_new", "type": "int", "doc": "", "default":'123'}
+                {"name": "field_new", "type": "int", "doc": "", "default": 123}
             ],
             "doc": "I have a pkey!"
         }
-
-    @property
-    def another_pkey_schema_elements(self):
-        return self._build_elements(self.pkey_schema_json)
-
-    @pytest.fixture
-    def another_pkey_schema(self, topic):
-        return factories.create_avro_schema(
-            self.another_pkey_schema_json,
-            self.another_pkey_schema_elements,
-            topic_name=topic.name
-        )
 
     @pytest.yield_fixture
     def mock_compatible_func(self):
         with mock.patch(
             'schematizer.logic.schema_repository.'
             'SchemaCompatibilityValidator.is_backward_compatible'
-        ) as mock_func:
-            yield mock_func
-
-    @pytest.yield_fixture
-    def mock_is_pkey_changed_func(self):
-        with mock.patch(
-            'schematizer.logic.schema_repository.'
-            '_is_pkey_changed'
         ) as mock_func:
             yield mock_func
 
@@ -410,7 +380,25 @@ class TestSchemaRepository(DBTestCase):
         )
         self.assert_equal_source_partial(expected_source, actual_source)
 
-    def test_registering_from_avro_json_with_new_schema_with_pkey_changed(self):
+    def test_registering_from_avro_json_with_pkey_added(self):
+        actual_schema1 = schema_repo.register_avro_schema_from_avro_json(
+            self.pkey_schema_json,
+            self.namespace_name,
+            self.source_name,
+            self.source_owner_email,
+            contains_pii=False
+        )
+
+        actual_schema2 = schema_repo.register_avro_schema_from_avro_json(
+            self.added_pkey_schema_json,
+            self.namespace_name,
+            self.source_name,
+            self.source_owner_email,
+            contains_pii=False
+        )
+        assert actual_schema1.topic.id != actual_schema2.topic.id
+
+    def test_registering_from_avro_json_with_pkey_changed(self):
         actual_schema1 = schema_repo.register_avro_schema_from_avro_json(
             self.pkey_schema_json,
             self.namespace_name,
@@ -428,7 +416,7 @@ class TestSchemaRepository(DBTestCase):
         )
         assert actual_schema1.topic.id != actual_schema2.topic.id
 
-    def test_registering_from_avro_json_with_new_schema_with_pkey_unchanged(self):
+    def test_registering_from_avro_json_with_pkey_unchanged(self):
         actual_schema1 = schema_repo.register_avro_schema_from_avro_json(
             self.pkey_schema_json,
             self.namespace_name,
