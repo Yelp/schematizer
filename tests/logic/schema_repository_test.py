@@ -288,6 +288,7 @@ class TestSchemaRepository(DBTestCase):
             status=models.AvroSchemaStatus.DISABLED
         )
 
+
     @property
     def pkey_schema_json(self):
         return {
@@ -302,7 +303,19 @@ class TestSchemaRepository(DBTestCase):
         }
 
     @property
-    def transformed_pkey_schema_json(self):
+    def pkey_schema_elements(self):
+        return self._build_elements(self.pkey_schema_json)
+
+    @pytest.fixture
+    def pkey_schema(self, topic):
+        return factories.create_avro_schema(
+            self.pkey_schema_json,
+            self.pkey_schema_elements,
+            topic_name=topic.name
+        )
+
+    @property
+    def yet_another_pkey_schema_json(self):
         return {
             "type": "record",
             "name": "table_pkey",
@@ -315,6 +328,18 @@ class TestSchemaRepository(DBTestCase):
         }
 
     @property
+    def yet_another_pkey_schema_elements(self):
+        return self._build_elements(self.pkey_schema_json)
+
+    @pytest.fixture
+    def yet_another_pkey_schema(self, transformed_topic):
+        return factories.create_avro_schema(
+            self.yet_another_pkey_schema_json,
+            self.yet_another_pkey_schema_elements,
+            topic_name=transformed_topic.name
+        )
+
+    @property
     def another_pkey_schema_json(self):
         return {
             "type": "record",
@@ -323,27 +348,36 @@ class TestSchemaRepository(DBTestCase):
             "fields": [
                 {"name": "field_1", "type": "int", "doc": "", "pkey": 1},
                 {"name": "field_2", "type": "int", "doc": "", "pkey": 2},
+                {"name": "field_new", "type": "int", "doc": "", "default":'123'}
             ],
             "doc": "I have a pkey!"
         }
 
-    def test_is_pkey_compatible_in_topic(self):
-        actual_false = schema_repo.is_pkey_compatible_in_topic(
-            self.pkey_schema_json, 
-            self.transformed_pkey_schema_json
+    @property
+    def another_pkey_schema_elements(self):
+        return self._build_elements(self.pkey_schema_json)
+
+    @pytest.fixture
+    def another_pkey_schema(self, topic):
+        return factories.create_avro_schema(
+            self.another_pkey_schema_json,
+            self.another_pkey_schema_elements,
+            topic_name=topic.name
         )
-        actual_true = schema_repo.is_pkey_compatible_in_topic(
-            self.pkey_schema_json, 
-            self.another_pkey_schema_json
-        )
-        assert actual_false == False
-        assert actual_true == True
 
     @pytest.yield_fixture
     def mock_compatible_func(self):
         with mock.patch(
             'schematizer.logic.schema_repository.'
             'SchemaCompatibilityValidator.is_backward_compatible'
+        ) as mock_func:
+            yield mock_func
+
+    @pytest.yield_fixture
+    def mock_is_pkey_changed_func(self):
+        with mock.patch(
+            'schematizer.logic.schema_repository.'
+            '_is_pkey_changed'
         ) as mock_func:
             yield mock_func
 
@@ -375,6 +409,42 @@ class TestSchemaRepository(DBTestCase):
             owner_email=self.source_owner_email
         )
         self.assert_equal_source_partial(expected_source, actual_source)
+
+    def test_registering_from_avro_json_with_new_schema_with_pkey_changed(self):
+        actual_schema1 = schema_repo.register_avro_schema_from_avro_json(
+            self.pkey_schema_json,
+            self.namespace_name,
+            self.source_name,
+            self.source_owner_email,
+            contains_pii=False
+        )
+
+        actual_schema2 = schema_repo.register_avro_schema_from_avro_json(
+            self.yet_another_pkey_schema_json,
+            self.namespace_name,
+            self.source_name,
+            self.source_owner_email,
+            contains_pii=False
+        )
+        assert actual_schema1.topic.id != actual_schema2.topic.id
+
+    def test_registering_from_avro_json_with_new_schema_with_pkey_unchanged(self):
+        actual_schema1 = schema_repo.register_avro_schema_from_avro_json(
+            self.pkey_schema_json,
+            self.namespace_name,
+            self.source_name,
+            self.source_owner_email,
+            contains_pii=False
+        )
+
+        actual_schema2 = schema_repo.register_avro_schema_from_avro_json(
+            self.another_pkey_schema_json,
+            self.namespace_name,
+            self.source_name,
+            self.source_owner_email,
+            contains_pii=False
+        )
+        assert actual_schema1.topic.id == actual_schema2.topic.id
 
     @pytest.mark.usefixtures('rw_schema')
     def test_registering_from_avro_json_with_compatible_schema(
@@ -620,25 +690,18 @@ class TestSchemaRepository(DBTestCase):
 
     @pytest.mark.usefixtures('source', 'rw_schema', 'disabled_schema')
     @pytest.mark.parametrize("is_compatible", [True, False])
-    @pytest.mark.parametrize("is_pkey_compatible", [True, False])
     def test_is_schema_compatible_in_topic(
             self,
             topic,
             mock_compatible_func,
-            is_compatible,
-            is_pkey_compatible
+            is_compatible
     ):
-        with mock.patch.object(
-            schema_repo,
-            'is_pkey_compatible_in_topic'
-        ) as mock_is_pkey_compatible_in_topic:
-            mock_is_pkey_compatible_in_topic.return_value = is_pkey_compatible
-            mock_compatible_func.return_value = is_compatible
-            actual = schema_repo.is_schema_compatible_in_topic(
-                self.rw_schema_json,
-                topic.name
-            )
-            assert (is_compatible and is_pkey_compatible) == actual
+        mock_compatible_func.return_value = is_compatible
+        actual = schema_repo.is_schema_compatible_in_topic(
+            self.rw_schema_json,
+            topic.name
+        )
+        assert is_compatible == actual
 
     @pytest.mark.usefixtures('disabled_schema')
     def test_is_schema_compatible_in_topic_with_no_enabled_schema(self, topic):
