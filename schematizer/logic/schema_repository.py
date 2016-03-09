@@ -367,15 +367,14 @@ def is_schema_compatible_in_topic(target_schema, topic_name):
 def _is_pkey_changed(new_schema_json, topic_name):
     """Check whether given schema has not mutated any pkey.
     """
-
     old_schema_json = get_latest_schema_by_topic_name(topic_name).avro_schema_json
     old_pkey_set = set(
-        [(old_field['name'], old_field['pkey']) \
+        [(old_field['name'], old_field['pkey']) 
         for old_field in old_schema_json.get('fields') 
             if old_field.get('pkey')]
     )
     new_pkey_set = set(
-        [(new_field['name'], new_field['pkey']) \
+        [(new_field['name'], new_field['pkey']) 
         for new_field in new_schema_json.get('fields') 
             if new_field.get('pkey')]
     )
