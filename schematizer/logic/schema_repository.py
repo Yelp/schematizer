@@ -367,16 +367,18 @@ def is_schema_compatible_in_topic(target_schema, topic_name):
 def _is_pkey_identical(new_schema_json, topic_name):
     """Check whether given schema has not mutated any primary key.
     """
-    old_schema_json = get_latest_schema_by_topic_name(topic_name).avro_schema_json
+    old_schema_json = get_latest_schema_by_topic_name(
+        topic_name
+    ).avro_schema_json
     old_pkey_set = set(
         (old_field['name'], old_field['pkey'])
         for old_field in old_schema_json.get('fields', [])
-            if old_field.get('pkey')
+        if old_field.get('pkey')
     )
     new_pkey_set = set(
         (new_field['name'], new_field['pkey'])
         for new_field in new_schema_json.get('fields', [])
-            if new_field.get('pkey')
+        if new_field.get('pkey')
     )
     return old_pkey_set == new_pkey_set
 

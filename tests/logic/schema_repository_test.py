@@ -288,7 +288,6 @@ class TestSchemaRepository(DBTestCase):
             status=models.AvroSchemaStatus.DISABLED
         )
 
-
     @property
     def pkey_schema_json(self):
         return {
