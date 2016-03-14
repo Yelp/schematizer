@@ -45,6 +45,14 @@ class Topic(Base, BaseModel):
     def contains_pii(self):
         return bool(self._contains_pii)
 
+    @property
+    def primary_keys(self):
+        fields = self.avro_schemas[0].avro_schema_json.get(
+            'fields',
+            []
+        )
+        return sorted([field['name'] for field in fields if field.get('pkey')])
+
     @contains_pii.setter
     def contains_pii(self, value):
         if not isinstance(value, bool):
