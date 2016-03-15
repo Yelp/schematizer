@@ -47,6 +47,9 @@ class Topic(Base, BaseModel):
 
     @property
     def primary_keys(self):
+        if len(self.avro_schemas) == 0:
+            return []
+
         fields = self.avro_schemas[0].avro_schema_json.get(
             'fields',
             []

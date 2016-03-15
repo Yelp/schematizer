@@ -374,6 +374,13 @@
                     "type": "boolean",
                     "description": "Whether the messages in this topic contain PII."
                 },
+                "primary_keys": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "List of primary key names."
+                },
                 "created_at": {
                     "type": "string",
                     "format": "date-time",

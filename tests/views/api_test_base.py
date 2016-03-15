@@ -45,6 +45,7 @@ class ApiTestBase(DBTestCase):
             'name': topic.name,
             'source': self.get_expected_src_resp(topic.source_id),
             'contains_pii': False,
+            'primary_keys': topic.primary_keys,
             'created_at': topic.created_at.isoformat(),
             'updated_at': topic.updated_at.isoformat(),
         }
