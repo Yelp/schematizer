@@ -8,6 +8,7 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
+from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
 from schematizer.models.avro_schema import AvroSchema
 from schematizer.models.base_model import BaseModel
@@ -47,11 +48,11 @@ class Topic(Base, BaseModel):
 
     @property
     def primary_keys(self):
-        if len(self.avro_schemas) == 0:
+        if not self.avro_schemas:
             return []
 
         return self.avro_schemas[0].avro_schema_json.get(
-            'pkey',
+            AvroMetaDataKeys.PRIMARY_KEY,
             []
         )
 
