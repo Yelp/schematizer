@@ -115,6 +115,60 @@ def disabled_schema(biz_topic, disabled_schema_json, disabled_schema_elements):
 
 
 @pytest.fixture
+def biz_pkey_topic(biz_source):
+    return factories.create_topic(
+        topic_name='yelp.biz.2',
+        namespace_name=biz_source.namespace.name,
+        source_name=biz_source.name
+    )
+
+
+@pytest.fixture
+def biz_pkey_schema_json():
+    return {
+        "name": "biz_pkey",
+        "type": "record",
+        "fields": [
+            {"name": "id_1", "type": "int", "doc": "id1", "pkey": 1},
+            {"name": "f_1", "type": "int", "doc": ""},
+            {"name": "id_2", "type": "int", "doc": "id2", "pkey": 2},
+        ],
+        "doc": "biz table with pkey"
+    }
+
+
+@pytest.fixture
+def biz_pkey_schema_elements():
+    return [
+        models.AvroSchemaElement(
+            key='biz_pkey',
+            element_type='record',
+            doc="biz table"
+        ),
+        models.AvroSchemaElement(
+            key='biz_pkey|id_1',
+            element_type='field',
+            doc="id"
+        )
+    ]
+
+
+@pytest.fixture
+def biz_pkey_schema(
+    biz_pkey_topic,
+    biz_pkey_schema_json,
+    biz_pkey_schema_elements
+):
+    return factories.create_avro_schema(
+        biz_pkey_schema_json,
+        biz_pkey_schema_elements,
+        topic_name=biz_pkey_topic.name,
+        namespace=biz_pkey_topic.source.namespace.name,
+        source=biz_pkey_topic.source.name
+    )
+
+
+@pytest.fixture
 def biz_src_refresh(biz_source):
     return factories.create_refresh(
         source_id=biz_source.id,

@@ -28,6 +28,12 @@ class TestGetTopicByTopicName(ApiTestBase):
         expected = self.get_expected_topic_resp(biz_topic.id)
         assert actual == expected
 
+    def test_pkey_in_topic(self, mock_request, biz_pkey_topic):
+        mock_request.matchdict = {'topic_name': biz_pkey_topic.name}
+        actual = topic_views.get_topic_by_topic_name(mock_request)
+        expected = self.get_expected_topic_resp(biz_pkey_topic.id)
+        assert actual == expected
+
 
 class TestListSchemasByTopicName(ApiTestBase):
 

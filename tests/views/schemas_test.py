@@ -40,6 +40,12 @@ class TestGetSchemaByID(ApiTestBase):
         )
         assert actual == expected
 
+    def test_schema_with_pkey(self, mock_request, biz_pkey_schema):
+        mock_request.matchdict = {'schema_id': str(biz_pkey_schema.id)}
+        actual = schema_views.get_schema_by_id(mock_request)
+        expected = self.get_expected_schema_resp(biz_pkey_schema.id)
+        assert actual == expected
+
 
 class RegisterSchemaTestBase(ApiTestBase):
 
