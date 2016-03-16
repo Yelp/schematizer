@@ -50,11 +50,10 @@ class Topic(Base, BaseModel):
         if len(self.avro_schemas) == 0:
             return []
 
-        fields = self.avro_schemas[0].avro_schema_json.get(
-            'fields',
+        return self.avro_schemas[0].avro_schema_json.get(
+            'pkey',
             []
         )
-        return sorted([field['name'] for field in fields if field.get('pkey')])
 
     @contains_pii.setter
     def contains_pii(self, value):
