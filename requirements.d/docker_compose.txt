@@ -1,0 +1,2 @@
+docker_compose==1.4.0rc3
+requests>=2.6.1,<2.7

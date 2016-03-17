@@ -1,0 +1,2 @@
+-r docker_compose.txt
+figtools>=0.2.2
