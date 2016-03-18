@@ -11,6 +11,7 @@ help:
 	@echo "cook-image - only cook the docker image"
 	@echo "docker-push - push a new docker image"
 	@echo "install-hooks - Install the pre-commit hooks"
+	@echo "get-venv-update - fetched the latest version of venv-update"
 
 all: production install-hooks
 
@@ -53,3 +54,6 @@ docker-push:
 
 install-hooks:
 	tox -e pre-commit -- install -f --install-hooks
+
+get-venv-update:
+	curl http://yelp.github.io/venv-update/install.txt | bash
