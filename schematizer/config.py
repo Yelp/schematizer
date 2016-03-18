@@ -181,5 +181,5 @@ def routes(config):
         request_method="POST"
     )
     # Serve the documentation tool from /web/
-    # config.add_static_view(name='/', path='static/html/')
-    config.add_static_view(name='/', path='static/')
+    config.add_static_view(name='/', path='static/html/')
+    config.add_static_view(name='static', path='static/')
