@@ -114,7 +114,7 @@ def routes(config):
     )
     config.add_route(
         'doctool.index',
-        '/web/'
+        '/'
     )
     config.add_route(
         'api.v1.get_refreshes_by_criteria',
@@ -181,5 +181,5 @@ def routes(config):
         request_method="POST"
     )
     # Serve the documentation tool from /web/
-    config.add_static_view(name='web', path='static/html/')
+    config.add_static_view(name='partials', path='static/html/partials')
     config.add_static_view(name='static', path='static/')
