@@ -16,8 +16,7 @@
         return {
             formatSchema: function(schema) {
                 if (schema !== undefined) {
-                    // If the string is in the format aaa.bbb, return aaa.
-                    return schema;
+                   return schema;
                 }
             }
         };
