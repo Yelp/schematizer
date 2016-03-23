@@ -1,0 +1,4 @@
+-r docker_compose.txt
+-r docs.txt
+-r pre_commit.txt
+-r py27.txt

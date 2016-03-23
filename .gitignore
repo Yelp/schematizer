@@ -20,3 +20,4 @@ virtualenv_run
 __pycache__
 VENV
 .idea/
+.cache/
