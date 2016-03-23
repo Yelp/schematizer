@@ -2,8 +2,8 @@
     var app = angular.module('tableView', []);
 
     "use strict";
-    app.controller('TableViewController', ['$scope', '$http', '$location', 'CONSTANTS', 'DocToolService',
-        function($scope, $http, $location, CONSTANTS, DocToolService){
+    app.controller('TableViewController', ['$scope', '$http', '$location', 'CONSTANTS',
+        function($scope, $http, $location, CONSTANTS){
 
             $scope.tableData = null;
             $scope.load = true;
@@ -157,10 +157,6 @@
                 if (date !== undefined) {
                     return date.split('T')[0];
                 }
-            };
-
-            $scope.formatSchema = function(schema) {
-                return DocToolService.formatSchema(schema);
             };
 
 

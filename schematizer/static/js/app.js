@@ -12,16 +12,6 @@
         defaultSchema: 'yelp_dw_redshift.public'
     });
 
-    docToolApp.service('DocToolService', function() {
-        return {
-            formatSchema: function(schema) {
-                if (schema !== undefined) {
-                   return schema;
-                }
-            }
-        };
-    });
-
     "use strict";
     docToolApp.config(['$routeProvider', 'CONSTANTS',
         function($routeProvider, CONSTANTS) {
