@@ -2,8 +2,8 @@
     var app = angular.module('home', []);
 
     "use strict";
-    app.controller('HomeController', ['$scope', '$http', '$location', 'CONSTANTS', 'DocToolService',
-        function($scope, $http, $location, CONSTANTS, DocToolService){
+    app.controller('HomeController', ['$scope', '$http', '$location', 'CONSTANTS',
+        function($scope, $http, $location, CONSTANTS){
 
             $scope.tables = [];
             $scope.filtered = {};
@@ -44,9 +44,6 @@
                 });
             };
 
-            $scope.formatSchema = function(schema) {
-                return DocToolService.formatSchema(schema);
-            };
 
 
             function initBrowse() {
