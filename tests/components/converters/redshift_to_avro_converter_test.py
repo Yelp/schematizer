@@ -104,7 +104,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_decimal(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_decimal', redshift_data_types.RedshiftDecimal(8,0)),
+            SQLColumn('col_decimal', redshift_data_types.RedshiftDecimal(8, 0)),
             {'name': 'col_decimal',
              'type': ['null', 'double'],
              'default': None,
@@ -116,7 +116,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_float4(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_float4', redshift_data_types.RedshiftFloat4() ),
+            SQLColumn('col_float4', redshift_data_types.RedshiftFloat4()),
             {'name': 'col_float4', 'type': ['null', 'float'], 'default': None}
         )
 
@@ -161,15 +161,14 @@ class TestRedShiftToAvroConverter(object):
         self._convert_and_assert_with_one_column(
             converter,
             SQLColumn(
-                    'col_datetime',
-                    redshift_data_types.RedshiftDateAndTime()
+                'col_datetime',
+                redshift_data_types.RedshiftDateAndTime()
             ),
             {'name': 'col_datetime',
              'type': ['null', 'string'],
              'default': None,
              AvroMetaDataKeys.DATETIME: True}
         )
-
 
     def test_convert_with_col_timestamp(self, converter):
         self._convert_and_assert_with_one_column(
@@ -191,7 +190,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_boolean(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_boolean',  redshift_data_types.RedshiftBoolean()),
+            SQLColumn('col_boolean', redshift_data_types.RedshiftBoolean()),
             {'name': 'col_boolean',
              'type': ['null', 'boolean'],
              'default': None}
@@ -233,9 +232,9 @@ class TestRedShiftToAvroConverter(object):
         self._convert_and_assert_with_one_column(
             converter,
             SQLColumn(
-                    'col',
-                    redshift_data_types.RedshiftInteger(),
-                    default_value=10
+                'col',
+                redshift_data_types.RedshiftInteger(),
+                default_value=10
             ),
             {'name': 'col', 'type': ['int', 'null'], 'default': 10}
         )
@@ -244,9 +243,9 @@ class TestRedShiftToAvroConverter(object):
         self._convert_and_assert_with_one_column(
             converter,
             SQLColumn(
-                    'col',
-                    redshift_data_types.RedshiftInteger(),
-                    is_nullable=False
+                'col',
+                redshift_data_types.RedshiftInteger(),
+                is_nullable=False
             ),
             {'name': 'col',
              'type': 'int'}

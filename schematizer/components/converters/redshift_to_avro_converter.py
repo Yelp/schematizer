@@ -27,7 +27,8 @@ class RedshiftToAvroConverter(BaseConverter):
         self._builder = AvroSchemaBuilder()
 
     def convert(self, src_schema):
-        """The src_schema is the SQLTable object that represents a Redshift table.
+        """The src_schema is the SQLTable object
+        that represents a Redshift table.
         It returns the Avro schema json object.
         """
         if not src_schema:
