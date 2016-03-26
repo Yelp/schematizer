@@ -160,7 +160,10 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_datetime(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_datetime', redshift_data_types.RedshiftDateAndTime()),
+            SQLColumn(
+                    'col_datetime',
+                    redshift_data_types.RedshiftDateAndTime()
+            ),
             {'name': 'col_datetime',
              'type': ['null', 'string'],
              'default': None,
@@ -229,14 +232,22 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_column_default_value(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col', redshift_data_types.RedshiftInteger(), default_value=10),
+            SQLColumn(
+                    'col',
+                    redshift_data_types.RedshiftInteger(),
+                    default_value=10
+            ),
             {'name': 'col', 'type': ['int', 'null'], 'default': 10}
         )
 
     def test_convert_with_non_nullable_without_default_column(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col', redshift_data_types.RedshiftInteger(), is_nullable=False),
+            SQLColumn(
+                    'col',
+                    redshift_data_types.RedshiftInteger(),
+                    is_nullable=False
+            ),
             {'name': 'col',
              'type': 'int'}
         )
