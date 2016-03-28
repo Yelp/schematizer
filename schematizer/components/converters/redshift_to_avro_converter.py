@@ -134,29 +134,15 @@ class RedshiftToAvroConverter(BaseConverter):
 
     def _convert_small_integer_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         return self._builder.create_int(), metadata
-
-    def _convert_integer_type(self, column):
-        # Avro int type is 4-byte signed integer. For MySQL unsigned int type,
-        # convert it to Avro long type, which is 8-type signed integer.
-        metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
-        avro_type = (self._builder.create_long() if column.type.is_unsigned
-                     else self._builder.create_int())
-        return avro_type, metadata
 
     def _get_primary_key_metadata(self, primary_key_order):
         return ({AvroMetaDataKeys.PRIMARY_KEY: primary_key_order}
                 if primary_key_order else {})
 
-    def _get_unsigned_metadata(self, is_unsigned):
-        return ({AvroMetaDataKeys.UNSIGNED: is_unsigned}
-                if is_unsigned else {})
 
     def _convert_bigint_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         return self._builder.create_long(), metadata
 
     def _convert_bit_type(self, column):
@@ -174,8 +160,6 @@ class RedshiftToAvroConverter(BaseConverter):
 
     def _convert_double_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata.update(self._get_precision_metadata(column))
-        metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         return self._builder.create_double(), metadata
 
     def _get_precision_metadata(self, column):
@@ -186,15 +170,11 @@ class RedshiftToAvroConverter(BaseConverter):
 
     def _convert_float_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata.update(self._get_precision_metadata(column))
-        metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         return self._builder.create_float(), metadata
 
     def _convert_decimal_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata.update(self._get_precision_metadata(column))
-        metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
-        metadata.update({AvroMetaDataKeys.FIXED_POINT: True})
         return self._builder.create_double(), metadata
 
     def _convert_string_type(self, column):
@@ -250,37 +230,3 @@ class RedshiftToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.TIMESTAMP] = True
         return self._builder.create_long(), metadata
-
-    def _convert_enum_type(self, column):
-        return self._builder.begin_enum(
-            self.get_enum_type_name(column),
-            column.type.values
-        ).end(), {}
-
-    def _convert_blob_type(self, column):
-        metadata = self._get_primary_key_metadata(column.primary_key_order)
-        return self._builder.create_bytes(), metadata
-
-    def _convert_binary_type(self, column):
-        metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.FIX_LEN] = column.type.length
-        return self._builder.create_bytes(), metadata
-
-    def _convert_varbinary_type(self, column):
-        metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.MAX_LEN] = column.type.length
-        return self._builder.create_bytes(), metadata
-
-    def _convert_set_type(self, column):
-        schema = self._builder.begin_array(
-            self._builder.begin_enum(
-                column.name,
-                column.type.values
-            ).end()
-        ).end()
-        metadata = self._get_primary_key_metadata(column.primary_key_order)
-        return schema, metadata
-
-    @classmethod
-    def get_enum_type_name(cls, column):
-        return column.name + '_enum'
