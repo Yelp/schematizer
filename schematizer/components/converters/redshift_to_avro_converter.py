@@ -125,10 +125,9 @@ class RedshiftToAvroConverter(BaseConverter):
             redshift_types.RedshiftNVarChar: self._convert_varchar_type,
             redshift_types.RedshiftCharacterVarying: self._convert_varchar_type,
             redshift_types.RedshiftVarChar: self._convert_varchar_type,
-            redshift_types.RedshiftText: self._convert_string_type,
+            redshift_types.RedshiftText: self._convert_varchar_type,
 
             redshift_types.RedshiftDate: self._convert_date_type,
-            redshift_types.RedshiftDateAndTime: self._convert_datetime_type,
             redshift_types.RedshiftTimestamp: self._convert_timestamp_type,
         }
 
@@ -140,19 +139,9 @@ class RedshiftToAvroConverter(BaseConverter):
         return ({AvroMetaDataKeys.PRIMARY_KEY: primary_key_order}
                 if primary_key_order else {})
 
-
     def _convert_bigint_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         return self._builder.create_long(), metadata
-
-    def _convert_bit_type(self, column):
-        metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata.update(self._get_bitlen_metadata(column.type.length))
-        return self._builder.create_int(), metadata
-
-    def _get_bitlen_metadata(self, bit_length):
-        return ({AvroMetaDataKeys.BIT_LEN: bit_length}
-                if bit_length else {})
 
     def _convert_boolean_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
@@ -177,10 +166,6 @@ class RedshiftToAvroConverter(BaseConverter):
         metadata.update(self._get_precision_metadata(column))
         return self._builder.create_double(), metadata
 
-    def _convert_string_type(self, column):
-        metadata = self._get_primary_key_metadata(column.primary_key_order)
-        return self._builder.create_string(), metadata
-
     def _convert_char_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.FIX_LEN] = column.type.length
@@ -199,13 +184,6 @@ class RedshiftToAvroConverter(BaseConverter):
         metadata[AvroMetaDataKeys.DATE] = True
         return self._builder.create_string(), metadata
 
-    def _convert_datetime_type(self, column):
-        """Avro currently doesn't support datetime, so map the
-        datetime sql column type to string (ISO 8601 format)
-        """
-        metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.DATETIME] = True
-        return self._builder.create_string(), metadata
 
     def _convert_time_type(self, column):
         """Avro currently doesn't support time, so map the
@@ -215,13 +193,6 @@ class RedshiftToAvroConverter(BaseConverter):
         metadata[AvroMetaDataKeys.TIME] = True
         return self._builder.create_string(), metadata
 
-    def _convert_year_type(self, column):
-        """Avro currently doesn't support year, so map the
-        year sql column type to long (year number)
-        """
-        metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.YEAR] = True
-        return self._builder.create_long(), metadata
 
     def _convert_timestamp_type(self, column):
         """Avro currently doesn't support timestamp, so map the
