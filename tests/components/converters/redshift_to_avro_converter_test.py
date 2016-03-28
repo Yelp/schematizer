@@ -209,7 +209,10 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_character(self, converter):
          self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_character', redshift_data_types.RedshiftCharacter(16)),
+            SQLColumn(
+                    'col_character',
+                    redshift_data_types.RedshiftCharacter(16)
+            ),
             {'name': 'col_character',
              'type': ['null', 'string'],
              'default': None,
@@ -250,7 +253,10 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_charactervarying(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_charactervarying', redshift_data_types.RedshiftCharacterVarying(20)),
+            SQLColumn(
+                    'col_charactervarying',
+                    redshift_data_types.RedshiftCharacterVarying(20)
+            ),
             {'name': 'col_charactervarying',
              'type': ['null', 'string'],
              'default': None,
