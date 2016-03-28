@@ -156,6 +156,7 @@ class TestRedShiftToAvroConverter(object):
             {'name': 'col_decimal',
              'type': ['null', 'double'],
              'default': None,
+             AvroMetaDataKeys.FIXED_POINT: True,
              AvroMetaDataKeys.PRECISION: 8,
              AvroMetaDataKeys.SCALE: 0,
             }
@@ -168,6 +169,7 @@ class TestRedShiftToAvroConverter(object):
             {'name': 'col_numeric',
              'type': ['null', 'double'],
              'default': None,
+             AvroMetaDataKeys.FIXED_POINT: True,
              AvroMetaDataKeys.PRECISION: 8,
              AvroMetaDataKeys.SCALE: 0,
             }

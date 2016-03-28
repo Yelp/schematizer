@@ -163,6 +163,7 @@ class RedshiftToAvroConverter(BaseConverter):
 
     def _convert_decimal_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata.update({AvroMetaDataKeys.FIXED_POINT: True})
         metadata.update(self._get_precision_metadata(column))
         return self._builder.create_double(), metadata
 
