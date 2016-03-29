@@ -23,12 +23,13 @@ RUN     /code/virtualenv_run/bin/pip install \
             -r /code/requirements.txt
 
 # Share the logging directory as a volume
-RUN     mkdir /tmp/logs
+RUN     mkdir /tmp/logs && chown -R nobody /tmp/logs/
 VOLUME  /tmp/logs
 
 ADD     . /code
 
 WORKDIR /code
 ENV     BASEPATH /code
+USER    nobody
 CMD     PORT=8888 /code/virtualenv_run/bin/python /code/serviceinit.d/schematizer start-no-daemon
 EXPOSE  8888
