@@ -185,7 +185,6 @@ class RedshiftToAvroConverter(BaseConverter):
         metadata[AvroMetaDataKeys.DATE] = True
         return self._builder.create_string(), metadata
 
-
     def _convert_time_type(self, column):
         """Avro currently doesn't support time, so map the
         time sql column type to string (ISO 8601 format)
@@ -193,7 +192,6 @@ class RedshiftToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.TIME] = True
         return self._builder.create_string(), metadata
-
 
     def _convert_timestamp_type(self, column):
         """Avro currently doesn't support timestamp, so map the
