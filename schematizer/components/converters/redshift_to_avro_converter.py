@@ -123,8 +123,8 @@ class RedshiftToAvroConverter(BaseConverter):
             redshift_types.RedshiftCharacter: self._convert_char_type,
 
             redshift_types.RedshiftNVarChar: self._convert_varchar_type,
-            redshift_types.RedshiftCharacterVarying: \
-                self._convert_varchar_type,
+            redshift_types.RedshiftCharacterVarying:
+            self._convert_varchar_type,
             redshift_types.RedshiftVarChar: self._convert_varchar_type,
             redshift_types.RedshiftText: self._convert_varchar_type,
 
