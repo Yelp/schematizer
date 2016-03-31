@@ -297,7 +297,7 @@ class TestRedShiftToAvroConverter(object):
             SQLColumn('col_date', redshift_data_types.RedshiftDate()),
             {
                 'name': 'col_date',
-                'type': ['null', 'string'],
+                'type': ['null', 'int'],
                 'default': None,
                 AvroMetaDataKeys.DATE: True
             }
