@@ -198,10 +198,12 @@ class MySQLToAvroConverter(BaseConverter):
 
     def _convert_decimal_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata.update(self._get_precision_metadata(column))
-        metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
-        metadata.update({AvroMetaDataKeys.FIXED_POINT: True})
-        return self._builder.create_double(), metadata
+        precision = int(column.type.precision)
+        scale = int(column.type.scale)
+        return self._builder.begin_decimal_bytes(
+            precision,
+            scale
+        ).end(), metadata
 
     def _convert_string_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
