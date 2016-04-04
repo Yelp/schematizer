@@ -6,13 +6,16 @@ import os
 
 import argparse
 from sqlalchemy.orm import exc as orm_exc
-from sqlalchemy import or_, and_
+from sqlalchemy import and_
+from sqlalchemy import or_
 
 from schematizer import models
 from schematizer.models.database import session
 from yelp_servlib.config_util import load_default_config
 
 def get_namespace_children_queries(namespace):
+    # ORDER IS IMPORTANT!!!
+    # We want to delete the contained items before anything else.
     children_queries = [
         create_notes_query(namespace.id),
         create_elements_query(namespace.id),
