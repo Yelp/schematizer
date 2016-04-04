@@ -62,6 +62,9 @@ class RedshiftToAvroConverter(BaseConverter):
         if primary_keys:
             metadata[AvroMetaDataKeys.PRIMARY_KEY] = primary_keys
 
+        sort_keys = [c.name for c in table.sort_keys]
+        if sort_keys:
+            metadata[]
         return metadata
 
     def _create_avro_field(self, column):

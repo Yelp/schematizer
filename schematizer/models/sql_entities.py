@@ -31,6 +31,19 @@ class SQLTable(object):
             (col for col in self.columns if col.primary_key_order),
             key=lambda c: c.primary_key_order
         )
+    @property
+    def sort_keys(self):
+        return sorted(
+            (col for col in self.columns if col.sort_key_order),
+            key=lambda c: c.sort_key_order
+        )
+    @property
+    def dist_key(self):
+        candidates = [col for col in self.columns if col.is_dist_key]
+        if not candidates:
+            return candidates[0]
+        else:
+            return None
 
 
 class SQLColumn(object):
@@ -41,10 +54,12 @@ class SQLColumn(object):
 
     def __init__(self, column_name, column_type, primary_key_order=None,
                  is_nullable=True, default_value=None,
-                 attributes=None, doc=None, **metadata):
+                 attributes=None, doc=None, sort_key_order=None, is_dist_key=False, **metadata):
         self.name = column_name
         self.type = column_type
         self.primary_key_order = primary_key_order
+        self.sort_key_order = sort_key_order
+        self.is_dist_key = is_dist_key
         self.is_nullable = is_nullable
         self.default_value = default_value
         self.doc = doc
@@ -67,6 +82,8 @@ class SQLColumn(object):
                 self.is_nullable == other.is_nullable and
                 self.default_value == other.default_value and
                 self.attributes == other.attributes and
+                self.is_dist_key == other.is_dist_key and
+                self.sort_key_order == other.sort_key_order and
                 self.metadata == other.metadata)
 
 
