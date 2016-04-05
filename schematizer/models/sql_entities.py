@@ -54,11 +54,13 @@ class SQLColumn(object):
 
     def __init__(self, column_name, column_type, primary_key_order=None,
                  is_nullable=True, default_value=None,
-                 attributes=None, doc=None, sort_key_order=None, is_dist_key=False, **metadata):
+                 attributes=None, doc=None, encode=None,
+                 sort_key_order=None, is_dist_key=False, **metadata):
         self.name = column_name
         self.type = column_type
         self.primary_key_order = primary_key_order
         self.sort_key_order = sort_key_order
+        self.encode = encode
         self.is_dist_key = is_dist_key
         self.is_nullable = is_nullable
         self.default_value = default_value
@@ -84,6 +86,7 @@ class SQLColumn(object):
                 self.attributes == other.attributes and
                 self.is_dist_key == other.is_dist_key and
                 self.sort_key_order == other.sort_key_order and
+                self.encode == other.encode and
                 self.metadata == other.metadata)
 
 

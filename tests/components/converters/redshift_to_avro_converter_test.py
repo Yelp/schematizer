@@ -365,6 +365,18 @@ class TestRedShiftToAvroConverter(object):
             {'name': 'col', 'type': 'int', 'default': 0}
         )
 
+    def test_convert_with_encode_column(self, converter):
+        self._convert_and_assert_with_one_column(
+            converter,
+            SQLColumn(
+                'col',
+                redshift_data_types.RedshiftInteger(),
+                is_nullable=False,
+                default_value=0,
+                encode='lzo'
+            ),
+            {'name': 'col', 'type': 'int', 'default': 0, 'enocde': 'lzo'}
+        )
     def test_convert_with_column_default_value(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
@@ -431,12 +443,15 @@ class TestRedShiftToAvroConverter(object):
         pkey_col1 = SQLColumn(
             'pkey_col_one',
             redshift_data_types.RedshiftInteger(),
-            primary_key_order=1
+            primary_key_order=1,
+            sort_key_order=2,
+            is_dist_key=True
         )
         pkey_col2 = SQLColumn(
             'pkey_col_two',
             redshift_data_types.RedshiftInteger(),
-            primary_key_order=2
+            primary_key_order=2,
+            sort_key_order=1
         )
         col = SQLColumn('col', redshift_data_types.RedshiftInteger())
         sql_table = SQLTable(self.table_name, [pkey_col2, pkey_col1, col])
@@ -464,7 +479,9 @@ class TestRedShiftToAvroConverter(object):
                     'default': None
                 },
             ],
-            AvroMetaDataKeys.PRIMARY_KEY: [pkey_col1.name, pkey_col2.name]
+            AvroMetaDataKeys.PRIMARY_KEY: [pkey_col1.name, pkey_col2.name],
+            AvroMetaDataKeys.SORT_KEY: [pkey_col2.name, pkey_col1.name],
+            AvroMetaDataKeys.DIST_KEY: pkey_col1.name
         }
 
         actual_schema = converter.convert(sql_table)

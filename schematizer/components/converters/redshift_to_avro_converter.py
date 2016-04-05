@@ -64,7 +64,12 @@ class RedshiftToAvroConverter(BaseConverter):
 
         sort_keys = [c.name for c in table.sort_keys]
         if sort_keys:
-            metadata[]
+            metadata[AvroMetaDataKeys.SORT_KEY] = sort_keys
+
+        dist_key = table.dist_key
+        if dist_key:
+            metadata[AvroMetaDataKeys.DIST_KEY] = dist_key
+
         return metadata
 
     def _create_avro_field(self, column):
@@ -135,25 +140,14 @@ class RedshiftToAvroConverter(BaseConverter):
             redshift_types.RedshiftTimestamp: self._convert_timestamp_type,
         }
 
-    def _convert_small_integer_type(self, column):
-        metadata = self._get_primary_key_metadata(column.primary_key_order)
-        return self._builder.create_int(), metadata
 
     def _get_primary_key_metadata(self, primary_key_order):
         return ({AvroMetaDataKeys.PRIMARY_KEY: primary_key_order}
                 if primary_key_order else {})
 
-    def _convert_bigint_type(self, column):
-        metadata = self._get_primary_key_metadata(column.primary_key_order)
-        return self._builder.create_long(), metadata
-
-    def _convert_boolean_type(self, column):
-        metadata = self._get_primary_key_metadata(column.primary_key_order)
-        return self._builder.create_boolean(), metadata
-
-    def _convert_double_type(self, column):
-        metadata = self._get_primary_key_metadata(column.primary_key_order)
-        return self._builder.create_double(), metadata
+    def _get_encode_metadata(self, encode):
+        return ({AvroMetaDataKeys.ENCODE: encode}
+                if encode else {})
 
     def _get_precision_metadata(self, column):
         return {
@@ -161,24 +155,50 @@ class RedshiftToAvroConverter(BaseConverter):
             AvroMetaDataKeys.SCALE: column.type.scale,
         }
 
+
+    def _convert_small_integer_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata = self._get_encode_metadata(column.encode)
+        return self._builder.create_int(), metadata
+
+    def _convert_bigint_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata = self._get_encode_metadata(column.encode)
+        return self._builder.create_long(), metadata
+
+    def _convert_boolean_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata = self._get_encode_metadata(column.encode)
+        return self._builder.create_boolean(), metadata
+
+    def _convert_double_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata = self._get_encode_metadata(column.encode)
+        return self._builder.create_double(), metadata
+
     def _convert_float_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata = self._get_encode_metadata(column.encode)
         return self._builder.create_float(), metadata
 
     def _convert_decimal_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata = self._get_encode_metadata(column.encode)
         metadata.update({AvroMetaDataKeys.FIXED_POINT: True})
         metadata.update(self._get_precision_metadata(column))
         return self._builder.create_double(), metadata
 
     def _convert_char_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata = self._get_encode_metadata(column.encode)
         metadata[AvroMetaDataKeys.FIX_LEN] = column.type.length
         return self._builder.create_string(), metadata
 
     def _convert_varchar_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata = self._get_encode_metadata(column.encode)
         metadata[AvroMetaDataKeys.MAX_LEN] = column.type.length
+
         return self._builder.create_string(), metadata
 
     def _convert_date_type(self, column):
@@ -186,6 +206,7 @@ class RedshiftToAvroConverter(BaseConverter):
         date sql column type to string (ISO 8601 format)
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata = self._get_encode_metadata(column.encode)
         metadata[AvroMetaDataKeys.DATE] = True
         return self._builder.create_int(), metadata
 
@@ -194,5 +215,6 @@ class RedshiftToAvroConverter(BaseConverter):
         timestamp sql column type to long (unix timestamp)
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata = self._get_encode_metadata(column.encode)
         metadata[AvroMetaDataKeys.TIMESTAMP] = True
         return self._builder.create_long(), metadata
