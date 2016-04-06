@@ -56,3 +56,6 @@ module_config:
             cprofile_sampling_enabled: true
             cprofile_sampling_probability: 0.05
             email_smtp_server: 169.254.255.254
+
+namespace_whitelist:
+    - refresh_primary.yelp.yelp_main_transformed

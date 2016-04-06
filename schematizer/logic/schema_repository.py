@@ -76,7 +76,8 @@ def register_avro_schema_from_avro_json(
         source_email_owner,
         contains_pii,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
-        base_schema_id=None
+        base_schema_id=None,
+        additional_schema_checks=True
 ):
     """Add an Avro schema of given schema json object into schema store.
     The steps from checking compatibility to create new topic should be atomic.
@@ -90,7 +91,10 @@ def register_avro_schema_from_avro_json(
     derived from
     :return: New created AvroSchema object.
     """
-    is_valid, error = models.AvroSchema.verify_avro_schema(avro_schema_json)
+    is_valid, error = models.AvroSchema.verify_avro_schema(
+        avro_schema_json,
+        additional_schema_checks
+    )
     if not is_valid:
         raise ValueError("Invalid Avro schema JSON. Value: {0}. Error: {1}"
                          .format(avro_schema_json, error))

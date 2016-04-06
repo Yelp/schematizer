@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import pytest
+import staticconf.testing
 
 from schematizer import models
 from testing import factories
@@ -49,6 +50,35 @@ def biz_schema_json():
         "fields": [{"name": "id", "type": "int", "doc": "id", "default": 0}],
         "doc": "biz table"
     }
+
+
+@pytest.fixture(params=[
+    {
+        "name": "biz",
+        "type": "record",
+        "fields": [{"name": "id", "type": "int", "doc": "id", "default": 0}],
+    },
+    {
+        "name": "biz",
+        "type": "record",
+        "fields": [{"name": "id", "type": "int", "doc": "id", "default": 0}],
+        "doc": ""
+    },
+    {
+        "name": "biz",
+        "type": "record",
+        "fields": [{"name": "id", "type": "int", "default": 0}],
+        "doc": "doc"
+    },
+    {
+        "name": "biz",
+        "type": "record",
+        "fields": [{"name": "id", "type": "int", "doc": "   ", "default": 0}],
+        "doc": "doc"
+    },
+])
+def biz_schema_without_doc_json(request):
+    return request.param
 
 
 @pytest.fixture
@@ -130,7 +160,7 @@ def biz_pkey_schema_json():
         "type": "record",
         "fields": [
             {"name": "id_1", "type": "int", "doc": "id1", "pkey": 1},
-            {"name": "f_1", "type": "int", "doc": ""},
+            {"name": "f_1", "type": "int", "doc": "f_1"},
             {"name": "id_2", "type": "int", "doc": "id2", "pkey": 2},
         ],
         "doc": "biz table with pkey"
@@ -166,6 +196,49 @@ def biz_pkey_schema(
         namespace=biz_pkey_topic.source.namespace.name,
         source=biz_pkey_topic.source.name
     )
+
+
+@pytest.fixture
+def yelp_namespace_wl_name():
+    return 'yelp_wl'
+
+
+@pytest.fixture
+def yelp_namespace_wl(yelp_namespace_wl_name):
+    return factories.create_namespace(yelp_namespace_wl_name)
+
+
+@pytest.fixture
+def biz_wl_src_name():
+    return 'biz_wl'
+
+
+@pytest.fixture
+def biz_wl_source(yelp_namespace_wl, biz_wl_src_name):
+    return factories.create_source(
+        namespace_name=yelp_namespace_wl.name,
+        source_name=biz_wl_src_name,
+        owner_email='test-src@yelp.com'
+    )
+
+
+@pytest.fixture
+def biz_wl_topic(biz_wl_source):
+    return factories.create_topic(
+        topic_name='yelp.biz.1_wl',
+        namespace_name=biz_wl_source.namespace.name,
+        source_name=biz_wl_source.name
+    )
+
+
+@pytest.fixture
+def biz_wl_schema_json():
+    return {
+        "name": "biz_wl",
+        "type": "record",
+        "fields": [{"name": "id", "type": "int", "default": 0}],
+        "doc": ""
+    }
 
 
 @pytest.fixture
@@ -209,3 +282,16 @@ def dw_consumer_group_source_data_src(dw_consumer_group, biz_source):
         data_src_type=models.DataSourceTypeEnum.SOURCE,
         data_src_id=biz_source.id
     )
+
+
+@pytest.yield_fixture(autouse=True, scope='session')
+def mock_namespace_whitelist():
+    with staticconf.testing.MockConfiguration(
+        {
+            'namespace_whitelist': [
+                'refresh_primary.yelp.yelp_main_transformed',
+                'yelp_wl'
+            ]
+        }
+    ):
+        yield

@@ -295,8 +295,18 @@ class TestSchemaRepository(DBTestCase):
             "name": "table_pkey",
             "namespace": self.namespace_name,
             "fields": [
-                {"name": "field_1", "type": "int", "doc": "", "pkey": 1},
-                {"name": "field_2", "type": "int", "doc": "", "pkey": 2},
+                {
+                    "name": "field_1",
+                    "type": "int",
+                    "doc": "field_1",
+                    "pkey": 1
+                },
+                {
+                    "name": "field_2",
+                    "type": "int",
+                    "doc": "field_2",
+                    "pkey": 2
+                },
             ],
             "doc": "I have a pkey!"
         }
@@ -308,9 +318,24 @@ class TestSchemaRepository(DBTestCase):
             "name": "table_pkey",
             "namespace": self.namespace_name,
             "fields": [
-                {"name": "field_1", "type": "int", "doc": "", "pkey": 1},
-                {"name": "field_2", "type": "int", "doc": "", "pkey": 2},
-                {"name": "field_3", "type": "int", "doc": "", "pkey": 3}
+                {
+                    "name": "field_1",
+                    "type": "int",
+                    "doc": "field_1",
+                    "pkey": 1
+                },
+                {
+                    "name": "field_2",
+                    "type": "int",
+                    "doc": "field_2",
+                    "pkey": 2
+                },
+                {
+                    "name": "field_3",
+                    "type": "int",
+                    "doc": "field_3",
+                    "pkey": 3
+                }
             ],
             "doc": "I have a pkey!"
         }
@@ -322,8 +347,18 @@ class TestSchemaRepository(DBTestCase):
             "name": "table_pkey",
             "namespace": self.namespace_name,
             "fields": [
-                {"name": "field_1", "type": "int", "doc": "", "pkey": 1},
-                {"name": "field_3", "type": "int", "doc": "", "pkey": 2}
+                {
+                    "name": "field_1",
+                    "type": "int",
+                    "doc": "field_1",
+                    "pkey": 1
+                },
+                {
+                    "name": "field_3",
+                    "type": "int",
+                    "doc": "field_3",
+                    "pkey": 2
+                }
             ],
             "doc": "I have a pkey!"
         }
@@ -335,9 +370,24 @@ class TestSchemaRepository(DBTestCase):
             "name": "table_pkey",
             "namespace": self.namespace_name,
             "fields": [
-                {"name": "field_1", "type": "int", "doc": "", "pkey": 1},
-                {"name": "field_2", "type": "int", "doc": "", "pkey": 2},
-                {"name": "field_new", "type": "int", "doc": "", "default": 123}
+                {
+                    "name": "field_1",
+                    "type": "int",
+                    "doc": "field_1",
+                    "pkey": 1
+                },
+                {
+                    "name": "field_2",
+                    "type": "int",
+                    "doc": "field_2",
+                    "pkey": 2
+                },
+                {
+                    "name": "field_new",
+                    "type": "int",
+                    "doc": "field_new",
+                    "default": 123
+                }
             ],
             "doc": "I have a pkey!"
         }

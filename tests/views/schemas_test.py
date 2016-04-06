@@ -79,6 +79,16 @@ class TestRegisterSchema(RegisterSchemaTestBase):
             'contains_pii': False
         }
 
+    @pytest.fixture
+    def biz_wl_request_json(self, biz_wl_schema_json, biz_wl_source):
+        return {
+            "schema": simplejson.dumps(biz_wl_schema_json),
+            "namespace": biz_wl_source.namespace.name,
+            "source": biz_wl_source.name,
+            "source_owner_email": 'biz.user@yelp.com',
+            'contains_pii': False
+        }
+
     def test_register_schema(self, mock_request, request_json):
         mock_request.json_body = request_json
         actual = schema_views.register_schema(mock_request)
@@ -114,6 +124,31 @@ class TestRegisterSchema(RegisterSchemaTestBase):
 
         assert e.value.code == expected_exception.code
         assert "Invalid Avro schema JSON." in str(e.value)
+
+    def test_register_missing_doc_schema(
+        self,
+        mock_request,
+        request_json,
+        biz_schema_without_doc_json
+    ):
+        request_json['schema'] = simplejson.dumps(biz_schema_without_doc_json)
+        mock_request.json_body = request_json
+
+        expected_exception = self.get_http_exception(422)
+        with pytest.raises(expected_exception) as e:
+            schema_views.register_schema(mock_request)
+
+        assert e.value.code == expected_exception.code
+        assert "Doc string not found" in str(e.value)
+
+    def test_register_missing_doc_schema_NS_whitelisted(
+        self,
+        mock_request,
+        biz_wl_request_json
+    ):
+        mock_request.json_body = biz_wl_request_json
+        actual = schema_views.register_schema(mock_request)
+        self._assert_equal_schema_response(actual, biz_wl_request_json)
 
     def test_register_invalid_namespace_name(self, mock_request, request_json):
         request_json['namespace'] = 'yelp|main'
