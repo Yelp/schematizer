@@ -43,10 +43,10 @@ def register_schema(request):
         req = requests_v1.RegisterSchemaRequest(**request.json_body)
         validate_names([req.namespace, req.source])
         if (req.namespace in
-                staticconf.read_list_of_string('namespace_whitelist')):
-            additional_schema_checks = False
+                staticconf.read_list_of_string('namespace_no_doc_required')):
+            docs_required = False
         else:
-            additional_schema_checks = True
+            docs_required = True
 
         return _register_avro_schema(
             schema_json=req.schema_json,
@@ -55,7 +55,7 @@ def register_schema(request):
             source_email_owner=req.source_owner_email,
             contains_pii=req.contains_pii,
             base_schema_id=req.base_schema_id,
-            additional_schema_checks=additional_schema_checks
+            docs_required=docs_required
         )
     except simplejson.JSONDecodeError as e:
         log.exception("Failed to construct RegisterSchemaRequest. {}"
@@ -89,7 +89,7 @@ def register_schema_from_mysql_stmts(request):
         source=req.source,
         source_email_owner=req.source_owner_email,
         contains_pii=req.contains_pii,
-        additional_schema_checks=False
+        docs_required=False
     )
 
 
@@ -100,7 +100,7 @@ def _register_avro_schema(
     source_email_owner,
     contains_pii,
     base_schema_id=None,
-    additional_schema_checks=True
+    docs_required=True
 ):
     try:
         validate_names([namespace, source])
@@ -111,7 +111,7 @@ def _register_avro_schema(
             source_email_owner=source_email_owner,
             contains_pii=contains_pii,
             base_schema_id=base_schema_id,
-            additional_schema_checks=additional_schema_checks
+            docs_required=docs_required
         )
         return responses_v1.get_schema_response_from_avro_schema(avro_schema)
     except ValueError as e:

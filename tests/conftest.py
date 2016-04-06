@@ -288,8 +288,9 @@ def dw_consumer_group_source_data_src(dw_consumer_group, biz_source):
 def mock_namespace_whitelist():
     with staticconf.testing.MockConfiguration(
         {
-            'namespace_whitelist': [
-                'refresh_primary.yelp.yelp_main_transformed',
+            'namespace_no_doc_required': [
+                'dev.refresh_primary.yelp.yelp_main_transformed',
+                'main.refresh_primary.yelp.yelp_main_transformed',
                 'yelp_wl'
             ]
         }

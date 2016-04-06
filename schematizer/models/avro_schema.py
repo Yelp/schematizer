@@ -189,21 +189,20 @@ class AvroSchema(Base, BaseModel):
     def verify_avro_schema(
         cls,
         avro_schema_json,
-        additional_schema_checks=False
+        docs_required=False
     ):
         """Verify whether the given JSON representation is a valid Avro schema.
 
         :param avro_schema_json: JSON representation of the Avro schema
-        :param additional_schema_checks: if more shcematizer specific
-        checks needs to be performed
+        :param docs_required: schema must have doc strings
         :return: A tuple (is_valid, error) in which the first element
         indicates whether the given JSON is a valid Avro schema, and the
         second element is the error if it is not valid.
         """
         try:
             schema.make_avsc_object(avro_schema_json)
-            if additional_schema_checks:
-                return cls._is_valid_schema_json(avro_schema_json)
+            if docs_required:
+                return cls._has_doc_field(avro_schema_json)
             return True, None
         except Exception as e:
             return False, repr(e)
@@ -213,17 +212,10 @@ class AvroSchema(Base, BaseModel):
         if 'doc' in schema_json and schema_json['doc'].strip():
             if schema_json['type'] == 'record':
                 if any(
-                    not cls._is_valid_schema_json(field)[0]
+                    not cls._has_doc_field(field)[0]
                     for field in schema_json['fields']
                 ):
-                    return False
-            return True
-        else:
-            return False
-
-    @classmethod
-    def _is_valid_schema_json(cls, schema_json):
-        if cls._has_doc_field(schema_json):
+                    return False, "Doc string not found."
             return True, None
         else:
             return False, "Doc string not found."
