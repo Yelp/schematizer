@@ -142,6 +142,7 @@ class RedshiftToAvroConverter(BaseConverter):
             redshift_types.RedshiftTimestamp: self._convert_timestamp_type,
         }
 
+
     def _get_primary_key_metadata(self, primary_key_order):
         return ({AvroMetaDataKeys.PRIMARY_KEY: primary_key_order}
                 if primary_key_order else {})
@@ -178,7 +179,6 @@ class RedshiftToAvroConverter(BaseConverter):
 
     def _convert_float_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata.update(self._get_encode_metadata(column.encode))
         return self._builder.create_float(), metadata
 
     def _convert_decimal_type(self, column):
