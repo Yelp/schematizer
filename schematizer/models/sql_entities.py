@@ -31,16 +31,18 @@ class SQLTable(object):
             (col for col in self.columns if col.primary_key_order),
             key=lambda c: c.primary_key_order
         )
+
     @property
     def sort_keys(self):
         return sorted(
             (col for col in self.columns if col.sort_key_order),
             key=lambda c: c.sort_key_order
         )
+
     @property
     def dist_key(self):
         candidates = [col for col in self.columns if col.is_dist_key]
-        if not candidates:
+        if candidates is not None and len(candidates) > 0:
             return candidates[0]
         else:
             return None

@@ -375,8 +375,9 @@ class TestRedShiftToAvroConverter(object):
                 default_value=0,
                 encode='lzo'
             ),
-            {'name': 'col', 'type': 'int', 'default': 0, 'enocde': 'lzo'}
+            {'name': 'col', 'type': 'int', 'default': 0, 'encode': 'lzo'}
         )
+
     def test_convert_with_column_default_value(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
@@ -471,7 +472,8 @@ class TestRedShiftToAvroConverter(object):
                     'name': pkey_col1.name,
                     'type': ['null', 'int'],
                     'default': None,
-                    AvroMetaDataKeys.PRIMARY_KEY: 1
+                    AvroMetaDataKeys.PRIMARY_KEY: 1,
+                    AvroMetaDataKeys.DIST_KEY: True
                 },
                 {
                     'name': col.name,
