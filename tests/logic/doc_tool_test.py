@@ -122,6 +122,25 @@ class TestDocTool(DBTestCase):
         )
         self.assert_equal_note(schema_note, note)
 
+    def test_get_notes_by_schemas_and_elements(
+        self,
+        schema,
+        schema_element,
+        schema_element_note,
+        schema_note
+    ):
+        actual = doc_tool.get_notes_by_schemas_and_elements(
+            [schema],
+            [schema_element]
+        )
+        assert len(actual) == 2
+        try:
+            self.assert_equal_note(schema_element_note, actual[0])
+            self.assert_equal_note(schema_note, actual[1])
+        except AssertionError:
+            self.assert_equal_note(schema_element_note, actual[1])
+            self.assert_equal_note(schema_element_note, actual[0])
+
     def test_get_schema_element_note(self, schema_element_note):
         note = doc_tool.get_note_by_reference_id_and_type(
             schema_element_note.reference_id,
@@ -200,6 +219,11 @@ class TestDocTool(DBTestCase):
     def test_get_source_category(self, source, source_category):
         actual = doc_tool.get_source_category_by_source_id(source.id)
         self.assert_equal_source_category(source_category, actual)
+
+    def test_get_source_categories_by_namespace_name(self, source_category):
+        actual = doc_tool.get_source_categories_by_namespace_name(factories.fake_namespace)
+        assert len(actual) == 1
+        self.assert_equal_source_category(source_category, actual[0])
 
     def test_create_source_category(self, source):
         actual = doc_tool.create_source_category(source.id, self.category)

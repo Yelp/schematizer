@@ -531,6 +531,21 @@ def get_schemas_by_topic_id(topic_id, include_disabled=False):
     return qry.order_by(models.AvroSchema.id).all()
 
 
+def get_schemas_by_namespace_name(namespace_name):
+    return session.query(
+        models.AvroSchema
+    ).join(
+        models.Topic,
+        models.Source,
+        models.Namespace
+    ).filter(
+        models.AvroSchema.topic_id == models.Topic.id,
+        models.Topic.source_id == models.Source.id,
+        models.Source.namespace_id == models.Namespace.id,
+        models.Namespace.name == namespace_name
+    ).order_by(models.AvroSchema.id).all()
+
+
 def mark_schema_disabled(schema_id):
     """Disable the Avro schema of specified id.
     """

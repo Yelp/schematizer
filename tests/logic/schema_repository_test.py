@@ -817,6 +817,18 @@ class TestSchemaRepository(DBTestCase):
         actual = schema_repo.get_schemas_by_topic_id(0)
         assert [] == actual
 
+    def test_get_schemas_by_namespace_name(
+        self,
+        rw_schema
+    ):
+        actual = schema_repo.get_schemas_by_namespace_name(self.namespace_name)
+        assert len(actual) == 1
+        self.assert_equal_avro_schema(rw_schema, actual[0])
+
+    def test_get_schemas_by_nonexistant_namespace(self):
+        actual = schema_repo.get_schemas_by_namespace_name("this_namespace_doesnt_exist")
+        assert not actual
+
     def test_mark_schema_disabled(self, rw_schema):
         schema_repo.mark_schema_disabled(rw_schema.id)
         actual = session.query(
