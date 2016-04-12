@@ -208,6 +208,18 @@ class SchemaResolution(object):
                 return False
         return True
 
+    def _resolve_decimal_schema(self, writer_schema, reader_schema):
+        return (writer_schema.precision == reader_schema.precision and
+                writer_schema.scale == reader_schema.scale)
+
+    def resolve_bytes_decimal_schema(self, writer_schema, reader_schema):
+        return (self.resolve_primitive_schema(writer_schema, reader_schema) and
+                self._resolve_decimal_schema(writer_schema, reader_schema))
+
+    def resolve_fixed_decimal_schema(self, writer_schema, reader_schema):
+        return (self.resolve_fixed_schema(writer_schema, reader_schema) and
+                self._resolve_decimal_schema(writer_schema, reader_schema))
+
     @property
     def resolvers(self):
         return {
@@ -217,7 +229,9 @@ class SchemaResolution(object):
             schema.MapSchema: self.resolve_map_schema,
             schema.ArraySchema: self.resolve_array_schema,
             schema.RecordSchema: self.resolve_record_schema,
-            schema.UnionSchema: self.resolve_union_schema
+            schema.UnionSchema: self.resolve_union_schema,
+            schema.BytesDecimalSchema: self.resolve_bytes_decimal_schema,
+            schema.FixedDecimalSchema: self.resolve_fixed_decimal_schema
         }
 
     def resolve_schema(self, writer_schema, reader_schema):

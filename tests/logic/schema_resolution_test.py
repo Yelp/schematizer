@@ -70,6 +70,32 @@ class AvroSchemaFactory(object):
             names=schema.Names()
         )
 
+    def create_bytes_decimal_schema(
+        self,
+        precision,
+        scale=0,
+        other_props=None
+    ):
+        return schema.BytesDecimalSchema(precision, scale, other_props)
+
+    def create_fixed_decimal_schema(
+        self,
+        size,
+        name,
+        precision,
+        scale=0,
+        aliases=None
+    ):
+        return schema.FixedDecimalSchema(
+            size,
+            name,
+            precision,
+            scale,
+            self.test_namespace,
+            names=schema.Names(),
+            other_props={'aliases': aliases}
+        )
+
 
 class TestSchemaResolution(object):
 
@@ -410,6 +436,48 @@ class TestSchemaResolution(object):
         )
         assert not resolver.resolve_schema(w_schema, r_schema)
 
+    def test_resolve_bytes_decimal_schema(self, resolver):
+        assert resolver.resolve_schema(
+            self.schema_factory.create_bytes_decimal_schema(4, 2),
+            self.schema_factory.create_bytes_decimal_schema(4, 2)
+        )
+
+    def test_resolve_bytes_decimal_with_diff_precision(self, resolver):
+        assert not resolver.resolve_schema(
+            self.schema_factory.create_bytes_decimal_schema(4, 2),
+            self.schema_factory.create_bytes_decimal_schema(3, 2)
+        )
+
+    def test_resolve_bytes_decimal_with_diff_scale(self, resolver):
+        assert not resolver.resolve_schema(
+            self.schema_factory.create_bytes_decimal_schema(4, 2),
+            self.schema_factory.create_bytes_decimal_schema(4, 1)
+        )
+
+    def test_resolve_fixed_decimal_schema(self, resolver):
+        assert resolver.resolve_schema(
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2),
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2)
+        )
+
+    def test_resolve_fixed_decimal_schema_with_diff_size(self, resolver):
+        assert not resolver.resolve_schema(
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2),
+            self.schema_factory.create_fixed_decimal_schema(14, 'foo', 4, 2)
+        )
+
+    def test_resolve_fixed_decimal_schema_with_diff_precision(self, resolver):
+        assert not resolver.resolve_schema(
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2),
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 5, 2)
+        )
+
+    def test_resolve_fixed_decimal_schema_with_diff_scale(self, resolver):
+        assert not resolver.resolve_schema(
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2),
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 1)
+        )
+
     @property
     def primitive_schema(self):
         return self.schema_factory.create_primitive_schema('int')
@@ -440,6 +508,14 @@ class TestSchemaResolution(object):
     @property
     def union_schema(self):
         return self.schema_factory.create_union_schema(self.fixed_schema)
+
+    @property
+    def bytes_decimal_schema(self):
+        return self.schema_factory.create_bytes_decimal_schema(4, 2)
+
+    @property
+    def fixed_decimal_schema(self):
+        return self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2)
 
     def test_resolve_primitive_schema_with_unsupported_schemas(self, resolver):
         self.resolve_unsupported_schemas(
@@ -502,7 +578,7 @@ class TestSchemaResolution(object):
 
     def default_mock_call_counts(self):
         keys = ['primitive', 'enum', 'fixed', 'map', 'array',
-                'record', 'union']
+                'record', 'union', 'bytes_decimal', 'fixed_decimal']
         return dict.fromkeys(keys, 0 * len(keys))
 
     def test_resolve_primitive_schema_resolver(self, resolver):
@@ -568,6 +644,24 @@ class TestSchemaResolution(object):
             expected_call_counts
         )
 
+    def test_resolve_bytes_decimal_schema_resolver(self, resolver):
+        expected_call_counts = self.default_mock_call_counts()
+        expected_call_counts['bytes_decimal'] = 1
+        self.verify_resolve_schema_resolvers(
+            resolver,
+            self.bytes_decimal_schema,
+            expected_call_counts
+        )
+
+    def test_resolve_fixed_decimal_schema_resolver(self, resolver):
+        expected_call_counts = self.default_mock_call_counts()
+        expected_call_counts['fixed_decimal'] = 1
+        self.verify_resolve_schema_resolvers(
+            resolver,
+            self.fixed_decimal_schema,
+            expected_call_counts
+        )
+
     def verify_resolve_schema_resolvers(self, resolver, test_schema,
                                         expected_call_counts):
         with nested(
@@ -577,14 +671,24 @@ class TestSchemaResolution(object):
             mock.patch.object(SchemaResolution, 'resolve_map_schema'),
             mock.patch.object(SchemaResolution, 'resolve_array_schema'),
             mock.patch.object(SchemaResolution, 'resolve_record_schema'),
-            mock.patch.object(SchemaResolution, 'resolve_union_schema')
+            mock.patch.object(SchemaResolution, 'resolve_union_schema'),
+            mock.patch.object(
+                SchemaResolution,
+                'resolve_bytes_decimal_schema'
+            ),
+            mock.patch.object(
+                SchemaResolution,
+                'resolve_fixed_decimal_schema'
+            )
         ) as (mock_primitive_resolver,
               mock_enum_resolver,
               mock_fixed_resolver,
               mock_map_resolver,
               mock_array_resolver,
               mock_record_resolver,
-              mock_union_resolver):
+              mock_union_resolver,
+              mock_bytes_decimal_resolver,
+              mock_fixed_decimal_resolver):
             resolver.resolve_schema(test_schema, test_schema)
             actual_call_counts = {
                 'primitive': mock_primitive_resolver.call_count,
@@ -593,7 +697,9 @@ class TestSchemaResolution(object):
                 'map': mock_map_resolver.call_count,
                 'array': mock_array_resolver.call_count,
                 'record': mock_record_resolver.call_count,
-                'union': mock_union_resolver.call_count
+                'union': mock_union_resolver.call_count,
+                'bytes_decimal': mock_bytes_decimal_resolver.call_count,
+                'fixed_decimal': mock_fixed_decimal_resolver.call_count
             }
             assert expected_call_counts == actual_call_counts
 
