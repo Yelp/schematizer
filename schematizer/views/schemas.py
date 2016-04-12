@@ -3,7 +3,6 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import simplejson
-import staticconf
 from pyramid.view import view_config
 
 from schematizer.api.decorators import log_api
@@ -11,6 +10,7 @@ from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.requests import requests_v1
 from schematizer.api.responses import responses_v1
+from schematizer.config import get_config
 from schematizer.config import log
 from schematizer.logic import schema_repository
 from schematizer.utils.utils import get_current_func_arg_name_values
@@ -42,11 +42,8 @@ def register_schema(request):
     try:
         req = requests_v1.RegisterSchemaRequest(**request.json_body)
         validate_names([req.namespace, req.source])
-        if (req.namespace in
-                staticconf.read_list_of_string('namespace_no_doc_required')):
-            docs_required = False
-        else:
-            docs_required = True
+        docs_required = (req.namespace not in get_config()
+                         .get_namespace_no_doc_required)
 
         return _register_avro_schema(
             schema_json=req.schema_json,

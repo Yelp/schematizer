@@ -3,7 +3,6 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import pytest
-import staticconf.testing
 
 from schematizer import models
 from testing import factories
@@ -199,49 +198,6 @@ def biz_pkey_schema(
 
 
 @pytest.fixture
-def yelp_namespace_wl_name():
-    return 'yelp_wl'
-
-
-@pytest.fixture
-def yelp_namespace_wl(yelp_namespace_wl_name):
-    return factories.create_namespace(yelp_namespace_wl_name)
-
-
-@pytest.fixture
-def biz_wl_src_name():
-    return 'biz_wl'
-
-
-@pytest.fixture
-def biz_wl_source(yelp_namespace_wl, biz_wl_src_name):
-    return factories.create_source(
-        namespace_name=yelp_namespace_wl.name,
-        source_name=biz_wl_src_name,
-        owner_email='test-src@yelp.com'
-    )
-
-
-@pytest.fixture
-def biz_wl_topic(biz_wl_source):
-    return factories.create_topic(
-        topic_name='yelp.biz.1_wl',
-        namespace_name=biz_wl_source.namespace.name,
-        source_name=biz_wl_source.name
-    )
-
-
-@pytest.fixture
-def biz_wl_schema_json():
-    return {
-        "name": "biz_wl",
-        "type": "record",
-        "fields": [{"name": "id", "type": "int", "default": 0}],
-        "doc": ""
-    }
-
-
-@pytest.fixture
 def biz_src_refresh(biz_source):
     return factories.create_refresh(
         source_id=biz_source.id,
@@ -282,17 +238,3 @@ def dw_consumer_group_source_data_src(dw_consumer_group, biz_source):
         data_src_type=models.DataSourceTypeEnum.SOURCE,
         data_src_id=biz_source.id
     )
-
-
-@pytest.yield_fixture(autouse=True, scope='session')
-def mock_namespace_whitelist():
-    with staticconf.testing.MockConfiguration(
-        {
-            'namespace_no_doc_required': [
-                'dev.refresh_primary.yelp.yelp_main_transformed',
-                'main.refresh_primary.yelp.yelp_main_transformed',
-                'yelp_wl'
-            ]
-        }
-    ):
-        yield

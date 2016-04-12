@@ -5,10 +5,12 @@ from __future__ import unicode_literals
 import mock
 import pytest
 import simplejson
+import staticconf.testing
 
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.views import schemas as schema_views
+from testing import factories
 from tests.views.api_test_base import ApiTestBase
 
 
@@ -89,6 +91,56 @@ class TestRegisterSchema(RegisterSchemaTestBase):
             'contains_pii': False
         }
 
+    @pytest.yield_fixture(autouse=True, scope='session')
+    def mock_namespace_whitelist(self):
+        with staticconf.testing.MockConfiguration(
+            {
+                'namespace_no_doc_required': [
+                    'dev.refresh_primary.yelp.yelp_main_transformed',
+                    'main.refresh_primary.yelp.yelp_main_transformed',
+                    'yelp_wl'
+                ]
+            }
+        ):
+            yield
+
+    @pytest.fixture
+    def yelp_namespace_wl_name(self):
+        return 'yelp_wl'
+
+    @pytest.fixture
+    def yelp_namespace_wl(self, yelp_namespace_wl_name):
+        return factories.create_namespace(yelp_namespace_wl_name)
+
+    @pytest.fixture
+    def biz_wl_src_name(self):
+        return 'biz_wl'
+
+    @pytest.fixture
+    def biz_wl_source(self, yelp_namespace_wl, biz_wl_src_name):
+        return factories.create_source(
+            namespace_name=yelp_namespace_wl.name,
+            source_name=biz_wl_src_name,
+            owner_email='test-src@yelp.com'
+        )
+
+    @pytest.fixture
+    def biz_wl_topic(self, biz_wl_source):
+        return factories.create_topic(
+            topic_name='yelp.biz.1_wl',
+            namespace_name=biz_wl_source.namespace.name,
+            source_name=biz_wl_source.name
+        )
+
+    @pytest.fixture
+    def biz_wl_schema_json(self):
+        return {
+            "name": "biz_wl",
+            "type": "record",
+            "fields": [{"name": "id", "type": "int", "default": 0}],
+            "doc": ""
+        }
+
     def test_register_schema(self, mock_request, request_json):
         mock_request.json_body = request_json
         actual = schema_views.register_schema(mock_request)
@@ -114,7 +166,11 @@ class TestRegisterSchema(RegisterSchemaTestBase):
             'decoding JSON: "Not valid json!%#!#$#"'
         )
 
-    def test_register_invalid_avro_format(self, mock_request, request_json):
+    def test_register_schema_without_doc_but_whitelisted(
+        self,
+        mock_request,
+        request_json
+    ):
         request_json['schema'] = '{"type": "record", "name": "A"}'
         mock_request.json_body = request_json
 
@@ -139,7 +195,7 @@ class TestRegisterSchema(RegisterSchemaTestBase):
             schema_views.register_schema(mock_request)
 
         assert e.value.code == expected_exception.code
-        assert "Doc string not found" in str(e.value)
+        assert "Missing `doc` for field" in str(e.value)
 
     def test_register_missing_doc_schema_NS_whitelisted(
         self,

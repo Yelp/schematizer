@@ -186,39 +186,35 @@ class AvroSchema(Base, BaseModel):
         return avro_schema_elements
 
     @classmethod
-    def verify_avro_schema(
-        cls,
-        avro_schema_json,
-        docs_required=False
-    ):
+    def verify_avro_schema(cls, avro_schema_json):
         """Verify whether the given JSON representation is a valid Avro schema.
 
         :param avro_schema_json: JSON representation of the Avro schema
-        :param docs_required: schema must have doc strings
         :return: A tuple (is_valid, error) in which the first element
         indicates whether the given JSON is a valid Avro schema, and the
         second element is the error if it is not valid.
         """
         try:
             schema.make_avsc_object(avro_schema_json)
-            if docs_required:
-                return cls._has_doc_field(avro_schema_json)
             return True, None
         except Exception as e:
             return False, repr(e)
 
     @classmethod
-    def _has_doc_field(cls, schema_json):
-        if 'doc' in schema_json and schema_json['doc'].strip():
-            if schema_json['type'] == 'record':
-                if any(
-                    not cls._has_doc_field(field)[0]
-                    for field in schema_json['fields']
-                ):
-                    return False, "Doc string not found."
-            return True, None
-        else:
-            return False, "Doc string not found."
+    def avro_schema_has_docs(cls, avro_schema_json):
+        avro_schema_elements = cls.create_schema_elements_from_json(
+            avro_schema_json
+        )
+        missing_doc_fields = []
+        for avro_schema_element in avro_schema_elements:
+            if (not avro_schema_element.doc or
+                    not avro_schema_element.doc.strip()):
+                missing_doc_fields.append(avro_schema_element.key)
+        if missing_doc_fields:
+            return False, "Missing `doc` for field(s) {}".format(
+                ', '.join(missing_doc_fields)
+            )
+        return True, None
 
 
 class _SchemaElement(object):
