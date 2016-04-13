@@ -373,7 +373,9 @@ class TestRedShiftToAvroConverter(object):
                 redshift_data_types.RedshiftInteger(),
                 is_nullable=False,
                 default_value=0,
-                encode='lzo'
+                metadata={
+                    "encode": 'lzo'
+                }
             ),
             {'name': 'col', 'type': 'int', 'default': 0, 'encode': 'lzo'}
         )
@@ -445,14 +447,18 @@ class TestRedShiftToAvroConverter(object):
             'pkey_col_one',
             redshift_data_types.RedshiftInteger(),
             primary_key_order=1,
-            sort_key_order=2,
-            is_dist_key=True
+            metadata={
+                "sort_key": 2,
+                "dist_key": True
+            }
         )
         pkey_col2 = SQLColumn(
             'pkey_col_two',
             redshift_data_types.RedshiftInteger(),
             primary_key_order=2,
-            sort_key_order=1
+            metadata={
+                "sort_key": 1
+            }
         )
         col = SQLColumn('col', redshift_data_types.RedshiftInteger())
         sql_table = SQLTable(self.table_name, [pkey_col2, pkey_col1, col])

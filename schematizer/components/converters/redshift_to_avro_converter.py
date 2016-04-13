@@ -62,11 +62,11 @@ class RedshiftToAvroConverter(BaseConverter):
         if primary_keys:
             metadata[AvroMetaDataKeys.PRIMARY_KEY] = primary_keys
 
-        sort_keys = [c.name for c in table.sort_keys]
+        sort_keys = table.metadata["sort_keys"]
         if sort_keys:
             metadata[AvroMetaDataKeys.SORT_KEY] = sort_keys
 
-        dist_key = table.dist_key
+        dist_key = table.metadata["dist_key"]
         if dist_key:
             metadata[AvroMetaDataKeys.DIST_KEY] = dist_key.name
 
@@ -79,9 +79,11 @@ class RedshiftToAvroConverter(BaseConverter):
                 field_type,
                 column.default_value
             ).end()
-        if column.is_dist_key:
-            field_metadata.update(self._get_is_dist_key(column.is_dist_key))
-        field_metadata.update(self._get_encode_metadata(column.encode))
+
+        field_metadata.update(self._get_dist_key_metadata(column))
+        field_metadata.update(self._get_sort_key_metadata(column))
+        field_metadata.update(self._get_encode_metadata(column))
+
         self._builder.add_field(
             column.name,
             field_type,
@@ -134,7 +136,7 @@ class RedshiftToAvroConverter(BaseConverter):
 
             redshift_types.RedshiftNVarChar: self._convert_varchar_type,
             redshift_types.RedshiftCharacterVarying:
-            self._convert_varchar_type,
+                self._convert_varchar_type,
             redshift_types.RedshiftVarChar: self._convert_varchar_type,
             redshift_types.RedshiftText: self._convert_varchar_type,
 
@@ -146,17 +148,16 @@ class RedshiftToAvroConverter(BaseConverter):
         return ({AvroMetaDataKeys.PRIMARY_KEY: primary_key_order}
                 if primary_key_order else {})
 
-    def _get_encode_metadata(self, encode):
-        return ({AvroMetaDataKeys.ENCODE: encode}
-                if encode else {})
+    def _get_sort_key_metadata(self, column):
+        return ({AvroMetaDataKeys.SORT_KEY: column.metadata["sort_key"]}
+                if column.metadata["sort_key"] else {})
 
-    def _get_precision_metadata(self, column):
-        return {
-            AvroMetaDataKeys.PRECISION: column.type.precision,
-            AvroMetaDataKeys.SCALE: column.type.scale,
-        }
+    def _get_encode_metadata(self, column):
+        return ({AvroMetaDataKeys.ENCODE: column.metadata["encode"]}
+                if column.metadata["encode"] else {})
 
-    def _get_is_dist_key(self, is_dist_key):
+    def _get_dist_key_metadata(self, column):
+        is_dist_key = column.metadata["is_dist_key"]
         return ({AvroMetaDataKeys.DIST_KEY: is_dist_key}
                 if is_dist_key is not None else {})
 
@@ -183,8 +184,10 @@ class RedshiftToAvroConverter(BaseConverter):
     def _convert_decimal_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata.update({AvroMetaDataKeys.FIXED_POINT: True})
-        metadata.update(self._get_precision_metadata(column))
-        return self._builder.create_double(), metadata
+        return self._builder.begin_decimal_bytes(
+                column.type.precision,
+                column.type.scale
+        ), metadata
 
     def _convert_char_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
@@ -198,7 +201,7 @@ class RedshiftToAvroConverter(BaseConverter):
 
     def _convert_date_type(self, column):
         """Avro currently doesn't support date, so map the
-        date sql column type to string (ISO 8601 format)
+        date sql column type to int (ISO 8601 format)
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.DATE] = True
