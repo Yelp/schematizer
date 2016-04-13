@@ -125,6 +125,23 @@ def get_schema_elements_by_schema_id(request):
     return [element.to_dict() for element in elements]
 
 
+@view_config(
+    route_name='api.v1.get_derived_schema_by_id',
+    request_method='GET',
+    renderer='json'
+)
+@transform_api_response()
+def get_derived_schema_by_id(request):
+    schema_id = int(request.matchdict.get('schema_id'))
+    avro_schema = schema_repository.get_schema_by_id(schema_id)
+    if avro_schema is None:
+        raise exceptions_v1.schema_not_found_exception()
+
+    avro_schema_json = simplejson.loads(avro_schema.avro_schema)
+    avro_schema_json['fields'] += request.json_body.get('extra_columns', [])
+    return avro_schema_json
+
+
 def validate_name(name):
     if '|' in name:
         # Restrict '|' to avoid ambiguity when parsing input of

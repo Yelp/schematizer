@@ -180,6 +180,22 @@ def routes(config):
         '/v1/consumer_groups/{consumer_group_id}/data_sources',
         request_method="POST"
     )
+
+    config.add_route(
+        'api.v1.get_derived_schema_by_id',
+        '/v1/derived_schema/{schema_id}',
+        request_method="GET"
+    )
+    config.add_route(
+        'api.v1.get_table_create_statement_from_avro_schema',
+        '/v1/table_create_statement',
+        request_method="GET"
+    )
+    config.add_route(
+        'api.v1.get_schema_migration',
+        '/v1/schema_migration',
+        request_method="GET"
+    )
     # Serve the documentation tool from /web/
     config.add_static_view(name='partials', path='static/html/partials')
     config.add_static_view(name='static', path='static/')
