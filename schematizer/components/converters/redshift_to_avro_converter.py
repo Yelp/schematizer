@@ -51,7 +51,10 @@ class RedshiftToAvroConverter(BaseConverter):
             **metadata
         )
         for column in table.columns:
-            self._create_avro_field(column)
+            try:
+                self._create_avro_field(column)
+            except Exception as e:
+                print e
         record_json = self._builder.end()
         return record_json
 
@@ -62,11 +65,11 @@ class RedshiftToAvroConverter(BaseConverter):
         if primary_keys:
             metadata[AvroMetaDataKeys.PRIMARY_KEY] = primary_keys
 
-        sort_keys = table.metadata["sort_keys"]
+        sort_keys = table.metadata.get("sortkey")
         if sort_keys:
             metadata[AvroMetaDataKeys.SORT_KEY] = sort_keys
 
-        dist_key = table.metadata["dist_key"]
+        dist_key = table.metadata.get("sortkey")
         if dist_key:
             metadata[AvroMetaDataKeys.DIST_KEY] = dist_key.name
 
@@ -149,15 +152,15 @@ class RedshiftToAvroConverter(BaseConverter):
                 if primary_key_order else {})
 
     def _get_sort_key_metadata(self, column):
-        return ({AvroMetaDataKeys.SORT_KEY: column.metadata["sort_key"]}
-                if column.metadata["sort_key"] else {})
+        return ({AvroMetaDataKeys.SORT_KEY: column.metadata.get("sortkey")}
+                if column.metadata.get("sortkey") else {})
 
     def _get_encode_metadata(self, column):
-        return ({AvroMetaDataKeys.ENCODE: column.metadata["encode"]}
-                if column.metadata["encode"] else {})
+        return ({AvroMetaDataKeys.ENCODE: column.metadata.get("encode")}
+                if column.metadata.get("encode") else {})
 
     def _get_dist_key_metadata(self, column):
-        is_dist_key = column.metadata["is_dist_key"]
+        is_dist_key = column.metadata.get("distkey")
         return ({AvroMetaDataKeys.DIST_KEY: is_dist_key}
                 if is_dist_key is not None else {})
 
@@ -185,8 +188,8 @@ class RedshiftToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata.update({AvroMetaDataKeys.FIXED_POINT: True})
         return self._builder.begin_decimal_bytes(
-                column.type.precision,
-                column.type.scale
+            column.type.precision,
+            column.type.scale
         ), metadata
 
     def _convert_char_type(self, column):

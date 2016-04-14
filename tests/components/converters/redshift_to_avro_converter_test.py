@@ -2,6 +2,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from collections import defaultdict
+
 import pytest
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
@@ -154,15 +156,15 @@ class TestRedShiftToAvroConverter(object):
             converter,
             SQLColumn(
                 'col_decimal',
-                redshift_data_types.RedshiftDecimal(8, 0)
+                redshift_data_types.RedshiftDecimal(8, 0),
             ),
             {
                 'name': 'col_decimal',
-                'type': ['null', 'double'],
+                'type': ['null', 'bytes'],
                 'default': None,
-                AvroMetaDataKeys.FIXED_POINT: True,
                 AvroMetaDataKeys.PRECISION: 8,
                 AvroMetaDataKeys.SCALE: 0,
+                AvroMetaDataKeys.FIXED_POINT: True
             }
         )
 
@@ -175,11 +177,11 @@ class TestRedShiftToAvroConverter(object):
             ),
             {
                 'name': 'col_numeric',
-                'type': ['null', 'double'],
+                'type': ['null', 'bytes'],
                 'default': None,
                 AvroMetaDataKeys.FIXED_POINT: True,
                 AvroMetaDataKeys.PRECISION: 8,
-                AvroMetaDataKeys.SCALE: 0,
+                AvroMetaDataKeys.SCALE: 0
             }
         )
 
@@ -448,8 +450,8 @@ class TestRedShiftToAvroConverter(object):
             redshift_data_types.RedshiftInteger(),
             primary_key_order=1,
             metadata={
-                "sort_key": 2,
-                "dist_key": True
+                "sortkey": 2,
+                "distkey": True
             }
         )
         pkey_col2 = SQLColumn(
@@ -457,7 +459,7 @@ class TestRedShiftToAvroConverter(object):
             redshift_data_types.RedshiftInteger(),
             primary_key_order=2,
             metadata={
-                "sort_key": 1
+                "sortkey": 1
             }
         )
         col = SQLColumn('col', redshift_data_types.RedshiftInteger())

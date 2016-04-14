@@ -32,6 +32,7 @@ class SQLTable(object):
             key=lambda c: c.primary_key_order
         )
 
+
 class SQLColumn(object):
     """Internal data structure that represents a general sql column.
     It is intended to support sql column definition in general. The
