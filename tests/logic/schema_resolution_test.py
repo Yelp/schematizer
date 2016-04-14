@@ -459,6 +459,12 @@ class TestSchemaResolution(object):
             self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2)
         )
 
+    def test_resolve_fixed_decimal_schema_with_diff_name(self, resolver):
+        assert not resolver.resolve_schema(
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo1', 4, 2),
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo2', 4, 2)
+        )
+
     def test_resolve_fixed_decimal_schema_with_diff_size(self, resolver):
         assert not resolver.resolve_schema(
             self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2),
@@ -574,59 +580,6 @@ class TestSchemaResolution(object):
         assert not resolver_func(target_schema, non_target_schema)
         assert not resolver_func(non_target_schema, target_schema)
         assert not resolver_func(non_target_schema, non_target_schema)
-
-    @pytest.fixture(params=[
-        {
-            'schema_func': 'primitive_schema',
-            'resolver': 'resolve_primitive_schema'
-        },
-        {
-            'schema_func': 'enum_schema',
-            'resolver': 'resolve_enum_schema'
-        },
-        {
-            'schema_func': 'fixed_schema',
-            'resolver': 'resolve_fixed_schema'
-        },
-        {
-            'schema_func': 'map_schema',
-            'resolver': 'resolve_map_schema'
-        },
-        {
-            'schema_func': 'array_schema',
-            'resolver': 'resolve_array_schema'
-        },
-        {
-            'schema_func': 'record_schema',
-            'resolver': 'resolve_record_schema'
-        },
-        {
-            'schema_func': 'union_schema',
-            'resolver': 'resolve_union_schema'
-        },
-        {
-            'schema_func': 'bytes_decimal_schema',
-            'resolver': 'resolve_bytes_decimal_schema'
-        },
-        {
-            'schema_func': 'fixed_decimal_schema',
-            'resolver': 'resolve_fixed_decimal_schema'
-        }
-    ])
-    def grouped_schema_params(self, request):
-        request.param['schema'] = getattr(self, request.param['schema_func'])
-        return request.param
-
-    def test_schema_resolver(self, resolver, grouped_schema_params):
-        with mock.patch.object(
-            SchemaResolution,
-            grouped_schema_params['resolver']
-        ) as mock_resolver:
-            resolver.resolve_schema(
-                grouped_schema_params['schema'],
-                grouped_schema_params['schema']
-            )
-            assert mock_resolver.call_count == 1
 
     def test_resolve_schema_with_cache(self, resolver):
         w_schema = self.schema_factory.create_record_schema(
