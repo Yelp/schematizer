@@ -182,16 +182,6 @@ def routes(config):
     )
 
     config.add_route(
-        'api.v1.get_derived_schema_by_id',
-        '/v1/derived_schema/{schema_id}',
-        request_method="GET"
-    )
-    config.add_route(
-        'api.v1.get_table_create_statement_from_avro_schema',
-        '/v1/table_create_statement',
-        request_method="GET"
-    )
-    config.add_route(
         'api.v1.get_schema_migration',
         '/v1/schema_migration',
         request_method="GET"

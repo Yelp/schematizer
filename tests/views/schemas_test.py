@@ -47,23 +47,6 @@ class TestGetSchemaByID(ApiTestBase):
         assert actual == expected
 
 
-class TestGetDerivedSchemaByID(ApiTestBase):
-
-    def test_get_schema_with_extra_columns(self, mock_request, biz_schema):
-        extra_columns = [
-            {'name': 'test_1', 'type': 'int'},
-            {"maxlen": "10", "type": "string", "name": "test_2"}
-        ]
-        mock_request.matchdict = {'schema_id': str(biz_schema.id)}
-        mock_request.json_body = {'extra_columns': extra_columns}
-
-        actual = schema_views.get_derived_schema_by_id(mock_request)
-        expected = simplejson.loads(biz_schema.avro_schema)
-        assert actual != expected
-        expected['fields'] += extra_columns
-        assert actual == expected
-
-
 class RegisterSchemaTestBase(ApiTestBase):
 
     def _assert_equal_schema_response(self, actual, request_json):
