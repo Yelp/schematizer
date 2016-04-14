@@ -41,6 +41,10 @@
         {
             "path": "/v1/consumer_groups",
             "description": "Operations about the consumer groups."
+        },
+        {
+            "path": "/v1/schema_migrations",
+            "description": "Operations to generate schema migrations."
         }
     ],
     "info": {
