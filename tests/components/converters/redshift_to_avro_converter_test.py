@@ -179,8 +179,6 @@ class TestRedShiftToAvroConverter(object):
                 'name': 'col_numeric',
                 'type': ['null', 'bytes'],
                 'default': None,
-                AvroMetaDataKeys.FIXED_POINT: True,
-                AvroMetaDataKeys.PRECISION: 8,
                 AvroMetaDataKeys.SCALE: 0
             }
         )

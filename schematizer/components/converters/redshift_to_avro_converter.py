@@ -190,7 +190,7 @@ class RedshiftToAvroConverter(BaseConverter):
         return self._builder.begin_decimal_bytes(
             column.type.precision,
             column.type.scale
-        ), metadata
+        ).end(), metadata
 
     def _convert_char_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
