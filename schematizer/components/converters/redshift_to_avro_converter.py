@@ -71,7 +71,7 @@ class RedshiftToAvroConverter(BaseConverter):
         if sort_keys:
             sorted_keys = sorted(sort_keys.items(), key=operator.itemgetter(1))
             keys = [item[0] for item in sorted_keys]
-            metadata[AvroMetaDataKeys.SORT_KEY] = keys
+            metadata.update({AvroMetaDataKeys.SORT_KEY:keys})
 
         dist_keys = None
         for column in table.columns:
@@ -79,7 +79,7 @@ class RedshiftToAvroConverter(BaseConverter):
                 dist_keys = column.name
                 break
         if dist_keys:
-            metadata[AvroMetaDataKeys.DIST_KEY] = dist_keys
+            metadata.update({AvroMetaDataKeys.DIST_KEY: dist_keys})
 
         return metadata
 

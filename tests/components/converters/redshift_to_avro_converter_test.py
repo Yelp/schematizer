@@ -2,8 +2,6 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from collections import defaultdict
-
 import pytest
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
