@@ -16,7 +16,7 @@ from schematizer.models import redshift_data_types
 from schematizer.models.sql_entities import MetaDataKey
 from schematizer.models.sql_entities import SQLColumn
 from schematizer.models.sql_entities import SQLTable
-from testing.models.mysql_data_types import MySQLUnsupportedType
+from testing.models.redshift_data_types import RedshiftUnsupportedType
 
 
 class TestRedShiftToAvroConverter(object):
@@ -160,10 +160,13 @@ class TestRedShiftToAvroConverter(object):
             ),
             {
                 'name': 'col_decimal',
-                'type': ['null', 'bytes'],
+                'type': ['null', {
+                                    'logicalType': 'decimal',
+                                    'scale': 0,
+                                    'type': 'bytes', 'precision': 8
+                            }
+                         ],
                 'default': None,
-                AvroMetaDataKeys.PRECISION: 8,
-                AvroMetaDataKeys.SCALE: 0,
                 AvroMetaDataKeys.FIXED_POINT: True
             }
         )
@@ -177,9 +180,15 @@ class TestRedShiftToAvroConverter(object):
             ),
             {
                 'name': 'col_numeric',
-                'type': ['null', 'bytes'],
+                'type': ['null', {
+                                    'logicalType': 'decimal',
+                                    'scale': 0,
+                                    'type': 'bytes',
+                                    'precision': 8
+                            }
+                         ],
                 'default': None,
-                AvroMetaDataKeys.SCALE: 0
+                AvroMetaDataKeys.FIXED_POINT: True
             }
         )
 
@@ -333,7 +342,7 @@ class TestRedShiftToAvroConverter(object):
 
     def test_convert_with_unsupported_type(self, converter):
         with pytest.raises(UnsupportedTypeException):
-            column = SQLColumn('col', MySQLUnsupportedType())
+            column = SQLColumn('col', RedshiftUnsupportedType())
             sql_table = SQLTable(self.table_name, [column])
             converter.convert(sql_table)
 
@@ -373,9 +382,7 @@ class TestRedShiftToAvroConverter(object):
                 redshift_data_types.RedshiftInteger(),
                 is_nullable=False,
                 default_value=0,
-                metadata={
-                    "encode": 'lzo'
-                }
+                **{AvroMetaDataKeys.ENCODE:'lzo'}
             ),
             {'name': 'col', 'type': 'int', 'default': 0, 'encode': 'lzo'}
         )
@@ -447,17 +454,17 @@ class TestRedShiftToAvroConverter(object):
             'pkey_col_one',
             redshift_data_types.RedshiftInteger(),
             primary_key_order=1,
-            metadata={
-                "sortkey": 2,
-                "distkey": True
+            **{
+                AvroMetaDataKeys.SORT_KEY:2,
+                AvroMetaDataKeys.DIST_KEY:True
             }
         )
         pkey_col2 = SQLColumn(
             'pkey_col_two',
             redshift_data_types.RedshiftInteger(),
             primary_key_order=2,
-            metadata={
-                "sortkey": 1
+            **{
+                AvroMetaDataKeys.SORT_KEY:1
             }
         )
         col = SQLColumn('col', redshift_data_types.RedshiftInteger())
@@ -472,14 +479,16 @@ class TestRedShiftToAvroConverter(object):
                     'name': pkey_col2.name,
                     'type': ['null', 'int'],
                     'default': None,
-                    AvroMetaDataKeys.PRIMARY_KEY: 2
+                    AvroMetaDataKeys.PRIMARY_KEY: 2,
+                    AvroMetaDataKeys.SORT_KEY: 1
                 },
                 {
                     'name': pkey_col1.name,
                     'type': ['null', 'int'],
                     'default': None,
                     AvroMetaDataKeys.PRIMARY_KEY: 1,
-                    AvroMetaDataKeys.DIST_KEY: True
+                    AvroMetaDataKeys.DIST_KEY: True,
+                    AvroMetaDataKeys.SORT_KEY: 2
                 },
                 {
                     'name': col.name,

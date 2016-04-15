@@ -14,7 +14,7 @@ from schematizer.models import redshift_data_types as redshift_types
 from schematizer.models import SchemaKindEnum
 from schematizer.models.sql_entities import MetaDataKey
 from schematizer.models.sql_entities import SQLTable
-
+import operator
 
 class RedshiftToAvroConverter(BaseConverter):
     """Converter that converts Redshift table schema to Avro schema.
@@ -51,10 +51,7 @@ class RedshiftToAvroConverter(BaseConverter):
             **metadata
         )
         for column in table.columns:
-            try:
-                self._create_avro_field(column)
-            except Exception as e:
-                print e
+            self._create_avro_field(column)
         record_json = self._builder.end()
         return record_json
 
@@ -65,13 +62,24 @@ class RedshiftToAvroConverter(BaseConverter):
         if primary_keys:
             metadata[AvroMetaDataKeys.PRIMARY_KEY] = primary_keys
 
-        sort_keys = table.metadata.get("sortkey")
-        if sort_keys:
-            metadata[AvroMetaDataKeys.SORT_KEY] = sort_keys
+        sort_keys = {}
+        for column in table.columns:
+            if AvroMetaDataKeys.SORT_KEY in column.metadata:
+                sort_keys[column.name] = \
+                    column.metadata.get(AvroMetaDataKeys.SORT_KEY)
 
-        dist_key = table.metadata.get("sortkey")
-        if dist_key:
-            metadata[AvroMetaDataKeys.DIST_KEY] = dist_key.name
+        if sort_keys:
+            sorted_keys = sorted(sort_keys.items(), key=operator.itemgetter(1))
+            keys = [item[0] for item in sorted_keys]
+            metadata[AvroMetaDataKeys.SORT_KEY] = keys
+
+        dist_keys = None
+        for column in table.columns:
+            if AvroMetaDataKeys.DIST_KEY in column.metadata:
+                dist_keys = column.name
+                break
+        if dist_keys:
+            metadata[AvroMetaDataKeys.DIST_KEY] = dist_keys
 
         return metadata
 
@@ -82,7 +90,7 @@ class RedshiftToAvroConverter(BaseConverter):
                 field_type,
                 column.default_value
             ).end()
-
+        field_metadata.update(column.metadata)
         field_metadata.update(self._get_dist_key_metadata(column))
         field_metadata.update(self._get_sort_key_metadata(column))
         field_metadata.update(self._get_encode_metadata(column))
