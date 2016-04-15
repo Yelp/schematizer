@@ -4,6 +4,9 @@ from __future__ import unicode_literals
 
 import copy
 
+import pytest
+
+from schematizer.api.exceptions import exceptions_v1
 from schematizer.views import schema_migrations as schema_migrations_view
 from tests.views.api_test_base import ApiTestBase
 
@@ -22,7 +25,8 @@ class TestGetSchemaMigration(ApiTestBase):
 
         mock_request.json_body = {
             'old_avro_schema': biz_schema_json,
-            'new_avro_schema': new_schema
+            'new_avro_schema': new_schema,
+            'target_schema_type': 'redshift'
         }
         actual = schema_migrations_view.get_schema_migration(mock_request)
         expected = [
@@ -46,7 +50,8 @@ class TestGetSchemaMigration(ApiTestBase):
 
         mock_request.json_body = {
             'old_avro_schema': biz_schema_json,
-            'new_avro_schema': new_schema
+            'new_avro_schema': new_schema,
+            'target_schema_type': 'redshift'
         }
         actual = schema_migrations_view.get_schema_migration(mock_request)
         expected = [
@@ -63,8 +68,8 @@ class TestGetSchemaMigration(ApiTestBase):
             biz_schema_json
     ):
         mock_request.json_body = {
-            'old_avro_schema': None,
-            'new_avro_schema': biz_schema_json
+            'new_avro_schema': biz_schema_json,
+            'target_schema_type': 'redshift'
         }
         actual = schema_migrations_view.get_schema_migration(mock_request)
         expected = [
@@ -74,3 +79,19 @@ class TestGetSchemaMigration(ApiTestBase):
             'COMMIT;'
         ]
         assert actual == expected
+
+    def test_get_unsupported_schema_migration(
+            self,
+            mock_request,
+            biz_schema_json
+    ):
+        expected_exception = self.get_http_exception(501)
+        with pytest.raises(expected_exception) as e:
+            mock_request.json_body = {
+                'new_avro_schema': biz_schema_json,
+                'target_schema_type': 'unsupported_schema_type'
+            }
+            schema_migrations_view.get_schema_migration(mock_request)
+
+        assert e.value.code == expected_exception.code
+        assert str(e.value) == exceptions_v1.UNSUPPORTED_TARGET_SCHEMA_MESSAGE

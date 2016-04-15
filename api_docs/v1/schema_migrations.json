@@ -34,6 +34,10 @@
                         {
                             "code": 500,
                             "message": "Server side error"
+                        },
+                        {
+                            "code": 501,
+                            "message": "Not Implemented"
                         }
                     ]
                 }
@@ -44,7 +48,8 @@
         "SchemaMigrationRequest": {
             "id": "SchemaMigrationRequest",
             "required": [
-                "new_schema"
+                "new_schema",
+                "target_schema_type"
             ],
             "properties": {
                 "old_schema": {
@@ -54,6 +59,10 @@
                 "new_schema": {
                     "type": "string",
                     "description": "The JSON formatted string of the avro schema to which we want to migrate"
+                },
+                "target_schema_type": {
+                    "type": "string",
+                    "description": "The type of schema migration desired (e.g. redshift, mysql, etc.)"
                 }
             }
         }
