@@ -158,13 +158,15 @@ class TestRedShiftToAvroConverter(object):
             ),
             {
                 'name': 'col_decimal',
-                'type': ['null',
-                            {
-                                'logicalType': 'decimal',
-                                'scale': 0,
-                                'type': 'bytes', 'precision': 8
-                            }
-                         ],
+                'type':
+                    [
+                        'null',
+                        {
+                            'logicalType': 'decimal',
+                            'scale': 0,
+                            'type': 'bytes', 'precision': 8
+                        }
+                    ],
                 'default': None,
                 AvroMetaDataKeys.FIXED_POINT: True
             }
@@ -179,13 +181,16 @@ class TestRedShiftToAvroConverter(object):
             ),
             {
                 'name': 'col_numeric',
-                'type': ['null', {
-                                    'logicalType': 'decimal',
-                                    'scale': 0,
-                                    'type': 'bytes',
-                                    'precision': 8
-                            }
-                         ],
+                'type':
+                    [
+                        'null',
+                        {
+                            'logicalType': 'decimal',
+                            'scale': 0,
+                            'type': 'bytes',
+                            'precision': 8
+                        }
+                    ],
                 'default': None,
                 AvroMetaDataKeys.FIXED_POINT: True
             }
