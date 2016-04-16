@@ -523,7 +523,7 @@ class TestRedShiftToAvroConverter(object):
         sql_table = SQLTable(
             self.table_name,
             [pkey_col2, pkey_col1, col],
-            **{AvroMetaDataKeys.SORT_KEY: ['pkey_col_one', 'pkey_col_two']}
+            **{AvroMetaDataKeys.SORT_KEY: ['pkey_col_two', 'pkey_col_one']}
         )
 
         expected_schema = {
