@@ -59,7 +59,6 @@ class RedshiftToAvroConverter(BaseConverter):
 
     def _get_table_metadata(self, table):
         metadata = {}
-
         primary_keys = [c.name for c in table.primary_keys]
         if primary_keys:
             metadata[AvroMetaDataKeys.PRIMARY_KEY] = primary_keys
