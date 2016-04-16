@@ -380,7 +380,7 @@ class TestRedShiftToAvroConverter(object):
                 redshift_data_types.RedshiftInteger(),
                 is_nullable=False,
                 default_value=0,
-                **{AvroMetaDataKeys.ENCODE:'lzo'}
+                **{AvroMetaDataKeys.ENCODE: 'lzo'}
             ),
             {'name': 'col', 'type': 'int', 'default': 0, 'encode': 'lzo'}
         )
@@ -453,8 +453,8 @@ class TestRedShiftToAvroConverter(object):
             redshift_data_types.RedshiftInteger(),
             primary_key_order=1,
             **{
-                AvroMetaDataKeys.SORT_KEY:2,
-                AvroMetaDataKeys.DIST_KEY:True
+                AvroMetaDataKeys.SORT_KEY: 2,
+                AvroMetaDataKeys.DIST_KEY: True
             }
         )
         pkey_col2 = SQLColumn(
@@ -462,7 +462,7 @@ class TestRedShiftToAvroConverter(object):
             redshift_data_types.RedshiftInteger(),
             primary_key_order=2,
             **{
-                AvroMetaDataKeys.SORT_KEY:1
+                AvroMetaDataKeys.SORT_KEY: 1
             }
         )
         col = SQLColumn('col', redshift_data_types.RedshiftInteger())
@@ -497,6 +497,54 @@ class TestRedShiftToAvroConverter(object):
             AvroMetaDataKeys.PRIMARY_KEY: [pkey_col1.name, pkey_col2.name],
             AvroMetaDataKeys.SORT_KEY: [pkey_col2.name, pkey_col1.name],
             AvroMetaDataKeys.DIST_KEY: pkey_col1.name
+        }
+
+        actual_schema = converter.convert(sql_table)
+        assert expected_schema == actual_schema
+
+    def test_convert_with_table_metadata_no_column_metadata(self, converter):
+        pkey_col1 = SQLColumn(
+            'pkey_col_one',
+            redshift_data_types.RedshiftInteger(),
+            primary_key_order=1,
+        )
+        pkey_col2 = SQLColumn(
+            'pkey_col_two',
+            redshift_data_types.RedshiftInteger(),
+            primary_key_order=2,
+        )
+        col = SQLColumn('col', redshift_data_types.RedshiftInteger())
+        sql_table = SQLTable(
+                self.table_name,
+                [pkey_col2, pkey_col1, col],
+                **{AvroMetaDataKeys.SORT_KEY: ['pkey_col_one', 'pkey_col_two']}
+        )
+
+        expected_schema = {
+            'type': 'record',
+            'name': self.table_name,
+            'namespace': '',
+            'fields': [
+                {
+                    'name': pkey_col2.name,
+                    'type': ['null', 'int'],
+                    'default': None,
+                    AvroMetaDataKeys.PRIMARY_KEY: 2,
+                },
+                {
+                    'name': pkey_col1.name,
+                    'type': ['null', 'int'],
+                    'default': None,
+                    AvroMetaDataKeys.PRIMARY_KEY: 1,
+                },
+                {
+                    'name': col.name,
+                    'type': ['null', 'int'],
+                    'default': None
+                },
+            ],
+            AvroMetaDataKeys.PRIMARY_KEY: [pkey_col1.name, pkey_col2.name],
+            AvroMetaDataKeys.SORT_KEY: [pkey_col2.name, pkey_col1.name],
         }
 
         actual_schema = converter.convert(sql_table)

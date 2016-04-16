@@ -2,6 +2,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import operator
+
 from yelp_avro.avro_builder import AvroSchemaBuilder
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
@@ -14,7 +16,7 @@ from schematizer.models import redshift_data_types as redshift_types
 from schematizer.models import SchemaKindEnum
 from schematizer.models.sql_entities import MetaDataKey
 from schematizer.models.sql_entities import SQLTable
-import operator
+
 
 class RedshiftToAvroConverter(BaseConverter):
     """Converter that converts Redshift table schema to Avro schema.
@@ -71,7 +73,7 @@ class RedshiftToAvroConverter(BaseConverter):
         if sort_keys:
             sorted_keys = sorted(sort_keys.items(), key=operator.itemgetter(1))
             keys = [item[0] for item in sorted_keys]
-            metadata.update({AvroMetaDataKeys.SORT_KEY:keys})
+            metadata.update({AvroMetaDataKeys.SORT_KEY: keys})
 
         dist_keys = None
         for column in table.columns:
