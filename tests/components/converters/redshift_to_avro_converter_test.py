@@ -158,10 +158,11 @@ class TestRedShiftToAvroConverter(object):
             ),
             {
                 'name': 'col_decimal',
-                'type': ['null', {
-                                    'logicalType': 'decimal',
-                                    'scale': 0,
-                                    'type': 'bytes', 'precision': 8
+                'type': ['null',
+                            {
+                                'logicalType': 'decimal',
+                                'scale': 0,
+                                'type': 'bytes', 'precision': 8
                             }
                          ],
                 'default': None,
@@ -515,9 +516,9 @@ class TestRedShiftToAvroConverter(object):
         )
         col = SQLColumn('col', redshift_data_types.RedshiftInteger())
         sql_table = SQLTable(
-                self.table_name,
-                [pkey_col2, pkey_col1, col],
-                **{AvroMetaDataKeys.SORT_KEY: ['pkey_col_one', 'pkey_col_two']}
+            self.table_name,
+            [pkey_col2, pkey_col1, col],
+            **{AvroMetaDataKeys.SORT_KEY: ['pkey_col_one', 'pkey_col_two']}
         )
 
         expected_schema = {
