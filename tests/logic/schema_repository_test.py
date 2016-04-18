@@ -1242,6 +1242,14 @@ class TestByCriteria(DBTestCase):
             )
         )
 
+    def test_get_topics_page_size(self, sorted_topics):
+        expected = [sorted_topics[0]]
+
+        actual = schema_repo.get_topics_by_criteria(page_size=1)
+
+        assert len(actual) == 1
+        self.assert_equal_topics(actual, expected)
+
     def test_get_topics_after_given_timestamp(self, sorted_topics):
         expected = sorted_topics[2:]
         after_dt = expected[0].created_at

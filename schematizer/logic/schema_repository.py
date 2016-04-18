@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import uuid
 
+import datetime
 import simplejson
 from sqlalchemy import desc
 from sqlalchemy import exc
@@ -661,7 +662,7 @@ def get_schema_elements_by_schema_id(schema_id):
     ).all()
 
 
-def get_topics_by_criteria(namespace=None, source=None, created_after=None):
+def get_topics_by_criteria(namespace=None, source=None, created_after=None, page_size=100):
     """Get all the topics that match given filter criteria.
 
     Args:
@@ -669,10 +670,15 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None):
         source(Optional[str]): get topics of given source name if specified
         created_after(Optional[datetime]): get topics created after given utc
             datetime (inclusive) if specified.
+        page_size(Optional[int]): number of topics to return in this query
+            (default: 100)
     Returns:
         (list[:class:schematizer.models.Topic]): List of topic models sorted
         by their ids.
     """
+    if not created_after:
+        # Earliest possible timestamp
+        created_after = datetime.datetime.utcfromtimestamp(0)
     qry = session.query(models.Topic)
     if namespace or source:
         qry = qry.join(models.Source).filter(
@@ -685,9 +691,12 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None):
         )
     if source:
         qry = qry.filter(models.Source.name == source)
-    if created_after:
-        qry = qry.filter(models.Topic.created_at >= created_after)
-    return qry.order_by(models.Topic.id).all()
+    qry = qry.filter(models.Topic.created_at >= created_after)
+    return qry.order_by(
+        models.Topic.id
+    ).limit(
+        page_size
+    ).all()
 
 
 def get_refreshes_by_criteria(namespace=None, status=None, created_after=None):
