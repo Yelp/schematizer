@@ -3,7 +3,6 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import copy
-from contextlib import nested
 
 import mock
 import pytest
@@ -68,6 +67,32 @@ class AvroSchemaFactory(object):
         return schema.UnionSchema(
             [avro_schema.to_json() for avro_schema in avro_schemas],
             names=schema.Names()
+        )
+
+    def create_bytes_decimal_schema(
+        self,
+        precision,
+        scale=0,
+        other_props=None
+    ):
+        return schema.BytesDecimalSchema(precision, scale, other_props)
+
+    def create_fixed_decimal_schema(
+        self,
+        size,
+        name,
+        precision,
+        scale=0,
+        aliases=None
+    ):
+        return schema.FixedDecimalSchema(
+            size,
+            name,
+            precision,
+            scale,
+            self.test_namespace,
+            names=schema.Names(),
+            other_props={'aliases': aliases}
         )
 
 
@@ -410,6 +435,54 @@ class TestSchemaResolution(object):
         )
         assert not resolver.resolve_schema(w_schema, r_schema)
 
+    def test_resolve_bytes_decimal_schema(self, resolver):
+        assert resolver.resolve_schema(
+            self.schema_factory.create_bytes_decimal_schema(4, 2),
+            self.schema_factory.create_bytes_decimal_schema(4, 2)
+        )
+
+    def test_resolve_bytes_decimal_with_diff_precision(self, resolver):
+        assert not resolver.resolve_schema(
+            self.schema_factory.create_bytes_decimal_schema(4, 2),
+            self.schema_factory.create_bytes_decimal_schema(3, 2)
+        )
+
+    def test_resolve_bytes_decimal_with_diff_scale(self, resolver):
+        assert not resolver.resolve_schema(
+            self.schema_factory.create_bytes_decimal_schema(4, 2),
+            self.schema_factory.create_bytes_decimal_schema(4, 1)
+        )
+
+    def test_resolve_fixed_decimal_schema(self, resolver):
+        assert resolver.resolve_schema(
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2),
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2)
+        )
+
+    def test_resolve_fixed_decimal_schema_with_diff_name(self, resolver):
+        assert not resolver.resolve_schema(
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo1', 4, 2),
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo2', 4, 2)
+        )
+
+    def test_resolve_fixed_decimal_schema_with_diff_size(self, resolver):
+        assert not resolver.resolve_schema(
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2),
+            self.schema_factory.create_fixed_decimal_schema(14, 'foo', 4, 2)
+        )
+
+    def test_resolve_fixed_decimal_schema_with_diff_precision(self, resolver):
+        assert not resolver.resolve_schema(
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2),
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 5, 2)
+        )
+
+    def test_resolve_fixed_decimal_schema_with_diff_scale(self, resolver):
+        assert not resolver.resolve_schema(
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2),
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 1)
+        )
+
     @property
     def primitive_schema(self):
         return self.schema_factory.create_primitive_schema('int')
@@ -440,6 +513,14 @@ class TestSchemaResolution(object):
     @property
     def union_schema(self):
         return self.schema_factory.create_union_schema(self.fixed_schema)
+
+    @property
+    def bytes_decimal_schema(self):
+        return self.schema_factory.create_bytes_decimal_schema(4, 2)
+
+    @property
+    def fixed_decimal_schema(self):
+        return self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2)
 
     def test_resolve_primitive_schema_with_unsupported_schemas(self, resolver):
         self.resolve_unsupported_schemas(
@@ -499,103 +580,6 @@ class TestSchemaResolution(object):
         assert not resolver_func(target_schema, non_target_schema)
         assert not resolver_func(non_target_schema, target_schema)
         assert not resolver_func(non_target_schema, non_target_schema)
-
-    def default_mock_call_counts(self):
-        keys = ['primitive', 'enum', 'fixed', 'map', 'array',
-                'record', 'union']
-        return dict.fromkeys(keys, 0 * len(keys))
-
-    def test_resolve_primitive_schema_resolver(self, resolver):
-        expected_call_counts = self.default_mock_call_counts()
-        expected_call_counts['primitive'] = 1
-        self.verify_resolve_schema_resolvers(
-            resolver,
-            self.primitive_schema,
-            expected_call_counts
-        )
-
-    def test_resolve_enum_schema_resolver(self, resolver):
-        expected_call_counts = self.default_mock_call_counts()
-        expected_call_counts['enum'] = 1
-        self.verify_resolve_schema_resolvers(
-            resolver,
-            self.enum_schema,
-            expected_call_counts
-        )
-
-    def test_resolve_fixed_schema_resolver(self, resolver):
-        expected_call_counts = self.default_mock_call_counts()
-        expected_call_counts['fixed'] = 1
-        self.verify_resolve_schema_resolvers(
-            resolver,
-            self.fixed_schema,
-            expected_call_counts
-        )
-
-    def test_resolve_map_schema_resolver(self, resolver):
-        expected_call_counts = self.default_mock_call_counts()
-        expected_call_counts['map'] = 1
-        self.verify_resolve_schema_resolvers(
-            resolver,
-            self.map_schema,
-            expected_call_counts
-        )
-
-    def test_resolve_array_schema_resolver(self, resolver):
-        expected_call_counts = self.default_mock_call_counts()
-        expected_call_counts['array'] = 1
-        self.verify_resolve_schema_resolvers(
-            resolver,
-            self.array_schema,
-            expected_call_counts
-        )
-
-    def test_resolve_record_schema_resolver(self, resolver):
-        expected_call_counts = self.default_mock_call_counts()
-        expected_call_counts['record'] = 1
-        self.verify_resolve_schema_resolvers(
-            resolver,
-            self.record_schema,
-            expected_call_counts
-        )
-
-    def test_resolve_union_schema_resolver(self, resolver):
-        expected_call_counts = self.default_mock_call_counts()
-        expected_call_counts['union'] = 1
-        self.verify_resolve_schema_resolvers(
-            resolver,
-            self.union_schema,
-            expected_call_counts
-        )
-
-    def verify_resolve_schema_resolvers(self, resolver, test_schema,
-                                        expected_call_counts):
-        with nested(
-            mock.patch.object(SchemaResolution, 'resolve_primitive_schema'),
-            mock.patch.object(SchemaResolution, 'resolve_enum_schema'),
-            mock.patch.object(SchemaResolution, 'resolve_fixed_schema'),
-            mock.patch.object(SchemaResolution, 'resolve_map_schema'),
-            mock.patch.object(SchemaResolution, 'resolve_array_schema'),
-            mock.patch.object(SchemaResolution, 'resolve_record_schema'),
-            mock.patch.object(SchemaResolution, 'resolve_union_schema')
-        ) as (mock_primitive_resolver,
-              mock_enum_resolver,
-              mock_fixed_resolver,
-              mock_map_resolver,
-              mock_array_resolver,
-              mock_record_resolver,
-              mock_union_resolver):
-            resolver.resolve_schema(test_schema, test_schema)
-            actual_call_counts = {
-                'primitive': mock_primitive_resolver.call_count,
-                'enum': mock_enum_resolver.call_count,
-                'fixed': mock_fixed_resolver.call_count,
-                'map': mock_map_resolver.call_count,
-                'array': mock_array_resolver.call_count,
-                'record': mock_record_resolver.call_count,
-                'union': mock_union_resolver.call_count
-            }
-            assert expected_call_counts == actual_call_counts
 
     def test_resolve_schema_with_cache(self, resolver):
         w_schema = self.schema_factory.create_record_schema(
