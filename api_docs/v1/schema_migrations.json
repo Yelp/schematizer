@@ -32,6 +32,10 @@
                     ],
                     "responseMessages": [
                         {
+                            "code": 422,
+                            "message": "Invalid schema"
+                        },
+                        {
                             "code": 500,
                             "message": "Server side error"
                         },

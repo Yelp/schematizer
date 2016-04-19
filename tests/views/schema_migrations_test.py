@@ -82,6 +82,22 @@ class TestGetSchemaMigration(ApiTestBase):
         ]
         assert actual == expected
 
+    def test_invalid_schema(
+            self,
+            mock_request,
+            biz_schema_json
+    ):
+        expected_exception = self.get_http_exception(422)
+        with pytest.raises(expected_exception) as e:
+            mock_request.json_body = {
+                'new_schema': '{"bad_json_reason": "missing bracket"',
+                'target_schema_type': 'redshift'
+            }
+            schema_migrations_view.get_schema_migration(mock_request)
+
+        assert e.value.code == expected_exception.code
+        assert str(e.value) == exceptions_v1.INVALID_AVRO_SCHEMA_ERROR
+
     def test_get_unsupported_schema_migration(
             self,
             mock_request,

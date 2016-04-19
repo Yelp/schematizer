@@ -46,7 +46,11 @@ def get_schema_migration(request):
     if _get_migration is None:
         raise exceptions_v1.unsupported_target_schema_exception()
 
-    return _get_migration(
-        new_avro_schema=json.loads(new_schema_json),
-        old_avro_schema=json.loads(old_schema_json) if old_schema_json else {}
-    )
+    try:
+        return _get_migration(
+            new_avro_schema=json.loads(new_schema_json),
+            old_avro_schema=json.loads(old_schema_json)
+            if old_schema_json else {}
+        )
+    except json.JSONDecodeError:
+        raise exceptions_v1.invalid_schema_exception()
