@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import copy
 
 import pytest
+import simplejson as json
 
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.views import schema_migrations as schema_migrations_view
@@ -24,8 +25,8 @@ class TestGetSchemaMigration(ApiTestBase):
         )
 
         mock_request.json_body = {
-            'old_avro_schema': biz_schema_json,
-            'new_avro_schema': new_schema,
+            'old_schema': json.dumps(biz_schema_json),
+            'new_schema': json.dumps(new_schema),
             'target_schema_type': 'redshift'
         }
         actual = schema_migrations_view.get_schema_migration(mock_request)
@@ -49,8 +50,8 @@ class TestGetSchemaMigration(ApiTestBase):
         new_schema['name'] = 'business'
 
         mock_request.json_body = {
-            'old_avro_schema': biz_schema_json,
-            'new_avro_schema': new_schema,
+            'old_schema': json.dumps(biz_schema_json),
+            'new_schema': json.dumps(new_schema),
             'target_schema_type': 'redshift'
         }
         actual = schema_migrations_view.get_schema_migration(mock_request)
@@ -68,7 +69,7 @@ class TestGetSchemaMigration(ApiTestBase):
             biz_schema_json
     ):
         mock_request.json_body = {
-            'new_avro_schema': biz_schema_json,
+            'new_schema': json.dumps(biz_schema_json),
             'target_schema_type': 'redshift'
         }
         actual = schema_migrations_view.get_schema_migration(mock_request)
@@ -88,7 +89,7 @@ class TestGetSchemaMigration(ApiTestBase):
         expected_exception = self.get_http_exception(501)
         with pytest.raises(expected_exception) as e:
             mock_request.json_body = {
-                'new_avro_schema': biz_schema_json,
+                'new_schema': json.dumps(biz_schema_json),
                 'target_schema_type': 'unsupported_schema_type'
             }
             schema_migrations_view.get_schema_migration(mock_request)

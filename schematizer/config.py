@@ -183,7 +183,7 @@ def routes(config):
 
     config.add_route(
         'api.v1.get_schema_migration',
-        '/v1/schema_migration',
+        '/v1/schema_migrations',
         request_method="GET"
     )
     # Serve the documentation tool from /web/

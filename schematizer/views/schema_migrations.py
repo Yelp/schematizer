@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import simplejson as json
 from pyramid.view import view_config
 
 from schematizer.api.decorators import transform_api_response
@@ -36,8 +37,8 @@ SCHEMA_MIGRATION_STRATEGY_MAP = {
 )
 @transform_api_response()
 def get_schema_migration(request):
-    new_avro_schema_json = request.json_body.get('new_avro_schema')
-    old_avro_schema_json = request.json_body.get('old_avro_schema')
+    new_schema_json = request.json_body.get('new_schema')
+    old_schema_json = request.json_body.get('old_schema')
     target_schema_type = request.json_body.get('target_schema_type')
 
     _get_migration = SCHEMA_MIGRATION_STRATEGY_MAP.get(target_schema_type)
@@ -45,6 +46,6 @@ def get_schema_migration(request):
         raise exceptions_v1.unsupported_target_schema_exception()
 
     return _get_migration(
-        new_avro_schema=new_avro_schema_json,
-        old_avro_schema=old_avro_schema_json
+        new_avro_schema=json.loads(new_schema_json),
+        old_avro_schema=json.loads(old_schema_json) if old_schema_json else {}
     )
