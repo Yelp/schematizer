@@ -662,7 +662,7 @@ def get_schema_elements_by_schema_id(schema_id):
     ).all()
 
 
-def get_topics_by_criteria(namespace=None, source=None, created_after=None, page_size=100):
+def get_topics_by_criteria(namespace=None, source=None, created_after=None, page_size=None):
     """Get all the topics that match given filter criteria.
 
     Args:
@@ -671,7 +671,6 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None, page
         created_after(Optional[datetime]): get topics created after given utc
             datetime (inclusive) if specified.
         page_size(Optional[int]): number of topics to return in this query
-            (default: 100)
     Returns:
         (list[:class:schematizer.models.Topic]): List of topic models sorted
         by their ids.
@@ -692,11 +691,10 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None, page
     if source:
         qry = qry.filter(models.Source.name == source)
     qry = qry.filter(models.Topic.created_at >= created_after)
-    return qry.order_by(
-        models.Topic.id
-    ).limit(
-        page_size
-    ).all()
+    qry = qry.order_by(models.Topic.id)
+    if page_size:
+        qry = qry.limit(page_size)
+    return qry.all()
 
 
 def get_refreshes_by_criteria(namespace=None, status=None, created_after=None):
