@@ -25,6 +25,7 @@ def _get_redshift_schema_migration(new_avro_schema, old_avro_schema):
         old_redshift_table
     )
 
+
 SCHEMA_MIGRATION_STRATEGY_MAP = {
     'redshift': _get_redshift_schema_migration
 }

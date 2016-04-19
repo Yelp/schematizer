@@ -32,7 +32,8 @@ class TestGetSchemaMigration(ApiTestBase):
         actual = schema_migrations_view.get_schema_migration(mock_request)
         expected = [
             'BEGIN;',
-            'CREATE TABLE biz_tmp (id integer not null default 0,test_1 varchar(44));',  # noqa
+            'CREATE TABLE biz_tmp (id integer not null default 0,'
+            'test_1 varchar(44));',
             'INSERT INTO biz_tmp (id) (SELECT id FROM biz);',
             'ALTER TABLE biz RENAME TO biz_old;',
             'ALTER TABLE biz_tmp RENAME TO biz;',
