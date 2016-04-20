@@ -1242,14 +1242,6 @@ class TestByCriteria(DBTestCase):
             )
         )
 
-    def test_get_topics_page_size(self, sorted_topics):
-        expected = [sorted_topics[0]]
-
-        actual = schema_repo.get_topics_by_criteria(page_size=1)
-
-        assert len(actual) == 1
-        self.assert_equal_topics(actual, expected)
-
     def test_get_topics_after_given_timestamp(self, sorted_topics):
         expected = sorted_topics[2:]
         after_dt = expected[0].created_at
@@ -1301,6 +1293,22 @@ class TestByCriteria(DBTestCase):
                 [user_topic_1, user_topic_2]
             )
         )
+
+    def test_get_topics_count(self, sorted_topics):
+        expected = [sorted_topics[0]]
+
+        actual = schema_repo.get_topics_by_criteria(count=1)
+
+        assert len(actual) == 1
+        self.assert_equal_topics(actual, expected)
+
+    def test_get_topics_start_id(self, sorted_topics):
+        start_id = sorted_topics[1].id
+        expected = [topic for topic in sorted_topics if topic.id > start_id]
+
+        actual = schema_repo.get_topics_by_criteria(start_id=start_id)
+
+        self.assert_equal_topics(actual, expected)
 
     def assert_equal_refreshes(self, expected_refreshes, actual_refreshes):
         assert len(actual_refreshes) == len(expected_refreshes)

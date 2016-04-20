@@ -115,3 +115,24 @@ class TestGetTopicsByCriteria(ApiTestBase):
         actual = topic_views.get_topics_by_criteria(mock_request)
         expected = [self.get_expected_topic_resp(biz_topic.id)]
         assert actual == expected
+
+    def test_count(self, mock_request, biz_topic, biz_pkey_topic):
+        mock_request.params = {
+            'count': 1
+        }
+
+        # Without the count param, length would be 2
+        assert len(topic_views.get_topics_by_criteria(mock_request)) == 1
+
+    def test_start_id(self, mock_request, biz_topic, biz_pkey_topic):
+        sorted_topics = sorted(
+            [biz_topic, biz_pkey_topic],
+            key=lambda topic: topic.id
+        )
+        mock_request.params = {
+            'start_id': sorted_topics[0].id
+        }
+
+        actual = topic_views.get_topics_by_criteria(mock_request)
+        expected = [self.get_expected_topic_resp(sorted_topics[1].id)]
+        assert actual == expected

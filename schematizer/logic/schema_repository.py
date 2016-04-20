@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 import uuid
 
-import datetime
 import simplejson
 from sqlalchemy import desc
 from sqlalchemy import exc
@@ -662,7 +661,13 @@ def get_schema_elements_by_schema_id(schema_id):
     ).all()
 
 
-def get_topics_by_criteria(namespace=None, source=None, created_after=None, page_size=None):
+def get_topics_by_criteria(
+    namespace=None,
+    source=None,
+    created_after=None,
+    count=None,
+    start_id=None
+):
     """Get all the topics that match given filter criteria.
 
     Args:
@@ -670,14 +675,13 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None, page
         source(Optional[str]): get topics of given source name if specified
         created_after(Optional[datetime]): get topics created after given utc
             datetime (inclusive) if specified.
-        page_size(Optional[int]): number of topics to return in this query
+        count(Optional[int]): number of topics to return in this query
+        start_id(Optional[int]): limits results to those with an id strictly
+            greater than given id.
     Returns:
         (list[:class:schematizer.models.Topic]): List of topic models sorted
         by their ids.
     """
-    if not created_after:
-        # Earliest possible timestamp
-        created_after = datetime.datetime.utcfromtimestamp(0)
     qry = session.query(models.Topic)
     if namespace or source:
         qry = qry.join(models.Source).filter(
@@ -690,10 +694,13 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None, page
         )
     if source:
         qry = qry.filter(models.Source.name == source)
-    qry = qry.filter(models.Topic.created_at >= created_after)
+    if created_after:
+        qry = qry.filter(models.Topic.created_at >= created_after)
+    if start_id:
+        qry = qry.filter(models.Topic.id > start_id)
     qry = qry.order_by(models.Topic.id)
-    if page_size:
-        qry = qry.limit(page_size)
+    if count:
+        qry = qry.limit(count)
     return qry.all()
 
 
