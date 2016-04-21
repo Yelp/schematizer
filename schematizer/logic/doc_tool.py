@@ -31,7 +31,8 @@ def get_note_by_id(id):
 def get_notes_by_schemas_and_elements(schemas, elements):
     if not (schemas or elements):
         return []
-    # Can't use a join since sqlalchemy doesn't like the composite foreign key of Note
+    # Can't use a join since sqlalchemy doesn't like
+    # the composite foreign key of Note
     schema_ids = [schema.id for schema in schemas]
     element_ids = [element.id for element in elements]
 
@@ -42,18 +43,20 @@ def get_notes_by_schemas_and_elements(schemas, elements):
                 models.Note.reference_id.in_(schema_ids)
             ),
             and_(
-                models.Note.reference_type == models.ReferenceTypeEnum.SCHEMA_ELEMENT,
+                models.Note.reference_type ==
+                models.ReferenceTypeEnum.SCHEMA_ELEMENT,
                 models.Note.reference_id.in_(element_ids)
             )
         )
     elif schema_ids:
-        note_filter = and_ (
+        note_filter = and_(
             models.Note.reference_type == models.ReferenceTypeEnum.SCHEMA,
             models.Note.reference_id.in_(schema_ids)
         )
     else:
         note_filter = and_(
-            models.Note.reference_type == models.ReferenceTypeEnum.SCHEMA_ELEMENT,
+            models.Note.reference_type ==
+            models.ReferenceTypeEnum.SCHEMA_ELEMENT,
             models.Note.reference_id.in_(element_ids)
         )
 
@@ -62,7 +65,6 @@ def get_notes_by_schemas_and_elements(schemas, elements):
     ).filter(
         note_filter
     ).order_by(models.Note.id).all()
-
 
 
 def update_note(id, note_text, last_updated_by):
@@ -102,7 +104,7 @@ def get_source_categories_by_criteria(namespace_name, source_name=None):
     by source_name.
     """
     qry = session.query(
-       models.SourceCategory
+        models.SourceCategory
     ).join(
         models.Source,
         models.Namespace
@@ -112,7 +114,9 @@ def get_source_categories_by_criteria(namespace_name, source_name=None):
         models.Namespace.name == namespace_name
     )
     if source_name:
-        qry.filter(models.Source.name == source_name)
+        qry = qry.filter(
+            models.Source.name == source_name
+        )
     return qry.order_by(models.SourceCategory.id).all()
 
 

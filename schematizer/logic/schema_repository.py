@@ -715,7 +715,7 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None):
 
 def get_refreshes_by_criteria(
     namespace=None,
-    source_name = None,
+    source_name=None,
     status=None,
     created_after=None
 ):

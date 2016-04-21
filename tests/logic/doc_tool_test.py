@@ -220,10 +220,36 @@ class TestDocTool(DBTestCase):
         actual = doc_tool.get_source_category_by_source_id(source.id)
         self.assert_equal_source_category(source_category, actual)
 
-    def test_get_source_categories_by_namespace_name(self, source_category):
-        actual = doc_tool.get_source_categories_by_namespace_name(factories.fake_namespace)
+    def test_get_source_categories_by_criteria_namespace(
+        self,
+        source_category
+    ):
+        actual = doc_tool.get_source_categories_by_criteria(
+            namespace_name=factories.fake_namespace
+        )
         assert len(actual) == 1
         self.assert_equal_source_category(source_category, actual[0])
+
+    def test_get_source_categories_by_criteria_namespace_and_source(
+        self,
+        source_category
+    ):
+        actual = doc_tool.get_source_categories_by_criteria(
+            namespace_name=factories.fake_namespace,
+            source_name=factories.fake_source
+        )
+        assert len(actual) == 1
+        self.assert_equal_source_category(source_category, actual[0])
+
+    def test_get_source_categories_by_criteria_nonexistant_source(
+        self,
+        source_category
+    ):
+        actual = doc_tool.get_source_categories_by_criteria(
+            namespace_name=factories.fake_namespace,
+            source_name="this_source_does_not_exist"
+        )
+        assert not actual
 
     def test_create_source_category(self, source):
         actual = doc_tool.create_source_category(source.id, self.category)

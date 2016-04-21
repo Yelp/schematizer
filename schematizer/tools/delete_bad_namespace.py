@@ -2,10 +2,10 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import os
-
 import argparse
+
 from sqlalchemy.orm import exc as orm_exc
+from yelp_servlib.config_util import load_default_config
 
 from schematizer import models
 from schematizer.logic.doc_tool import get_notes_by_schemas_and_elements
@@ -14,13 +14,13 @@ from schematizer.logic.schema_repository import get_namespace_by_name
 from schematizer.logic.schema_repository import get_refreshes_by_criteria
 from schematizer.logic.schema_repository import get_schemas_by_criteria
 from schematizer.models.database import session
-from yelp_servlib.config_util import load_default_config
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description='Deletes a namespace (or source) and all of its children '
-        '(sources, topics, schemas, notes, schema_elements, refreshes, source_categories)'
+        '(sources, topics, schemas, notes, schema_elements, '
+        'refreshes, source_categories)'
     )
 
     parser.add_argument(
@@ -43,7 +43,8 @@ def parse_args():
         action="store_true",
         default=False,
         required=False,
-        help="Instead of deleting, this will print the names of the objects to be deleted"
+        help="Instead of deleting, this will print the names of "
+             "the objects to be deleted"
     )
 
     parser.add_argument(
@@ -51,9 +52,10 @@ def parse_args():
         type=str,
         default=None,
         required=False,
-        help="For limiting destruction to a single source contained in the namespace. "
-             "This will only delete this source and all of it's children "
-             "(topics, schemas, notes, schema_elements, refreshes, source_categories)"
+        help="For limiting destruction to a single source contained "
+             "in the namespace. This will only delete this source and "
+             "all of it's children (topics, schemas, notes, "
+             "schema_elements, refreshes, source_categories)"
     )
 
     return parser.parse_args()
@@ -80,12 +82,21 @@ def delete_all_children(children, dry_run):
 
             if dry_run:
                 all_items = new_query.all()
-                print "Objects for {} ({} found): {}".format(model_name, len(all_items), all_items)
+                print "Objects for {} ({} found): {}".format(
+                    model_name,
+                    len(all_items),
+                    all_items
+                )
             else:
-                print "Deleting {} items of type {}".format(len(ids), model_name)
+                print "Deleting {} items of type {}".format(
+                    len(ids),
+                    model_name
+                )
                 new_query.delete(synchronize_session=False)
         else:
-            print "No items found for {}. Not deleting anything".format(model_name)
+            print "No items found for {}. Not deleting anything".format(
+                model_name
+            )
 
 
 def _create_model_id_pair(model, ids):
@@ -134,7 +145,7 @@ def run():
     namespace_name = args.namespace_name
     load_default_config("config.yaml")
     if not args.force:
-         confirm_deletion(namespace_name)
+        confirm_deletion(namespace_name)
     with session.connect_begin(ro=False):
         try:
             namespace = get_namespace_by_name(namespace_name)
