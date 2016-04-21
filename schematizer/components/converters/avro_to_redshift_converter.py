@@ -168,7 +168,7 @@ class AvroToRedshiftConverter(BaseConverter):
         max_len = field.props.get(AvroMetaDataKeys.MAX_LEN)
         if max_len:
             return redshift_data_types.RedshiftVarChar(
-                max_len * self.CHAR_BYTES
+                int(max_len) * self.CHAR_BYTES
             )
 
         raise SchemaConversionException(
