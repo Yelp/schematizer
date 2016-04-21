@@ -97,8 +97,11 @@ def get_distinct_categories():
     return [category for category, in categories]
 
 
-def get_source_categories_by_namespace_name(namespace_name):
-    return session.query(
+def get_source_categories_by_criteria(namespace_name, source_name=None):
+    """Get source_categories by namespace_name, optionally filtering
+    by source_name.
+    """
+    qry = session.query(
        models.SourceCategory
     ).join(
         models.Source,
@@ -107,7 +110,10 @@ def get_source_categories_by_namespace_name(namespace_name):
         models.SourceCategory.source_id == models.Source.id,
         models.Source.namespace_id == models.Namespace.id,
         models.Namespace.name == namespace_name
-    ).order_by(models.SourceCategory.id).all()
+    )
+    if source_name:
+        qry.filter(models.Source.name == source_name)
+    return qry.order_by(models.SourceCategory.id).all()
 
 
 def get_source_category_by_source_id(source_id):

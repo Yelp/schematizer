@@ -9,17 +9,18 @@ from sqlalchemy.orm import exc as orm_exc
 
 from schematizer import models
 from schematizer.logic.doc_tool import get_notes_by_schemas_and_elements
-from schematizer.logic.doc_tool import get_source_categories_by_namespace_name
+from schematizer.logic.doc_tool import get_source_categories_by_criteria
 from schematizer.logic.schema_repository import get_namespace_by_name
 from schematizer.logic.schema_repository import get_refreshes_by_criteria
-from schematizer.logic.schema_repository import get_schemas_by_namespace_name
+from schematizer.logic.schema_repository import get_schemas_by_criteria
 from schematizer.models.database import session
 from yelp_servlib.config_util import load_default_config
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description='Deletes a namespace and all of its children (sources, topics, schemas, notes)'
+        description='Deletes a namespace (or source) and all of its children '
+        '(sources, topics, schemas, notes, schema_elements, refreshes, source_categories)'
     )
 
     parser.add_argument(
@@ -43,6 +44,16 @@ def parse_args():
         default=False,
         required=False,
         help="Instead of deleting, this will print the names of the objects to be deleted"
+    )
+
+    parser.add_argument(
+        '--source-name',
+        type=str,
+        default=None,
+        required=False,
+        help="For limiting destruction to a single source contained in the namespace. "
+             "This will only delete this source and all of it's children "
+             "(topics, schemas, notes, schema_elements, refreshes, source_categories)"
     )
 
     return parser.parse_args()
@@ -84,8 +95,11 @@ def _create_model_id_pair(model, ids):
     }
 
 
-def get_all_namespace_children(namespace_name):
-    schemas = get_schemas_by_namespace_name(namespace_name)
+def get_all_namespace_children(namespace_name, source_name=None):
+    schemas = get_schemas_by_criteria(
+        namespace_name,
+        source_name=source_name
+    )
     schema_ids = set(o.id for o in schemas)
     topic_ids = set(o.topic.id for o in schemas)
     source_ids = set(o.topic.source.id for o in schemas)
@@ -95,9 +109,14 @@ def get_all_namespace_children(namespace_name):
     element_ids = set(o.id for o in elements)
     notes = get_notes_by_schemas_and_elements(schemas, elements)
     note_ids = set(o.id for o in notes)
-    categories = get_source_categories_by_namespace_name(namespace_name)
+    categories = get_source_categories_by_criteria(
+        namespace_name, source_name=source_name
+    )
     category_ids = set(o.id for o in categories)
-    refreshes = get_refreshes_by_criteria(namespace=namespace_name)
+    refreshes = get_refreshes_by_criteria(
+        namespace=namespace_name,
+        source_name=source_name
+    )
     refresh_ids = set(o.id for o in refreshes)
     return [
         _create_model_id_pair(models.Note, note_ids),
@@ -119,8 +138,14 @@ def run():
     with session.connect_begin(ro=False):
         try:
             namespace = get_namespace_by_name(namespace_name)
-            delete_all_children(get_all_namespace_children(namespace_name), args.dry_run)
-            if not args.dry_run:
+            delete_all_children(
+                get_all_namespace_children(
+                    namespace_name,
+                    source_name=args.source_name
+                ),
+                args.dry_run
+            )
+            if not args.dry_run and not args.source_name:
                 session.delete(namespace)
         except orm_exc.NoResultFound:
             print "No namespace found with name: {}".format(namespace_name)

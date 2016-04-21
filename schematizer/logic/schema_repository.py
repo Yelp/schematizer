@@ -531,8 +531,11 @@ def get_schemas_by_topic_id(topic_id, include_disabled=False):
     return qry.order_by(models.AvroSchema.id).all()
 
 
-def get_schemas_by_namespace_name(namespace_name):
-    return session.query(
+def get_schemas_by_criteria(namespace_name, source_name=None):
+    """Get all avro schemas of specified namespace, optionally filtering
+    by source name.
+    """
+    qry = session.query(
         models.AvroSchema
     ).join(
         models.Topic,
@@ -543,7 +546,12 @@ def get_schemas_by_namespace_name(namespace_name):
         models.Topic.source_id == models.Source.id,
         models.Source.namespace_id == models.Namespace.id,
         models.Namespace.name == namespace_name
-    ).order_by(models.AvroSchema.id).all()
+    )
+    if source_name:
+        qry = qry.filter(
+            models.Source.name == source_name
+        )
+    return qry.order_by(models.AvroSchema.id).all()
 
 
 def mark_schema_disabled(schema_id):
@@ -705,11 +713,18 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None):
     return qry.order_by(models.Topic.id).all()
 
 
-def get_refreshes_by_criteria(namespace=None, status=None, created_after=None):
+def get_refreshes_by_criteria(
+    namespace=None,
+    source_name = None,
+    status=None,
+    created_after=None
+):
     """Get all the refreshes that match the given filter criteria.
 
     Args:
         namespace(Optional[str]): get refreshes of given namespace
+            if specified.
+        source_name(Optional[str]): get refreshes of given source
             if specified.
         status(Optional[int]): get refreshes of given status
             if specified.
@@ -724,6 +739,11 @@ def get_refreshes_by_criteria(namespace=None, status=None, created_after=None):
         qry = qry.join(models.Namespace).filter(
             models.Namespace.name == namespace,
             models.Namespace.id == models.Source.namespace_id
+        )
+    if source_name:
+        qry = qry.join(models.Source).filter(
+            models.Source.id == models.Refresh.source_id,
+            models.Source.name == source_name
         )
     if status:
         status = models.RefreshStatus[status].value
