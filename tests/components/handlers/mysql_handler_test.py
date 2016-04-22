@@ -295,15 +295,15 @@ class TestMySQLHandler(object):
         )
 
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
-        ('bar enum (a1, a2, a3) character set latin1',
+        ("bar enum ('a1', 'a2', 'a3') character set latin1",
          SQLColumn('bar', data_types.MySQLEnum(['a1', 'a2', 'a3']))),
-        ('bar enum (a1, a2, a3) not null',
+        ("bar enum ('a1', 'a2', 'a3') not null",
          SQLColumn(
              'bar',
              data_types.MySQLEnum(['a1', 'a2', 'a3']),
              is_nullable=False
          )),
-        ('bar enum (a1, a2, a3) default a1',
+        ("bar enum ('a1', 'a2', 'a3') default a1",
          SQLColumn(
              'bar',
              data_types.MySQLEnum(['a1', 'a2', 'a3']),
@@ -323,15 +323,15 @@ class TestMySQLHandler(object):
         )
 
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
-        ('bar set (a1, a2, a3) character set latin1',
+        ("bar set ('a1', 'a2', 'a3') character set latin1",
          SQLColumn('bar', data_types.MySQLSet(['a1', 'a2', 'a3']))),
-        ('bar set (a1, a2, a3) not null',
+        ("bar set ('a1', 'a2', 'a3') not null",
          SQLColumn(
              'bar',
              data_types.MySQLSet(['a1', 'a2', 'a3']),
              is_nullable=False
          )),
-        ('bar set (a1, a2, a3) default a2',
+        ("bar set ('a1', 'a2', 'a3') default a2",
          SQLColumn(
              'bar',
              data_types.MySQLSet(['a1', 'a2', 'a3']),

@@ -238,12 +238,22 @@ class ParsedMySQLProcessor(object):
 
         return col_type_cls()
 
+    def _remove_quotes(self, val):
+        """Helper that removes surrounding quotes from strings."""
+        if not val:
+            return val
+        if val[0] in ('"', '\'') and val[-1] == val[0]:
+            val = val[1:-1]
+        return val
+
     def _create_enum_type(self, col_type_cls, col_token):
         if col_type_cls is not data_types.MySQLEnum:
             return None
 
         token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
-        values = [t.value for t in token.tokens if t.ttype != T.Punctuation]
+        values = [self._remove_quotes(t.value)
+                  for t in token.tokens
+                  if t.ttype != T.Punctuation and not t.is_whitespace()]
         return col_type_cls(values)
 
     def _create_set_type(self, col_type_cls, col_token):
@@ -251,8 +261,11 @@ class ParsedMySQLProcessor(object):
             return None
 
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
-        values = [token.value for token in len_token.tokens
-                  if token.ttype != T.Punctuation]
+        values = [self._remove_quotes(
+                      token.value
+                  ) for token in len_token.tokens
+                  if (token.ttype != T.Punctuation and
+                      not token.is_whitespace())]
         return col_type_cls(values)
 
     def _get_attribute_token(self, attribute_name, attributes):

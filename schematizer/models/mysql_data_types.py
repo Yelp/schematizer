@@ -329,6 +329,10 @@ class MySQLEnum(SQLColumnDataType):
         super(MySQLEnum, self).__init__()
         self.values = values  # list of enum values
 
+    def __eq__(self, other):
+        return (super(MySQLEnum, self).__eq__(other) and
+                set(self.values) == set(other.values))
+
     def _convert_str_to_type_val(self, val_string):
         return val_string
 
@@ -343,6 +347,10 @@ class MySQLSet(SQLColumnDataType):
     def __init__(self, values):
         super(MySQLSet, self).__init__()
         self.values = values  # list of set values
+
+    def __eq__(self, other):
+        return (super(MySQLSet, self).__eq__(other) and
+                set(self.values) == set(other.values))
 
     def _convert_str_to_type_val(self, val_string):
         return val_string
