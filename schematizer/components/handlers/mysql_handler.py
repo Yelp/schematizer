@@ -262,10 +262,10 @@ class ParsedMySQLProcessor(object):
 
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
         values = [self._remove_quotes(
-                      token.value
-                  ) for token in len_token.tokens
-                  if (token.ttype != T.Punctuation and
-                      not token.is_whitespace())]
+            token.value
+        ) for token in len_token.tokens
+            if (token.ttype != T.Punctuation and
+                not token.is_whitespace())]
         return col_type_cls(values)
 
     def _get_attribute_token(self, attribute_name, attributes):

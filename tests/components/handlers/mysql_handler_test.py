@@ -97,13 +97,13 @@ class TestMySQLHandler(object):
         ('bar bit default 0b0101',
          SQLColumn(
              'bar',
-             data_types.MySQLBit(False),
+             data_types.MySQLBit(None),
              default_value=5
          )),
         ('bar bit default b\'101\'',
          SQLColumn(
              'bar',
-             data_types.MySQLBit(False),
+             data_types.MySQLBit(None),
              default_value=5
          )),
     ])
