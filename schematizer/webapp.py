@@ -15,10 +15,18 @@ from yelp_servlib import logging_util
 
 import schematizer.config
 import schematizer.models.database
-from schematizer import healthchecks
+from schematizer.healthchecks import MysqlHealthCheck
 
 SERVICE_CONFIG_PATH = os.environ.get('SERVICE_CONFIG_PATH')
 SERVICE_ENV_CONFIG_PATH = os.environ.get('SERVICE_ENV_CONFIG_PATH')
+
+
+CLUSTERS = [
+    ('schematizer', 'master'),
+    ('schematizer', 'slave'),
+    ('schematizer', 'reporting'),
+]
+
 
 uwsgi_metrics.initialize()
 
@@ -37,7 +45,7 @@ def initialize_application():
 
 yelp_pyramid.healthcheck.install_healthcheck(
     'mysql',
-    healthchecks.mysql_healthcheck,
+    MysqlHealthCheck(CLUSTERS),
     unhealthy_threshold=5,
     healthy_threshold=2,
     init=initialize_application
@@ -56,10 +64,7 @@ def _create_application():
             '/(status)\\b',
             '/'
         ],
-        'pyramid_yelp_conn.reload_clusters': [
-            ('schematizer', 'master'),
-            ('schematizer', 'slave'),
-        ],
+        'pyramid_yelp_conn.reload_clusters': CLUSTERS,
     })
 
     initialize_application()
