@@ -15,7 +15,7 @@ from yelp_servlib import logging_util
 
 import schematizer.config
 import schematizer.models.database
-from schematizer.healthchecks import MysqlHealthCheck
+from schematizer import healthchecks
 
 SERVICE_CONFIG_PATH = os.environ.get('SERVICE_CONFIG_PATH')
 SERVICE_ENV_CONFIG_PATH = os.environ.get('SERVICE_ENV_CONFIG_PATH')
@@ -45,7 +45,7 @@ def initialize_application():
 
 yelp_pyramid.healthcheck.install_healthcheck(
     'mysql',
-    MysqlHealthCheck(CLUSTERS),
+    healthchecks.MysqlHealthCheck(CLUSTERS),
     unhealthy_threshold=5,
     healthy_threshold=2,
     init=initialize_application
