@@ -38,7 +38,7 @@ def parse_args():
         action="store_true",
         default=False,
         required=False,
-        help="Force deletion and ignoring active namespace check"
+        help="Force deletion (ignore confirmation check)"
     )
 
     parser.add_argument(
