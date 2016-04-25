@@ -48,7 +48,6 @@ class TestMySQLToAvroConverter(object):
             expected_schema.update(
                 {AvroMetaDataKeys.PRIMARY_KEY: [sql_column.name]}
             )
-
         actual_schema = converter.convert(sql_table)
         assert expected_schema == actual_schema
 
@@ -133,16 +132,21 @@ class TestMySQLToAvroConverter(object):
              AvroMetaDataKeys.SCALE: 2},
         )
 
-    def test_convert_with_col_decimal(self, converter):
+    def test_convert_with_col_decimal_bytes(self, converter):
+        bytes_decimal = {
+            'type': 'bytes',
+            'logicalType': 'decimal',
+            'precision': 5,
+            'scale': 2
+        }
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_decimal', mysql_data_types.MySQLDecimal(8, 0)),
-            {'name': 'col_decimal',
-             'type': ['null', 'double'],
-             'default': None,
-             AvroMetaDataKeys.PRECISION: 8,
-             AvroMetaDataKeys.SCALE: 0,
-             AvroMetaDataKeys.FIXED_POINT: True}
+            SQLColumn('col_decimal', mysql_data_types.MySQLDecimal(5, 2)),
+            {
+                'name': 'col_decimal',
+                'type': ['null', bytes_decimal],
+                'default': None
+            }
         )
 
     def test_convert_with_col_float(self, converter):
