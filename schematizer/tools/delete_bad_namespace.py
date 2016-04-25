@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import argparse
+from collections import namedtuple
 
 from sqlalchemy.orm import exc as orm_exc
 from yelp_servlib.config_util import load_default_config
@@ -15,12 +16,14 @@ from schematizer.logic.schema_repository import get_refreshes_by_criteria
 from schematizer.logic.schema_repository import get_schemas_by_criteria
 from schematizer.models.database import session
 
+ModelIdsPair = namedtuple('ModelIdsPair', ['model', 'ids'])
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description='Deletes a namespace (or source) and all of its children '
-        '(sources, topics, schemas, notes, schema_elements, '
-        'refreshes, source_categories)'
+        description='Deletes a namespace or source and all of its '
+        'associated entities (sources, topics, schemas, '
+        'notes, schema_elements, refreshes, source_categories)'
     )
 
     parser.add_argument(
@@ -30,7 +33,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        '--f', '--force',
+        '-f', '--force',
         dest="force",
         action="store_true",
         default=False,
@@ -61,36 +64,50 @@ def parse_args():
     return parser.parse_args()
 
 
-def confirm_deletion(namespace_name):
+def confirm_deletion(namespace_name, source_name=None):
     print "Please retype the namespace name to confirm you want to delete it"
     confirmation = raw_input().strip()
     if confirmation != namespace_name.strip():
         raise ValueError("Given name does not match namespace name given")
+    if source_name:
+        print "Please retype the source name to confirm you want to delete it"
+        confirmation = raw_input().strip()
+        if confirmation != source_name.strip():
+            raise ValueError("Given name does not match source name given")
 
 
-def delete_all_children(children, dry_run):
+def delete_all(namespace_name, source_name=None, dry_run=False):
+    with session.connect_begin(ro=False):
+        namespace = get_namespace_by_name(namespace_name)
+        delete_all_children(
+            get_all_children(
+                namespace_name,
+                source_name=source_name
+            ),
+            dry_run=dry_run
+        )
+        if not dry_run and not source_name:
+            session.delete(namespace)
+
+
+def delete_all_children(children, dry_run=False):
     for model_id_pair in children:
-        model = model_id_pair['model']
+        model = model_id_pair.model
         model_name = model.__name__
-        ids = model_id_pair['ids']
+        ids = model_id_pair.ids
         if ids:
             new_query = session.query(
                 model
-            ).filter(
-                model.id.in_(ids)
-            )
+            ).filter(model.id.in_(ids))
 
             if dry_run:
                 all_items = new_query.all()
                 print "Objects for {} ({} found): {}".format(
-                    model_name,
-                    len(all_items),
-                    all_items
+                    model_name, len(all_items), all_items
                 )
             else:
                 print "Deleting {} items of type {}".format(
-                    len(ids),
-                    model_name
+                    len(ids), model_name
                 )
                 new_query.delete(synchronize_session=False)
         else:
@@ -99,14 +116,7 @@ def delete_all_children(children, dry_run):
             )
 
 
-def _create_model_id_pair(model, ids):
-    return {
-        'model': model,
-        'ids': ids
-    }
-
-
-def get_all_namespace_children(namespace_name, source_name=None):
+def get_all_children(namespace_name, source_name=None):
     schemas = get_schemas_by_criteria(
         namespace_name,
         source_name=source_name
@@ -130,36 +140,32 @@ def get_all_namespace_children(namespace_name, source_name=None):
     )
     refresh_ids = set(o.id for o in refreshes)
     return [
-        _create_model_id_pair(models.Note, note_ids),
-        _create_model_id_pair(models.AvroSchemaElement, element_ids),
-        _create_model_id_pair(models.AvroSchema, schema_ids),
-        _create_model_id_pair(models.SourceCategory, category_ids),
-        _create_model_id_pair(models.Topic, topic_ids),
-        _create_model_id_pair(models.Refresh, refresh_ids),
-        _create_model_id_pair(models.Source, source_ids)
+        ModelIdsPair(models.Note, note_ids),
+        ModelIdsPair(models.AvroSchemaElement, element_ids),
+        ModelIdsPair(models.AvroSchema, schema_ids),
+        ModelIdsPair(models.SourceCategory, category_ids),
+        ModelIdsPair(models.Topic, topic_ids),
+        ModelIdsPair(models.Refresh, refresh_ids),
+        ModelIdsPair(models.Source, source_ids)
     ]
 
 
 def run():
     args = parse_args()
     namespace_name = args.namespace_name
+    source_name = args.source_name
+    dry_run = args.dry_run
     load_default_config("config.yaml")
     if not args.force:
-        confirm_deletion(namespace_name)
-    with session.connect_begin(ro=False):
-        try:
-            namespace = get_namespace_by_name(namespace_name)
-            delete_all_children(
-                get_all_namespace_children(
-                    namespace_name,
-                    source_name=args.source_name
-                ),
-                args.dry_run
-            )
-            if not args.dry_run and not args.source_name:
-                session.delete(namespace)
-        except orm_exc.NoResultFound:
-            print "No namespace found with name: {}".format(namespace_name)
+        confirm_deletion(namespace_name, source_name=source_name)
+    try:
+        delete_all(
+            namespace_name=namespace_name,
+            source_name=source_name,
+            dry_run=dry_run
+        )
+    except orm_exc.NoResultFound:
+        print "No namespace found with name: {}".format(namespace_name)
 
 
 if __name__ == '__main__':
