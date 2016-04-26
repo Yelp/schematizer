@@ -24,7 +24,7 @@ pytz==2014.9
 repoze.lru==0.6
 simplejson==3.6.5
 six==1.9.0
--e git://github.com/Yelp/sqlparse.git@bc262696e7c37b289bb4fb2273d08f0f3ede1835#egg=sqlparse
+-e git://github.com/abrarsheikh/sqlparse.git@5b6492f468293e52058790179a9f03b7ffb0ef7c#egg=sqlparse
 #sqlparse==0.1.13
 thriftpy==0.1.15
 tornado==2.4.1

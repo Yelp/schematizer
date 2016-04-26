@@ -21,7 +21,7 @@ class MySQLBit(SQLColumnDataType):
 
     def __init__(self, length):
         super(MySQLBit, self).__init__()
-        self.length = self._cast_data_type_length(length)
+        self.length = int(length) if length is not None else length
 
     def __eq__(self, other):
         return (super(MySQLBit, self).__eq__(other) and
@@ -41,7 +41,7 @@ class MySQLIntegerType(SQLColumnDataType):
     def __init__(self, length, unsigned=False):
         attributes = ([SQLAttribute('unsigned')] if unsigned else None)
         super(MySQLIntegerType, self).__init__(attributes)
-        self.length = self._cast_data_type_length(length)
+        self.length = int(length) if length is not None else length
 
     def __eq__(self, other):
         return (super(MySQLIntegerType, self).__eq__(other) and
@@ -123,8 +123,8 @@ class MySQLRealNumber(SQLColumnDataType):
     def __init__(self, precision, scale, unsigned=False):
         attributes = ([SQLAttribute('unsigned')] if unsigned else None)
         super(MySQLRealNumber, self).__init__(attributes)
-        self.precision = self._cast_data_type_length(precision)
-        self.scale = self._cast_data_type_length(scale)
+        self.precision = int(precision) if precision is not None else precision
+        self.scale = int(scale) if scale is not None else scale
 
     def __eq__(self, other):
         return (super(MySQLRealNumber, self).__eq__(other) and
@@ -197,7 +197,7 @@ class MySQLChar(MySQLString):
 
     def __init__(self, length, binary=False, char_set=None, collate=None):
         super(MySQLChar, self).__init__(binary, char_set, collate)
-        self.length = self._cast_data_type_length(length)
+        self.length = int(length) if length is not None else length
 
     def __eq__(self, other):
         return (super(MySQLChar, self).__eq__(other) and
@@ -210,7 +210,7 @@ class MySQLVarChar(MySQLString):
 
     def __init__(self, length, binary=False, char_set=None, collate=None):
         super(MySQLVarChar, self).__init__(binary, char_set, collate)
-        self.length = self._cast_data_type_length(length)
+        self.length = int(length) if length is not None else length
 
     def __eq__(self, other):
         return (super(MySQLVarChar, self).__eq__(other) and
@@ -257,7 +257,7 @@ class MySQLBinary(MySQLBinaryBase):
 
     def __init__(self, length):
         super(MySQLBinary, self).__init__()
-        self.length = self._cast_data_type_length(length)
+        self.length = int(length) if length is not None else length
 
     def __eq__(self, other):
         return (super(MySQLBinary, self).__eq__(other) and
@@ -270,7 +270,7 @@ class MySQLVarBinary(MySQLBinaryBase):
 
     def __init__(self, length):
         super(MySQLVarBinary, self).__init__()
-        self.length = self._cast_data_type_length(length)
+        self.length = int(length) if length is not None else length
 
     def __eq__(self, other):
         return (super(MySQLVarBinary, self).__eq__(other) and
@@ -326,7 +326,7 @@ class MySQLTime(MySQLDateAndTime):
 
     def __init__(self, fsp=None):
         super(MySQLTime, self).__init__()
-        self.fsp = self._cast_data_type_length(fsp)
+        self.fsp = int(fsp) if fsp is not None else fsp
 
     def __eq__(self, other):
         return (super(MySQLTime, self).__eq__(other) and
@@ -339,7 +339,7 @@ class MySQLTimestamp(MySQLDateAndTime):
 
     def __init__(self, fsp=None):
         super(MySQLTimestamp, self).__init__()
-        self.fsp = self._cast_data_type_length(fsp)
+        self.fsp = int(fsp) if fsp is not None else fsp
 
     def __eq__(self, other):
         return (super(MySQLTimestamp, self).__eq__(other) and
@@ -352,7 +352,7 @@ class MySQLDateTime(MySQLDateAndTime):
 
     def __init__(self, fsp=None):
         super(MySQLDateTime, self).__init__()
-        self.fsp = self._cast_data_type_length(fsp)
+        self.fsp = int(fsp) if fsp is not None else fsp
 
     def __eq__(self, other):
         return (super(MySQLDateTime, self).__eq__(other) and
@@ -366,13 +366,24 @@ class MySQLEnum(SQLColumnDataType):
 
     type_name = 'enum'
 
-    def __init__(self, values):
-        super(MySQLEnum, self).__init__()
+    def __init__(self, values, char_set=None, collate=None):
+        attributes = None
+        if char_set:
+            attributes = attributes or []
+            attributes.append(
+                SQLAttribute.create_with_value('character set', char_set)
+            )
+        if collate:
+            attributes = attributes or []
+            attributes.append(
+                SQLAttribute.create_with_value('collate', collate)
+            )
+        super(MySQLEnum, self).__init__(attributes)
         self.values = values  # list of enum values
 
     def __eq__(self, other):
         return (super(MySQLEnum, self).__eq__(other) and
-                set(self.values) == set(other.values))
+                self.values == other.values)
 
     def _convert_str_to_type_val(self, val_string):
         return val_string
@@ -385,13 +396,24 @@ class MySQLSet(SQLColumnDataType):
 
     type_name = 'set'
 
-    def __init__(self, values):
-        super(MySQLSet, self).__init__()
+    def __init__(self, values, char_set=None, collate=None):
+        attributes = None
+        if char_set:
+            attributes = attributes or []
+            attributes.append(
+                SQLAttribute.create_with_value('character set', char_set)
+            )
+        if collate:
+            attributes = attributes or []
+            attributes.append(
+                SQLAttribute.create_with_value('collate', collate)
+            )
+        super(MySQLSet, self).__init__(attributes)
         self.values = values  # list of set values
 
     def __eq__(self, other):
         return (super(MySQLSet, self).__eq__(other) and
-                set(self.values) == set(other.values))
+                self.values == other.values)
 
     def _convert_str_to_type_val(self, val_string):
         return val_string

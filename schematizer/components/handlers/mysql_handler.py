@@ -250,23 +250,29 @@ class ParsedMySQLProcessor(object):
         if col_type_cls is not data_types.MySQLEnum:
             return None
 
-        token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
-        values = [self._remove_quotes(t.value)
+        attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
+        char_set = self._get_char_set_value(attributes)
+        collate = self._get_attribute_value('collate', attributes)
+
+        token = col_token.token_next_by_instance(0, sql.ColumnTypeValues)
+        values = [t.value
                   for t in token.tokens
-                  if t.ttype != T.Punctuation and not t.is_whitespace()]
-        return col_type_cls(values)
+                  if t.ttype == T.Literal.String.Single]
+        return col_type_cls(values, char_set, collate)
 
     def _create_set_type(self, col_type_cls, col_token):
         if col_type_cls is not data_types.MySQLSet:
             return None
 
-        len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
-        values = [self._remove_quotes(
-            token.value
-        ) for token in len_token.tokens
-            if (token.ttype != T.Punctuation and
-                not token.is_whitespace())]
-        return col_type_cls(values)
+        attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
+        char_set = self._get_char_set_value(attributes)
+        collate = self._get_attribute_value('collate', attributes)
+
+        token = col_token.token_next_by_instance(0, sql.ColumnTypeValues)
+        values = [t.value
+                  for t in token.tokens
+                  if t.ttype == T.Literal.String.Single]
+        return col_type_cls(values, char_set, collate)
 
     def _get_attribute_token(self, attribute_name, attributes):
         return next((attr for attr in attributes.tokens

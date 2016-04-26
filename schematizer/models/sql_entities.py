@@ -141,10 +141,6 @@ class SQLColumnDataType(object):
     def _is_null_string(self, val_string):
         return val_string is None or val_string.lower() == 'null'
 
-    def _cast_data_type_length(self, val):
-        return int(val) if (isinstance(val, str) or
-                            isinstance(val, unicode)) else val
-
 
 class MetaDataKey(object):
     """Key of metadata attributes"""
