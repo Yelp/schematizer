@@ -219,12 +219,12 @@ class TestMySQLHandler(object):
              char_set='latin1',
              collate='latin1_german1_ci'
          ))),
-        ('bar? char(42) default \'Luke\'',
+        ('bar char(42) default \'Luke\'',
          SQLColumn('bar', data_types.MySQLChar(42), default_value='Luke')),
         ('bar varchar(42) default \'use\'',
          SQLColumn('bar', data_types.MySQLVarChar(42), default_value='use')),
         ('bar tinytext default \'force!\'',
-        #  SQLColumn('bar', data_types.MySQLTinyText(), default_value='force!')),
+         SQLColumn('bar', data_types.MySQLTinyText(), default_value='force!')),
         # Note that MySQL BLOB and TEXT cannot have default value so we are
         # intentionally excluding them from such tests. For more information
         # See http://dev.mysql.com/doc/refman/5.5/en/data-type-defaults.html
@@ -297,28 +297,29 @@ class TestMySQLHandler(object):
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
         ("bar enum ('a1', 'a2', 'a3') CHARACTER SET latin1",
          SQLColumn(
-            'bar',
-            data_types.MySQLEnum(
-                values=['a1', 'a2', 'a3'],
-                char_set="latin1"
-            )
-        )),
-        ("bar enum ('a1', 'a2', 'a3') CHARACTER SET latin1 COLLATE latin1_german1_ci not null",
+             'bar',
+             data_types.MySQLEnum(
+                 values=['a1', 'a2', 'a3'],
+                 char_set="latin1"
+             )
+         )),
+        ("bar enum ('a1', 'a2', 'a3') "
+         "CHARACTER SET latin1 COLLATE latin1_german1_ci not null",
          SQLColumn(
-            'bar',
-            data_types.MySQLEnum(
-                values=['a1', 'a2', 'a3'],
-                char_set="latin1",
-                collate="latin1_german1_ci"
-            ),
+             'bar',
+             data_types.MySQLEnum(
+                 values=['a1', 'a2', 'a3'],
+                 char_set="latin1",
+                 collate="latin1_german1_ci"
+             ),
              is_nullable=False
-        )),
+         )),
         ("bar enum ('a1', 'a2', 'a3') default a1",
          SQLColumn(
              'bar',
              data_types.MySQLEnum(['a1', 'a2', 'a3']),
              default_value='a1'
-        )),
+         )),
     ])
     def test_create_sql_table_from_sql_stmts_with_enum_type(
         self,
@@ -335,28 +336,29 @@ class TestMySQLHandler(object):
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
         ("bar set ('a1', 'a2', 'a3') CHARACTER SET latin1",
          SQLColumn(
-            'bar',
-            data_types.MySQLSet(
-                values=['a1', 'a2', 'a3'],
-                char_set="latin1"
-            )
-        )),
-        ("bar set ('a1', 'a2', 'a3') CHARACTER SET latin1 COLLATE latin1_german1_ci not null",
+             'bar',
+             data_types.MySQLSet(
+                 values=['a1', 'a2', 'a3'],
+                 char_set="latin1"
+             )
+         )),
+        ("bar set ('a1', 'a2', 'a3') "
+         " CHARACTER SET latin1 COLLATE latin1_german1_ci not null",
          SQLColumn(
-            'bar',
-            data_types.MySQLSet(
-                values=['a1', 'a2', 'a3'],
-                char_set="latin1",
-                collate="latin1_german1_ci"
-            ),
-            is_nullable=False
+             'bar',
+             data_types.MySQLSet(
+                 values=['a1', 'a2', 'a3'],
+                 char_set="latin1",
+                 collate="latin1_german1_ci"
+             ),
+             is_nullable=False
          )),
         ("bar set ('a1', 'a2', 'a3') default a2",
          SQLColumn(
-            'bar',
-            data_types.MySQLSet(['a1', 'a2', 'a3']),
-            default_value='a2'
-        )),
+             'bar',
+             data_types.MySQLSet(['a1', 'a2', 'a3']),
+             default_value='a2'
+         )),
     ])
     def test_create_sql_table_from_sql_stmts_with_set_type(
         self,
