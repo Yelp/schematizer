@@ -238,14 +238,6 @@ class ParsedMySQLProcessor(object):
 
         return col_type_cls()
 
-    def _remove_quotes(self, val):
-        """Helper that removes surrounding quotes from strings."""
-        if not val:
-            return val
-        if val[0] in ('"', '\'') and val[-1] == val[0]:
-            val = val[1:-1]
-        return val
-
     def _create_enum_type(self, col_type_cls, col_token):
         if col_type_cls is not data_types.MySQLEnum:
             return None
