@@ -172,8 +172,8 @@
                             "allowMultiple": false
                         },
                         {
-                            "name": "start_id",
-                            "description": "Limits results to those topics with an id strictly greater than given start_id.",
+                            "name": "min_id",
+                            "description": "Limits results to those topics with an id greater than or equal to given min_id.",
                             "required": false,
                             "type": "integer",
                             "paramType": "query",

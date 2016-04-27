@@ -666,7 +666,7 @@ def get_topics_by_criteria(
     source=None,
     created_after=None,
     count=None,
-    start_id=None
+    min_id=None
 ):
     """Get all the topics that match given filter criteria.
 
@@ -676,8 +676,8 @@ def get_topics_by_criteria(
         created_after(Optional[datetime]): get topics created after given utc
             datetime (inclusive) if specified.
         count(Optional[int]): number of topics to return in this query
-        start_id(Optional[int]): limits results to those with an id strictly
-            greater than given id.
+        min_id(Optional[int]): limits results to those with an id greater than
+            or equal to given id.
     Returns:
         (list[:class:schematizer.models.Topic]): List of topic models sorted
         by their ids.
@@ -696,8 +696,8 @@ def get_topics_by_criteria(
         qry = qry.filter(models.Source.name == source)
     if created_after:
         qry = qry.filter(models.Topic.created_at >= created_after)
-    if start_id:
-        qry = qry.filter(models.Topic.id > start_id)
+    if min_id:
+        qry = qry.filter(models.Topic.id >= min_id)
     qry = qry.order_by(models.Topic.id)
     if count:
         qry = qry.limit(count)

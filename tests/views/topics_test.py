@@ -124,15 +124,39 @@ class TestGetTopicsByCriteria(ApiTestBase):
         # Without the count param, length would be 2
         assert len(topic_views.get_topics_by_criteria(mock_request)) == 1
 
-    def test_start_id(self, mock_request, biz_topic, biz_pkey_topic):
+    def test_min_id(self, mock_request, biz_topic, biz_pkey_topic):
+        # Sorting the topics to find the one with the lowest id,
+        # and then setting min_id to be one higher so we are
+        # guaranteed to only have the topic with
+        # the higher id (if min_id is working properly)
         sorted_topics = sorted(
             [biz_topic, biz_pkey_topic],
             key=lambda topic: topic.id
         )
         mock_request.params = {
-            'start_id': sorted_topics[0].id
+            'min_id': sorted_topics[0].id + 1
         }
 
         actual = topic_views.get_topics_by_criteria(mock_request)
         expected = [self.get_expected_topic_resp(sorted_topics[1].id)]
+        assert actual == expected
+
+    def test_min_id_equal(self, mock_request, biz_topic, biz_pkey_topic):
+        # Sorting the topics to find the one with the lowest id,
+        # and then setting min_id to be equal so we are
+        # guaranteed to have both topics
+        # (if min_id is working properly)
+        sorted_topics = sorted(
+            [biz_topic, biz_pkey_topic],
+            key=lambda topic: topic.id
+        )
+        mock_request.params = {
+            'min_id': sorted_topics[0].id
+        }
+
+        actual = topic_views.get_topics_by_criteria(mock_request)
+        expected = [
+            self.get_expected_topic_resp(topic.id)
+            for topic in sorted_topics
+        ]
         assert actual == expected

@@ -77,7 +77,7 @@ def get_topics_by_criteria(request):
         source=criteria.source,
         created_after=criteria.created_after_datetime,
         count=criteria.count,
-        start_id=criteria.start_id
+        min_id=criteria.min_id
     )
     return [responses_v1.get_topic_response_from_topic(topic)
             for topic in topics]
