@@ -1,0 +1,74 @@
+{
+    "apiVersion": "1.0.0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://169.254.255.254:20912",
+    "resourcePath": "/v1/schema_migrations",
+    "produces": [
+        "application/json"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "apis": [
+        {
+            "path": "/v1/schema_migrations",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Generate a schema migration pushplan between two avro schemas",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "nickname": "get_schema_migration",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "body",
+                            "required": true,
+                            "type": "SchemaMigrationRequest",
+                            "paramType": "body"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 422,
+                            "message": "Invalid schema"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        },
+                        {
+                            "code": 501,
+                            "message": "Not Implemented"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "SchemaMigrationRequest": {
+            "id": "SchemaMigrationRequest",
+            "required": [
+                "new_schema",
+                "target_schema_type"
+            ],
+            "properties": {
+                "old_schema": {
+                    "type": "string",
+                    "description": "The JSON formatted string of the avro schema from which we want to migrate"
+                },
+                "new_schema": {
+                    "type": "string",
+                    "description": "The JSON formatted string of the avro schema to which we want to migrate"
+                },
+                "target_schema_type": {
+                    "type": "string",
+                    "description": "The type of schema migration desired (e.g. redshift, mysql, etc.)"
+                }
+            }
+        }
+    }
+}
