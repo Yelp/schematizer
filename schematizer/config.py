@@ -199,6 +199,12 @@ def routes(config):
         '/v1/consumer_groups/{consumer_group_id}/data_sources',
         request_method="POST"
     )
+
+    config.add_route(
+        'api.v1.get_schema_migration',
+        '/v1/schema_migrations',
+        request_method="GET"
+    )
     # Serve the documentation tool from /web/
     config.add_static_view(name='partials', path='static/html/partials')
     config.add_static_view(name='static', path='static/')
