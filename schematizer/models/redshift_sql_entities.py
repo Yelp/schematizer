@@ -36,19 +36,22 @@ class RedshiftSQLTable(object):
             (col for col in self.columns if col.primary_key_order),
             key=lambda c: c.primary_key_order
         )
+
     @property
     def sortkeys(self):
         return sorted(
             (col for col in self.columns if col.sort_key_order),
             key=lambda c: c.sort_key_order
         )
+
     @property
     def distkey(self):
         candidate_distkey = [col for col in self.columns if col.is_dist_key]
         if candidate_distkey:
-            return candidate_distkey[0] #a table should have one distkey
+            return candidate_distkey[0]  # a table should have one distkey
         else:
             return None
+
 
 class RedshiftSQLColumn(object):
     """Internal data structure that represents a general sql column.
@@ -63,9 +66,9 @@ class RedshiftSQLColumn(object):
         self.name = column_name
         self.type = column_type
         self.primary_key_order = primary_key_order
-        self.sort_key_order= sort_key_order
-        self.is_dist_key=is_dist_key
-        self.encode=encode
+        self.sort_key_order = sort_key_order
+        self.is_dist_key = is_dist_key
+        self.encode = encode
         self.is_nullable = is_nullable
         self.default_value = default_value
         self.doc = doc
@@ -92,4 +95,3 @@ class RedshiftSQLColumn(object):
                 self.default_value == other.default_value and
                 self.attributes == other.attributes and
                 self.metadata == other.metadata)
-

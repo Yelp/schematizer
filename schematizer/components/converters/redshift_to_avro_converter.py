@@ -2,8 +2,6 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import operator
-
 from yelp_avro.avro_builder import AvroSchemaBuilder
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
