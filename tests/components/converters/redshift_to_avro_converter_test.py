@@ -12,8 +12,8 @@ from schematizer.components.converters.converter_base \
     import UnsupportedTypeException
 from schematizer.models import redshift_data_types
 from schematizer.models.sql_entities import MetaDataKey
-from schematizer.models.sql_entities import SQLColumn
-from schematizer.models.sql_entities import SQLTable
+from schematizer.models.redshift_sql_entities import RedshiftSQLColumn
+from schematizer.models.redshift_sql_entities import RedshiftSQLTable
 from testing.models.redshift_data_types import RedshiftUnsupportedType
 
 
@@ -37,7 +37,7 @@ class TestRedShiftToAvroConverter(object):
 
     def _convert_and_assert_with_one_column(self, converter,
                                             sql_column, expected_field):
-        sql_table = SQLTable(self.table_name, [sql_column])
+        sql_table = RedshiftSQLTable(self.table_name, [sql_column])
         expected_schema = {
             'type': 'record',
             'name': self.table_name,
@@ -48,56 +48,63 @@ class TestRedShiftToAvroConverter(object):
             expected_schema.update(
                 {AvroMetaDataKeys.PRIMARY_KEY: [sql_column.name]}
             )
-
+        if sql_column.is_dist_key:
+            expected_schema.update(
+                    {AvroMetaDataKeys.DIST_KEY: sql_column.name}
+            )
+        if sql_column.sort_key_order:
+            expected_schema.update(
+                    {AvroMetaDataKeys.SORT_KEY:[sql_column.name]}
+            )
         actual_schema = converter.convert(sql_table)
         assert expected_schema == actual_schema
 
     def test_convert_with_col_smallint(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_smallint', redshift_data_types.RedshiftSmallInt()),
+            RedshiftSQLColumn('col_smallint', redshift_data_types.RedshiftSmallInt()),
             {'name': 'col_smallint', 'type': ['null', 'int'], 'default': None}
         )
 
     def test_convert_with_col_int2(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_int2', redshift_data_types.RedshiftInt2()),
+            RedshiftSQLColumn('col_int2', redshift_data_types.RedshiftInt2()),
             {'name': 'col_int2', 'type': ['null', 'int'], 'default': None}
         )
 
     def test_convert_with_col_int4(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_int4', redshift_data_types.RedshiftInt4()),
+            RedshiftSQLColumn('col_int4', redshift_data_types.RedshiftInt4()),
             {'name': 'col_int4', 'type': ['null', 'int'], 'default': None}
         )
 
     def test_convert_with_col_integer(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_integer', redshift_data_types.RedshiftInteger()),
+            RedshiftSQLColumn('col_integer', redshift_data_types.RedshiftInteger()),
             {'name': 'col_integer', 'type': ['null', 'int'], 'default': None}
         )
 
     def test_convert_with_col_int8(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_int8', redshift_data_types.RedshiftInt8()),
+            RedshiftSQLColumn('col_int8', redshift_data_types.RedshiftInt8()),
             {'name': 'col_int8', 'type': ['null', 'long'], 'default': None}
         )
 
     def test_convert_with_col_bigint(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_bigint', redshift_data_types.RedshiftBigInt()),
+            RedshiftSQLColumn('col_bigint', redshift_data_types.RedshiftBigInt()),
             {'name': 'col_bigint', 'type': ['null', 'long'], 'default': None}
         )
 
     def test_convert_with_col_float4(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_float4', redshift_data_types.RedshiftFloat4()),
+            RedshiftSQLColumn('col_float4', redshift_data_types.RedshiftFloat4()),
             {
                 'name': 'col_float4',
                 'type': ['null', 'float'],
@@ -108,7 +115,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_real(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_real', redshift_data_types.RedshiftReal()),
+            RedshiftSQLColumn('col_real', redshift_data_types.RedshiftReal()),
             {
                 'name': 'col_real',
                 'type': ['null', 'float'],
@@ -119,7 +126,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_double(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_double', redshift_data_types.RedshiftDouble()),
+            RedshiftSQLColumn('col_double', redshift_data_types.RedshiftDouble()),
             {
                 'name': 'col_double',
                 'type': ['null', 'double'],
@@ -130,7 +137,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_float(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_float', redshift_data_types.RedshiftFloat()),
+            RedshiftSQLColumn('col_float', redshift_data_types.RedshiftFloat()),
             {
                 'name': 'col_float',
                 'type': ['null', 'double'],
@@ -141,7 +148,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_float8(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_float8', redshift_data_types.RedshiftFloat8()),
+            RedshiftSQLColumn('col_float8', redshift_data_types.RedshiftFloat8()),
             {
                 'name': 'col_float8',
                 'type': ['null', 'double'],
@@ -152,7 +159,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_decimal(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn(
+            RedshiftSQLColumn(
                 'col_decimal',
                 redshift_data_types.RedshiftDecimal(8, 0),
             ),
@@ -168,14 +175,13 @@ class TestRedShiftToAvroConverter(object):
                         }
                     ],
                 'default': None,
-                AvroMetaDataKeys.FIXED_POINT: True
             }
         )
 
     def test_convert_with_col_numeric(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn(
+            RedshiftSQLColumn(
                 'col_numeric',
                 redshift_data_types.RedshiftNumeric(8, 0)
             ),
@@ -192,14 +198,13 @@ class TestRedShiftToAvroConverter(object):
                         }
                     ],
                 'default': None,
-                AvroMetaDataKeys.FIXED_POINT: True
             }
         )
 
     def test_convert_with_col_char(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_char', redshift_data_types.RedshiftChar(16)),
+            RedshiftSQLColumn('col_char', redshift_data_types.RedshiftChar(16)),
             {
                 'name': 'col_char',
                 'type': ['null', 'string'],
@@ -211,7 +216,9 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_nchar(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_nchar', redshift_data_types.RedshiftNChar(16)),
+            RedshiftSQLColumn(
+                    'col_nchar', redshift_data_types.RedshiftNChar(16)
+            ),
             {
                 'name': 'col_nchar',
                 'type': ['null', 'string'],
@@ -223,7 +230,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_bpchar(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_bpchar', redshift_data_types.RedshiftBPChar()),
+            RedshiftSQLColumn('col_bpchar', redshift_data_types.RedshiftBPChar()),
             {
                 'name': 'col_bpchar',
                 'type': ['null', 'string'],
@@ -235,7 +242,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_character(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn(
+            RedshiftSQLColumn(
                 'col_character',
                 redshift_data_types.RedshiftCharacter(16)
             ),
@@ -250,7 +257,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_varchar(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn(
+            RedshiftSQLColumn(
                 'col_varchar',
                 redshift_data_types.RedshiftVarChar(16)
             ),
@@ -265,7 +272,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_text(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_text', redshift_data_types.RedshiftText()),
+            RedshiftSQLColumn('col_text', redshift_data_types.RedshiftText()),
             {
                 'name': 'col_text',
                 'type': ['null', 'string'],
@@ -277,7 +284,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_nvarchar(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn(
+            RedshiftSQLColumn(
                 'col_nvarchar',
                 redshift_data_types.RedshiftNVarChar(20)
             ),
@@ -292,7 +299,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_charactervarying(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn(
+            RedshiftSQLColumn(
                 'col_charactervarying',
                 redshift_data_types.RedshiftCharacterVarying(20)
             ),
@@ -307,7 +314,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_date(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_date', redshift_data_types.RedshiftDate()),
+            RedshiftSQLColumn('col_date', redshift_data_types.RedshiftDate()),
             {
                 'name': 'col_date',
                 'type': ['null', 'int'],
@@ -319,7 +326,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_timestamp(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_ts', redshift_data_types.RedshiftTimestamp()),
+            RedshiftSQLColumn('col_ts', redshift_data_types.RedshiftTimestamp()),
             {
                 'name': 'col_ts',
                 'type': ['null', 'long'],
@@ -331,14 +338,14 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_bool(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_bool', redshift_data_types.RedshiftBool()),
+            RedshiftSQLColumn('col_bool', redshift_data_types.RedshiftBool()),
             {'name': 'col_bool', 'type': ['null', 'boolean'], 'default': None}
         )
 
     def test_convert_with_col_boolean(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_boolean', redshift_data_types.RedshiftBoolean()),
+            RedshiftSQLColumn('col_boolean', redshift_data_types.RedshiftBoolean()),
             {'name': 'col_boolean',
              'type': ['null', 'boolean'],
              'default': None}
@@ -346,14 +353,14 @@ class TestRedShiftToAvroConverter(object):
 
     def test_convert_with_unsupported_type(self, converter):
         with pytest.raises(UnsupportedTypeException):
-            column = SQLColumn('col', RedshiftUnsupportedType())
-            sql_table = SQLTable(self.table_name, [column])
+            column = RedshiftSQLColumn('col', RedshiftUnsupportedType())
+            sql_table = RedshiftSQLTable(self.table_name, [column])
             converter.convert(sql_table)
 
     def test_convert_with_primary_key_column(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn(
+            RedshiftSQLColumn(
                 'col',
                 redshift_data_types.RedshiftInteger(),
                 primary_key_order=1
@@ -369,7 +376,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_non_nullable_column(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn(
+            RedshiftSQLColumn(
                 'col',
                 redshift_data_types.RedshiftInteger(),
                 is_nullable=False,
@@ -381,12 +388,12 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_encode_column(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn(
+            RedshiftSQLColumn(
                 'col',
                 redshift_data_types.RedshiftInteger(),
+                encode='lzo',
                 is_nullable=False,
                 default_value=0,
-                **{AvroMetaDataKeys.ENCODE: 'lzo'}
             ),
             {'name': 'col', 'type': 'int', 'default': 0, 'encode': 'lzo'}
         )
@@ -394,7 +401,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_column_default_value(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn(
+            RedshiftSQLColumn(
                 'col',
                 redshift_data_types.RedshiftInteger(),
                 default_value=10
@@ -405,7 +412,7 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_non_nullable_without_default_column(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn(
+            RedshiftSQLColumn(
                 'col',
                 redshift_data_types.RedshiftInteger(),
                 is_nullable=False
@@ -432,9 +439,13 @@ class TestRedShiftToAvroConverter(object):
             MetaDataKey.ALIASES: aliases
         }
         col_name = 'col'
-        sql_table = SQLTable(
+        sql_table = RedshiftSQLTable(
             self.table_name,
-            [SQLColumn(col_name, redshift_data_types.RedshiftInteger())],
+            [
+                RedshiftSQLColumn(
+                        col_name, redshift_data_types.RedshiftInteger()
+                )
+            ],
             doc=doc,
             **metadata
         )
@@ -454,7 +465,7 @@ class TestRedShiftToAvroConverter(object):
         assert expected_schema == actual_schema
 
     def test_convert_with_table_metadata(self, converter):
-        pkey_col1 = SQLColumn(
+        pkey_col1 = RedshiftSQLColumn(
             'pkey_col_one',
             redshift_data_types.RedshiftInteger(),
             primary_key_order=1,
@@ -463,7 +474,7 @@ class TestRedShiftToAvroConverter(object):
                 AvroMetaDataKeys.DIST_KEY: True
             }
         )
-        pkey_col2 = SQLColumn(
+        pkey_col2 = RedshiftSQLColumn(
             'pkey_col_two',
             redshift_data_types.RedshiftInteger(),
             primary_key_order=2,
@@ -471,8 +482,10 @@ class TestRedShiftToAvroConverter(object):
                 AvroMetaDataKeys.SORT_KEY: 1
             }
         )
-        col = SQLColumn('col', redshift_data_types.RedshiftInteger())
-        sql_table = SQLTable(self.table_name, [pkey_col2, pkey_col1, col])
+        col = RedshiftSQLColumn('col', redshift_data_types.RedshiftInteger())
+        sql_table = RedshiftSQLTable(
+                self.table_name, [pkey_col2, pkey_col1, col]
+        )
 
         expected_schema = {
             'type': 'record',
