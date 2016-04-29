@@ -12,10 +12,9 @@ from schematizer.components.converters.converter_base \
     import UnsupportedTypeException
 from schematizer.models import redshift_data_types as redshift_types
 from schematizer.models import SchemaKindEnum
-from schematizer.models.sql_entities import MetaDataKey
-from schematizer.models.redshift_sql_entities import RedshiftSQLTable
 from schematizer.models.redshift_sql_entities import RedshiftSQLColumn
-
+from schematizer.models.redshift_sql_entities import RedshiftSQLTable
+from schematizer.models.sql_entities import MetaDataKey
 
 
 class RedshiftToAvroConverter(BaseConverter):
@@ -55,7 +54,7 @@ class RedshiftToAvroConverter(BaseConverter):
         for column in table.columns:
             if not isinstance(column, RedshiftSQLColumn):
                 raise SchemaConversionException(
-                        'RedshiftSQLTable is expected.'
+                    'RedshiftSQLTable is expected.'
                 )
             self._create_avro_field(column)
         record_json = self._builder.end()
@@ -84,10 +83,10 @@ class RedshiftToAvroConverter(BaseConverter):
                 column.default_value
             ).end()
         field_metadata.update(
-                self._get_primary_key_metadata(column.primary_key_order)
+            self._get_primary_key_metadata(column.primary_key_order)
         )
         field_metadata.update(
-                self._get_sort_key_order_metadata(column.sort_key_order)
+            self._get_sort_key_order_metadata(column.sort_key_order)
         )
         field_metadata.update(self._get_encode_metadata(column.encode))
         field_metadata.update(self._get_dist_key_metadata(column.is_dist_key))
