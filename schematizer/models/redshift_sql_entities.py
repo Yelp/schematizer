@@ -63,9 +63,9 @@ class RedshiftSQLColumn(object):
         self.name = column_name
         self.type = column_type
         self.primary_key_order = primary_key_order
-        self.sort_key_order= sort_key_order,
-        self.is_dist_key=is_dist_key,
-        self.encode=encode,
+        self.sort_key_order= sort_key_order
+        self.is_dist_key=is_dist_key
+        self.encode=encode
         self.is_nullable = is_nullable
         self.default_value = default_value
         self.doc = doc

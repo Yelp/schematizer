@@ -62,7 +62,10 @@ class TestRedShiftToAvroConverter(object):
     def test_convert_with_col_smallint(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            RedshiftSQLColumn('col_smallint', redshift_data_types.RedshiftSmallInt()),
+            RedshiftSQLColumn(
+                    'col_smallint',
+                    redshift_data_types.RedshiftSmallInt()
+            ),
             {'name': 'col_smallint', 'type': ['null', 'int'], 'default': None}
         )
 
@@ -171,7 +174,8 @@ class TestRedShiftToAvroConverter(object):
                         {
                             'logicalType': 'decimal',
                             'scale': 0,
-                            'type': 'bytes', 'precision': 8
+                            'type': 'bytes',
+                            'precision': 8
                         }
                     ],
                 'default': None,
@@ -469,18 +473,14 @@ class TestRedShiftToAvroConverter(object):
             'pkey_col_one',
             redshift_data_types.RedshiftInteger(),
             primary_key_order=1,
-            **{
-                AvroMetaDataKeys.SORT_KEY: 2,
-                AvroMetaDataKeys.DIST_KEY: True
-            }
+            sort_key_order=2,
+            is_dist_key=True
         )
         pkey_col2 = RedshiftSQLColumn(
             'pkey_col_two',
             redshift_data_types.RedshiftInteger(),
             primary_key_order=2,
-            **{
-                AvroMetaDataKeys.SORT_KEY: 1
-            }
+            sort_key_order=1
         )
         col = RedshiftSQLColumn('col', redshift_data_types.RedshiftInteger())
         sql_table = RedshiftSQLTable(

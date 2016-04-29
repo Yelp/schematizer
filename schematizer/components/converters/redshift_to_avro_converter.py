@@ -73,7 +73,7 @@ class RedshiftToAvroConverter(BaseConverter):
             metadata[AvroMetaDataKeys.SORT_KEY] = sort_keys
         dist_key = table.distkey
         if dist_key:
-            metadata[AvroMetaDataKeys.DIST_KEY] = dist_key
+            metadata[AvroMetaDataKeys.DIST_KEY] = dist_key.name
         if table.diststyle:
             metadata[AvroMetaDataKeys.DISTSTYLE] = table.diststyle
         return metadata
@@ -89,7 +89,7 @@ class RedshiftToAvroConverter(BaseConverter):
                 self._get_primary_key_metadata(column.primary_key_order)
         )
         field_metadata.update(
-                self._get_sort_key_order_metadata(column.sortkey)
+                self._get_sort_key_order_metadata(column.sort_key_order)
         )
         field_metadata.update(self._get_encode_metadata(column.encode))
         field_metadata.update(self._get_dist_key_metadata(column.is_dist_key))
