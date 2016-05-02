@@ -505,7 +505,7 @@ class TestRedShiftToAvroConverter(object):
         )
         col = RedshiftSQLColumn('col', redshift_data_types.RedshiftInteger())
         sql_table = RedshiftSQLTable(
-            self.table_name, [pkey_col2, pkey_col1, col]
+            self.table_name, [pkey_col2, pkey_col1, col], diststyle='all'
         )
 
         expected_schema = {
@@ -536,7 +536,8 @@ class TestRedShiftToAvroConverter(object):
             ],
             AvroMetaDataKeys.PRIMARY_KEY: [pkey_col1.name, pkey_col2.name],
             AvroMetaDataKeys.SORT_KEY: [pkey_col2.name, pkey_col1.name],
-            AvroMetaDataKeys.DIST_KEY: pkey_col1.name
+            AvroMetaDataKeys.DIST_KEY: pkey_col1.name,
+            AvroMetaDataKeys.DISTSTYLE: 'all'
         }
 
         actual_schema = converter.convert(sql_table)
