@@ -54,9 +54,8 @@ class RedshiftSQLTable(object):
 
 
 class RedshiftSQLColumn(object):
-    """Internal data structure that represents a general sql column.
-    It is intended to support sql column definition in general. The
-    column type could be database specific.
+    """Internal data structure that represents a redshift sql column.
+    It is intended to support sql column definition in redshift.
     """
 
     def __init__(self, column_name, column_type, primary_key_order=None,
