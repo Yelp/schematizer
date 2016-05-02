@@ -661,7 +661,13 @@ def get_schema_elements_by_schema_id(schema_id):
     ).all()
 
 
-def get_topics_by_criteria(namespace=None, source=None, created_after=None):
+def get_topics_by_criteria(
+    namespace=None,
+    source=None,
+    created_after=None,
+    count=None,
+    min_id=None
+):
     """Get all the topics that match given filter criteria.
 
     Args:
@@ -669,6 +675,9 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None):
         source(Optional[str]): get topics of given source name if specified
         created_after(Optional[datetime]): get topics created after given utc
             datetime (inclusive) if specified.
+        count(Optional[int]): number of topics to return in this query
+        min_id(Optional[int]): limits results to those with an id greater than
+            or equal to given id.
     Returns:
         (list[:class:schematizer.models.Topic]): List of topic models sorted
         by their ids.
@@ -687,7 +696,12 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None):
         qry = qry.filter(models.Source.name == source)
     if created_after:
         qry = qry.filter(models.Topic.created_at >= created_after)
-    return qry.order_by(models.Topic.id).all()
+    if min_id:
+        qry = qry.filter(models.Topic.id >= min_id)
+    qry = qry.order_by(models.Topic.id)
+    if count:
+        qry = qry.limit(count)
+    return qry.all()
 
 
 def get_refreshes_by_criteria(namespace=None, status=None, created_after=None):

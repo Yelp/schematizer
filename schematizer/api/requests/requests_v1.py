@@ -135,6 +135,8 @@ class GetTopicsRequest(RequestBase):
         self.created_after, self.created_after_datetime = self._get_datetime(
             query_params.get('created_after')
         )
+        self.count = query_params.get('count')
+        self.min_id = query_params.get('min_id')
 
 
 class GetRefreshesRequest(RequestBase):
