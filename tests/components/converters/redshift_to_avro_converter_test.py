@@ -14,7 +14,7 @@ from schematizer.models import redshift_data_types
 from schematizer.models.redshift_sql_entities import RedshiftSQLColumn
 from schematizer.models.redshift_sql_entities import RedshiftSQLTable
 from schematizer.models.sql_entities import MetaDataKey
-from testing.models.redshift_data_types import RedshiftUnsupportedType
+from schematizer.models.sql_entities import SQLColumnDataType
 
 
 class TestRedShiftToAvroConverter(object):
@@ -377,6 +377,11 @@ class TestRedShiftToAvroConverter(object):
         )
 
     def test_convert_with_unsupported_type(self, converter):
+        class RedshiftUnsupportedType(SQLColumnDataType):
+            """Dummy class to test error handling code for
+            unsupported datatypes
+            """
+            type_name = 'redshift_unsupported_type'
         with pytest.raises(UnsupportedTypeException):
             column = RedshiftSQLColumn('col', RedshiftUnsupportedType())
             sql_table = RedshiftSQLTable(self.table_name, [column])

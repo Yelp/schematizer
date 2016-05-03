@@ -6,14 +6,21 @@ of redshift SQL schemas.
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from schematizer.models.sql_entities import SQLColumn
+from schematizer.models.sql_entities import SQLTable
 
-class RedshiftSQLTable(object):
+
+class RedshiftSQLTable(SQLTable):
     """Internal data structure that represents a redshift sql table.
     """
 
     def __init__(
-            self, table_name, columns=None, doc=None,
-            diststyle=None, **metadata
+        self,
+        table_name,
+        columns=None,
+        doc=None,
+        diststyle=None,
+        **metadata
     ):
         self.name = table_name
         self.columns = columns or []
@@ -47,13 +54,17 @@ class RedshiftSQLTable(object):
     @property
     def distkey(self):
         candidate_distkey = [col for col in self.columns if col.is_dist_key]
+        if len(candidate_distkey) > 1:
+            raise ValueError(
+                "More than one distkey for {table}".format(self.name)
+            )
         if candidate_distkey:
             return candidate_distkey[0]  # a table should have one distkey
         else:
             return None
 
 
-class RedshiftSQLColumn(object):
+class RedshiftSQLColumn(SQLColumn):
     """Internal data structure that represents a redshift sql column.
     It is intended to support sql column definition in redshift.
     """

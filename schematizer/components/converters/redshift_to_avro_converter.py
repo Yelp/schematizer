@@ -54,7 +54,7 @@ class RedshiftToAvroConverter(BaseConverter):
         for column in table.columns:
             if not isinstance(column, RedshiftSQLColumn):
                 raise SchemaConversionException(
-                    'RedshiftSQLTable is expected.'
+                    'RedshiftSQLColumn is expected.'
                 )
             self._create_avro_field(column)
         record_json = self._builder.end()
@@ -184,7 +184,7 @@ class RedshiftToAvroConverter(BaseConverter):
         return self._builder.create_double(), metadata
 
     def _convert_float_type(self, column):
-        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata = {}
         return self._builder.create_float(), metadata
 
     def _convert_decimal_type(self, column):
@@ -195,27 +195,23 @@ class RedshiftToAvroConverter(BaseConverter):
         ).end(), metadata
 
     def _convert_char_type(self, column):
-        metadata = {}
-        metadata[AvroMetaDataKeys.FIX_LEN] = column.type.length
+        metadata = {AvroMetaDataKeys.FIX_LEN: column.type.length}
         return self._builder.create_string(), metadata
 
     def _convert_varchar_type(self, column):
-        metadata = {}
-        metadata[AvroMetaDataKeys.MAX_LEN] = column.type.length
+        metadata = {AvroMetaDataKeys.FIX_LEN: column.type.length}
         return self._builder.create_string(), metadata
 
     def _convert_date_type(self, column):
         """Avro currently doesn't support date, so map the
         date sql column type to int
         """
-        metadata = {}
-        metadata[AvroMetaDataKeys.DATE] = True
+        metadata = {AvroMetaDataKeys.DATE: True}
         return self._builder.create_int(), metadata
 
     def _convert_timestamp_type(self, column):
         """Avro currently doesn't support timestamp, so map the
         timestamp sql column type to long (unix timestamp)
         """
-        metadata = {}
-        metadata[AvroMetaDataKeys.TIMESTAMP] = True
+        metadata = {AvroMetaDataKeys.TIMESTAMP: True}
         return self._builder.create_long(), metadata
