@@ -61,8 +61,7 @@ def _create_application():
         'pyramid_swagger.skip_validation': [
             '/(static)\\b',
             '/(api-docs)\\b',
-            '/(status)\\b',
-            '/'
+            '/(status)\\b'
         ],
         'pyramid_yelp_conn.reload_clusters': CLUSTERS,
     })
