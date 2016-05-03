@@ -199,7 +199,7 @@ class RedshiftToAvroConverter(BaseConverter):
         return self._builder.create_string(), metadata
 
     def _convert_varchar_type(self, column):
-        metadata = {AvroMetaDataKeys.FIX_LEN: column.type.length}
+        metadata = {AvroMetaDataKeys.MAX_LEN: column.type.length}
         return self._builder.create_string(), metadata
 
     def _convert_date_type(self, column):
