@@ -69,14 +69,3 @@ class Note(Base, BaseModel):
         onupdate_now=True,
         nullable=False
     )
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'reference_type': self.reference_type,
-            'reference_id': self.reference_id,
-            'note': self.note,
-            'last_updated_by': self.last_updated_by,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
-        }

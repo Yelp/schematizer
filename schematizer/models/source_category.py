@@ -47,12 +47,3 @@ class SourceCategory(Base, BaseModel):
         onupdate_now=True,
         nullable=False
     )
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'source_id': self.source_id,
-            'category': self.category,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
-        }

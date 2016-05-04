@@ -85,22 +85,6 @@ class AvroSchema(Base, BaseModel):
         backref="avro_schema"
     )
 
-    def to_dict(self):
-        avro_schema_dict = {
-            'schema_id': self.id,
-            'schema': self.avro_schema,
-            'status': self.status,
-            'topic': self.topic.to_dict(),
-            'note': self.note,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
-        }
-        # Since swagger cannot take null or None value for integer type,
-        # here we just simply strip out this field.
-        if self.base_schema_id is not None:
-            avro_schema_dict['base_schema_id'] = self.base_schema_id
-        return avro_schema_dict
-
     @property
     def note(self):
         note = session.query(
