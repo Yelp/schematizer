@@ -51,35 +51,6 @@ def biz_schema_json():
     }
 
 
-@pytest.fixture(params=[
-    {
-        "name": "biz",
-        "type": "record",
-        "fields": [{"name": "id", "type": "int", "doc": "id", "default": 0}],
-    },
-    {
-        "name": "biz",
-        "type": "record",
-        "fields": [{"name": "id", "type": "int", "doc": "id", "default": 0}],
-        "doc": ""
-    },
-    {
-        "name": "biz",
-        "type": "record",
-        "fields": [{"name": "id", "type": "int", "default": 0}],
-        "doc": "doc"
-    },
-    {
-        "name": "biz",
-        "type": "record",
-        "fields": [{"name": "id", "type": "int", "doc": "   ", "default": 0}],
-        "doc": "doc"
-    },
-])
-def biz_schema_without_doc_json(request):
-    return request.param
-
-
 @pytest.fixture
 def biz_schema_elements():
     return [

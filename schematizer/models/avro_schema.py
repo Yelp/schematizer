@@ -201,7 +201,7 @@ class AvroSchema(Base, BaseModel):
             return False, repr(e)
 
     @classmethod
-    def avro_schema_has_docs(cls, avro_schema_json):
+    def verify_avro_schema_has_docs(cls, avro_schema_json):
         avro_schema_elements = cls.create_schema_elements_from_json(
             avro_schema_json
         )
@@ -211,10 +211,9 @@ class AvroSchema(Base, BaseModel):
                     not avro_schema_element.doc.strip()):
                 missing_doc_fields.append(avro_schema_element.key)
         if missing_doc_fields:
-            return False, "Missing `doc` for field(s) {}".format(
+            raise ValueError("Missing `doc` for field(s) {}".format(
                 ', '.join(missing_doc_fields)
-            )
-        return True, None
+            ))
 
 
 class _SchemaElement(object):

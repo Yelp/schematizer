@@ -101,15 +101,9 @@ def register_avro_schema_from_avro_json(
                          .format(avro_schema_json, error))
 
     if docs_required:
-        is_valid, error = models.AvroSchema.avro_schema_has_docs(
+        models.AvroSchema.verify_avro_schema_has_docs(
             avro_schema_json
         )
-        if not is_valid:
-            raise ValueError(
-                '''Invalid Documentation for Avro schema JSON.
-                 Value: {0}. Error: {1}'''
-                .format(avro_schema_json, error)
-            )
 
     namespace = _get_namespace_or_create(namespace_name)
     _lock_namespace(namespace)

@@ -10,7 +10,6 @@ import staticconf.testing
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.views import schemas as schema_views
-from testing import factories
 from tests.views.api_test_base import ApiTestBase
 
 
@@ -71,6 +70,51 @@ class RegisterSchemaTestBase(ApiTestBase):
 
 class TestRegisterSchema(RegisterSchemaTestBase):
 
+    @pytest.fixture(params=[
+        {
+            "name": "biz",
+            "type": "record",
+            "fields": [{
+                "name": "id",
+                "type": "int",
+                "doc": "id",
+                "default": 0
+            }],
+        },
+        {
+            "name": "biz",
+            "type": "record",
+            "fields": [{"name": "id",
+                        "type": "int",
+                        "doc": "id",
+                        "default": 0
+                        }],
+            "doc": ""
+        },
+        {
+            "name": "biz",
+            "type": "record",
+            "fields": [{
+                "name": "id",
+                "type": "int",
+                "default": 0
+            }],
+            "doc": "doc"
+        },
+        {
+            "name": "biz",
+            "type": "record",
+            "fields": [{"name": "id",
+                        "type": "int",
+                        "doc": "   ",
+                        "default": 0
+                        }],
+            "doc": "doc"
+        },
+    ])
+    def biz_schema_without_doc_json(self, request):
+        return request.param
+
     @pytest.fixture
     def request_json(self, biz_schema_json, biz_source):
         return {
@@ -82,11 +126,20 @@ class TestRegisterSchema(RegisterSchemaTestBase):
         }
 
     @pytest.fixture
-    def biz_wl_request_json(self, biz_wl_schema_json, biz_wl_source):
+    def biz_wl_schema_json(self):
+        return {
+            "name": "biz_wl",
+            "type": "record",
+            "fields": [{"name": "id", "type": "int", "default": 0}],
+            "doc": ""
+        }
+
+    @pytest.fixture
+    def biz_wl_request_json(self, biz_wl_schema_json):
         return {
             "schema": simplejson.dumps(biz_wl_schema_json),
-            "namespace": biz_wl_source.namespace.name,
-            "source": biz_wl_source.name,
+            "namespace": 'yelp_wl',
+            "source": 'biz_wl',
             "source_owner_email": 'biz.user@yelp.com',
             'contains_pii': False
         }
@@ -103,43 +156,6 @@ class TestRegisterSchema(RegisterSchemaTestBase):
             }
         ):
             yield
-
-    @pytest.fixture
-    def yelp_namespace_wl_name(self):
-        return 'yelp_wl'
-
-    @pytest.fixture
-    def yelp_namespace_wl(self, yelp_namespace_wl_name):
-        return factories.create_namespace(yelp_namespace_wl_name)
-
-    @pytest.fixture
-    def biz_wl_src_name(self):
-        return 'biz_wl'
-
-    @pytest.fixture
-    def biz_wl_source(self, yelp_namespace_wl, biz_wl_src_name):
-        return factories.create_source(
-            namespace_name=yelp_namespace_wl.name,
-            source_name=biz_wl_src_name,
-            owner_email='test-src@yelp.com'
-        )
-
-    @pytest.fixture
-    def biz_wl_topic(self, biz_wl_source):
-        return factories.create_topic(
-            topic_name='yelp.biz.1_wl',
-            namespace_name=biz_wl_source.namespace.name,
-            source_name=biz_wl_source.name
-        )
-
-    @pytest.fixture
-    def biz_wl_schema_json(self):
-        return {
-            "name": "biz_wl",
-            "type": "record",
-            "fields": [{"name": "id", "type": "int", "default": 0}],
-            "doc": ""
-        }
 
     def test_register_schema(self, mock_request, request_json):
         mock_request.json_body = request_json
@@ -166,7 +182,7 @@ class TestRegisterSchema(RegisterSchemaTestBase):
             'decoding JSON: "Not valid json!%#!#$#"'
         )
 
-    def test_register_schema_without_doc_but_whitelisted(
+    def test_register_invalid_avro_format(
         self,
         mock_request,
         request_json
