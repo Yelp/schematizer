@@ -16,15 +16,22 @@ class RedshiftSQLTable(SQLTable):
 
     def __init__(
         self,
+        table_name,
+        columns=None,
+        doc=None,
         diststyle=None,
-        *args,
-        **kwargs
+        **metadata
     ):
-        super(RedshiftSQLTable, self).__init__(*args, **kwargs)
+        super(RedshiftSQLTable, self).__init__(
+            table_name,
+            columns,
+            doc,
+            **metadata
+        )
         self.diststyle = diststyle
 
     def __eq__(self, other):
-        return (isinstance(other, RedshiftSQLTable) and
+        return (type(other) is type(RedshiftSQLTable) and
                 self.name == other.name and
                 self.columns == other.columns and
                 self.diststyle == other.diststyle and
@@ -55,21 +62,26 @@ class RedshiftSQLColumn(SQLColumn):
     It is intended to support sql column definition in redshift.
     """
 
-    def __init__(
-        self,
-        sort_key_order=None,
-        is_dist_key=None,
-        encode=None,
-        *args,
-        **kwargs
-    ):
-        super(RedshiftSQLColumn, self).__init__(*args, **kwargs)
+    def __init__(self, column_name, column_type, primary_key_order=None,
+                 sort_key_order=None, is_dist_key=None, encode=None,
+                 is_nullable=True, default_value=None,
+                 attributes=None, doc=None, **metadata):
+        super(RedshiftSQLColumn, self).__init__(
+            column_name,
+            column_type,
+            primary_key_order,
+            is_nullable,
+            default_value,
+            attributes,
+            doc,
+            **metadata
+        )
         self.sort_key_order = sort_key_order
         self.is_dist_key = is_dist_key
         self.encode = encode
 
     def __eq__(self, other):
-        return (isinstance(other, RedshiftSQLColumn) and
+        return (type(other) is type(RedshiftSQLColumn) and
                 self.name == other.name and
                 self.type == other.type and
                 self.primary_key_order == other.primary_key_order and
