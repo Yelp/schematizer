@@ -78,17 +78,6 @@ class Topic(Base, BaseModel):
         nullable=False
     )
 
-    def to_dict(self):
-        topic_dict = {
-            'topic_id': self.id,
-            'name': self.name,
-            'source': self.source.to_dict(),
-            'contains_pii': self.contains_pii,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
-        }
-        return topic_dict
-
     def __eq__(self, other):
         return type(self) is type(other) and self._key == other._key
 
