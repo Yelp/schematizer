@@ -162,6 +162,22 @@
                             "type": "integer",
                             "paramType": "query",
                             "allowMultiple": false
+                        },
+                        {
+                            "name": "count",
+                            "description": "Maximum number of topics to retrieve.",
+                            "required": false,
+                            "type": "integer",
+                            "paramType": "query",
+                            "allowMultiple": false
+                        },
+                        {
+                            "name": "min_id",
+                            "description": "Limits results to those topics with an id greater than or equal to given min_id.",
+                            "required": false,
+                            "type": "integer",
+                            "paramType": "query",
+                            "allowMultiple": false
                         }
                     ],
                     "responseMessages": [

@@ -132,10 +132,6 @@ def routes(config):
         '/v1/categories'
     )
     config.add_route(
-        'doctool.index',
-        '/'
-    )
-    config.add_route(
         'api.v1.get_refreshes_by_criteria',
         '/v1/refreshes'
     )
@@ -205,6 +201,3 @@ def routes(config):
         '/v1/schema_migrations',
         request_method="GET"
     )
-    # Serve the documentation tool from /web/
-    config.add_static_view(name='partials', path='static/html/partials')
-    config.add_static_view(name='static', path='static/')

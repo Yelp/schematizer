@@ -1344,6 +1344,19 @@ class TestByCriteria(DBTestCase):
             )
         )
 
+    def test_get_topics_count(self, sorted_topics):
+        expected = [sorted_topics[0]]
+        actual = schema_repo.get_topics_by_criteria(count=1)
+        assert len(actual) == 1
+        assert len(schema_repo.get_topics_by_criteria()) > 1
+        self.assert_equal_topics(actual, expected)
+
+    def test_get_topics_min_id(self, sorted_topics):
+        min_id = sorted_topics[1].id
+        expected = [topic for topic in sorted_topics if topic.id >= min_id]
+        actual = schema_repo.get_topics_by_criteria(min_id=min_id)
+        self.assert_equal_topics(actual, expected)
+
     def assert_equal_refreshes(self, expected_refreshes, actual_refreshes):
         assert len(actual_refreshes) == len(expected_refreshes)
         for i, actual_refresh in enumerate(actual_refreshes):
