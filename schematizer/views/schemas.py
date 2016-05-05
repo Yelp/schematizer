@@ -122,7 +122,8 @@ def get_schema_elements_by_schema_id(request):
         raise exceptions_v1.schema_not_found_exception()
     # Get schema elements
     elements = schema_repository.get_schema_elements_by_schema_id(schema_id)
-    return [element.to_dict() for element in elements]
+    return [responses_v1.get_element_response_from_element(element)
+            for element in elements]
 
 
 def validate_name(name):

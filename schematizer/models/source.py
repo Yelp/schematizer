@@ -63,16 +63,3 @@ class Source(Base, BaseModel):
         onupdate_now=True,
         nullable=False
     )
-
-    def to_dict(self):
-        return {
-            'source_id': self.id,
-            'name': self.name,
-            'owner_email': self.owner_email,
-            'namespace': self.namespace.to_dict(),
-            'category': (
-                None if self.category is None else self.category.category
-            ),
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
-        }
