@@ -131,7 +131,7 @@ class RedshiftBPChar(RedshiftChar):
     type_name = 'bpchar'
 
     def __init__(self):
-        super(RedshiftBPChar).__init__(256)
+        super(RedshiftBPChar, self).__init__(256)
 
 
 class RedshiftVarChar(RedshiftString):

@@ -86,18 +86,6 @@ class AvroSchemaElement(Base, BaseModel):
         nullable=False
     )
 
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'schema_id': self.avro_schema_id,
-            'element_type': self.element_type,
-            'key': self.key,
-            'doc': self.doc,
-            'note': self.note,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
-        }
-
     @property
     def note(self):
         note = session.query(
@@ -106,7 +94,7 @@ class AvroSchemaElement(Base, BaseModel):
             Note.reference_type == ReferenceTypeEnum.SCHEMA_ELEMENT,
             Note.reference_id == self.id,
         ).first()
-        return None if note is None else note.to_dict()
+        return note
 
     _SCHEMA_KEY_DELIMITER = '|'
 

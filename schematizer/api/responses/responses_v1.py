@@ -143,3 +143,16 @@ def get_response_from_consumer_group_data_source(consumer_group_data_source):
         'created_at': _format_datetime(consumer_group_data_source.created_at),
         'updated_at': _format_datetime(consumer_group_data_source.updated_at)
     }
+
+
+def get_element_response_from_element(element):
+    return {
+        'id': element.id,
+        'schema_id': element.avro_schema_id,
+        'element_type': element.element_type,
+        'key': element.key,
+        'doc': element.doc,
+        'note': get_note_response_from_note(element.note),
+        'created_at': _format_datetime(element.created_at),
+        'updated_at': _format_datetime(element.updated_at),
+    }
