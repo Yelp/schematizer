@@ -534,6 +534,37 @@ class TestSchemaRepository(DBTestCase):
         # the new topic should still be under the same source
         assert topic.source_id == actual_schema.topic.source_id
 
+    def test_call_to_verify_avro_schema_has_docs(
+            self,
+            topic,
+            mock_compatible_func
+    ):
+        mock_compatible_func.return_value = True
+        with mock.patch(
+            'schematizer.models.AvroSchema.verify_avro_schema_has_docs'
+        ) as mock_verify:
+            schema_repo.register_avro_schema_from_avro_json(
+                self.another_rw_schema_json,
+                topic.source.namespace.name,
+                topic.source.name,
+                topic.source.owner_email,
+                contains_pii=False,
+                docs_required=True
+            )
+            assert mock_verify.call_count == 1
+
+            mock_verify.reset_mock()
+
+            schema_repo.register_avro_schema_from_avro_json(
+                self.another_rw_schema_json,
+                topic.source.namespace.name,
+                topic.source.name,
+                topic.source.owner_email,
+                contains_pii=False,
+                docs_required=False
+            )
+            assert mock_verify.call_count == 0
+
     @pytest.mark.usefixtures('rw_schema')
     def test_create_schema_from_avro_json_with_incompatible_schema(
             self,

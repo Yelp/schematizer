@@ -202,11 +202,22 @@ class AvroSchema(Base, BaseModel):
 
     @classmethod
     def verify_avro_schema_has_docs(cls, avro_schema_json):
+        """ Verify if the given Avro schema has valid avro schema.
+        According to avro spec `doc` is supported by `record` type and
+        all fields within the `record`.
+
+        :param avro_schema_json: JSON representation of the Avro schema
+
+        Raises a ValueError for avro_schema_json with invalid docs:
+        Throws Exception for invalid avro_schema_json:
+        """
         avro_schema_elements = cls.create_schema_elements_from_json(
             avro_schema_json
         )
         missing_doc_fields = []
         for avro_schema_element in avro_schema_elements:
+            if avro_schema_element.element_type not in ['record', 'field']:
+                continue
             if (not avro_schema_element.doc or
                     not avro_schema_element.doc.strip()):
                 missing_doc_fields.append(avro_schema_element.key)

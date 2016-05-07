@@ -328,3 +328,63 @@ class TestAvroSchemaModel(DBTestCase):
         is_valid, error = models.AvroSchema.verify_avro_schema(avro_schema)
         assert not is_valid
         assert error
+
+    @pytest.mark.parametrize("avro_schema", [
+        {
+            "name": "foo",
+            "doc": "test_doc",
+            "type": "record",
+            "namespace": "test_namespace",
+            "fields": [
+                {"type": "int", "name": "col", "doc": "test_doc"},
+                {"name": "clientHash", "doc": "test_doc",
+                         "type": {"type": "fixed", "name": "MD5", "size": 16}}
+            ]
+        },
+        {"name": "foo", "type": "fixed", "size": 16}
+    ])
+    def test_verify_avro_schema_with_schema_doc(self, avro_schema):
+        try:
+            models.AvroSchema.verify_avro_schema_has_docs(avro_schema)
+            assert True
+        except ValueError:
+            assert False
+
+    @pytest.mark.parametrize("avro_schema", [
+        {
+            "name": "foo",
+            "doc": "",
+            "type": "record",
+            "namespace": "test_namespace",
+            "fields": [
+                {"type": "int", "name": "col"},
+                {"name": "clientHash", "doc": " ",
+                         "type": {"type": "fixed", "name": "MD5", "size": 16}}
+            ]
+        }
+    ])
+    def test_verify_avro_schema_without_schema_doc(self, avro_schema):
+        try:
+            models.AvroSchema.verify_avro_schema_has_docs(avro_schema)
+            assert False
+        except ValueError as e:
+            assert 'foo' in str(e)
+            assert 'col' in str(e)
+            assert 'clientHash' in str(e)
+
+    @pytest.mark.parametrize("avro_schema", [
+        {"name": "foo", "type": "record", "fields": ["bar"]},
+        {"name": "", "type": "enum", "symbols": ["a"]},
+        {"name": "foo", "type": "fixed"},
+        {"type": "array"},
+        {"values": "long"},
+        "str",
+        ["null", "null"],
+        100
+    ])
+    def test_verify_invalid_avro_schema_for_docs(self, avro_schema):
+        try:
+            models.AvroSchema.verify_avro_schema_has_docs(avro_schema)
+            assert False
+        except Exception:
+            assert True
