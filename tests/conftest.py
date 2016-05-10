@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import pytest
+import staticconf.testing
 
 from schematizer import models
 from testing import factories
@@ -209,3 +210,15 @@ def dw_consumer_group_source_data_src(dw_consumer_group, biz_source):
         data_src_type=models.DataSourceTypeEnum.SOURCE,
         data_src_id=biz_source.id
     )
+
+
+@pytest.yield_fixture(autouse=True, scope='session')
+def mock_namespace_whitelist():
+    with staticconf.testing.MockConfiguration(
+        {
+            'namespace_no_doc_required': [
+                'yelp_wl'
+            ]
+        }
+    ):
+        yield

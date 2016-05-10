@@ -186,26 +186,25 @@ class AvroSchema(Base, BaseModel):
 
     @classmethod
     def verify_avro_schema_has_docs(cls, avro_schema_json):
-        """ Verify if the given Avro schema has valid avro schema.
-        According to avro spec `doc` is supported by `record` type and
-        all fields within the `record`.
+        """ Verify if the given Avro schema has docs.
+        According to avro spec `doc` is supported by `record` type,
+        all fields within the `record` and `enum`.
 
         :param avro_schema_json: JSON representation of the Avro schema
 
-        Raises a ValueError for avro_schema_json with invalid docs:
+        Raises a ValueError for avro_schema_json with missing docs:
         Throws Exception for invalid avro_schema_json:
         """
         avro_schema_elements = cls.create_schema_elements_from_json(
             avro_schema_json
         )
-        missing_doc_fields = []
-        for avro_schema_element in avro_schema_elements:
-            if avro_schema_element.element_type not in ['record', 'field']:
-                continue
-            if (not avro_schema_element.doc or
-                    not avro_schema_element.doc.strip()):
-                missing_doc_fields.append(avro_schema_element.key)
+        missing_doc_fields = [avro_schema_element.key
+                              for avro_schema_element in avro_schema_elements
+                              if not avro_schema_element.has_doc()]
+
         if missing_doc_fields:
+            # TODO DATAPIPE-970  implement better exception response during
+            # registering avro schema with missing docs
             raise ValueError("Missing `doc` for field(s) {}".format(
                 ', '.join(missing_doc_fields)
             ))
@@ -218,6 +217,7 @@ class _SchemaElement(object):
 
     target_schema_type = None
     element_type = None
+    has_doc = None
 
     def __init__(self, schema_obj, parent_key):
         if not isinstance(schema_obj, self.target_schema_type):
@@ -241,6 +241,7 @@ class _RecordSchemaElement(_SchemaElement):
 
     target_schema_type = schema.RecordSchema
     element_type = 'record'
+    has_doc = True
 
     @property
     def key(self):

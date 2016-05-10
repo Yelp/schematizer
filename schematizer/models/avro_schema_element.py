@@ -111,3 +111,11 @@ class AvroSchemaElement(Base, BaseModel):
         return cls._SCHEMA_KEY_DELIMITER.join(
             k for k in sub_keys if k is not None
         )
+
+    def has_doc(self):
+        # avro spec specifies `doc` only for 'record', 'field', 'enum'
+        if self.element_type not in ['record', 'field', 'enum']:
+            return True
+        if self.doc and self.doc.strip():
+            return True
+        return False

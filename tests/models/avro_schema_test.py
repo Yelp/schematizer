@@ -314,7 +314,7 @@ class TestAvroSchemaModel(DBTestCase):
         assert is_valid
         assert error is None
 
-    @pytest.mark.parametrize("avro_schema", [
+    @pytest.fixture(params=[
         {"name": "foo", "type": "record", "fields": ["bar"]},
         {"name": "", "type": "enum", "symbols": ["a"]},
         {"name": "foo", "type": "fixed"},
@@ -324,8 +324,16 @@ class TestAvroSchemaModel(DBTestCase):
         ["null", "null"],
         100
     ])
-    def test_verify_avro_schema_with_invalid_schema_json(self, avro_schema):
-        is_valid, error = models.AvroSchema.verify_avro_schema(avro_schema)
+    def avro_schema_with_invalid_schema(self, request):
+        return request.param
+
+    def test_verify_avro_schema_with_invalid_schema_json(
+        self,
+        avro_schema_with_invalid_schema
+    ):
+        is_valid, error = models.AvroSchema.verify_avro_schema(
+            avro_schema_with_invalid_schema
+        )
         assert not is_valid
         assert error
 
@@ -338,20 +346,17 @@ class TestAvroSchemaModel(DBTestCase):
             "fields": [
                 {"type": "int", "name": "col", "doc": "test_doc"},
                 {"name": "clientHash", "doc": "test_doc",
-                         "type": {"type": "fixed", "name": "MD5", "size": 16}}
+                 "type": {"type": "fixed", "name": "MD5", "size": 16}}
             ]
         },
         {"name": "foo", "type": "fixed", "size": 16}
     ])
     def test_verify_avro_schema_with_schema_doc(self, avro_schema):
-        try:
-            models.AvroSchema.verify_avro_schema_has_docs(avro_schema)
-            assert True
-        except ValueError:
-            assert False
+        models.AvroSchema.verify_avro_schema_has_docs(avro_schema)
 
-    @pytest.mark.parametrize("avro_schema", [
-        {
+    @property
+    def avro_schema_with_missing_docs(self):
+        return {
             "name": "foo",
             "doc": "",
             "type": "record",
@@ -359,32 +364,24 @@ class TestAvroSchemaModel(DBTestCase):
             "fields": [
                 {"type": "int", "name": "col"},
                 {"name": "clientHash", "doc": " ",
-                         "type": {"type": "fixed", "name": "MD5", "size": 16}}
+                 "type": {"type": "fixed", "name": "MD5", "size": 16}}
             ]
         }
-    ])
-    def test_verify_avro_schema_without_schema_doc(self, avro_schema):
-        try:
-            models.AvroSchema.verify_avro_schema_has_docs(avro_schema)
-            assert False
-        except ValueError as e:
-            assert 'foo' in str(e)
-            assert 'col' in str(e)
-            assert 'clientHash' in str(e)
 
-    @pytest.mark.parametrize("avro_schema", [
-        {"name": "foo", "type": "record", "fields": ["bar"]},
-        {"name": "", "type": "enum", "symbols": ["a"]},
-        {"name": "foo", "type": "fixed"},
-        {"type": "array"},
-        {"values": "long"},
-        "str",
-        ["null", "null"],
-        100
-    ])
-    def test_verify_invalid_avro_schema_for_docs(self, avro_schema):
-        try:
-            models.AvroSchema.verify_avro_schema_has_docs(avro_schema)
-            assert False
-        except Exception:
-            assert True
+    def test_avro_schema_with_missing_doc_fails(self):
+        with pytest.raises(ValueError) as e:
+            models.AvroSchema.verify_avro_schema_has_docs(
+                self.avro_schema_with_missing_docs
+            )
+        assert 'foo' in str(e)
+        assert 'col' in str(e)
+        assert 'clientHash' in str(e)
+
+    def test_avro_schema_with_invalid_schema_fails(
+        self,
+        avro_schema_with_invalid_schema
+    ):
+        with pytest.raises(Exception):
+            models.AvroSchema.verify_avro_schema_has_docs(
+                avro_schema_with_invalid_schema
+            )

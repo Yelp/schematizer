@@ -14,6 +14,7 @@ from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
 from schematizer.models.database import session
 from testing import factories
+from testing.mock_utils import attach_spy_on_func
 from tests.models.testing_db import DBTestCase
 
 
@@ -534,16 +535,16 @@ class TestSchemaRepository(DBTestCase):
         # the new topic should still be under the same source
         assert topic.source_id == actual_schema.topic.source_id
 
-    def test_call_to_verify_avro_schema_has_docs(
+    def test_verify_avro_schema_has_docs_is_called(
             self,
             topic,
             mock_compatible_func
     ):
         mock_compatible_func.return_value = True
-        with mock.patch(
-            'schematizer.models.AvroSchema.verify_avro_schema_has_docs'
-        ) as mock_verify:
-            schema_repo.register_avro_schema_from_avro_json(
+        with attach_spy_on_func(
+            models.AvroSchema, 'verify_avro_schema_has_docs'
+        ) as func_spy:
+            actual_schema = schema_repo.register_avro_schema_from_avro_json(
                 self.another_rw_schema_json,
                 topic.source.namespace.name,
                 topic.source.name,
@@ -551,11 +552,32 @@ class TestSchemaRepository(DBTestCase):
                 contains_pii=False,
                 docs_required=True
             )
-            assert mock_verify.call_count == 1
+            expected_schema = models.AvroSchema(
+                avro_schema_json=self.another_rw_schema_json,
+                status=models.AvroSchemaStatus.READ_AND_WRITE,
+                avro_schema_elements=self.another_rw_schema_elements
+            )
+            self.assert_equal_avro_schema_partial(
+                expected_schema,
+                actual_schema
+            )
 
-            mock_verify.reset_mock()
+            # new topic should be created
+            assert topic.id != actual_schema.topic_id
+            assert topic.name != actual_schema.topic.name
 
-            schema_repo.register_avro_schema_from_avro_json(
+            assert func_spy.call_count == 1
+
+    def test_avro_schema_has_docs_is_not_called(
+            self,
+            topic,
+            mock_compatible_func
+    ):
+        mock_compatible_func.return_value = True
+        with attach_spy_on_func(
+            models.AvroSchema, 'verify_avro_schema_has_docs'
+        ) as func_spy:
+            actual_schema = schema_repo.register_avro_schema_from_avro_json(
                 self.another_rw_schema_json,
                 topic.source.namespace.name,
                 topic.source.name,
@@ -563,7 +585,22 @@ class TestSchemaRepository(DBTestCase):
                 contains_pii=False,
                 docs_required=False
             )
-            assert mock_verify.call_count == 0
+
+            expected_schema = models.AvroSchema(
+                avro_schema_json=self.another_rw_schema_json,
+                status=models.AvroSchemaStatus.READ_AND_WRITE,
+                avro_schema_elements=self.another_rw_schema_elements
+            )
+            self.assert_equal_avro_schema_partial(
+                expected_schema,
+                actual_schema
+            )
+
+            # new topic should be created
+            assert topic.id != actual_schema.topic_id
+            assert topic.name != actual_schema.topic.name
+
+            assert func_spy.call_count == 0
 
     @pytest.mark.usefixtures('rw_schema')
     def test_create_schema_from_avro_json_with_incompatible_schema(

@@ -14,7 +14,7 @@ log = logging.getLogger('schematizer')
 class Config(object):
 
     @cached_property
-    def get_namespace_no_doc_required(self):
+    def namespace_no_doc_required(self):
         return staticconf.read_list_of_string(
             'namespace_no_doc_required'
         )

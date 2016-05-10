@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 import mock
 import pytest
 import simplejson
-import staticconf.testing
 
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
@@ -70,7 +69,53 @@ class RegisterSchemaTestBase(ApiTestBase):
 
 class TestRegisterSchema(RegisterSchemaTestBase):
 
-    @pytest.fixture(params=[
+    @pytest.fixture
+    def request_json(self, biz_schema_json, biz_source):
+        return {
+            "schema": simplejson.dumps(biz_schema_json),
+            "namespace": biz_source.namespace.name,
+            "source": biz_source.name,
+            "source_owner_email": 'biz.user@yelp.com',
+            'contains_pii': False
+        }
+
+    def test_register_schema(self, mock_request, request_json):
+        mock_request.json_body = request_json
+        actual = schema_views.register_schema(mock_request)
+        self._assert_equal_schema_response(actual, request_json)
+
+    def test_create_schema_with_base_schema(self, mock_request, request_json):
+        request_json['base_schema_id'] = 2
+        mock_request.json_body = request_json
+        actual = schema_views.register_schema(mock_request)
+        self._assert_equal_schema_response(actual, request_json)
+
+    def test_register_invalid_schema_json(self, mock_request, request_json):
+        request_json['schema'] = 'Not valid json!%#!#$#'
+        mock_request.json_body = request_json
+
+        expected_exception = self.get_http_exception(422)
+        with pytest.raises(expected_exception) as e:
+            schema_views.register_schema(mock_request)
+
+        assert e.value.code == expected_exception.code
+        assert str(e.value) == (
+            'Error "Expecting value: line 1 column 1 (char 0)" encountered '
+            'decoding JSON: "Not valid json!%#!#$#"'
+        )
+
+    def test_register_invalid_avro_format(self, mock_request, request_json):
+        request_json['schema'] = '{"type": "record", "name": "A"}'
+        mock_request.json_body = request_json
+
+        expected_exception = self.get_http_exception(422)
+        with pytest.raises(expected_exception) as e:
+            schema_views.register_schema(mock_request)
+
+        assert e.value.code == expected_exception.code
+        assert "Invalid Avro schema JSON." in str(e.value)
+
+    @pytest.mark.parametrize("biz_schema_without_doc_json", [
         {
             "name": "biz",
             "type": "record",
@@ -112,91 +157,6 @@ class TestRegisterSchema(RegisterSchemaTestBase):
             "doc": "doc"
         },
     ])
-    def biz_schema_without_doc_json(self, request):
-        return request.param
-
-    @pytest.fixture
-    def request_json(self, biz_schema_json, biz_source):
-        return {
-            "schema": simplejson.dumps(biz_schema_json),
-            "namespace": biz_source.namespace.name,
-            "source": biz_source.name,
-            "source_owner_email": 'biz.user@yelp.com',
-            'contains_pii': False
-        }
-
-    @pytest.fixture
-    def biz_wl_schema_json(self):
-        return {
-            "name": "biz_wl",
-            "type": "record",
-            "fields": [{"name": "id", "type": "int", "default": 0}],
-            "doc": ""
-        }
-
-    @pytest.fixture
-    def biz_wl_request_json(self, biz_wl_schema_json):
-        return {
-            "schema": simplejson.dumps(biz_wl_schema_json),
-            "namespace": 'yelp_wl',
-            "source": 'biz_wl',
-            "source_owner_email": 'biz.user@yelp.com',
-            'contains_pii': False
-        }
-
-    @pytest.yield_fixture(autouse=True, scope='session')
-    def mock_namespace_whitelist(self):
-        with staticconf.testing.MockConfiguration(
-            {
-                'namespace_no_doc_required': [
-                    'dev.refresh_primary.yelp.yelp_main_transformed',
-                    'main.refresh_primary.yelp.yelp_main_transformed',
-                    'yelp_wl'
-                ]
-            }
-        ):
-            yield
-
-    def test_register_schema(self, mock_request, request_json):
-        mock_request.json_body = request_json
-        actual = schema_views.register_schema(mock_request)
-        self._assert_equal_schema_response(actual, request_json)
-
-    def test_create_schema_with_base_schema(self, mock_request, request_json):
-        request_json['base_schema_id'] = 2
-        mock_request.json_body = request_json
-        actual = schema_views.register_schema(mock_request)
-        self._assert_equal_schema_response(actual, request_json)
-
-    def test_register_invalid_schema_json(self, mock_request, request_json):
-        request_json['schema'] = 'Not valid json!%#!#$#'
-        mock_request.json_body = request_json
-
-        expected_exception = self.get_http_exception(422)
-        with pytest.raises(expected_exception) as e:
-            schema_views.register_schema(mock_request)
-
-        assert e.value.code == expected_exception.code
-        assert str(e.value) == (
-            'Error "Expecting value: line 1 column 1 (char 0)" encountered '
-            'decoding JSON: "Not valid json!%#!#$#"'
-        )
-
-    def test_register_invalid_avro_format(
-        self,
-        mock_request,
-        request_json
-    ):
-        request_json['schema'] = '{"type": "record", "name": "A"}'
-        mock_request.json_body = request_json
-
-        expected_exception = self.get_http_exception(422)
-        with pytest.raises(expected_exception) as e:
-            schema_views.register_schema(mock_request)
-
-        assert e.value.code == expected_exception.code
-        assert "Invalid Avro schema JSON." in str(e.value)
-
     def test_register_missing_doc_schema(
         self,
         mock_request,
@@ -213,14 +173,25 @@ class TestRegisterSchema(RegisterSchemaTestBase):
         assert e.value.code == expected_exception.code
         assert "Missing `doc` for field" in str(e.value)
 
+    @property
+    def biz_wl_schema_json(self):
+        return {
+            "name": "biz_wl",
+            "type": "record",
+            "fields": [{"name": "id", "type": "int", "default": 0}],
+            "doc": ""
+        }
+
     def test_register_missing_doc_schema_NS_whitelisted(
         self,
         mock_request,
-        biz_wl_request_json
+        request_json
     ):
-        mock_request.json_body = biz_wl_request_json
+        request_json['schema'] = simplejson.dumps(self.biz_wl_schema_json)
+        request_json['namespace'] = 'yelp_wl'
+        mock_request.json_body = request_json
         actual = schema_views.register_schema(mock_request)
-        self._assert_equal_schema_response(actual, biz_wl_request_json)
+        self._assert_equal_schema_response(actual, request_json)
 
     def test_register_invalid_namespace_name(self, mock_request, request_json):
         request_json['namespace'] = 'yelp|main'

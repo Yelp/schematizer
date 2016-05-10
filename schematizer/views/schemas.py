@@ -42,8 +42,9 @@ def register_schema(request):
     try:
         req = requests_v1.RegisterSchemaRequest(**request.json_body)
         validate_names([req.namespace, req.source])
-        docs_required = (req.namespace not in get_config()
-                         .get_namespace_no_doc_required)
+        docs_required = (
+            req.namespace not in get_config().namespace_no_doc_required
+        )
 
         return _register_avro_schema(
             schema_json=req.schema_json,
