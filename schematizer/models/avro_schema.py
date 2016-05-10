@@ -145,17 +145,10 @@ class AvroSchema(Base, BaseModel):
         :param avro_schema_json: JSON representation of an Avro schema
         :return: List of AvroSchemaElement objects
         """
-        avro_schema_obj = schema.make_avsc_object(avro_schema_json)
 
         avro_schema_elements = []
-        schema_elements = deque([(avro_schema_obj, None)])
-        while len(schema_elements) > 0:
-            schema_obj, parent_key = schema_elements.popleft()
-            element_cls = _schema_to_element_map.get(schema_obj.__class__)
-            if not element_cls:
-                continue
-
-            _schema_element = element_cls(schema_obj, parent_key)
+        elements = cls._create_schema_elements_from_json(avro_schema_json)
+        for _schema_element, schema_obj in elements:
             avro_schema_element = AvroSchemaElement(
                 key=_schema_element.key,
                 element_type=_schema_element.element_type,
@@ -163,11 +156,25 @@ class AvroSchema(Base, BaseModel):
             )
             avro_schema_elements.append(avro_schema_element)
 
+        return avro_schema_elements
+
+    @classmethod
+    def _create_schema_elements_from_json(cls, avro_schema_json):
+        avro_schema_obj = schema.make_avsc_object(avro_schema_json)
+        schema_elements = []
+        schema_elements_queue = deque([(avro_schema_obj, None)])
+        while len(schema_elements_queue) > 0:
+            schema_obj, parent_key = schema_elements_queue.popleft()
+            element_cls = _schema_to_element_map.get(schema_obj.__class__)
+            if not element_cls:
+                continue
+
+            _schema_element = element_cls(schema_obj, parent_key)
+            schema_elements.append((_schema_element, schema_obj))
             parent_key = _schema_element.key
             for nested_schema in _schema_element.nested_schema_objects:
-                schema_elements.append((nested_schema, parent_key))
-
-        return avro_schema_elements
+                schema_elements_queue.append((nested_schema, parent_key))
+        return schema_elements
 
     @classmethod
     def verify_avro_schema(cls, avro_schema_json):
@@ -195,12 +202,12 @@ class AvroSchema(Base, BaseModel):
         Raises a ValueError for avro_schema_json with missing docs:
         Throws Exception for invalid avro_schema_json:
         """
-        avro_schema_elements = cls.create_schema_elements_from_json(
+        elements = cls._create_schema_elements_from_json(
             avro_schema_json
         )
-        missing_doc_fields = [avro_schema_element.key
-                              for avro_schema_element in avro_schema_elements
-                              if not avro_schema_element.has_doc()]
+        missing_doc_fields = [_schema_element.key
+                              for _schema_element, schema_obj in elements
+                              if not _schema_element.has_doc]
 
         if missing_doc_fields:
             # TODO DATAPIPE-970  implement better exception response during
@@ -217,7 +224,7 @@ class _SchemaElement(object):
 
     target_schema_type = None
     element_type = None
-    has_doc = None
+    need_doc = None
 
     def __init__(self, schema_obj, parent_key):
         if not isinstance(schema_obj, self.target_schema_type):
@@ -236,12 +243,21 @@ class _SchemaElement(object):
     def nested_schema_objects(self):
         return []
 
+    @property
+    def has_doc(self):
+        if not self.need_doc:
+            return True
+        doc = self.schema_obj.get_prop('doc')
+        if doc and doc.strip():
+            return True
+        return False
+
 
 class _RecordSchemaElement(_SchemaElement):
 
     target_schema_type = schema.RecordSchema
     element_type = 'record'
-    has_doc = True
+    need_doc = True
 
     @property
     def key(self):
@@ -256,6 +272,7 @@ class _FieldElement(_SchemaElement):
 
     target_schema_type = schema.Field
     element_type = 'field'
+    need_doc = True
 
     @property
     def key(self):
@@ -273,6 +290,7 @@ class _EnumSchemaElement(_SchemaElement):
 
     target_schema_type = schema.EnumSchema
     element_type = 'enum'
+    need_doc = True
 
     @property
     def key(self):
@@ -283,6 +301,7 @@ class _FixedSchemaElement(_SchemaElement):
 
     target_schema_type = schema.FixedSchema
     element_type = 'fixed'
+    need_doc = False
 
     @property
     def key(self):
@@ -293,6 +312,7 @@ class _ArraySchemaElement(_SchemaElement):
 
     target_schema_type = schema.ArraySchema
     element_type = 'array'
+    need_doc = False
 
     @property
     def key(self):
@@ -310,6 +330,7 @@ class _MapSchemaElement(_SchemaElement):
 
     target_schema_type = schema.MapSchema
     element_type = 'map'
+    need_doc = False
 
     @property
     def key(self):
