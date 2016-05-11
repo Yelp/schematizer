@@ -119,6 +119,9 @@ class SQLColumnDataType(object):
         return (isinstance(other, SQLColumnDataType) and
                 self.attributes == other.attributes)
 
+    def __hash__(self):
+        raise NotImplementedError('Must be implemented by subclasse')
+
     def convert_str_to_type_val(self, val_string):
         """Convert the given string representation of the value to the value
         of this data type.  Each data type is responsible for converting the

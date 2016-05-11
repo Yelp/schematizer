@@ -145,7 +145,7 @@ class ParsedMySQLProcessor(object):
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
         if len_token:
             token = len_token.token_next_by_type(0, T.Number.Integer)
-            length = token.value
+            length = int(token.value)
 
         return col_type_cls(length)
 
@@ -157,7 +157,7 @@ class ParsedMySQLProcessor(object):
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
         if len_token:
             token = len_token.token_next_by_type(0, T.Number.Integer)
-            length = token.value
+            length = int(token.value)
 
         attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
         attr_token = self._get_attribute_token('unsigned', attributes)
@@ -186,11 +186,11 @@ class ParsedMySQLProcessor(object):
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
         if len_token:
             token = len_token.token_next_by_type(0, T.Number.Integer)
-            precision = token.value
+            precision = int(token.value)
 
             index = len_token.token_index(token)
             token = len_token.token_next_by_type(index + 1, T.Number.Integer)
-            scale = token.value if token else None
+            scale = int(token.value) if token else None
 
         attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
         attr_token = self._get_attribute_token('unsigned', attributes)
@@ -211,7 +211,7 @@ class ParsedMySQLProcessor(object):
             token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
             token = token.token_next_by_type(0, T.Number.Integer)
             return col_type_cls(
-                token.value,
+                int(token.value),
                 binary=is_binary,
                 char_set=char_set,
                 collate=collate
@@ -229,7 +229,7 @@ class ParsedMySQLProcessor(object):
         if col_type_cls in (data_types.MySQLBinary, data_types.MySQLVarBinary):
             token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
             token = token.token_next_by_type(0, T.Number.Integer)
-            return col_type_cls(token.value)
+            return col_type_cls(int(token.value))
         return col_type_cls()
 
     def _create_datetime_type(self, col_type_cls, col_token):
