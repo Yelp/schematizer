@@ -31,7 +31,7 @@ class MySQLBit(SQLColumnDataType):
         return int(val_string, base=2)
 
     def __hash__(self):
-        return hash((self.type_name, self.length))
+        return super(MySQLBit, self).__hash__() ^ hash(self.length)
 
 
 class MySQLIntegerType(SQLColumnDataType):
@@ -58,7 +58,7 @@ class MySQLIntegerType(SQLColumnDataType):
         return int(val_string)
 
     def __hash__(self):
-        return hash((self.type_name, self.length))
+        return super(MySQLIntegerType, self).__hash__() ^ hash(self.length)
 
 
 class MySQLTinyInt(MySQLIntegerType):
@@ -112,17 +112,11 @@ class MySQLBool(SQLColumnDataType):
         # http://dev.mysql.com/doc/refman/5.5/en/numeric-type-overview.html
         return not val_string.lower() in ('false', '0')
 
-    def __hash__(self):
-        return hash((self.type_name, self.length))
-
 
 class MySQLBoolean(MySQLBool):
     """ BOOLEAN is a synonym for BOOL """
 
     type_name = 'boolean'
-
-    def __hash__(self):
-        return hash(self.type_name)
 
 
 class MySQLRealNumber(SQLColumnDataType):
@@ -151,7 +145,9 @@ class MySQLRealNumber(SQLColumnDataType):
         return float(val_string)
 
     def __hash__(self):
-        return hash((self.type_name, self.precision, self.scale))
+        return super(MySQLRealNumber, self).__hash__() ^ hash(
+            (self.precision, self.scale)
+        )
 
 
 class MySQLDouble(MySQLRealNumber):
@@ -219,7 +215,7 @@ class MySQLChar(MySQLString):
                 self.length == other.length)
 
     def __hash__(self):
-        return hash((self.type_name, self.length))
+        return super(MySQLChar, self).__hash__() ^ hash(self.length)
 
 
 class MySQLVarChar(MySQLString):
@@ -235,39 +231,27 @@ class MySQLVarChar(MySQLString):
                 self.length == other.length)
 
     def __hash__(self):
-        return hash((self.type_name, self.length))
+        return super(MySQLVarChar, self).__hash__() ^ hash(self.length)
 
 
 class MySQLTinyText(MySQLString):
 
     type_name = 'tinytext'
 
-    def __hash__(self):
-        return hash(self.type_name)
-
 
 class MySQLText(MySQLString):
 
     type_name = 'text'
-
-    def __hash__(self):
-        return hash(self.type_name)
 
 
 class MySQLMediumText(MySQLString):
 
     type_name = 'mediumtext'
 
-    def __hash__(self):
-        return hash(self.type_name)
-
 
 class MySQLLongText(MySQLString):
 
     type_name = 'longtext'
-
-    def __hash__(self):
-        return hash(self.type_name)
 
 
 class MySQLBinaryBase(SQLColumnDataType):
@@ -297,7 +281,7 @@ class MySQLBinary(MySQLBinaryBase):
                 self.length == other.length)
 
     def __hash__(self):
-        return hash((self.type_name, self.length))
+        return super(MySQLBinary, self).__hash__() ^ hash(self.length)
 
 
 class MySQLVarBinary(MySQLBinaryBase):
@@ -313,39 +297,27 @@ class MySQLVarBinary(MySQLBinaryBase):
                 self.length == other.length)
 
     def __hash__(self):
-        return hash((self.type_name, self.length))
+        return super(MySQLVarBinary, self).__hash__() ^ hash(self.length)
 
 
 class MySQLTinyBlob(MySQLBinaryBase):
 
     type_name = 'tinyblob'
 
-    def __hash__(self):
-        return hash(self.type_name)
-
 
 class MySQLBlob(MySQLBinaryBase):
 
     type_name = 'blob'
-
-    def __hash__(self):
-        return hash(self.type_name)
 
 
 class MySQLMediumBlob(MySQLBinaryBase):
 
     type_name = 'mediumblob'
 
-    def __hash__(self):
-        return hash(self.type_name)
-
 
 class MySQLLongBlob(MySQLBinaryBase):
 
     type_name = 'longblob'
-
-    def __hash__(self):
-        return hash(self.type_name)
 
 
 class MySQLDateAndTime(SQLColumnDataType):
@@ -365,16 +337,10 @@ class MySQLDate(MySQLDateAndTime):
 
     type_name = 'date'
 
-    def __hash__(self):
-        return hash(self.type_name)
-
 
 class MySQLYear(MySQLDateAndTime):
 
     type_name = 'year'
-
-    def __hash__(self):
-        return hash(self.type_name)
 
 
 class MySQLTime(MySQLDateAndTime):
@@ -390,7 +356,7 @@ class MySQLTime(MySQLDateAndTime):
                 self.fsp == other.fsp)
 
     def __hash__(self):
-        return hash((self.type_name, self.fsp))
+        return super(MySQLTime, self).__hash__() ^ hash(self.fsp)
 
 
 class MySQLTimestamp(MySQLDateAndTime):
@@ -406,7 +372,7 @@ class MySQLTimestamp(MySQLDateAndTime):
                 self.fsp == other.fsp)
 
     def __hash__(self):
-        return hash((self.type_name, self.fsp))
+        return super(MySQLTimestamp, self).__hash__() ^ hash(self.fsp)
 
 
 class MySQLDateTime(MySQLDateAndTime):
@@ -422,7 +388,7 @@ class MySQLDateTime(MySQLDateAndTime):
                 self.fsp == other.fsp)
 
     def __hash__(self):
-        return hash((self.type_name, self.fsp))
+        return super(MySQLDateTime, self).__hash__() ^ hash(self.fsp)
 
 
 class MySQLEnum(SQLColumnDataType):
@@ -455,7 +421,10 @@ class MySQLEnum(SQLColumnDataType):
         return val_string
 
     def __hash__(self):
-        return hash(tuple([self.type_name, tuple(self.values)]))
+        values_hash = reduce(
+            lambda x, y: hash(x) ^ hash(y), self.values, 0
+        )
+        return super(MySQLEnum, self).__hash__() ^ values_hash
 
 
 class MySQLSet(SQLColumnDataType):
@@ -488,4 +457,7 @@ class MySQLSet(SQLColumnDataType):
         return val_string
 
     def __hash__(self):
-        return hash(tuple([self.type_name, tuple(self.values)]))
+        values_hash = reduce(
+            lambda x, y: hash(x) ^ hash(y), self.values, 0
+        )
+        return super(MySQLSet, self).__hash__() ^ values_hash

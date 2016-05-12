@@ -211,7 +211,7 @@ class ParsedMySQLProcessor(object):
             token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
             token = token.token_next_by_type(0, T.Number.Integer)
             return col_type_cls(
-                int(token.value),
+                int(token.value) if token.value else token.value,
                 binary=is_binary,
                 char_set=char_set,
                 collate=collate
@@ -229,7 +229,9 @@ class ParsedMySQLProcessor(object):
         if col_type_cls in (data_types.MySQLBinary, data_types.MySQLVarBinary):
             token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
             token = token.token_next_by_type(0, T.Number.Integer)
-            return col_type_cls(int(token.value))
+            return col_type_cls(
+                int(token.value) if token.value else token.value
+            )
         return col_type_cls()
 
     def _create_datetime_type(self, col_type_cls, col_token):
