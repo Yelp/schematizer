@@ -935,6 +935,38 @@ class TestSchemaRepository(DBTestCase):
         actual = schema_repo.get_schemas_by_topic_id(0)
         assert [] == actual
 
+    def test_get_schemas_by_namespace_name(
+        self,
+        rw_schema
+    ):
+        actual = schema_repo.get_schemas_by_criteria(self.namespace_name)
+        assert len(actual) == 1
+        self.assert_equal_avro_schema(rw_schema, actual[0])
+
+    def test_get_schemas_by_namespace_and_source_name(
+        self,
+        rw_schema
+    ):
+        actual = schema_repo.get_schemas_by_criteria(
+            self.namespace_name,
+            source_name=self.source_name
+        )
+        assert len(actual) == 1
+        self.assert_equal_avro_schema(rw_schema, actual[0])
+
+    def test_get_schemas_by_namespace_and_nonexistant_source_name(self):
+        actual = schema_repo.get_schemas_by_criteria(
+            self.namespace_name,
+            source_name="this_source_does_not_exist"
+        )
+        assert not actual
+
+    def test_get_schemas_by_nonexistant_namespace(self):
+        actual = schema_repo.get_schemas_by_criteria(
+            "this_namespace_doesnt_exist"
+        )
+        assert not actual
+
     def test_mark_schema_disabled(self, rw_schema):
         schema_repo.mark_schema_disabled(rw_schema.id)
         actual = session.query(
@@ -1343,6 +1375,18 @@ class TestByCriteria(DBTestCase):
             expected_refreshes=self._sort_refreshes_by_id(
                 [biz_refresh, user_refresh]
             )
+        )
+
+    def test_refresh_get_biz_source_only(
+        self,
+        biz_refresh,
+        biz_source
+    ):
+        self.assert_equal_refreshes(
+            actual_refreshes=schema_repo.get_refreshes_by_criteria(
+                source_name=biz_source.name
+            ),
+            expected_refreshes=[biz_refresh]
         )
 
     def test_get_by_refresh_status_only(
