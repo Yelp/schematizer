@@ -14,7 +14,6 @@ from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
 from schematizer.models.database import session
 from testing import factories
-from testing.mock_utils import attach_spy_on_func
 from tests.models.testing_db import DBTestCase
 
 
@@ -150,7 +149,7 @@ class TestSchemaRepository(DBTestCase):
                         field['name']
                     ),
                     element_type='field',
-                    doc=field['doc']
+                    doc=field.get('doc')
                 )
             )
         return avro_schema_elements
@@ -535,72 +534,91 @@ class TestSchemaRepository(DBTestCase):
         # the new topic should still be under the same source
         assert topic.source_id == actual_schema.topic.source_id
 
-    def test_verify_avro_schema_has_docs_is_called(
-            self,
-            topic,
-            mock_compatible_func
+    @pytest.fixture(params=[{
+        "name": "foo",
+        "doc": "test_doc",
+        "type": "record",
+        "namespace": "test_namespace",
+        "fields": [
+            {"type": "int", "name": "col", "doc": "test_doc"}
+        ]},
+        {"name": "color", "doc": "test_doc", "type": "enum", "symbols": ["red"]
+         }
+    ])
+    def avro_schema_with_docs(self, request):
+        return request.param
+
+    def test_register_avro_schema_with_docs_require_doc(
+        self,
+        topic,
+        avro_schema_with_docs
     ):
-        mock_compatible_func.return_value = True
-        with attach_spy_on_func(
-            models.AvroSchema, 'verify_avro_schema_has_docs'
-        ) as func_spy:
-            actual_schema = schema_repo.register_avro_schema_from_avro_json(
-                self.another_rw_schema_json,
+        actual_schema = schema_repo.register_avro_schema_from_avro_json(
+            avro_schema_with_docs,
+            topic.source.namespace.name,
+            topic.source.name,
+            topic.source.owner_email,
+            contains_pii=False,
+            docs_required=True
+        )
+        assert topic.id != actual_schema.topic_id
+
+    def test_register_avro_schema_with_docs_dont_require_doc(
+        self,
+        topic,
+        avro_schema_with_docs
+    ):
+        actual_schema = schema_repo.register_avro_schema_from_avro_json(
+            avro_schema_with_docs,
+            topic.source.namespace.name,
+            topic.source.name,
+            topic.source.owner_email,
+            contains_pii=False,
+            docs_required=False
+        )
+        assert topic.id != actual_schema.topic_id
+
+    @pytest.fixture(params=[{
+        "name": "foo",
+        "doc": " ",
+        "type": "record",
+        "namespace": "test_namespace",
+        "fields": [
+            {"type": "int", "name": "col"}
+        ]},
+        {"name": "color", "type": "enum", "symbols": ["red"]}
+    ])
+    def avro_schema_without_docs(self, request):
+        return request.param
+
+    def test_register_avro_schema_without_docs_require_doc(
+        self,
+        topic,
+        avro_schema_without_docs
+    ):
+        with pytest.raises(ValueError):
+            schema_repo.register_avro_schema_from_avro_json(
+                avro_schema_without_docs,
                 topic.source.namespace.name,
                 topic.source.name,
                 topic.source.owner_email,
-                contains_pii=False,
-                docs_required=True
-            )
-            expected_schema = models.AvroSchema(
-                avro_schema_json=self.another_rw_schema_json,
-                status=models.AvroSchemaStatus.READ_AND_WRITE,
-                avro_schema_elements=self.another_rw_schema_elements
-            )
-            self.assert_equal_avro_schema_partial(
-                expected_schema,
-                actual_schema
+                contains_pii=False
             )
 
-            # new topic should be created
-            assert topic.id != actual_schema.topic_id
-            assert topic.name != actual_schema.topic.name
-
-            assert func_spy.call_count == 1
-
-    def test_avro_schema_has_docs_is_not_called(
-            self,
-            topic,
-            mock_compatible_func
+    def test_register_avro_schema_without_docs_dont_require_doc(
+        self,
+        topic,
+        avro_schema_without_docs
     ):
-        mock_compatible_func.return_value = True
-        with attach_spy_on_func(
-            models.AvroSchema, 'verify_avro_schema_has_docs'
-        ) as func_spy:
-            actual_schema = schema_repo.register_avro_schema_from_avro_json(
-                self.another_rw_schema_json,
-                topic.source.namespace.name,
-                topic.source.name,
-                topic.source.owner_email,
-                contains_pii=False,
-                docs_required=False
-            )
-
-            expected_schema = models.AvroSchema(
-                avro_schema_json=self.another_rw_schema_json,
-                status=models.AvroSchemaStatus.READ_AND_WRITE,
-                avro_schema_elements=self.another_rw_schema_elements
-            )
-            self.assert_equal_avro_schema_partial(
-                expected_schema,
-                actual_schema
-            )
-
-            # new topic should be created
-            assert topic.id != actual_schema.topic_id
-            assert topic.name != actual_schema.topic.name
-
-            assert func_spy.call_count == 0
+        actual_schema = schema_repo.register_avro_schema_from_avro_json(
+            avro_schema_without_docs,
+            topic.source.namespace.name,
+            topic.source.name,
+            topic.source.owner_email,
+            contains_pii=False,
+            docs_required=False
+        )
+        assert topic.id != actual_schema.topic_id
 
     @pytest.mark.usefixtures('rw_schema')
     def test_create_schema_from_avro_json_with_incompatible_schema(

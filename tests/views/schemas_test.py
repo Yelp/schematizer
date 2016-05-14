@@ -171,7 +171,7 @@ class TestRegisterSchema(RegisterSchemaTestBase):
             schema_views.register_schema(mock_request)
 
         assert e.value.code == expected_exception.code
-        assert "Missing `doc` for field" in str(e.value)
+        assert "Missing `doc` " in str(e.value)
 
     @property
     def biz_wl_schema_json(self):

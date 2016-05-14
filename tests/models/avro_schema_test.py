@@ -349,7 +349,9 @@ class TestAvroSchemaModel(DBTestCase):
                  "type": {"type": "fixed", "name": "MD5", "size": 16}}
             ]
         },
-        {"name": "foo", "type": "fixed", "size": 16}
+        {"name": "foo", "type": "fixed", "size": 16},
+        {"name": "color", "doc": "test_doc", "type": "enum", "symbols": ["red"]
+         }
     ])
     def test_verify_avro_schema_with_schema_doc(self, avro_schema):
         models.AvroSchema.verify_avro_schema_has_docs(avro_schema)
@@ -368,7 +370,24 @@ class TestAvroSchemaModel(DBTestCase):
             ]
         }
 
-    def test_avro_schema_with_missing_doc_fails(self):
+    @pytest.mark.parametrize("avro_schema_with_missing_docs", [
+        {
+            "name": "foo",
+            "doc": "",
+            "type": "record",
+            "namespace": "test_namespace",
+            "fields": [
+                {"type": "int", "name": "col"},
+                {"name": "clientHash", "doc": " ",
+                 "type": {"type": "fixed", "name": "MD5", "size": 16}}
+            ]
+        },
+        {"name": "color", "type": "enum", "symbols": ["red"]}
+    ])
+    def test_avro_schema_with_missing_doc_fails(
+        self,
+        avro_schema_with_missing_docs
+    ):
         with pytest.raises(ValueError) as e:
             models.AvroSchema.verify_avro_schema_has_docs(
                 self.avro_schema_with_missing_docs

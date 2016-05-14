@@ -163,7 +163,7 @@ class AvroSchema(Base, BaseModel):
         avro_schema_obj = schema.make_avsc_object(avro_schema_json)
         schema_elements = []
         schema_elements_queue = deque([(avro_schema_obj, None)])
-        while len(schema_elements_queue) > 0:
+        while schema_elements_queue:
             schema_obj, parent_key = schema_elements_queue.popleft()
             element_cls = _schema_to_element_map.get(schema_obj.__class__)
             if not element_cls:
@@ -199,21 +199,23 @@ class AvroSchema(Base, BaseModel):
 
         :param avro_schema_json: JSON representation of the Avro schema
 
-        Raises a ValueError for avro_schema_json with missing docs:
-        Throws Exception for invalid avro_schema_json:
+        :raises ValueError: avro_schema_json with missing docs
+        :exception Exception: invalid avro_schema_json
         """
         elements = cls._create_schema_elements_from_json(
             avro_schema_json
         )
-        missing_doc_fields = [_schema_element.key
-                              for _schema_element, schema_obj in elements
-                              if not _schema_element.has_doc]
+        schema_elements_missing_doc = [
+            schema_element.key
+            for schema_element, schema_obj in elements
+            if not schema_element.has_docs_if_supported
+        ]
 
-        if missing_doc_fields:
+        if schema_elements_missing_doc:
             # TODO DATAPIPE-970  implement better exception response during
             # registering avro schema with missing docs
-            raise ValueError("Missing `doc` for field(s) {}".format(
-                ', '.join(missing_doc_fields)
+            raise ValueError("Missing `doc` for Schema Elements(s) {}".format(
+                ', '.join(schema_elements_missing_doc)
             ))
 
 
@@ -224,7 +226,7 @@ class _SchemaElement(object):
 
     target_schema_type = None
     element_type = None
-    need_doc = None
+    support_doc = None
 
     def __init__(self, schema_obj, parent_key):
         if not isinstance(schema_obj, self.target_schema_type):
@@ -244,8 +246,8 @@ class _SchemaElement(object):
         return []
 
     @property
-    def has_doc(self):
-        if not self.need_doc:
+    def has_docs_if_supported(self):
+        if not self.support_doc:
             return True
         doc = self.schema_obj.get_prop('doc')
         if doc and doc.strip():
@@ -257,7 +259,7 @@ class _RecordSchemaElement(_SchemaElement):
 
     target_schema_type = schema.RecordSchema
     element_type = 'record'
-    need_doc = True
+    support_doc = True
 
     @property
     def key(self):
@@ -272,7 +274,7 @@ class _FieldElement(_SchemaElement):
 
     target_schema_type = schema.Field
     element_type = 'field'
-    need_doc = True
+    support_doc = True
 
     @property
     def key(self):
@@ -290,7 +292,7 @@ class _EnumSchemaElement(_SchemaElement):
 
     target_schema_type = schema.EnumSchema
     element_type = 'enum'
-    need_doc = True
+    support_doc = True
 
     @property
     def key(self):
@@ -301,7 +303,7 @@ class _FixedSchemaElement(_SchemaElement):
 
     target_schema_type = schema.FixedSchema
     element_type = 'fixed'
-    need_doc = False
+    support_doc = False
 
     @property
     def key(self):
@@ -312,7 +314,7 @@ class _ArraySchemaElement(_SchemaElement):
 
     target_schema_type = schema.ArraySchema
     element_type = 'array'
-    need_doc = False
+    support_doc = False
 
     @property
     def key(self):
@@ -330,7 +332,7 @@ class _MapSchemaElement(_SchemaElement):
 
     target_schema_type = schema.MapSchema
     element_type = 'map'
-    need_doc = False
+    support_doc = False
 
     @property
     def key(self):
