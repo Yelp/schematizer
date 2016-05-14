@@ -351,24 +351,10 @@ class TestAvroSchemaModel(DBTestCase):
         },
         {"name": "foo", "type": "fixed", "size": 16},
         {"name": "color", "doc": "test_doc", "type": "enum", "symbols": ["red"]
-         }
+        }
     ])
     def test_verify_avro_schema_with_schema_doc(self, avro_schema):
         models.AvroSchema.verify_avro_schema_has_docs(avro_schema)
-
-    @property
-    def avro_schema_with_missing_docs(self):
-        return {
-            "name": "foo",
-            "doc": "",
-            "type": "record",
-            "namespace": "test_namespace",
-            "fields": [
-                {"type": "int", "name": "col"},
-                {"name": "clientHash", "doc": " ",
-                 "type": {"type": "fixed", "name": "MD5", "size": 16}}
-            ]
-        }
 
     @pytest.mark.parametrize("avro_schema_with_missing_docs", [
         {
