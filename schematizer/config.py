@@ -19,11 +19,15 @@ class Config(object):
             'namespace_no_doc_required'
         )
 
-_config = Config()
+_config = None
 
 
 def get_config():
     """Returns the global schematizer configuration object"""
+    global _config
+    if _config:
+        return _config
+    _config = Config()
     return _config
 
 
