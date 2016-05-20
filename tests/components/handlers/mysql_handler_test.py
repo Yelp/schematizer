@@ -212,6 +212,8 @@ class TestMySQLHandler(object):
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
         ('bar char(3) not null',
          SQLColumn('bar', data_types.MySQLChar(3), is_nullable=False)),
+        ('bar char not null',
+         SQLColumn('bar', data_types.MySQLChar(), is_nullable=False)),
         ('bar varchar(255) null',
          SQLColumn('bar', data_types.MySQLVarChar(255))),
         ('bar text CHARACTER SET latin1 COLLATE latin1_german1_ci',
@@ -499,7 +501,6 @@ def assert_equal_sql_column(self, other):
     """
     assert self.name == other.name
     assert self.type == other.type
-    assert hash(self.type) == hash(other.type)
     assert self.primary_key_order == other.primary_key_order
     assert self.is_nullable == other.is_nullable
     assert self.default_value == other.default_value

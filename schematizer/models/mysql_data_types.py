@@ -23,15 +23,8 @@ class MySQLBit(SQLColumnDataType):
         super(MySQLBit, self).__init__()
         self.length = length
 
-    def __eq__(self, other):
-        return (super(MySQLBit, self).__eq__(other) and
-                self.length == other.length)
-
     def _convert_str_to_type_val(self, val_string):
         return int(val_string, base=2)
-
-    def __hash__(self):
-        return super(MySQLBit, self).__hash__() ^ hash(self.length)
 
 
 class MySQLIntegerType(SQLColumnDataType):
@@ -46,19 +39,12 @@ class MySQLIntegerType(SQLColumnDataType):
         super(MySQLIntegerType, self).__init__(attributes)
         self.length = length
 
-    def __eq__(self, other):
-        return (super(MySQLIntegerType, self).__eq__(other) and
-                self.length == other.length)
-
     @property
     def is_unsigned(self):
         return self.attribute_exists('unsigned')
 
     def _convert_str_to_type_val(self, val_string):
         return int(val_string)
-
-    def __hash__(self):
-        return super(MySQLIntegerType, self).__hash__() ^ hash(self.length)
 
 
 class MySQLTinyInt(MySQLIntegerType):
@@ -132,22 +118,12 @@ class MySQLRealNumber(SQLColumnDataType):
         self.precision = precision
         self.scale = scale
 
-    def __eq__(self, other):
-        return (super(MySQLRealNumber, self).__eq__(other) and
-                self.precision == other.precision and
-                self.scale == other.scale)
-
     @property
     def is_unsigned(self):
         return self.attribute_exists('unsigned')
 
     def _convert_str_to_type_val(self, val_string):
         return float(val_string)
-
-    def __hash__(self):
-        return super(MySQLRealNumber, self).__hash__() ^ hash(
-            (self.precision, self.scale)
-        )
 
 
 class MySQLDouble(MySQLRealNumber):
@@ -206,16 +182,9 @@ class MySQLChar(MySQLString):
 
     type_name = 'char'
 
-    def __init__(self, length, binary=False, char_set=None, collate=None):
+    def __init__(self, length=None, binary=False, char_set=None, collate=None):
         super(MySQLChar, self).__init__(binary, char_set, collate)
         self.length = length
-
-    def __eq__(self, other):
-        return (super(MySQLChar, self).__eq__(other) and
-                self.length == other.length)
-
-    def __hash__(self):
-        return super(MySQLChar, self).__hash__() ^ hash(self.length)
 
 
 class MySQLVarChar(MySQLString):
@@ -225,13 +194,6 @@ class MySQLVarChar(MySQLString):
     def __init__(self, length, binary=False, char_set=None, collate=None):
         super(MySQLVarChar, self).__init__(binary, char_set, collate)
         self.length = length
-
-    def __eq__(self, other):
-        return (super(MySQLVarChar, self).__eq__(other) and
-                self.length == other.length)
-
-    def __hash__(self):
-        return super(MySQLVarChar, self).__hash__() ^ hash(self.length)
 
 
 class MySQLTinyText(MySQLString):
@@ -276,13 +238,6 @@ class MySQLBinary(MySQLBinaryBase):
         super(MySQLBinary, self).__init__()
         self.length = length
 
-    def __eq__(self, other):
-        return (super(MySQLBinary, self).__eq__(other) and
-                self.length == other.length)
-
-    def __hash__(self):
-        return super(MySQLBinary, self).__hash__() ^ hash(self.length)
-
 
 class MySQLVarBinary(MySQLBinaryBase):
 
@@ -291,13 +246,6 @@ class MySQLVarBinary(MySQLBinaryBase):
     def __init__(self, length):
         super(MySQLVarBinary, self).__init__()
         self.length = length
-
-    def __eq__(self, other):
-        return (super(MySQLVarBinary, self).__eq__(other) and
-                self.length == other.length)
-
-    def __hash__(self):
-        return super(MySQLVarBinary, self).__hash__() ^ hash(self.length)
 
 
 class MySQLTinyBlob(MySQLBinaryBase):
@@ -351,13 +299,6 @@ class MySQLTime(MySQLDateAndTime):
         super(MySQLTime, self).__init__()
         self.fsp = fsp
 
-    def __eq__(self, other):
-        return (super(MySQLTime, self).__eq__(other) and
-                self.fsp == other.fsp)
-
-    def __hash__(self):
-        return super(MySQLTime, self).__hash__() ^ hash(self.fsp)
-
 
 class MySQLTimestamp(MySQLDateAndTime):
 
@@ -367,13 +308,6 @@ class MySQLTimestamp(MySQLDateAndTime):
         super(MySQLTimestamp, self).__init__()
         self.fsp = fsp
 
-    def __eq__(self, other):
-        return (super(MySQLTimestamp, self).__eq__(other) and
-                self.fsp == other.fsp)
-
-    def __hash__(self):
-        return super(MySQLTimestamp, self).__hash__() ^ hash(self.fsp)
-
 
 class MySQLDateTime(MySQLDateAndTime):
 
@@ -382,13 +316,6 @@ class MySQLDateTime(MySQLDateAndTime):
     def __init__(self, fsp=None):
         super(MySQLDateTime, self).__init__()
         self.fsp = fsp
-
-    def __eq__(self, other):
-        return (super(MySQLDateTime, self).__eq__(other) and
-                self.fsp == other.fsp)
-
-    def __hash__(self):
-        return super(MySQLDateTime, self).__hash__() ^ hash(self.fsp)
 
 
 class MySQLEnum(SQLColumnDataType):
@@ -413,18 +340,8 @@ class MySQLEnum(SQLColumnDataType):
         super(MySQLEnum, self).__init__(attributes)
         self.values = values  # list of enum values
 
-    def __eq__(self, other):
-        return (super(MySQLEnum, self).__eq__(other) and
-                self.values == other.values)
-
     def _convert_str_to_type_val(self, val_string):
         return val_string
-
-    def __hash__(self):
-        values_hash = reduce(
-            lambda x, y: hash(x) ^ hash(y), self.values, 0
-        )
-        return super(MySQLEnum, self).__hash__() ^ values_hash
 
 
 class MySQLSet(SQLColumnDataType):
@@ -449,15 +366,5 @@ class MySQLSet(SQLColumnDataType):
         super(MySQLSet, self).__init__(attributes)
         self.values = values  # list of set values
 
-    def __eq__(self, other):
-        return (super(MySQLSet, self).__eq__(other) and
-                self.values == other.values)
-
     def _convert_str_to_type_val(self, val_string):
         return val_string
-
-    def __hash__(self):
-        values_hash = reduce(
-            lambda x, y: hash(x) ^ hash(y), self.values, 0
-        )
-        return super(MySQLSet, self).__hash__() ^ values_hash

@@ -117,14 +117,7 @@ class SQLColumnDataType(object):
 
     def __eq__(self, other):
         return (isinstance(other, SQLColumnDataType) and
-                self.attributes == other.attributes and
-                self.type_name == other.type_name)
-
-    def __hash__(self):
-        attributes_hash = reduce(
-            lambda x, y: hash(x) ^ hash(y), self.attributes, 0
-        )
-        return hash(self.type_name) ^ attributes_hash
+                self.attributes == other.attributes)
 
     def convert_str_to_type_val(self, val_string):
         """Convert the given string representation of the value to the value
