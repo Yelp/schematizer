@@ -268,6 +268,7 @@ class TestMySQLHandler(object):
 
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
         ('bar binary(64)', SQLColumn('bar', data_types.MySQLBinary(64))),
+        ('bar binary', SQLColumn('bar', data_types.MySQLBinary())),
         ('bar varbinary(64)', SQLColumn('bar', data_types.MySQLVarBinary(64))),
         ('bar blob null', SQLColumn('bar', data_types.MySQLBlob())),
         ('bar tinyblob', SQLColumn('bar', data_types.MySQLTinyBlob())),

@@ -214,7 +214,7 @@ class ParsedMySQLProcessor(object):
             else:
                 length = token.token_next_by_type(0, T.Number.Integer).value
             return col_type_cls(
-                int(length) if length else length,
+                int(length) if length is not None else length,
                 binary=is_binary,
                 char_set=char_set,
                 collate=collate
@@ -231,9 +231,12 @@ class ParsedMySQLProcessor(object):
 
         if col_type_cls in (data_types.MySQLBinary, data_types.MySQLVarBinary):
             token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
-            token = token.token_next_by_type(0, T.Number.Integer)
+            if col_type_cls == data_types.MySQLBinary and not token:
+                length = None
+            else:
+                length = token.token_next_by_type(0, T.Number.Integer).value
             return col_type_cls(
-                int(token.value) if token.value else token.value
+                int(length) if length is not None else length
             )
         return col_type_cls()
 

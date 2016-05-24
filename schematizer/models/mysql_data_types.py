@@ -234,7 +234,7 @@ class MySQLBinary(MySQLBinaryBase):
 
     type_name = 'binary'
 
-    def __init__(self, length):
+    def __init__(self, length=None):
         super(MySQLBinary, self).__init__()
         self.length = length
 
