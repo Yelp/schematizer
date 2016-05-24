@@ -7,11 +7,15 @@ import logging
 import staticconf
 from cached_property import cached_property
 
+from schematizer.helpers.singleton import Singleton
+
 
 log = logging.getLogger('schematizer')
 
 
 class Config(object):
+
+    __metaclass__ = Singleton
 
     @cached_property
     def namespace_no_doc_required(self):
@@ -19,16 +23,10 @@ class Config(object):
             'namespace_no_doc_required'
         )
 
-_config = None
-
 
 def get_config():
     """Returns the global schematizer configuration object"""
-    global _config
-    if _config:
-        return _config
-    _config = Config()
-    return _config
+    return Config()
 
 
 def routes(config):

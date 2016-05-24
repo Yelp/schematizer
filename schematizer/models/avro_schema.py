@@ -200,7 +200,7 @@ class AvroSchema(Base, BaseModel):
         :param avro_schema_json: JSON representation of the Avro schema
 
         :raises ValueError: avro_schema_json with missing docs
-        :exception Exception: invalid avro_schema_json
+        :raises Exception: invalid avro_schema_json
         """
         elements = cls._create_schema_elements_from_json(
             avro_schema_json

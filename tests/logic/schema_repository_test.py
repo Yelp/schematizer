@@ -542,8 +542,7 @@ class TestSchemaRepository(DBTestCase):
         "fields": [
             {"type": "int", "name": "col", "doc": "test_doc"}
         ]},
-        {"name": "color", "doc": "test_doc", "type": "enum", "symbols": ["red"]
-         }
+        {"name": "color", "doc": "test_d", "type": "enum", "symbols": ["red"]}
     ])
     def avro_schema_with_docs(self, request):
         return request.param
@@ -561,7 +560,7 @@ class TestSchemaRepository(DBTestCase):
             contains_pii=False,
             docs_required=True
         )
-        assert topic.id != actual_schema.topic_id
+        assert actual_schema.avro_schema_json == avro_schema_with_docs
 
     def test_register_avro_schema_with_docs_dont_require_doc(
         self,
@@ -576,7 +575,7 @@ class TestSchemaRepository(DBTestCase):
             contains_pii=False,
             docs_required=False
         )
-        assert topic.id != actual_schema.topic_id
+        assert actual_schema.avro_schema_json == avro_schema_with_docs
 
     @pytest.fixture(params=[{
         "name": "foo",
@@ -618,7 +617,7 @@ class TestSchemaRepository(DBTestCase):
             contains_pii=False,
             docs_required=False
         )
-        assert topic.id != actual_schema.topic_id
+        assert actual_schema.avro_schema_json == avro_schema_without_docs
 
     @pytest.mark.usefixtures('rw_schema')
     def test_create_schema_from_avro_json_with_incompatible_schema(
