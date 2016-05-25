@@ -324,15 +324,15 @@ class TestAvroSchemaModel(DBTestCase):
         ["null", "null"],
         100
     ])
-    def avro_schema_with_invalid_schema(self, request):
+    def invalid_avro_schema(self, request):
         return request.param
 
     def test_verify_avro_schema_with_invalid_schema_json(
         self,
-        avro_schema_with_invalid_schema
+        invalid_avro_schema
     ):
         is_valid, error = models.AvroSchema.verify_avro_schema(
-            avro_schema_with_invalid_schema
+            invalid_avro_schema
         )
         assert not is_valid
         assert error
@@ -380,9 +380,9 @@ class TestAvroSchemaModel(DBTestCase):
 
     def test_avro_schema_with_invalid_schema_fails(
         self,
-        avro_schema_with_invalid_schema
+        invalid_avro_schema
     ):
         with pytest.raises(Exception):
             models.AvroSchema.verify_avro_schema_has_docs(
-                avro_schema_with_invalid_schema
+                invalid_avro_schema
             )
