@@ -115,6 +115,84 @@ class TestRegisterSchema(RegisterSchemaTestBase):
         assert e.value.code == expected_exception.code
         assert "Invalid Avro schema JSON." in str(e.value)
 
+    @pytest.mark.parametrize("biz_schema_without_doc_json", [
+        {
+            "name": "biz",
+            "type": "record",
+            "fields": [{
+                "name": "id",
+                "type": "int",
+                "doc": "id",
+                "default": 0
+            }],
+        },
+        {
+            "name": "biz",
+            "type": "record",
+            "fields": [{"name": "id",
+                        "type": "int",
+                        "doc": "id",
+                        "default": 0
+                        }],
+            "doc": ""
+        },
+        {
+            "name": "biz",
+            "type": "record",
+            "fields": [{
+                "name": "id",
+                "type": "int",
+                "default": 0
+            }],
+            "doc": "doc"
+        },
+        {
+            "name": "biz",
+            "type": "record",
+            "fields": [{"name": "id",
+                        "type": "int",
+                        "doc": "   ",
+                        "default": 0
+                        }],
+            "doc": "doc"
+        },
+    ])
+    def test_register_missing_doc_schema(
+        self,
+        mock_request,
+        request_json,
+        biz_schema_without_doc_json
+    ):
+        request_json['schema'] = simplejson.dumps(biz_schema_without_doc_json)
+        mock_request.json_body = request_json
+
+        expected_exception = self.get_http_exception(422)
+        with pytest.raises(expected_exception) as e:
+            schema_views.register_schema(mock_request)
+
+        assert e.value.code == expected_exception.code
+        assert "Missing `doc` " in str(e.value)
+
+    @property
+    def biz_wl_schema_json(self):
+        return {
+            "name": "biz_wl",
+            "type": "record",
+            "fields": [{"name": "id", "type": "int", "default": 0}],
+            "doc": ""
+        }
+
+    def test_register_missing_doc_schema_NS_whitelisted(
+        self,
+        mock_request,
+        request_json
+    ):
+        request_json['schema'] = simplejson.dumps(self.biz_wl_schema_json)
+        request_json['namespace'] = 'yelp_wl'
+        mock_request.json_body = request_json
+        actual = schema_views.register_schema(mock_request)
+        self._assert_equal_schema_response(actual, request_json)
+
     def test_register_invalid_namespace_name(self, mock_request, request_json):
         request_json['namespace'] = 'yelp|main'
         mock_request.json_body = request_json
