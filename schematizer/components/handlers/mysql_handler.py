@@ -257,7 +257,9 @@ class ParsedMySQLProcessor(object):
         token = col_token.token_next_by_instance(0, sql.ColumnTypeValues)
         values = [t.value
                   for t in token.tokens
-                  if t.ttype == T.Literal.String.Single]
+                  if t.ttype in [
+                      T.Literal.String.Single,
+                      T.Literal.String.Symbol]]
         return col_type_cls(values, char_set, collate)
 
     def _create_set_type(self, col_type_cls, col_token):
@@ -271,7 +273,9 @@ class ParsedMySQLProcessor(object):
         token = col_token.token_next_by_instance(0, sql.ColumnTypeValues)
         values = [t.value
                   for t in token.tokens
-                  if t.ttype == T.Literal.String.Single]
+                  if t.ttype in [
+                      T.Literal.String.Single,
+                      T.Literal.String.Symbol]]
         return col_type_cls(values, char_set, collate)
 
     def _get_attribute_token(self, attribute_name, attributes):

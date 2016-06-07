@@ -42,6 +42,8 @@ class TestMySQLHandler(object):
                 'name varchar(255),'
                 'amount decimal(10, 2) default 0.0 unsigned,'
                 'age int default NULL,'
+                "bar enum (\"a1\", \"a2\", 'a3') CHARACTER SET latin1,"
+                "bar_one set (\"a1\", 'a2', 'a3') CHARACTER SET latin1,"
                 'primary key (id) '
                 ');')
 
@@ -60,7 +62,24 @@ class TestMySQLHandler(object):
             default_value=0.0
         )
         col_age = SQLColumn('age', data_types.MySQLInt(None))
-        return SQLTable('foo', [col_id, col_name, col_amount, col_age])
+        col_bar = SQLColumn(
+            'bar',
+            data_types.MySQLEnum(
+                values=['a1', 'a2', 'a3'],
+                char_set="latin1"
+            )
+        )
+        col_bar_one = SQLColumn(
+            'bar_one',
+            data_types.MySQLSet(
+                values=['a1', 'a2', 'a3'],
+                char_set="latin1"
+            )
+        )
+        return SQLTable(
+            'foo',
+            [col_id, col_name, col_amount, col_age, col_bar, col_bar_one]
+        )
 
     def test_create_sql_table_from_sql_stmts(self, handler):
         sql_table = handler.create_sql_table_from_sql_stmts(
