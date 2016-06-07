@@ -298,7 +298,7 @@ class TestMySQLHandler(object):
         )
 
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
-        ("bar enum ('a1', 'a2', 'a3') CHARACTER SET latin1",
+        ("bar enum ('a1', \"a2\", 'a3') CHARACTER SET latin1",
          SQLColumn(
              'bar',
              data_types.MySQLEnum(
@@ -317,7 +317,7 @@ class TestMySQLHandler(object):
              ),
              is_nullable=False
          )),
-        ("bar enum ('a1', 'a2', 'a3') default a1",
+        ("bar enum (\"a1\", 'a2', 'a3') default a1",
          SQLColumn(
              'bar',
              data_types.MySQLEnum(['a1', 'a2', 'a3']),
@@ -337,7 +337,7 @@ class TestMySQLHandler(object):
         )
 
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
-        ("bar set ('a1', 'a2', 'a3') CHARACTER SET latin1",
+        ("bar set (\"a1\", 'a2', 'a3') CHARACTER SET latin1",
          SQLColumn(
              'bar',
              data_types.MySQLSet(
@@ -345,7 +345,7 @@ class TestMySQLHandler(object):
                  char_set="latin1"
              )
          )),
-        ("bar set ('a1', 'a2', 'a3') "
+        ("bar set ('a1', 'a2', \"a3\") "
          " CHARACTER SET latin1 COLLATE latin1_german1_ci not null",
          SQLColumn(
              'bar',
@@ -356,7 +356,7 @@ class TestMySQLHandler(object):
              ),
              is_nullable=False
          )),
-        ("bar set ('a1', 'a2', 'a3') default a2",
+        ("bar set ('a1', \"a2\", 'a3') default a2",
          SQLColumn(
              'bar',
              data_types.MySQLSet(['a1', 'a2', 'a3']),
