@@ -54,6 +54,3 @@ docker-push:
 
 install-hooks:
 	tox -e pre-commit -- install -f --install-hooks
-
-get-venv-update:
-	curl http://yelp.github.io/venv-update/install.txt | bash -s v1.0.0

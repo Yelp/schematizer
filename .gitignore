@@ -15,6 +15,7 @@ precomputed
 .project
 *.sublime-*
 virtualenv_run
+venv
 .tox
 *.egg-info/
 __pycache__
