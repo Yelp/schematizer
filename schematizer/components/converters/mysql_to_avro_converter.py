@@ -220,28 +220,24 @@ class MySQLToAvroConverter(BaseConverter):
         return self._builder.create_string(), metadata
 
     def _convert_date_type(self, column):
-        """Avro currently doesn't support date, so map the
-        date sql column type to string (ISO 8601 format)
-        """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.DATE] = True
-        return self._builder.create_string(), metadata
+        return self._builder.begin_date(metadata).end(), metadata
 
     def _convert_datetime_type(self, column):
-        """Avro currently doesn't support datetime, so map the
-        datetime sql column type to string (ISO 8601 format)
+        """We treat datetime and timestamp as being the same
+        and map timestamp to micros over millis for safety
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.DATETIME] = True
-        return self._builder.create_string(), metadata
+        return self._builder.begin_timestamp_micros(metadata).end(), metadata
 
     def _convert_time_type(self, column):
-        """Avro currently doesn't support time, so map the
-        time sql column type to string (ISO 8601 format)
+        """We map to micros over millis for safety
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.TIME] = True
-        return self._builder.create_string(), metadata
+        return self._builder.begin_time_micros(metadata).end(), metadata
 
     def _convert_year_type(self, column):
         """Avro currently doesn't support year, so map the
@@ -252,12 +248,11 @@ class MySQLToAvroConverter(BaseConverter):
         return self._builder.create_long(), metadata
 
     def _convert_timestamp_type(self, column):
-        """Avro currently doesn't support timestamp, so map the
-        timestamp sql column type to long (unix timestamp)
+        """We map to micros over millis for safety
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.TIMESTAMP] = True
-        return self._builder.create_long(), metadata
+        return self._builder.begin_timestamp_micros(metadata).end(), metadata
 
     def _convert_enum_type(self, column):
         return self._builder.begin_enum(

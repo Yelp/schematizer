@@ -188,31 +188,43 @@ class TestMySQLToAvroConverter(object):
         )
 
     def test_convert_with_col_date(self, converter):
+        date_schema = {
+            'type': 'int',
+            'logicalType': 'date'
+        }
         self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_date', mysql_data_types.MySQLDate()),
             {'name': 'col_date',
-             'type': ['null', 'string'],
+             'type': ['null', date_schema]
              'default': None,
              AvroMetaDataKeys.DATE: True}
         )
 
     def test_convert_with_col_datetime(self, converter):
+        timestamp_micros_schema = {
+            'type': 'long',
+            'logicalType': 'timestamp-micros'
+        }
         self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_datetime', mysql_data_types.MySQLDateTime()),
             {'name': 'col_datetime',
-             'type': ['null', 'string'],
+             'type': ['null', timestamp_micros_schema],
              'default': None,
              AvroMetaDataKeys.DATETIME: True}
         )
 
     def test_convert_with_col_time(self, converter):
+        time_micros_schema = {
+            'type': 'long',
+            'logicalType': 'time-micros'
+        }
         self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_time', mysql_data_types.MySQLTime()),
             {'name': 'col_time',
-             'type': ['null', 'string'],
+             'type': ['null', time_micros_schema],
              'default': None,
              AvroMetaDataKeys.TIME: True}
         )
@@ -228,11 +240,15 @@ class TestMySQLToAvroConverter(object):
         )
 
     def test_convert_with_col_timestamp(self, converter):
+        timestamp_micros_schema = {
+            'type': 'long',
+            'logicalType': 'timestamp-micros'
+        }
         self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_ts', mysql_data_types.MySQLTimestamp()),
             {'name': 'col_ts',
-             'type': ['null', 'long'],
+             'type': ['null', timestamp_micros_schema],
              'default': None,
              AvroMetaDataKeys.TIMESTAMP: True}
         )

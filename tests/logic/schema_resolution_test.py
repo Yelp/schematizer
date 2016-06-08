@@ -95,6 +95,24 @@ class AvroSchemaFactory(object):
             other_props={'aliases': aliases}
         )
 
+    def create_logical_type_schema(self, primitive_type, logicalype):
+        return schema.LogicalSchema(logicalType)
+
+    def create_date_schema(self, primitive_type, logicalype):
+        return schema.DateSchema(primitive_type, logical_type)
+
+    def create_time_millis_schema(self, primitive_type, logicalype):
+        return schema.TimeMillisSchema(primitive_type, logical_type)
+
+    def create_time_micros_schema(self, primitive_type, logicalype):
+        return schema.TimeMicrosSchema(primitive_type, logical_type)
+
+    def create_timestamp_millis_schema(self, primitive_type, logicalype):
+        return schema.TimestampMillisSchema(primitive_type, logical_type)
+
+    def create_timestamp_micros_schema(self, primitive_type, logicalype):
+        return schema.TimestampMicrosSchema(primitive_type, logical_type)
+
 
 class TestSchemaResolution(object):
 
@@ -105,6 +123,37 @@ class TestSchemaResolution(object):
     @property
     def schema_factory(self):
         return AvroSchemaFactory()
+
+    def test_resolve_date_schema(self, resolver):
+        assert resolver.resolve_schema(
+            self.schema_factory.create_date_schema('int', 'date_schema'),
+            self.schema_factory.create_date_schema('int', 'date_schema')
+        )
+
+    def test_resolve_time_millis_schema(self, resolver):
+        assert resolver.resolve_schema(
+            self.schema_factory.create_time_millis_schema('int', 'time-millis'),
+            self.schema_factory.create_time_millis_schema('int', 'time-millis')
+        )
+
+    def test_resolve_time_micros_schema(self, resolver):
+        assert resolver.resolve_schema(
+            self.schema_factory.create_time_micros_schema('long', 'time-micros'),
+            self.schema_factory.create_time_micros_schema('long', 'time-micros')
+        )
+
+    def test_resolve_timestamp_millis_schema(self, resolver):
+        assert resolver.resolve_schema(
+            self.schema_factory.create_timestamp_millis_schema('long', 'timestamp-millis'),
+            self.schema_factory.create_timestamp_millis_schema('long', 'timestamp-millis')
+
+        )
+
+    def test_resolve_timestamp_micros_schema(self, resolver):
+        assert resolver.resolve_schema(
+            self.schema_factory.create_timestamp_micros_schema('long', 'timestamp-micros'),
+            self.schema_factory.create_timestamp_micros_schema('long', 'timestamp-micros')
+        )
 
     def test_is_promotable(self, resolver):
         assert resolver.is_promotable(
