@@ -184,7 +184,10 @@ class TestMySQLToAvroConverter(object):
         self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_text', mysql_data_types.MySQLText()),
-            {'name': 'col_text', 'type': ['null', 'string'], 'default': None},
+            {'name': 'col_text',
+             'type': ['null', 'string'],
+             'default': None,
+             AvroMetaDataKeys.MAX_LEN: 65535}
         )
 
     def test_convert_with_col_date(self, converter):
