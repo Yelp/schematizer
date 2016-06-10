@@ -2,6 +2,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from datetime import datetime
+
 import mock
 import pytest
 import simplejson
@@ -45,6 +47,23 @@ class TestGetSchemaByID(ApiTestBase):
         actual = schema_views.get_schema_by_id(mock_request)
         expected = self.get_expected_schema_resp(biz_pkey_schema.id)
         assert actual == expected
+
+
+class TestGetSchemaAfterDate(ApiTestBase):
+
+    def test_get_schemas_created_after(self, mock_request):
+        """
+        First retrieves all schemas created after 2015, then iterates
+        through the returned list and verifies that the creation
+        dates are all after 2015.
+        """
+        creation_date_str = "2015-01-01T19:10:26.878Z"
+        mock_request.matchdict = {'creation_date': creation_date_str}
+        creation_date = datetime.strptime(creation_date_str,
+                                          '%Y-%m-%dT%H:%M:%S.%fZ')
+        schemas = schema_views.get_schemas_created_after(mock_request)
+        for schema in schemas:
+            assert schema.created_at >= creation_date
 
 
 class RegisterSchemaTestBase(ApiTestBase):

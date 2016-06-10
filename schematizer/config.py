@@ -182,3 +182,9 @@ def routes(config):
         '/v1/schema_migrations',
         request_method="GET"
     )
+
+    config.add_route(
+        'api.v1.get_schemas_created_after',
+        '/v1/schemas/created_after/{creation_date}',
+        request_method="GET"
+    )
