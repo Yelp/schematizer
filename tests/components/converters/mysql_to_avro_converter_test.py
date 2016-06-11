@@ -197,14 +197,6 @@ class TestMySQLToAvroConverter(object):
             converter,
             mysql_data_types.MySQLTinyText
         )
-        self._convert_and_assert_with_one_column(
-            converter,
-            SQLColumn('col_text', mysql_data_types.MySQLTinyText()),
-            {'name': 'col_text',
-             'type': ['null', 'string'],
-             'default': None,
-             AvroMetaDataKeys.MAX_LEN: 255}
-        )
 
     def test_convert_with_col_text(self, converter):
         self._convert_and_assert_with_text_type_column(
