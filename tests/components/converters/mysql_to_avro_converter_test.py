@@ -180,14 +180,48 @@ class TestMySQLToAvroConverter(object):
              AvroMetaDataKeys.MAX_LEN: 16}
         )
 
-    def test_convert_with_col_text(self, converter):
+    def _convert_and_assert_with_text_type_column(self, converter, text_type):
+        column_name = 'col_{}'.format(text_type.type_name)
+
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_text', mysql_data_types.MySQLText()),
+            SQLColumn(column_name, text_type()),
+            {'name': column_name,
+             'type': ['null', 'string'],
+             'default': None,
+             AvroMetaDataKeys.MAX_LEN: text_type.length}
+        )
+
+    def test_convert_with_col_tinytext(self, converter):
+        self._convert_and_assert_with_text_type_column(
+            converter,
+            mysql_data_types.MySQLTinyText
+        )
+        self._convert_and_assert_with_one_column(
+            converter,
+            SQLColumn('col_text', mysql_data_types.MySQLTinyText()),
             {'name': 'col_text',
              'type': ['null', 'string'],
              'default': None,
-             AvroMetaDataKeys.MAX_LEN: 65535}
+             AvroMetaDataKeys.MAX_LEN: 255}
+        )
+
+    def test_convert_with_col_text(self, converter):
+        self._convert_and_assert_with_text_type_column(
+            converter,
+            mysql_data_types.MySQLText
+        )
+
+    def test_convert_with_col_mediumtext(self, converter):
+        self._convert_and_assert_with_text_type_column(
+            converter,
+            mysql_data_types.MySQLMediumText
+        )
+
+    def test_convert_with_col_longtext(self, converter):
+        self._convert_and_assert_with_text_type_column(
+            converter,
+            mysql_data_types.MySQLLongText
         )
 
     def test_convert_with_col_date(self, converter):

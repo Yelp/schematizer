@@ -23,8 +23,6 @@ class MySQLToAvroConverter(BaseConverter):
     source_type = SchemaKindEnum.MySQL
     target_type = SchemaKindEnum.Avro
 
-    MAX_ROW_BYTES = 65535
-
     def __init__(self):
         self._builder = AvroSchemaBuilder()
 
@@ -117,10 +115,10 @@ class MySQLToAvroConverter(BaseConverter):
 
             mysql_types.MySQLChar: self._convert_char_type,
             mysql_types.MySQLVarChar: self._convert_varchar_type,
-            mysql_types.MySQLTinyText: self._convert_string_type,
+            mysql_types.MySQLTinyText: self._convert_tinytext_type,
             mysql_types.MySQLText: self._convert_text_type,
-            mysql_types.MySQLMediumText: self._convert_string_type,
-            mysql_types.MySQLLongText: self._convert_string_type,
+            mysql_types.MySQLMediumText: self._convert_mediumtext_type,
+            mysql_types.MySQLLongText: self._convert_longtext_type,
 
             mysql_types.MySQLDate: self._convert_date_type,
             mysql_types.MySQLDateTime: self._convert_datetime_type,
@@ -221,9 +219,24 @@ class MySQLToAvroConverter(BaseConverter):
         metadata[AvroMetaDataKeys.MAX_LEN] = column.type.length
         return self._builder.create_string(), metadata
 
+    def _convert_tinytext_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLTinyText.length
+        return self._builder.create_string(), metadata
+
     def _convert_text_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.MAX_LEN] = self.MAX_ROW_BYTES
+        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLText.length
+        return self._builder.create_string(), metadata
+
+    def _convert_mediumtext_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLMediumText.length
+        return self._builder.create_string(), metadata
+
+    def _convert_longtext_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLLongText.length
         return self._builder.create_string(), metadata
 
     def _convert_date_type(self, column):

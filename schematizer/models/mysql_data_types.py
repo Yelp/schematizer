@@ -199,21 +199,25 @@ class MySQLVarChar(MySQLString):
 class MySQLTinyText(MySQLString):
 
     type_name = 'tinytext'
+    length = 255
 
 
 class MySQLText(MySQLString):
 
     type_name = 'text'
+    length = 65535
 
 
 class MySQLMediumText(MySQLString):
 
     type_name = 'mediumtext'
+    length = 16777215
 
 
 class MySQLLongText(MySQLString):
 
     type_name = 'longtext'
+    length = 429496729
 
 
 class MySQLBinaryBase(SQLColumnDataType):
