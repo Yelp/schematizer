@@ -182,7 +182,7 @@ class MySQLChar(MySQLString):
 
     type_name = 'char'
 
-    def __init__(self, length, binary=False, char_set=None, collate=None):
+    def __init__(self, length=None, binary=False, char_set=None, collate=None):
         super(MySQLChar, self).__init__(binary, char_set, collate)
         self.length = length
 
@@ -234,7 +234,7 @@ class MySQLBinary(MySQLBinaryBase):
 
     type_name = 'binary'
 
-    def __init__(self, length):
+    def __init__(self, length=None):
         super(MySQLBinary, self).__init__()
         self.length = length
 
@@ -325,8 +325,19 @@ class MySQLEnum(SQLColumnDataType):
 
     type_name = 'enum'
 
-    def __init__(self, values):
-        super(MySQLEnum, self).__init__()
+    def __init__(self, values, char_set=None, collate=None):
+        attributes = None
+        if char_set:
+            attributes = attributes or []
+            attributes.append(
+                SQLAttribute.create_with_value('character set', char_set)
+            )
+        if collate:
+            attributes = attributes or []
+            attributes.append(
+                SQLAttribute.create_with_value('collate', collate)
+            )
+        super(MySQLEnum, self).__init__(attributes)
         self.values = values  # list of enum values
 
     def _convert_str_to_type_val(self, val_string):
@@ -340,8 +351,19 @@ class MySQLSet(SQLColumnDataType):
 
     type_name = 'set'
 
-    def __init__(self, values):
-        super(MySQLSet, self).__init__()
+    def __init__(self, values, char_set=None, collate=None):
+        attributes = None
+        if char_set:
+            attributes = attributes or []
+            attributes.append(
+                SQLAttribute.create_with_value('character set', char_set)
+            )
+        if collate:
+            attributes = attributes or []
+            attributes.append(
+                SQLAttribute.create_with_value('collate', collate)
+            )
+        super(MySQLSet, self).__init__(attributes)
         self.values = values  # list of set values
 
     def _convert_str_to_type_val(self, val_string):
