@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from datetime import datetime
+from datetime import timedelta
 
 import mock
 import pytest
@@ -51,19 +52,41 @@ class TestGetSchemaByID(ApiTestBase):
 
 class TestGetSchemaAfterDate(ApiTestBase):
 
-    def test_get_schemas_created_after(self, mock_request):
+    def test_get_schemas_created_after_dates(self, mock_request, biz_schema):
         """
         First retrieves all schemas created after 2015, then iterates
         through the returned list and verifies that the creation
         dates are all after 2015.
         """
-        creation_date_str = "2015-01-01T19:10:26.878Z"
-        mock_request.matchdict = {'creation_date': creation_date_str}
+        # Inclusion of biz_schema is so that there is a sample schema
+        creation_date_str = "2015-01-01T19:10:26"
         creation_date = datetime.strptime(creation_date_str,
-                                          '%Y-%m-%dT%H:%M:%S.%fZ')
+                                          '%Y-%m-%dT%H:%M:%S')
+        creation_timestamp = (creation_date -
+                              datetime.utcfromtimestamp(0)).total_seconds()
+        mock_request.matchdict = {'creation_date': creation_timestamp}
         schemas = schema_views.get_schemas_created_after(mock_request)
         for schema in schemas:
-            assert schema.created_at >= creation_date
+            assert datetime.strptime(schema['created_at'],
+                                     '%Y-%m-%dT%H:%M:%S') >= creation_date
+
+    def test_filter_works(self, mock_request, biz_schema):
+        """
+        Tests that filtering with a later date returns less schemas than
+        filtering with an earlier date.
+        """
+        biz_created_at = biz_schema.created_at - timedelta(100, 0)
+        creation_timestamp = (biz_created_at -
+                              datetime.utcfromtimestamp(0)).total_seconds()
+        mock_request.matchdict = {'creation_date': creation_timestamp}
+        schemas_early = schema_views.get_schemas_created_after(mock_request)
+
+        biz_created_at = biz_schema.created_at + timedelta(1, 0)
+        creation_timestamp = (biz_created_at -
+                              datetime.utcfromtimestamp(0)).total_seconds()
+        mock_request.matchdict = {'creation_date': creation_timestamp}
+        schemas_later = schema_views.get_schemas_created_after(mock_request)
+        assert len(schemas_early) > len(schemas_later)
 
 
 class RegisterSchemaTestBase(ApiTestBase):

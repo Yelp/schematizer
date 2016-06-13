@@ -39,9 +39,9 @@ def get_schema_by_id(request):
 )
 @transform_api_response()
 def get_schemas_created_after(request):
-    creation_date_str = request.matchdict.get('creation_date')
-    creation_date = datetime.strptime(creation_date_str,
-                                      '%Y-%m-%dT%H:%M:%S.%fZ')
+    creation_date = request.matchdict.get('creation_date')
+    long_timestamp = long(creation_date)
+    creation_date = datetime.utcfromtimestamp(long_timestamp)
     schemas = schema_repository.get_schemas_created_after(creation_date)
     if schemas is None:
         raise exceptions_v1.schema_not_found_exception()

@@ -457,14 +457,15 @@ def get_schemas_created_after(creation_date):
         creation_date(datetime): get schemas created after given utc
             datetime (inclusive).
     Returns:
-        (list[:class:schematizer.models.AvroSchema]): List of topic models
-        sorted by their ids.
+        (list[:class:schematizer.models.AvroSchema]): List of avro
+            schemas created after (inclusive) the specified creation
+            date.
     """
     return session.query(
         models.AvroSchema
     ).filter(
         models.AvroSchema.created_at >= creation_date
-    )
+    ).all()
 
 
 def get_latest_schema_by_topic_id(topic_id):
