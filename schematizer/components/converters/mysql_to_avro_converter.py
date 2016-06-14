@@ -230,14 +230,22 @@ class MySQLToAvroConverter(BaseConverter):
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.DATETIME] = True
-        return self._builder.begin_timestamp_micros(metadata).end(), metadata
+        precision = int(column.type.fsp)
+        if precision <= 3:
+            return self._builder.begin_timestamp_millis(metadata).end(), metadata
+        else:
+            return self._builder.begin_timestamp_micros(metadata).end(), metadata
 
     def _convert_time_type(self, column):
         """We map to micros over millis for safety
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.TIME] = True
-        return self._builder.begin_time_micros(metadata).end(), metadata
+        precision = int(column.type.fsp)
+        if precision <= 3:
+            return self._builder.begin_time_millis(metadata).end(), metadata
+        else:
+            return self._builder.begin_time_micros(metadata).end(), metadata
 
     def _convert_year_type(self, column):
         """Avro currently doesn't support year, so map the
@@ -252,7 +260,11 @@ class MySQLToAvroConverter(BaseConverter):
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.TIMESTAMP] = True
-        return self._builder.begin_timestamp_micros(metadata).end(), metadata
+        precision = int(column.type.fsp)
+        if precision <= 3:
+            return self._builder.begin_timestamp_millis(metadata).end(), metadata
+        else:
+            return self._builder.begin_timestamp_micros(metadata).end(), metadata
 
     def _convert_enum_type(self, column):
         return self._builder.begin_enum(

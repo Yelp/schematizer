@@ -206,11 +206,24 @@ class TestMySQLToAvroConverter(object):
             'type': 'long',
             'logicalType': 'timestamp-micros'
         }
+        timestamp_millis_schema = {
+            'type': 'long',
+            'logicalType': 'timestamp-millis'
+        }
+
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_datetime', mysql_data_types.MySQLDateTime()),
+            SQLColumn('col_datetime', mysql_data_types.MySQLDateTime(5)),
             {'name': 'col_datetime',
              'type': ['null', timestamp_micros_schema],
+             'default': None,
+             AvroMetaDataKeys.DATETIME: True}
+        )
+        self._convert_and_assert_with_one_column(
+            converter,
+            SQLColumn('col_datetime', mysql_data_types.MySQLDateTime(2)),
+            {'name': 'col_datetime',
+             'type': ['null', timestamp_millis_schema],
              'default': None,
              AvroMetaDataKeys.DATETIME: True}
         )
@@ -220,11 +233,24 @@ class TestMySQLToAvroConverter(object):
             'type': 'long',
             'logicalType': 'time-micros'
         }
+        time_millis_schema = {
+            'type': 'int',
+            'logicalType': 'time-millis'
+        }
+
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_time', mysql_data_types.MySQLTime()),
+            SQLColumn('col_time', mysql_data_types.MySQLTime(5)),
             {'name': 'col_time',
              'type': ['null', time_micros_schema],
+             'default': None,
+             AvroMetaDataKeys.TIME: True}
+        )
+        self._convert_and_assert_with_one_column(
+            converter,
+            SQLColumn('col_time', mysql_data_types.MySQLTime(2),
+            {'name': 'col_time',
+             'type': ['null', time_millis_schema],
              'default': None,
              AvroMetaDataKeys.TIME: True}
         )
@@ -244,11 +270,24 @@ class TestMySQLToAvroConverter(object):
             'type': 'long',
             'logicalType': 'timestamp-micros'
         }
+        timestamp_millis_schema = {
+            'type': 'long',
+            'logicalType': 'timestamp-millis'
+        }
+
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_ts', mysql_data_types.MySQLTimestamp()),
+            SQLColumn('col_ts', mysql_data_types.MySQLTimestamp(5)),
             {'name': 'col_ts',
              'type': ['null', timestamp_micros_schema],
+             'default': None,
+             AvroMetaDataKeys.TIMESTAMP: True}
+        )
+        self._convert_and_assert_with_one_column(
+            converter,
+            SQLColumn('col_ts', mysql_data_types.MySQLTimestamp(2)),
+            {'name': 'col_ts',
+             'type': ['null', timestamp_millis_schema],
              'default': None,
              AvroMetaDataKeys.TIMESTAMP: True}
         )
