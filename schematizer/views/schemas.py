@@ -39,12 +39,10 @@ def get_schema_by_id(request):
 )
 @transform_api_response()
 def get_schemas_created_after(request):
-    creation_date = request.matchdict.get('creation_date')
-    long_timestamp = long(creation_date)
-    creation_date = datetime.utcfromtimestamp(long_timestamp)
-    schemas = schema_repository.get_schemas_created_after(creation_date)
-    if schemas is None:
-        raise exceptions_v1.schema_not_found_exception()
+    created_after = request.matchdict.get('created_after')
+    long_timestamp = long(created_after)
+    created_after = datetime.utcfromtimestamp(long_timestamp)
+    schemas = schema_repository.get_schemas_created_after(created_after)
     return [responses_v1.get_schema_response_from_avro_schema(avro_schema)
             for avro_schema in schemas]
 

@@ -450,7 +450,7 @@ def get_schema_by_id(schema_id):
     ).first()
 
 
-def get_schemas_created_after(creation_date):
+def get_schemas_created_after(created_after):
     """Get the Avro schemas created after the specified creation_date.
 
     Args:
@@ -464,7 +464,7 @@ def get_schemas_created_after(creation_date):
     return session.query(
         models.AvroSchema
     ).filter(
-        models.AvroSchema.created_at >= creation_date
+        models.AvroSchema.created_at >= created_after
     ).all()
 
 

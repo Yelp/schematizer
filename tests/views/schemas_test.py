@@ -59,16 +59,16 @@ class TestGetSchemaAfterDate(ApiTestBase):
         dates are all after 2015.
         """
         # Inclusion of biz_schema is so that there is a sample schema
-        creation_date_str = "2015-01-01T19:10:26"
-        creation_date = datetime.strptime(creation_date_str,
+        created_after_str = "2015-01-01T19:10:26"
+        created_after = datetime.strptime(created_after_str,
                                           '%Y-%m-%dT%H:%M:%S')
-        creation_timestamp = (creation_date -
+        creation_timestamp = (created_after -
                               datetime.utcfromtimestamp(0)).total_seconds()
-        mock_request.matchdict = {'creation_date': creation_timestamp}
+        mock_request.matchdict = {'created_after': creation_timestamp}
         schemas = schema_views.get_schemas_created_after(mock_request)
         for schema in schemas:
             assert datetime.strptime(schema['created_at'],
-                                     '%Y-%m-%dT%H:%M:%S') >= creation_date
+                                     '%Y-%m-%dT%H:%M:%S') >= created_after
 
     def test_filter_works(self, mock_request, biz_schema):
         """
@@ -78,13 +78,13 @@ class TestGetSchemaAfterDate(ApiTestBase):
         biz_created_at = biz_schema.created_at - timedelta(100, 0)
         creation_timestamp = (biz_created_at -
                               datetime.utcfromtimestamp(0)).total_seconds()
-        mock_request.matchdict = {'creation_date': creation_timestamp}
+        mock_request.matchdict = {'created_after': creation_timestamp}
         schemas_early = schema_views.get_schemas_created_after(mock_request)
 
         biz_created_at = biz_schema.created_at + timedelta(1, 0)
         creation_timestamp = (biz_created_at -
                               datetime.utcfromtimestamp(0)).total_seconds()
-        mock_request.matchdict = {'creation_date': creation_timestamp}
+        mock_request.matchdict = {'created_after': creation_timestamp}
         schemas_later = schema_views.get_schemas_created_after(mock_request)
         assert len(schemas_early) > len(schemas_later)
 

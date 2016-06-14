@@ -185,6 +185,6 @@ def routes(config):
 
     config.add_route(
         'api.v1.get_schemas_created_after',
-        '/v1/schemas/created_after/{creation_date}',
+        '/v1/schemas/created_after/{created_after}',
         request_method="GET"
     )
