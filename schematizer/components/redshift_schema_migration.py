@@ -110,11 +110,14 @@ class RedshiftSchemaMigration(object):
         if isinstance(column_type, data_types.RedshiftString):
             return '{0}({1})'.format(column_type.type_name, column_type.length)
         if isinstance(column_type, data_types.RedshiftRealNumber):
-            return '{0}({1},{2})'.format(
-                column_type.type_name,
-                column_type.precision,
-                column_type.scale
-            )
+            if column_type.precision and column_type.scale:
+                return '{0}({1},{2})'.format(
+                    column_type.type_name,
+                    column_type.precision,
+                    column_type.scale
+                )
+            else:
+                return '{0}'.format(column_type.type_name)
         return column_type.type_name
 
     @classmethod
