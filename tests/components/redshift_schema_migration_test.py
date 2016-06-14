@@ -306,7 +306,7 @@ class TestRedshiftSchemaMigration(object):
         )
         assert expected == actual
 
-    def test_create_table_sql_with_real_col_type(self, migration):
+    def test_create_table_sql_with_real_number_col_types(self, migration):
         columns = [self.double_precision_column, self.real_column]
         table = SQLTable(self.table_name, columns)
         actual = migration.create_table_sql(table)
