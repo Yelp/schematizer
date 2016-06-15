@@ -229,6 +229,8 @@ def _create_source_if_not_exist(namespace_id, source_name, owner_email):
         # in the case which the IntegrityError occurs, the session will
         # rollback to savepoint. Upon exiting the nested Context, commit/
         # rollback is automatically issued and no need to add it explicitly
+        if not owner_email:
+            raise ValueError("Source owner_email must be non-empty.")
         with session.begin_nested():
             new_source = models.Source(
                 namespace_id=namespace_id,
