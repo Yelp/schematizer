@@ -48,6 +48,10 @@ class RedshiftSchemaMigration(object):
 
         plan = list()
         plan.append(self.begin_transaction_sql())
+
+        if new_table.schema_name:
+            plan.append(self.create_schema_sql(new_table))
+
         plan.append(self.create_table_sql(new_table))
         plan.append(self.insert_table_sql(new_table, old_table))
         plan.extend(self.grant_permission_sqls(permissions))
@@ -65,18 +69,33 @@ class RedshiftSchemaMigration(object):
 
         plan = list()
         plan.append(self.begin_transaction_sql())
+
+        if tmp_table.schema_name:
+            plan.append(self.create_schema_sql(tmp_table))
+
         plan.append(self.create_table_sql(tmp_table))
         plan.append(self.insert_table_sql(tmp_table, old_table))
-        plan.append(self.rename_table_sql(old_table.name, drop_table_name))
-        plan.append(self.rename_table_sql(tmp_table.name, new_table.name))
+        plan.append(self.rename_table_sql(
+            old_table.full_name,
+            drop_table_name
+        ))
+        plan.append(self.rename_table_sql(tmp_table.full_name, new_table.name))
         plan.extend(self.grant_permission_sqls(permissions))
         plan.append(self.drop_table_sql(drop_table_name))
         plan.append(self.commit_cmd_sql())
         return plan
 
     @classmethod
+    def create_schema_sql(cls, table):
+        return 'CREATE SCHEMA IF NOT EXISTS {schema}'.format(
+            schema=table.schema_name
+        )
+
+    @classmethod
     def create_table_sql(cls, table):
-        begin_create_table = 'CREATE TABLE {table} ('.format(table=table.name)
+        begin_create_table = 'CREATE TABLE {table} ('.format(
+            table=table.full_name
+        )
         end_create_table = ');'
 
         definitions = [cls.get_column_def_sql(col) for col in table.columns]
@@ -169,15 +188,15 @@ class RedshiftSchemaMigration(object):
         return ('INSERT INTO {new_table} ({new_columns}) '
                 '(SELECT {src_columns} FROM {src_table});'
                 .format(
-                    new_table=new_table.name,
+                    new_table=new_table.full_name,
                     new_columns=', '.join(new_col for _, new_col in col_pairs),
                     src_columns=', '.join(src_col for src_col, _ in col_pairs),
-                    src_table=src_table.name))
+                    src_table=src_table.full_name))
 
     @classmethod
-    def rename_table_sql(cls, old_table_name, new_table_name):
+    def rename_table_sql(cls, old_table_full_name, new_table_name):
         return 'ALTER TABLE {old_table} RENAME TO {new_table};'.format(
-            old_table=old_table_name,
+            old_table=old_table_full_name,
             new_table=new_table_name
         )
 

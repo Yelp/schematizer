@@ -56,6 +56,7 @@ class AvroToRedshiftConverter(BaseConverter):
             record_schema.name,
             columns=cols,
             doc=record_schema.doc,
+            schema_name=record_schema.get_prop('schema_name'),
             **table_metadata
         )
 
