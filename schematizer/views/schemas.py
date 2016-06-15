@@ -94,6 +94,7 @@ def _register_avro_schema(
 ):
     try:
         validate_names([namespace, source])
+        validate_email(source_email_owner)
         avro_schema = schema_repository.register_avro_schema_from_avro_json(
             avro_schema_json=schema_json,
             namespace_name=namespace,
@@ -127,6 +128,8 @@ def get_schema_elements_by_schema_id(request):
 
 
 def validate_name(name):
+    if not name or name.strip() == "":
+        raise exceptions_v1.empty_src_name_exception()
     if '|' in name:
         # Restrict '|' to avoid ambiguity when parsing input of
         # data_pipeline tailer. One of the tailer arguments is topic
@@ -134,6 +137,11 @@ def validate_name(name):
         raise exceptions_v1.restricted_char_exception()
     if name.isdigit():
         raise exceptions_v1.numeric_name_exception()
+
+
+def validate_email(email):
+    if not email or email.strip() == "":
+        raise ValueError("Source owner_email must be non-empty.")
 
 
 def validate_names(names):
