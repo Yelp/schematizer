@@ -144,12 +144,22 @@ class TestRegisterSchema(RegisterSchemaTestBase):
         assert e.value.code == expected_exception.code
         assert str(e.value) == 'Source or Namespace name should not be numeric'
 
-    def test_register_empty_src_name(
+    @pytest.mark.parametrize("email,src_name,expected_err_msg", [
+        ('biz.user@yelp.com', None, "Source name must be non-empty."),
+        ('biz.user@yelp.com', ' ', "Source name must be non-empty."),
+        (None, 'fake_src_name', "Source owner email must be non-empty."),
+        (' ', 'fake_src_name', "Source owner email must be non-empty."),
+    ])
+    def test_register_empty_args(
         self,
+        email,
+        src_name,
+        expected_err_msg,
         mock_request,
         request_json
     ):
-        request_json['source'] = None
+        request_json['source'] = src_name
+        request_json['source_owner_email'] = email
         mock_request.json_body = request_json
 
         expected_exception = self.get_http_exception(422)
@@ -157,54 +167,7 @@ class TestRegisterSchema(RegisterSchemaTestBase):
             schema_views.register_schema(mock_request)
 
         assert e.value.code == expected_exception.code
-        assert str(e.value) == "Source name must be non-empty."
-
-    def test_register_whitespace_src_name(
-        self,
-        mock_request,
-        request_json
-    ):
-        request_json['source'] = ' '
-        mock_request.json_body = request_json
-
-        expected_exception = self.get_http_exception(422)
-        with pytest.raises(expected_exception) as e:
-            schema_views.register_schema(mock_request)
-
-        assert e.value.code == expected_exception.code
-        assert str(e.value) == "Source name must be non-empty."
-
-    def test_register_empty_source_owner_email(
-        self,
-        mock_request,
-        request_json
-    ):
-        request_json['source_owner_email'] = ""
-        request_json['source'] = "fake_source"
-        mock_request.json_body = request_json
-
-        expected_exception = self.get_http_exception(422)
-        with pytest.raises(expected_exception) as e:
-            schema_views.register_schema(mock_request)
-
-        assert e.value.code == expected_exception.code
-        assert str(e.value) == "Source owner_email must be non-empty."
-
-    def test_register_whitespace_source_owner_email(
-        self,
-        mock_request,
-        request_json
-    ):
-        request_json['source_owner_email'] = ' '
-        request_json['source'] = "fake_source"
-        mock_request.json_body = request_json
-
-        expected_exception = self.get_http_exception(422)
-        with pytest.raises(expected_exception) as e:
-            schema_views.register_schema(mock_request)
-
-        assert e.value.code == expected_exception.code
-        assert str(e.value) == "Source owner_email must be non-empty."
+        assert str(e.value) == expected_err_msg
 
 
 class TestRegisterSchemaFromMySQL(RegisterSchemaTestBase):

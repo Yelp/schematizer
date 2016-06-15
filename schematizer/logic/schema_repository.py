@@ -98,10 +98,13 @@ def register_avro_schema_from_avro_json(
     namespace = _get_namespace_or_create(namespace_name)
     _lock_namespace(namespace)
 
+    _assert_non_empty_email(source_email_owner)
+    _assert_non_empty_src_name(source_name)
+
     source = _get_source_or_create(
         namespace.id,
-        source_name,
-        source_email_owner
+        source_name.strip(),
+        source_email_owner.strip()
     )
     _lock_source(source)
 
@@ -232,8 +235,8 @@ def _create_source_if_not_exist(namespace_id, source_name, owner_email):
         with session.begin_nested():
             new_source = models.Source(
                 namespace_id=namespace_id,
-                name=source_name.strip(),
-                owner_email=owner_email.strip()
+                name=source_name,
+                owner_email=owner_email
             )
             session.add(new_source)
     except exc.IntegrityError:
@@ -243,6 +246,16 @@ def _create_source_if_not_exist(namespace_id, source_name, owner_email):
             source_name
         )
     return new_source
+
+
+def _assert_non_empty_email(email):
+    if not email or email.strip() == "":
+        raise ValueError("Source owner email must be non-empty.")
+
+
+def _assert_non_empty_src_name(name):
+    if not name or name.strip() == "":
+        raise ValueError("Source name must be non-empty.")
 
 
 def _get_source_by_namespace_id_and_src_name(namespace_id, source):
