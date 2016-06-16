@@ -221,22 +221,23 @@ class MySQLToAvroConverter(BaseConverter):
 
     def _convert_tinytext_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLTinyText.length
+        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLTinyText().length
         return self._builder.create_string(), metadata
 
     def _convert_text_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLText.length
+        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLText().length
         return self._builder.create_string(), metadata
 
     def _convert_mediumtext_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLMediumText.length
+        metadata[AvroMetaDataKeys.MAX_LEN] = \
+            mysql_types.MySQLMediumText().length
         return self._builder.create_string(), metadata
 
     def _convert_longtext_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLLongText.length
+        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLLongText().length
         return self._builder.create_string(), metadata
 
     def _convert_date_type(self, column):

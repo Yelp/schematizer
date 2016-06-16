@@ -189,7 +189,7 @@ class TestMySQLToAvroConverter(object):
             {'name': column_name,
              'type': ['null', 'string'],
              'default': None,
-             AvroMetaDataKeys.MAX_LEN: text_type.length}
+             AvroMetaDataKeys.MAX_LEN: text_type().length}
         )
 
     def test_convert_with_col_tinytext(self, converter):

@@ -208,7 +208,7 @@ class TestAvroToRedshiftConverter(object):
             ),
         )
 
-    def test_convert_with_composite_priamry_keys(self, converter):
+    def test_convert_with_composite_primary_keys(self, converter):
         record_schema = {
             'type': 'record',
             'name': self.schema_name,
