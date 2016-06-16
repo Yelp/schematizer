@@ -276,24 +276,36 @@ class MySQLVarBinary(MySQLBinaryBase):
         self.length = length
 
 
-class MySQLTinyBlob(MySQLBinaryBase):
+class MySQLTinyBlob(MySQLVarBinary):
 
     type_name = 'tinyblob'
 
+    def __init__(self):
+        super(MySQLTinyBlob, self).__init__(length=255)
 
-class MySQLBlob(MySQLBinaryBase):
+
+class MySQLBlob(MySQLVarBinary):
 
     type_name = 'blob'
 
+    def __init__(self):
+        super(MySQLBlob, self).__init__(length=65535)
 
-class MySQLMediumBlob(MySQLBinaryBase):
+
+class MySQLMediumBlob(MySQLVarBinary):
 
     type_name = 'mediumblob'
 
+    def __init__(self):
+        super(MySQLMediumBlob, self).__init__(length=16777215)
 
-class MySQLLongBlob(MySQLBinaryBase):
+
+class MySQLLongBlob(MySQLVarBinary):
 
     type_name = 'longblob'
+
+    def __init__(self):
+        super(MySQLLongBlob, self).__init__(length=429496725)
 
 
 class MySQLDateAndTime(SQLColumnDataType):
