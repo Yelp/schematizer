@@ -27,7 +27,7 @@ class TestAvroToRedshiftConverter(object):
         return 'foo'
 
     @property
-    def schema_name(request):
+    def schema_name(self):
         return 'bar'
 
     @property
