@@ -2,6 +2,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from datetime import datetime
+
 import simplejson
 from pyramid.view import view_config
 
@@ -28,6 +30,21 @@ def get_schema_by_id(request):
     if avro_schema is None:
         raise exceptions_v1.schema_not_found_exception()
     return responses_v1.get_schema_response_from_avro_schema(avro_schema)
+
+
+@view_config(
+    route_name='api.v1.get_schemas_created_after_date',
+    request_method='GET',
+    renderer='json'
+)
+@transform_api_response()
+def get_schemas_created_after(request):
+    created_after = request.matchdict.get('created_after')
+    long_timestamp = long(created_after)
+    created_after = datetime.utcfromtimestamp(long_timestamp)
+    schemas = schema_repository.get_schemas_created_after(created_after)
+    return [responses_v1.get_schema_response_from_avro_schema(avro_schema)
+            for avro_schema in schemas]
 
 
 @view_config(

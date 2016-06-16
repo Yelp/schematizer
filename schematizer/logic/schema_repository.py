@@ -463,6 +463,24 @@ def get_schema_by_id(schema_id):
     ).first()
 
 
+def get_schemas_created_after(created_after):
+    """Get the Avro schemas created after the specified creation_date.
+
+    Args:
+        creation_date(datetime): get schemas created after given utc
+            datetime (inclusive).
+    Returns:
+        (list[:class:schematizer.models.AvroSchema]): List of avro
+            schemas created after (inclusive) the specified creation
+            date.
+    """
+    return session.query(
+        models.AvroSchema
+    ).filter(
+        models.AvroSchema.created_at >= created_after
+    ).all()
+
+
 def get_latest_schema_by_topic_id(topic_id):
     """Get the latest enabled (Read-Write or Read-Only) schema of given topic.
     It returns None if no such schema can be found.
