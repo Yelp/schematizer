@@ -12,6 +12,7 @@ from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.requests import requests_v1
 from schematizer.api.responses import responses_v1
+from schematizer.config import get_config
 from schematizer.config import log
 from schematizer.logic import schema_repository
 from schematizer.utils.utils import get_current_func_arg_name_values
@@ -58,13 +59,18 @@ def register_schema(request):
     try:
         req = requests_v1.RegisterSchemaRequest(**request.json_body)
         validate_names([req.namespace, req.source])
+        docs_required = (
+            req.namespace not in get_config().namespace_no_doc_required
+        )
+
         return _register_avro_schema(
             schema_json=req.schema_json,
             namespace=req.namespace,
             source=req.source,
             source_email_owner=req.source_owner_email,
             contains_pii=req.contains_pii,
-            base_schema_id=req.base_schema_id
+            base_schema_id=req.base_schema_id,
+            docs_required=docs_required
         )
     except simplejson.JSONDecodeError as e:
         log.exception("Failed to construct RegisterSchemaRequest. {}"
@@ -97,7 +103,8 @@ def register_schema_from_mysql_stmts(request):
         namespace=req.namespace,
         source=req.source,
         source_email_owner=req.source_owner_email,
-        contains_pii=req.contains_pii
+        contains_pii=req.contains_pii,
+        docs_required=False
     )
 
 
@@ -107,7 +114,8 @@ def _register_avro_schema(
     source,
     source_email_owner,
     contains_pii,
-    base_schema_id=None
+    base_schema_id=None,
+    docs_required=True
 ):
     try:
         validate_names([namespace, source])
@@ -117,7 +125,8 @@ def _register_avro_schema(
             source_name=source,
             source_email_owner=source_email_owner,
             contains_pii=contains_pii,
-            base_schema_id=base_schema_id
+            base_schema_id=base_schema_id,
+            docs_required=docs_required
         )
         return responses_v1.get_schema_response_from_avro_schema(avro_schema)
     except ValueError as e:
