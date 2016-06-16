@@ -33,7 +33,7 @@ def get_schema_by_id(request):
 
 
 @view_config(
-    route_name='api.v1.get_schemas_created_after_date',
+    route_name='api.v1.get_schemas_created_after',
     request_method='GET',
     renderer='json'
 )
