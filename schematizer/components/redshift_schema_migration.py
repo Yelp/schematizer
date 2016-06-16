@@ -109,16 +109,12 @@ class RedshiftSchemaMigration(object):
     def construct_data_type(cls, column_type):
         if isinstance(column_type, data_types.RedshiftString):
             return '{0}({1})'.format(column_type.type_name, column_type.length)
-        if isinstance(column_type, data_types.RedshiftRealNumber):
-            if column_type.precision is not None \
-               and column_type.scale is not None:
-                return '{0}({1},{2})'.format(
-                    column_type.type_name,
-                    column_type.precision,
-                    column_type.scale
-                )
-            else:
-                return '{0}'.format(column_type.type_name)
+        if isinstance(column_type, data_types.RedshiftUDPNumeric):
+            return '{0}({1},{2})'.format(
+                column_type.type_name,
+                column_type.precision,
+                column_type.scale
+            )
         return column_type.type_name
 
     @classmethod
