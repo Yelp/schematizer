@@ -135,6 +135,19 @@ class TestRedshiftSchemaMigration(object):
             )
         )
 
+    def test_create_simple_push_plan_with_simple_table(self, migration):
+        simple_table = SQLTable(self.table_name, [self.same_col])
+        actual = migration.create_simple_push_plan(simple_table)
+        expected = [
+            'BEGIN;',
+            'CREATE TABLE {} (same_col varchar(64));'.format(
+                simple_table.full_name
+            ),
+            '',
+            'COMMIT;'
+        ]
+        assert expected == actual
+
     def test_create_simple_push_plan_with_new_table(self, migration):
         insert_sql = ''
         expected = [
