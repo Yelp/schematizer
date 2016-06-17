@@ -95,22 +95,22 @@ class AvroSchemaFactory(object):
             other_props={'aliases': aliases}
         )
 
-    def create_logical_type_schema(self, primitive_type, logicalype):
+    def create_logical_type_schema(self, primitive_type, logical_type):
         return schema.LogicalSchema(logicalType)
 
-    def create_date_schema(self, primitive_type, logicalype):
+    def create_date_schema(self, primitive_type, logical_type):
         return schema.DateSchema(primitive_type, logical_type)
 
-    def create_time_millis_schema(self, primitive_type, logicalype):
+    def create_time_millis_schema(self, primitive_type, logical_type):
         return schema.TimeMillisSchema(primitive_type, logical_type)
 
-    def create_time_micros_schema(self, primitive_type, logicalype):
+    def create_time_micros_schema(self, primitive_type, logical_type):
         return schema.TimeMicrosSchema(primitive_type, logical_type)
 
-    def create_timestamp_millis_schema(self, primitive_type, logicalype):
+    def create_timestamp_millis_schema(self, primitive_type, logical_type):
         return schema.TimestampMillisSchema(primitive_type, logical_type)
 
-    def create_timestamp_micros_schema(self, primitive_type, logicalype):
+    def create_timestamp_micros_schema(self, primitive_type, logical_type):
         return schema.TimestampMicrosSchema(primitive_type, logical_type)
 
 
