@@ -90,6 +90,12 @@ def register_avro_schema_from_avro_json(
     derived from
     :return: New created AvroSchema object.
     """
+    source_email_owner = _strip_if_not_none(source_email_owner)
+    source_name = _strip_if_not_none(source_name)
+
+    _assert_non_empty_email(source_email_owner)
+    _assert_non_empty_src_name(source_name)
+
     is_valid, error = models.AvroSchema.verify_avro_schema(avro_schema_json)
     if not is_valid:
         raise ValueError("Invalid Avro schema JSON. Value: {0}. Error: {1}"
@@ -97,9 +103,6 @@ def register_avro_schema_from_avro_json(
 
     namespace = _get_namespace_or_create(namespace_name)
     _lock_namespace(namespace)
-
-    _assert_non_empty_email(source_email_owner)
-    _assert_non_empty_src_name(source_name)
 
     source = _get_source_or_create(
         namespace.id,
@@ -142,6 +145,12 @@ def register_avro_schema_from_avro_json(
         status=status,
         base_schema_id=base_schema_id
     )
+
+
+def _strip_if_not_none(original_str):
+    if not original_str:
+        return original_str
+    return original_str.strip()
 
 
 def _is_same_schema(schema, avro_schema_json, base_schema_id):
