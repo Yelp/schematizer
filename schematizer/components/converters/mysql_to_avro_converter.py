@@ -180,25 +180,25 @@ class MySQLToAvroConverter(BaseConverter):
 
     def _convert_double_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata.update(self._get_fsp_metadata(column))
+        metadata.update(self._get_precision_metadata(column))
         metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         return self._builder.create_double(), metadata
 
-    def _get_fsp_metadata(self, column):
+    def _get_precision_metadata(self, column):
         return {
-            AvroMetaDataKeys.fsp: column.type.fsp,
+            AvroMetaDataKeys.PRECISION: column.type.precision,
             AvroMetaDataKeys.SCALE: column.type.scale,
         }
 
     def _convert_float_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata.update(self._get_fsp_metadata(column))
+        metadata.update(self._get_precision_metadata(column))
         metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
         return self._builder.create_float(), metadata
 
     def _convert_decimal_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        precision = int(column.type.fsp)
+        precision = int(column.type.precision)
         scale = int(column.type.scale)
         return self._builder.begin_decimal_bytes(
             precision,
@@ -230,10 +230,10 @@ class MySQLToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.DATETIME] = True
         fsp = int(column.type.fsp)
-        if fsp <= 3:
-            return self._builder.begin_timestamp_millis(metadata).end(), metadata
-        else:
+        if fsp is None or fsp > 3:
             return self._builder.begin_timestamp_micros(metadata).end(), metadata
+        else:
+            return self._builder.begin_timestamp_millis(metadata).end(), metadata
 
     def _convert_time_type(self, column):
         """We map to micros over millis for safety
@@ -241,10 +241,10 @@ class MySQLToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.TIME] = True
         fsp = int(column.type.fsp)
-        if fsp <= 3:
-            return self._builder.begin_time_millis(metadata).end(), metadata
-        else:
+        if fsp is None or fsp > 3:
             return self._builder.begin_time_micros(metadata).end(), metadata
+        else:
+            return self._builder.begin_time_millis(metadata).end(), metadata
 
     def _convert_year_type(self, column):
         """Avro currently doesn't support year, so map the
@@ -260,10 +260,10 @@ class MySQLToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.TIMESTAMP] = True
         fsp = int(column.type.fsp)
-        if fsp <= 3:
-            return self._builder.begin_timestamp_millis(metadata).end(), metadata
-        else:
+        if fsp is None or fsp > 3:
             return self._builder.begin_timestamp_micros(metadata).end(), metadata
+        else:
+            return self._builder.begin_timestamp_millis(metadata).end(), metadata
 
     def _convert_enum_type(self, column):
         return self._builder.begin_enum(

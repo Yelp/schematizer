@@ -223,23 +223,7 @@ class SchemaResolution(object):
     def _resolve_logical_schema(self, writer_schema, reader_schema):
         return writer_schema.logicalType == reader_schema.logicalType
 
-    def resolve_date_schema(self, writer_schema, reader_schema):
-        return (self.resolve_primitive_schema(writer_schema, reader_schema) and
-                self._resolve_logical_schema(writer_schema, reader_schema))
-
-    def resolve_time_millis_schema(self, writer_schema, reader_schema):
-        return (self.resolve_primitive_schema(writer_schema, reader_schema) and
-                self._resolve_logical_schema(writer_schema, reader_schema))
-
-    def resolve_time_micros_schema(self, writer_schema, reader_schema):
-        return (self.resolve_primitive_schema(writer_schema, reader_schema) and
-                self._resolve_logical_schema(writer_schema, reader_schema))
-
-    def resolve_timestamp_millis_schema(self, writer_schema, reader_schema):
-        return (self.resolve_primitive_schema(writer_schema, reader_schema) and
-                self._resolve_logical_schema(writer_schema, reader_schema))
-
-    def resolve_timestamp_micros_schema(self, writer_schema, reader_schema):
+    def resolve_date_and_time_schema(self, writer_schema, reader_schema):
         return (self.resolve_primitive_schema(writer_schema, reader_schema) and
                 self._resolve_logical_schema(writer_schema, reader_schema))
 
@@ -255,11 +239,7 @@ class SchemaResolution(object):
             schema.UnionSchema: self.resolve_union_schema,
             schema.BytesDecimalSchema: self.resolve_bytes_decimal_schema,
             schema.FixedDecimalSchema: self.resolve_fixed_decimal_schema,
-            schema.DateSchema: self.resolve_date_schema,
-            schema.TimeMillisSchema: self.resolve_time_millis_schema,
-            schema.TimeMicrosSchema: self.resolve_time_micros_schema,
-            schema.TimestampMillisSchema: self.resolve_timestamp_millis_schema,
-            schema.TimestampMicrosSchema: self.resolve_timestamp_micros_schema
+            schema.DateAndTimeSchema: self.resolve_date_and_time_schema,
         }
 
     def resolve_schema(self, writer_schema, reader_schema):
