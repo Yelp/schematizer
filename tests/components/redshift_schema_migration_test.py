@@ -78,6 +78,20 @@ class TestRedshiftSchemaMigration(object):
         )
 
     @property
+    def double_precision_column(self):
+        return SQLColumn(
+            'double_precision_col',
+            data_types.RedshiftDouble()
+        )
+
+    @property
+    def real_column(self):
+        return SQLColumn(
+            'real_col',
+            data_types.RedshiftReal()
+        )
+
+    @property
     def permission_one(self):
         return DbPermission(self.table_name, 'admin', 'ALL', for_group=True)
 
@@ -288,6 +302,21 @@ class TestRedshiftSchemaMigration(object):
                 self.primary_key_column.name,
                 ', '.join([self.primary_key_column.name,
                            self.second_primary_key_column.name])
+            )
+        )
+        assert expected == actual
+
+    def test_create_table_sql_with_real_number_col_types(self, migration):
+        columns = [self.double_precision_column, self.real_column]
+        table = SQLTable(self.table_name, columns)
+        actual = migration.create_table_sql(table)
+
+        expected = (
+            'CREATE TABLE {0} ({1} double precision,{2} real);'
+            .format(
+                self.table_name,
+                self.double_precision_column.name,
+                self.real_column.name
             )
         )
         assert expected == actual
