@@ -237,7 +237,7 @@ class MySQLLongText(MySQLString):
 
     def __init__(self, binary=False, char_set=None, collate=None):
         super(MySQLLongText, self).__init__(
-            length=429496725,
+            length=4294967295,
             binary=binary,
             char_set=char_set,
             collate=collate
@@ -305,7 +305,7 @@ class MySQLLongBlob(MySQLVarBinary):
     type_name = 'longblob'
 
     def __init__(self):
-        super(MySQLLongBlob, self).__init__(length=429496725)
+        super(MySQLLongBlob, self).__init__(length=4294967295)
 
 
 class MySQLDateAndTime(SQLColumnDataType):
