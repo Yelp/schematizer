@@ -25,6 +25,10 @@ class TestRedshiftSchemaMigration(object):
         return 'foo_table'
 
     @property
+    def schema_name(self):
+        return 'foo_schema'
+
+    @property
     def another_table_name(self):
         return 'bar_table'
 
@@ -54,12 +58,20 @@ class TestRedshiftSchemaMigration(object):
     @property
     def old_table(self):
         columns = [self.same_col, self.old_col, self.random_col]
-        return SQLTable(self.table_name, columns)
+        return SQLTable(
+            self.table_name,
+            columns,
+            schema_name=self.schema_name
+        )
 
     @property
     def another_old_table(self):
         columns = [self.same_col, self.old_col, self.random_col]
-        return SQLTable(self.another_table_name, columns)
+        return SQLTable(
+            self.another_table_name,
+            columns,
+            schema_name=self.schema_name
+        )
 
     @property
     def primary_key_column(self):
@@ -110,27 +122,51 @@ class TestRedshiftSchemaMigration(object):
     @property
     def new_table(self):
         columns = [self.same_col, self.renamed_col, self.primary_key_column]
-        table = SQLTable(self.table_name, columns)
+        table = SQLTable(
+            self.table_name,
+            columns,
+            schema_name=self.schema_name
+        )
         table.metadata[MetaDataKey.PERMISSION] = [self.permission_one,
                                                   self.permission_two]
         return table
+
+    @property
+    def expected_new_schema_sql(self):
+        return 'CREATE SCHEMA IF NOT EXISTS {}'.format(
+            self.new_table.schema_name
+        )
 
     @property
     def expected_new_table_sql(self):
         return (
             'CREATE TABLE {0} ({1} varchar(64),{2} decimal(4,2),'
             '{3} integer,PRIMARY KEY ({3}));'.format(
-                self.new_table.name,
+                self.new_table.full_name,
                 self.same_col.name,
                 self.renamed_col.name,
                 self.primary_key_column.name
             )
         )
 
+    def test_create_simple_push_plan_with_simple_table(self, migration):
+        simple_table = SQLTable(self.table_name, [self.same_col])
+        actual = migration.create_simple_push_plan(simple_table)
+        expected = [
+            'BEGIN;',
+            'CREATE TABLE {} (same_col varchar(64));'.format(
+                simple_table.full_name
+            ),
+            '',
+            'COMMIT;'
+        ]
+        assert expected == actual
+
     def test_create_simple_push_plan_with_new_table(self, migration):
         insert_sql = ''
         expected = [
             'BEGIN;',
+            self.expected_new_schema_sql,
             self.expected_new_table_sql,
             insert_sql,
             self.expected_permission_one,
@@ -142,13 +178,14 @@ class TestRedshiftSchemaMigration(object):
 
     def test_create_simple_push_plan_with_different_name(self, migration):
         insert_sql = ('INSERT INTO {0} ({1}) (SELECT {2} FROM {3});'.format(
-            self.new_table.name,
+            self.new_table.full_name,
             ', '.join([self.same_col.name, self.renamed_col.name]),
             ', '.join([self.same_col.name, self.old_col.name]),
-            self.another_old_table.name
+            self.another_old_table.full_name
         ))
         expected = [
             'BEGIN;',
+            self.expected_new_schema_sql,
             self.expected_new_table_sql,
             insert_sql,
             self.expected_permission_one,
@@ -162,31 +199,35 @@ class TestRedshiftSchemaMigration(object):
         assert expected == actual
 
     def test_create_simple_push_plan_with_existing_table(self, migration):
-        temp_table_name = self.new_table.name + '_tmp'
+        temp_table_full_name = '{0}.{1}_tmp'.format(
+            self.schema_name,
+            self.new_table.name
+        )
         create_sql = self.expected_new_table_sql.replace(
-            self.table_name,
-            temp_table_name
+            self.new_table.full_name,
+            temp_table_full_name
         )
 
         insert_sql = ('INSERT INTO {0} ({1}) (SELECT {2} FROM {3});'.format(
-            temp_table_name,
+            temp_table_full_name,
             ', '.join([self.same_col.name, self.renamed_col.name]),
             ', '.join([self.same_col.name, self.old_col.name]),
-            self.old_table.name
+            self.old_table.full_name
         ))
 
-        old_table_name = self.new_table.name + '_old'
+        old_table_name = self.new_table.full_name + '_old'
 
         expected = [
             'BEGIN;',
+            self.expected_new_schema_sql,
             create_sql,
             insert_sql,
             'ALTER TABLE {0} RENAME TO {1};'.format(
-                self.new_table.name,
+                self.new_table.full_name,
                 old_table_name
             ),
             'ALTER TABLE {0} RENAME TO {1};'.format(
-                temp_table_name,
+                temp_table_full_name,
                 self.new_table.name
             ),
             self.expected_permission_one,
@@ -280,7 +321,7 @@ class TestRedshiftSchemaMigration(object):
         expected = (
             'CREATE TABLE {0} ({1} varchar(64),{2} decimal(4,2),'
             '{3} integer);'.format(
-                self.old_table.name,
+                self.old_table.full_name,
                 self.same_col.name,
                 self.old_col.name,
                 self.random_col.name

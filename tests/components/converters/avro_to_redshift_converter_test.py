@@ -23,8 +23,12 @@ class TestAvroToRedshiftConverter(object):
         return AvroToRedshiftConverter()
 
     @property
-    def schema_name(self):
+    def avro_schema_name(self):
         return 'foo'
+
+    @property
+    def redshift_schema_name(self):
+        return 'bar'
 
     @property
     def empty_namespace(self):
@@ -50,9 +54,10 @@ class TestAvroToRedshiftConverter(object):
     ):
         record_schema = self.compose_record_schema(avro_field)
         expected_table = SQLTable(
-            self.schema_name,
+            self.avro_schema_name,
             columns=[expected_column],
             doc=record_schema.get('doc'),
+            schema_name=self.redshift_schema_name,
             **self.get_table_metadata()
         )
         actual_table = converter.convert(record_schema)
@@ -61,11 +66,12 @@ class TestAvroToRedshiftConverter(object):
     def compose_record_schema(self, avro_field):
         return {
             'type': 'record',
-            'name': self.schema_name,
+            'name': self.avro_schema_name,
             'namespace': self.namespace,
             'fields': [avro_field],
             'doc': 'sample doc',
             'aliases': self.table_aliases,
+            'schema_name': self.redshift_schema_name
         }
 
     def get_table_metadata(self):
@@ -211,7 +217,7 @@ class TestAvroToRedshiftConverter(object):
     def test_convert_with_composite_primary_keys(self, converter):
         record_schema = {
             'type': 'record',
-            'name': self.schema_name,
+            'name': self.avro_schema_name,
             'namespace': None,
             'fields': [
                 {
@@ -240,7 +246,7 @@ class TestAvroToRedshiftConverter(object):
             primary_key_order=1
         )
         expected_table = SQLTable(
-            self.schema_name,
+            self.avro_schema_name,
             columns=[expected_column_col, expected_column_bar],
             doc=record_schema.get('doc')
         )
@@ -306,7 +312,7 @@ class TestAvroToRedshiftConverter(object):
     def test_convert_with_no_table_metadata(self, converter):
         record_schema = {
             'type': 'record',
-            'name': self.schema_name,
+            'name': self.avro_schema_name,
             'namespace': None,
             'fields': [{'name': self.col_name, 'type': 'int'}],
             'doc': 'sample doc',
@@ -317,7 +323,7 @@ class TestAvroToRedshiftConverter(object):
             is_nullable=False
         )
         expected_table = SQLTable(
-            self.schema_name,
+            self.avro_schema_name,
             columns=[expected_column],
             doc=record_schema.get('doc')
         )
