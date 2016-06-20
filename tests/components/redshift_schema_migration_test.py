@@ -201,7 +201,7 @@ class TestRedshiftSchemaMigration(object):
             self.old_table.full_name
         ))
 
-        old_table_name = self.new_table.name + '_old'
+        old_table_name = self.new_table.full_name + '_old'
 
         expected = [
             'BEGIN;',

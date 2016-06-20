@@ -65,7 +65,7 @@ class RedshiftSchemaMigration(object):
         # back will work as well.
         tmp_table = copy.deepcopy(new_table)
         tmp_table.name += '_tmp'
-        drop_table_name = old_table.name + '_old'
+        drop_table_name = old_table.full_name + '_old'
 
         plan = list()
         plan.append(self.begin_transaction_sql())

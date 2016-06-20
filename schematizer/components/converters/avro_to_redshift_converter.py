@@ -56,6 +56,8 @@ class AvroToRedshiftConverter(BaseConverter):
             record_schema.name,
             columns=cols,
             doc=record_schema.doc,
+            # TODO(chohan|DATAPIPE-1133): Define this property in
+            # AvroMetaDataKeys in yelp_avro and update this line accordingly.
             schema_name=record_schema.get_prop('schema_name'),
             **table_metadata
         )
