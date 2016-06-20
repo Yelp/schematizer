@@ -232,7 +232,7 @@ class TestMySQLHandler(object):
         ('bar char(3) not null',
          SQLColumn('bar', data_types.MySQLChar(3), is_nullable=False)),
         ('bar char not null',
-         SQLColumn('bar', data_types.MySQLChar(), is_nullable=False)),
+         SQLColumn('bar', data_types.MySQLChar(3), is_nullable=False)),
         ('bar varchar(255) null',
          SQLColumn('bar', data_types.MySQLVarChar(255))),
         ('bar text CHARACTER SET latin1 COLLATE latin1_german1_ci',

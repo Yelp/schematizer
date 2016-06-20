@@ -154,10 +154,14 @@ class MySQLNumeric(MySQLDecimal):
 class MySQLString(SQLColumnDataType):
     """Base class for MySQL string data types. Refer to
     https://dev.mysql.com/doc/refman/5.5/en/string-types.html for type
-    definitions.
+    definitions. Refer to
+    http://dev.mysql.com/doc/refman/5.6/en/string-type-overview.html for
+    length specifications.
     """
 
-    def __init__(self, binary=False, char_set=None, collate=None):
+    def __init__(self, length, binary=False, char_set=None, collate=None):
+        self.length = length
+
         attributes = None
         if binary:
             attributes = attributes or []
@@ -182,38 +186,62 @@ class MySQLChar(MySQLString):
 
     type_name = 'char'
 
-    def __init__(self, length=None, binary=False, char_set=None, collate=None):
-        super(MySQLChar, self).__init__(binary, char_set, collate)
-        self.length = length
-
 
 class MySQLVarChar(MySQLString):
 
     type_name = 'varchar'
-
-    def __init__(self, length, binary=False, char_set=None, collate=None):
-        super(MySQLVarChar, self).__init__(binary, char_set, collate)
-        self.length = length
 
 
 class MySQLTinyText(MySQLString):
 
     type_name = 'tinytext'
 
+    def __init__(self, binary=False, char_set=None, collate=None):
+        super(MySQLTinyText, self).__init__(
+            length=255,
+            binary=binary,
+            char_set=char_set,
+            collate=collate
+        )
+
 
 class MySQLText(MySQLString):
 
     type_name = 'text'
+
+    def __init__(self, binary=False, char_set=None, collate=None):
+        super(MySQLText, self).__init__(
+            length=65535,
+            binary=binary,
+            char_set=char_set,
+            collate=collate
+        )
 
 
 class MySQLMediumText(MySQLString):
 
     type_name = 'mediumtext'
 
+    def __init__(self, binary=False, char_set=None, collate=None):
+        super(MySQLMediumText, self).__init__(
+            length=16777215,
+            binary=binary,
+            char_set=char_set,
+            collate=collate
+        )
+
 
 class MySQLLongText(MySQLString):
 
     type_name = 'longtext'
+
+    def __init__(self, binary=False, char_set=None, collate=None):
+        super(MySQLLongText, self).__init__(
+            length=4294967295,
+            binary=binary,
+            char_set=char_set,
+            collate=collate
+        )
 
 
 class MySQLBinaryBase(SQLColumnDataType):
@@ -248,24 +276,36 @@ class MySQLVarBinary(MySQLBinaryBase):
         self.length = length
 
 
-class MySQLTinyBlob(MySQLBinaryBase):
+class MySQLTinyBlob(MySQLVarBinary):
 
     type_name = 'tinyblob'
 
+    def __init__(self):
+        super(MySQLTinyBlob, self).__init__(length=255)
 
-class MySQLBlob(MySQLBinaryBase):
+
+class MySQLBlob(MySQLVarBinary):
 
     type_name = 'blob'
 
+    def __init__(self):
+        super(MySQLBlob, self).__init__(length=65535)
 
-class MySQLMediumBlob(MySQLBinaryBase):
+
+class MySQLMediumBlob(MySQLVarBinary):
 
     type_name = 'mediumblob'
 
+    def __init__(self):
+        super(MySQLMediumBlob, self).__init__(length=16777215)
 
-class MySQLLongBlob(MySQLBinaryBase):
+
+class MySQLLongBlob(MySQLVarBinary):
 
     type_name = 'longblob'
+
+    def __init__(self):
+        super(MySQLLongBlob, self).__init__(length=4294967295)
 
 
 class MySQLDateAndTime(SQLColumnDataType):

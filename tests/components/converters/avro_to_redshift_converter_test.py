@@ -142,6 +142,16 @@ class TestAvroToRedshiftConverter(object):
             SQLColumn(self.col_name, redshift_types.RedshiftVarChar(32))
         )
 
+    def test_convert_with_field_string_upper_bound_max_len(self, converter):
+        self._convert_and_assert_with_one_column(
+            converter,
+            {'name': self.col_name,
+             'type': ['null', 'string'],
+             'default': None,
+             AvroMetaDataKeys.MAX_LEN: 32768},
+            SQLColumn(self.col_name, redshift_types.RedshiftVarChar(65535))
+        )
+
     def test_convert_with_field_string_without_specified_len(self, converter):
         with pytest.raises(SchemaConversionException):
             record_schema = self.compose_record_schema(
@@ -198,7 +208,7 @@ class TestAvroToRedshiftConverter(object):
             ),
         )
 
-    def test_convert_with_composite_priamry_keys(self, converter):
+    def test_convert_with_composite_primary_keys(self, converter):
         record_schema = {
             'type': 'record',
             'name': self.schema_name,
