@@ -215,7 +215,8 @@ class TestRedshiftSchemaMigration(object):
             self.old_table.full_name
         ))
 
-        old_table_name = self.new_table.full_name + '_old'
+        old_table_name = self.new_table.name + '_old'
+        old_table_full_name = self.new_table.full_name + '_old'
 
         expected = [
             'BEGIN;',
@@ -232,7 +233,7 @@ class TestRedshiftSchemaMigration(object):
             ),
             self.expected_permission_one,
             self.expected_permission_two,
-            'DROP TABLE {0};'.format(old_table_name),
+            'DROP TABLE {0};'.format(old_table_full_name),
             'COMMIT;'
         ]
         actual = migration.create_simple_push_plan(
