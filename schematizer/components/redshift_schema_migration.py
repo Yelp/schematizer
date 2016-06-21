@@ -65,7 +65,8 @@ class RedshiftSchemaMigration(object):
         # back will work as well.
         tmp_table = copy.deepcopy(new_table)
         tmp_table.name += '_tmp'
-        drop_table_name = old_table.full_name + '_old'
+        drop_table_name = old_table.name + '_old'
+        drop_table_full_name = old_table.full_name + '_old'
 
         plan = list()
         plan.append(self.begin_transaction_sql())
@@ -81,7 +82,7 @@ class RedshiftSchemaMigration(object):
         ))
         plan.append(self.rename_table_sql(tmp_table.full_name, new_table.name))
         plan.extend(self.grant_permission_sqls(permissions))
-        plan.append(self.drop_table_sql(drop_table_name))
+        plan.append(self.drop_table_sql(drop_table_full_name))
         plan.append(self.commit_cmd_sql())
         return plan
 
