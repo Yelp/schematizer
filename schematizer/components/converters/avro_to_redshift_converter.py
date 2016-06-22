@@ -126,6 +126,7 @@ class AvroToRedshiftConverter(BaseConverter):
             'double': self._convert_double_type,
             'string': self._convert_string_type,
             'boolean': self._convert_boolean_type,
+            'bytes': self._convert_string_type,
         }
 
     def _convert_null_type(self, field):
