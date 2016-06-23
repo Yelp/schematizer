@@ -457,6 +457,42 @@ class TestSchemaRepository(DBTestCase):
         self.assert_equal_avro_schema_partial(expected_schema, actual_schema)
         assert topic.id == actual_schema.topic_id
 
+    @pytest.mark.parametrize("email", [(None), (' ')])
+    def test_register_invalid_schema_email(
+        self,
+        email,
+        rw_transformed_schema
+    ):
+        avro_schema = rw_transformed_schema
+        with pytest.raises(ValueError) as e:
+            schema_repo.register_avro_schema_from_avro_json(
+                avro_schema.avro_schema_json,
+                avro_schema.topic.source.namespace.name,
+                avro_schema.topic.source.name,
+                email,
+                contains_pii=False,
+                base_schema_id=avro_schema.base_schema_id
+            )
+        assert str(e.value) == "Source owner email must be non-empty."
+
+    @pytest.mark.parametrize("src_name", [(None), (' ')])
+    def test_register_invalid_schema_src_name(
+        self,
+        src_name,
+        rw_transformed_schema
+    ):
+        avro_schema = rw_transformed_schema
+        with pytest.raises(ValueError) as e:
+            schema_repo.register_avro_schema_from_avro_json(
+                avro_schema.avro_schema_json,
+                avro_schema.topic.source.namespace.name,
+                src_name,
+                avro_schema.topic.source.owner_email,
+                contains_pii=False,
+                base_schema_id=avro_schema.base_schema_id
+            )
+        assert str(e.value) == "Source name must be non-empty."
+
     def assert_new_topic_created_after_schema_register(
         self,
         topic,
