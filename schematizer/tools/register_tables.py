@@ -1,39 +1,48 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import json
 import optparse
-import pymysql
-import requests
 import subprocess
 import sys
+
+import pymysql
+import requests
 import yaml
+
 
 def _get_options(args):
     op = optparse.OptionParser(
-            usage='%prog [options]',
-            description="Register all the tables of a database against a test "
-                        "Schematizer container.")
-    op.add_option('--cluster_name', '-c',
-                  default='primary',
-                  help='Name of the cluster to connect '
-                       'to. Default is "%default"')
-    op.add_option('--config_file', '-f',
-                  default='/nail/srv/configs/topology-proddb.yaml',
-                  help='Path of the config file containing db information. '
-                       'Default is "%default"')
-    op.add_option('--db_name', '-d',
-                  help='Name of the database in the cluster to '
-                       'connect to. DB name from the config_file will be picked '
-                       'up if not specified.')
-    op.add_option('--username', '-u',
-                  help='username to connect to mysql as. Username will be '
-                       'picked up from the config file if not specified.')
-    op.add_option('--password', '-p',
-                  help='password for the username to connect to mysql. Password '
-                       'will be picked up from the config file if not specified.')
+        usage='%prog [options]',
+        description="Register all the tables of a database against a test "
+        "Schematizer container.")
+    op.add_option(
+        '--cluster_name', '-c',
+        default='primary',
+        help='Name of the cluster to connect to. Default is "%default"'
+    )
+    op.add_option(
+        '--config_file', '-f',
+        default='/nail/srv/configs/topology-proddb.yaml',
+        help='Path of the config file containing db information. '
+             'Default is "%default"'
+    )
+    op.add_option(
+        '--db_name', '-d',
+        help='Name of the database in the cluster to connect to. DB name from '
+             'the config_file will be picked up if not specified.'
+    )
+    op.add_option(
+        '--username', '-u',
+        help='username to connect to mysql as. Username will be picked up '
+             'from the config file if not specified.'
+    )
+    op.add_option(
+        '--password', '-p',
+        help='password for the username to connect to mysql. Password will be '
+             'picked up from the config file if not specified.'
+    )
     return op.parse_args(args)
 
 
@@ -73,14 +82,14 @@ def _get_column_maps(tables, cluster_ipaddress, db_name, username, password):
         table_create_stmt = _execute_query_get_all_rows(connection, query)
         table_create_stmt[0]['Create Table'] = table_create_stmt[0][
             'Create Table'
-        ].replace('\n','')
+        ].replace('\n', '')
         table_to_create_schema_stmt_map[table_create_stmt[0]['Table']] = \
             table_create_stmt[0]['Create Table']
         query = "show columns from yelp." + table_name + ";"
         table_columns = _execute_query_get_all_rows(connection, query)
         column_names = set()
         for column in table_columns:
-                column_names.add(column['Field'])
+            column_names.add(column['Field'])
         table_to_columns_map[table_name] = column_names
     connection.close()
     return (table_to_create_schema_stmt_map, table_to_columns_map)
@@ -137,8 +146,9 @@ def _set_up_schematizer_container():
     if schematizer_container_not_found:
         subprocess.call(
             "docker run -d --name " + schematizer_container_name +
-            " --link " + db_container_name + ":schematizerdatabase --volumes-from="
-            + configs_container_name + " docker-dev.yelpcorp.com/schematizer_service "
+            " --link " + db_container_name + ":schematizerdatabase "
+            "--volumes-from=" + configs_container_name +
+            " docker-dev.yelpcorp.com/schematizer_service "
             "/code/virtualenv_run/bin/python /code/serviceinit.d/schematizer "
             "start-dev", shell=True
         )
@@ -172,8 +182,8 @@ if __name__ == "__main__":
             host_ipaddress = entry['host']
             db_name = options.db_name if options.db_name else entry['db']
             user = options.username if options.username else entry['user']
-            pwd = options.password if options.password else  entry['passwd']
-            break;
+            pwd = options.password if options.password else entry['passwd']
+            break
     else:
         print 'Please enter a valid cluster_name. Exiting...'
         sys.exit(2)
@@ -181,14 +191,18 @@ if __name__ == "__main__":
 
     print 'Executing script...'
     tables = _get_table_names(host_ipaddress, db_name, user, pwd)
-    table_to_create_schema_stmt_map, table_to_columns_map = _get_column_maps(tables, host_ipaddress, db_name, user, pwd)
+    table_to_create_schema_stmt_map, table_to_columns_map = _get_column_maps(
+        tables, host_ipaddress, db_name, user, pwd
+    )
 
     headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
     url = 'http://' + schematizer_ipaddress + ':8888/v1/schemas/mysql'
     table_to_schema_id_map = {}
     error_tables = []
 
-    for table_name, create_schema_stmt in table_to_create_schema_stmt_map.iteritems():
+    for table_name, create_schema_stmt in (
+            table_to_create_schema_stmt_map.iteritems()
+    ):
         payload = (
             '{"namespace": "test_namespace", '
             '"source_owner_email": "bam+batch@yelp.com", '
@@ -204,11 +218,15 @@ if __name__ == "__main__":
             for column in columns:
                 column_names.add(column['name'])
             if table_to_columns_map[table_name] == column_names:
-                table_to_schema_id_map[table_name]=response.json()['schema_id']
+                table_to_schema_id_map[table_name] = response.json()[
+                    'schema_id'
+                ]
             else:
                 error_tables.append(table_name)
         else:
             error_tables.append(table_name)
 
-    print "Schematizer successfully processed " + str(len(table_to_schema_id_map)) + " tables."
-    print "Schematizer failed for " + str(len(error_tables)) + " tables which are: " + str(error_tables)
+    print ("Schematizer successfully processed " +
+           str(len(table_to_schema_id_map)) + " tables.")
+    print ("Schematizer failed for " + str(len(error_tables)) +
+           " tables which are: " + str(error_tables))
