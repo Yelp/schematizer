@@ -184,6 +184,22 @@ class TestAvroToRedshiftConverter(object):
             SQLColumn(self.col_name, redshift_types.RedshiftBoolean()),
         )
 
+    def test_convert_with_field_enum(self, converter):
+        self._convert_and_assert_with_one_column(
+            converter,
+            {'name': self.col_name,
+             'type': {
+                 'type': 'enum',
+                 'name': self.col_name,
+                 'symbols': ['1', '123', '12']}
+             },
+            SQLColumn(
+                self.col_name,
+                redshift_types.RedshiftVarChar(3 * 2),
+                is_nullable=False
+            ),
+        )
+
     def test_convert_with_field_null(self, converter):
         with pytest.raises(SchemaConversionException):
             record_schema = self.compose_record_schema(

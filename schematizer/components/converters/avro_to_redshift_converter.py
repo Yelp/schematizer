@@ -104,9 +104,18 @@ class AvroToRedshiftConverter(BaseConverter):
     def _is_union_schema(self, avro_schema):
         return isinstance(avro_schema, schema.UnionSchema)
 
+    def _is_enum_schema(self, avro_schema):
+        return isinstance(avro_schema, schema.EnumSchema)
+
     def _convert_field_type(self, field_type, field):
-        typ = (field_type.fullname if self._is_primitive_schema(field_type)
-               else field_type)
+        import ipdb; ipdb.set_trace()
+        if self._is_primitive_schema(field_type):
+            typ = field_type.fullname
+        elif self._is_enum_schema(field_type):
+            typ = field_type.type
+        else:
+            typ = field_type
+
         converter_func = self._type_converters.get(typ)
         if converter_func:
             return converter_func(field)
@@ -126,6 +135,7 @@ class AvroToRedshiftConverter(BaseConverter):
             'double': self._convert_double_type,
             'string': self._convert_string_type,
             'boolean': self._convert_boolean_type,
+            'enum': self._convert_enum_type,
         }
 
     def _convert_null_type(self, field):
@@ -163,6 +173,11 @@ class AvroToRedshiftConverter(BaseConverter):
     # http://docs.aws.amazon.com/redshift/latest/dg/r_Character_types.html
     MAX_VARCHAR_BYTES = 65535
 
+    def _construct_varchar_column(self, max_len):
+        return redshift_data_types.RedshiftVarChar(
+            min(int(max_len) * self.CHAR_BYTES, self.MAX_VARCHAR_BYTES)
+        )
+
     def _convert_string_type(self, field):
         """Only supports char and varchar. If neither fix_len nor max_len
         is specified, an exception is thrown.
@@ -173,9 +188,7 @@ class AvroToRedshiftConverter(BaseConverter):
 
         max_len = field.props.get(AvroMetaDataKeys.MAX_LEN)
         if max_len:
-            return redshift_data_types.RedshiftVarChar(
-                min(int(max_len) * self.CHAR_BYTES, self.MAX_VARCHAR_BYTES)
-            )
+            return self._construct_varchar_column(max_len)
 
         raise SchemaConversionException(
             "Unable to convert `string` type without metadata {0} or {1}."
@@ -184,6 +197,12 @@ class AvroToRedshiftConverter(BaseConverter):
 
     def _convert_boolean_type(self, field):
         return redshift_data_types.RedshiftBoolean()
+
+    def _convert_enum_type(self, field):
+        enum_field = field.props.get('type')
+        symbols = enum_field.props.get(AvroMetaDataKeys.SYMBOLS)
+        max_symbol_len = max(len(symbol) for symbol in symbols)
+        return self._construct_varchar_column(max_symbol_len)
 
     def _get_table_metadata(self, record_schema):
         table_metadata = ({MetaDataKey.NAMESPACE: record_schema.namespace}
