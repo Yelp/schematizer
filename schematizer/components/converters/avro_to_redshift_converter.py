@@ -108,7 +108,6 @@ class AvroToRedshiftConverter(BaseConverter):
         return isinstance(avro_schema, schema.EnumSchema)
 
     def _convert_field_type(self, field_type, field):
-        import ipdb; ipdb.set_trace()
         if self._is_primitive_schema(field_type):
             typ = field_type.fullname
         elif self._is_enum_schema(field_type):
