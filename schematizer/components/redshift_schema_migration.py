@@ -88,13 +88,13 @@ class RedshiftSchemaMigration(object):
 
     @classmethod
     def create_schema_sql(cls, table):
-        return 'CREATE SCHEMA IF NOT EXISTS {schema}'.format(
+        return 'CREATE SCHEMA IF NOT EXISTS "{schema}"'.format(
             schema=table.schema_name
         )
 
     @classmethod
     def create_table_sql(cls, table):
-        begin_create_table = 'CREATE TABLE {table} ('.format(
+        begin_create_table = 'CREATE TABLE "{table}" ('.format(
             table=table.full_name
         )
         end_create_table = ');'
@@ -186,8 +186,8 @@ class RedshiftSchemaMigration(object):
             if new_column:
                 col_pairs.append((src_column.name, new_column.name))
 
-        return ('INSERT INTO {new_table} ({new_columns}) '
-                '(SELECT {src_columns} FROM {src_table});'
+        return ('INSERT INTO "{new_table}" ({new_columns}) '
+                '(SELECT {src_columns} FROM "{src_table}");'
                 .format(
                     new_table=new_table.full_name,
                     new_columns=', '.join(new_col for _, new_col in col_pairs),
@@ -196,7 +196,7 @@ class RedshiftSchemaMigration(object):
 
     @classmethod
     def rename_table_sql(cls, old_table_full_name, new_table_name):
-        return 'ALTER TABLE {old_table} RENAME TO {new_table};'.format(
+        return 'ALTER TABLE "{old_table}" RENAME TO "{new_table}";'.format(
             old_table=old_table_full_name,
             new_table=new_table_name
         )
@@ -222,7 +222,7 @@ class RedshiftSchemaMigration(object):
 
     @classmethod
     def drop_table_sql(cls, table_name):
-        return 'DROP TABLE {table};'.format(table=table_name)
+        return 'DROP TABLE "{table}";'.format(table=table_name)
 
     @classmethod
     def begin_transaction_sql(cls):
