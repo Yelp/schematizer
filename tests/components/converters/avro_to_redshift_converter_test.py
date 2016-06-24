@@ -135,7 +135,7 @@ class TestAvroToRedshiftConverter(object):
              'type': ['null', 'string'],
              'default': None,
              AvroMetaDataKeys.FIX_LEN: 16},
-            SQLColumn(self.col_name, redshift_types.RedshiftChar(16))
+            SQLColumn(self.col_name, redshift_types.RedshiftVarChar(16))
         )
 
     def test_convert_with_field_string_with_max_len(self, converter):

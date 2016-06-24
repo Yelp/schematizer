@@ -169,7 +169,7 @@ class AvroToRedshiftConverter(BaseConverter):
         """
         fix_len = field.props.get(AvroMetaDataKeys.FIX_LEN)
         if fix_len:
-            return redshift_data_types.RedshiftChar(fix_len)
+            return redshift_data_types.RedshiftVarChar(fix_len)
 
         max_len = field.props.get(AvroMetaDataKeys.MAX_LEN)
         if max_len:
