@@ -8,6 +8,8 @@ from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 from schematizer.components.converters import AvroToRedshiftConverter
 from schematizer.components.converters.converter_base \
     import SchemaConversionException
+from schematizer.components.converters.converter_base \
+    import UnsupportedTypeException
 from schematizer.models import redshift_data_types as redshift_types
 from schematizer.models.sql_entities import MetaDataKey
 from schematizer.models.sql_entities import SQLColumn
@@ -158,7 +160,7 @@ class TestAvroToRedshiftConverter(object):
             SQLColumn(self.col_name, redshift_types.RedshiftVarChar(32))
         )
 
-    def test_convert_with_field_string_upper_bound_max_len(
+    def test_convert_string_field_with_exceeded_max_len(
         self,
         converter,
         avro_string_type
@@ -203,6 +205,20 @@ class TestAvroToRedshiftConverter(object):
              'default': None},
             SQLColumn(self.col_name, redshift_types.RedshiftBoolean()),
         )
+
+    def test_convert_with_unsupported_type(self, converter):
+        with pytest.raises(UnsupportedTypeException):
+            record_schema = self.compose_record_schema(
+                {'name': self.col_name,
+                 'type': {
+                     'type': 'array',
+                     'items': {
+                         'type': 'map',
+                         'values': 'string'
+                     }
+                 }}
+            )
+            converter.convert(record_schema)
 
     def test_convert_with_field_null(self, converter):
         with pytest.raises(SchemaConversionException):

@@ -126,7 +126,7 @@ class AvroToRedshiftConverter(BaseConverter):
             'double': self._convert_double_type,
             'string': self._convert_string_type,
             'boolean': self._convert_boolean_type,
-            'bytes': self._convert_string_type,
+            'bytes': self._convert_bytes_type,
         }
 
     def _convert_null_type(self, field):
@@ -164,7 +164,7 @@ class AvroToRedshiftConverter(BaseConverter):
     # http://docs.aws.amazon.com/redshift/latest/dg/r_Character_types.html
     MAX_VARCHAR_BYTES = 65535
 
-    def _convert_string_type(self, field):
+    def _convert_string_type(self, field, char_bytes=CHAR_BYTES):
         """Only supports char and varchar. If neither fix_len nor max_len
         is specified, an exception is thrown.
         """
@@ -175,13 +175,16 @@ class AvroToRedshiftConverter(BaseConverter):
         max_len = field.props.get(AvroMetaDataKeys.MAX_LEN)
         if max_len:
             return redshift_data_types.RedshiftVarChar(
-                min(int(max_len) * self.CHAR_BYTES, self.MAX_VARCHAR_BYTES)
+                min(int(max_len) * char_bytes, self.MAX_VARCHAR_BYTES)
             )
 
         raise SchemaConversionException(
             "Unable to convert `string` type without metadata {0} or {1}."
             .format(AvroMetaDataKeys.FIX_LEN, AvroMetaDataKeys.MAX_LEN)
         )
+
+    def _convert_bytes_type(self, field):
+        return self._convert_string_type(field, char_bytes=1)
 
     def _convert_boolean_type(self, field):
         return redshift_data_types.RedshiftBoolean()
