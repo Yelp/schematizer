@@ -23,9 +23,15 @@ RESTRICTED_CHAR_ERROR_MESSAGE = (
 NUMERIC_NAME_ERROR_MESSAGE = 'Source or Namespace name should not be numeric'
 REFRESH_NOT_FOUND_ERROR_MESSAGE = 'Refresh not found for the given refresh id'
 ENTITY_NOT_FOUND_ERROR = 'Entity not found.'
+UNSUPPORTED_TARGET_SCHEMA_MESSAGE = 'Desired target schema type is unsupported'
+EMPTY_SRC_NAME_ERROR = 'Source name must be non-empty.'
 
 
 def invalid_schema_exception(err_message=INVALID_AVRO_SCHEMA_ERROR):
+    return httpexceptions.exception_response(422, detail=err_message)
+
+
+def empty_src_name_exception(err_message=EMPTY_SRC_NAME_ERROR):
     return httpexceptions.exception_response(422, detail=err_message)
 
 
@@ -97,3 +103,9 @@ def refresh_not_found_exception(
         err_message=REFRESH_NOT_FOUND_ERROR_MESSAGE
 ):
     return httpexceptions.exception_response(404, detail=err_message)
+
+
+def unsupported_target_schema_exception(
+    err_message=UNSUPPORTED_TARGET_SCHEMA_MESSAGE
+):
+    return httpexceptions.exception_response(501, detail=err_message)

@@ -19,16 +19,17 @@ RUN     apt-get install -y libyaml-0-2 libxml2 libpython2.7
 ADD     requirements.txt /code/requirements.txt
 RUN     virtualenv --python python2.7 /code/virtualenv_run
 RUN     /code/virtualenv_run/bin/pip install \
-            -i https://pypi.yelpcorp.com/simple \
+            -i https://pypi.yelpcorp.com/simple/ \
             -r /code/requirements.txt
 
 # Share the logging directory as a volume
-RUN     mkdir /tmp/logs
+RUN     mkdir /tmp/logs && chown -R nobody /tmp/logs/
 VOLUME  /tmp/logs
 
 ADD     . /code
 
 WORKDIR /code
 ENV     BASEPATH /code
+USER    nobody
 CMD     PORT=8888 /code/virtualenv_run/bin/python /code/serviceinit.d/schematizer start-no-daemon
 EXPOSE  8888

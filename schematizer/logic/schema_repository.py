@@ -76,7 +76,8 @@ def register_avro_schema_from_avro_json(
         source_email_owner,
         contains_pii,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
-        base_schema_id=None
+        base_schema_id=None,
+        docs_required=True
 ):
     """Add an Avro schema of given schema json object into schema store.
     The steps from checking compatibility to create new topic should be atomic.
@@ -88,20 +89,32 @@ def register_avro_schema_from_avro_json(
     :param status: AvroStatusEnum: RW/R/Disabled
     :param base_schema_id: Id of the Avro schema from which the new schema is
     derived from
+    :param docs_required: whether to-be-registered schema must contain doc
+    strings
     :return: New created AvroSchema object.
     """
-    is_valid, error = models.AvroSchema.verify_avro_schema(avro_schema_json)
+    is_valid, error = models.AvroSchema.verify_avro_schema(
+        avro_schema_json,
+    )
     if not is_valid:
         raise ValueError("Invalid Avro schema JSON. Value: {0}. Error: {1}"
                          .format(avro_schema_json, error))
 
+    if docs_required:
+        models.AvroSchema.verify_avro_schema_has_docs(
+            avro_schema_json
+        )
+
     namespace = _get_namespace_or_create(namespace_name)
     _lock_namespace(namespace)
 
+    _assert_non_empty_email(source_email_owner)
+    _assert_non_empty_src_name(source_name)
+
     source = _get_source_or_create(
         namespace.id,
-        source_name,
-        source_email_owner
+        source_name.strip(),
+        source_email_owner.strip()
     )
     _lock_source(source)
 
@@ -243,6 +256,16 @@ def _create_source_if_not_exist(namespace_id, source_name, owner_email):
             source_name
         )
     return new_source
+
+
+def _assert_non_empty_email(email):
+    if not email or email.strip() == "":
+        raise ValueError("Source owner email must be non-empty.")
+
+
+def _assert_non_empty_src_name(name):
+    if not name or name.strip() == "":
+        raise ValueError("Source name must be non-empty.")
 
 
 def _get_source_by_namespace_id_and_src_name(namespace_id, source):
@@ -450,6 +473,24 @@ def get_schema_by_id(schema_id):
     ).first()
 
 
+def get_schemas_created_after(created_after):
+    """Get the Avro schemas created after the specified creation_date.
+
+    Args:
+        creation_date(datetime): get schemas created after given utc
+            datetime (inclusive).
+    Returns:
+        (list[:class:schematizer.models.AvroSchema]): List of avro
+            schemas created after (inclusive) the specified creation
+            date.
+    """
+    return session.query(
+        models.AvroSchema
+    ).filter(
+        models.AvroSchema.created_at >= created_after
+    ).all()
+
+
 def get_latest_schema_by_topic_id(topic_id):
     """Get the latest enabled (Read-Write or Read-Only) schema of given topic.
     It returns None if no such schema can be found.
@@ -527,6 +568,29 @@ def get_schemas_by_topic_id(topic_id, include_disabled=False):
     if not include_disabled:
         qry = qry.filter(
             models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
+        )
+    return qry.order_by(models.AvroSchema.id).all()
+
+
+def get_schemas_by_criteria(namespace_name, source_name=None):
+    """Get all avro schemas of specified namespace, optionally filtering
+    by source name.
+    """
+    qry = session.query(
+        models.AvroSchema
+    ).join(
+        models.Topic,
+        models.Source,
+        models.Namespace
+    ).filter(
+        models.AvroSchema.topic_id == models.Topic.id,
+        models.Topic.source_id == models.Source.id,
+        models.Source.namespace_id == models.Namespace.id,
+        models.Namespace.name == namespace_name
+    )
+    if source_name:
+        qry = qry.filter(
+            models.Source.name == source_name
         )
     return qry.order_by(models.AvroSchema.id).all()
 
@@ -661,7 +725,13 @@ def get_schema_elements_by_schema_id(schema_id):
     ).all()
 
 
-def get_topics_by_criteria(namespace=None, source=None, created_after=None):
+def get_topics_by_criteria(
+    namespace=None,
+    source=None,
+    created_after=None,
+    count=None,
+    min_id=None
+):
     """Get all the topics that match given filter criteria.
 
     Args:
@@ -669,6 +739,9 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None):
         source(Optional[str]): get topics of given source name if specified
         created_after(Optional[datetime]): get topics created after given utc
             datetime (inclusive) if specified.
+        count(Optional[int]): number of topics to return in this query
+        min_id(Optional[int]): limits results to those with an id greater than
+            or equal to given id.
     Returns:
         (list[:class:schematizer.models.Topic]): List of topic models sorted
         by their ids.
@@ -687,14 +760,26 @@ def get_topics_by_criteria(namespace=None, source=None, created_after=None):
         qry = qry.filter(models.Source.name == source)
     if created_after:
         qry = qry.filter(models.Topic.created_at >= created_after)
-    return qry.order_by(models.Topic.id).all()
+    if min_id:
+        qry = qry.filter(models.Topic.id >= min_id)
+    qry = qry.order_by(models.Topic.id)
+    if count:
+        qry = qry.limit(count)
+    return qry.all()
 
 
-def get_refreshes_by_criteria(namespace=None, status=None, created_after=None):
+def get_refreshes_by_criteria(
+    namespace=None,
+    source_name=None,
+    status=None,
+    created_after=None
+):
     """Get all the refreshes that match the given filter criteria.
 
     Args:
         namespace(Optional[str]): get refreshes of given namespace
+            if specified.
+        source_name(Optional[str]): get refreshes of given source
             if specified.
         status(Optional[int]): get refreshes of given status
             if specified.
@@ -709,6 +794,11 @@ def get_refreshes_by_criteria(namespace=None, status=None, created_after=None):
         qry = qry.join(models.Namespace).filter(
             models.Namespace.name == namespace,
             models.Namespace.id == models.Source.namespace_id
+        )
+    if source_name:
+        qry = qry.join(models.Source).filter(
+            models.Source.id == models.Refresh.source_id,
+            models.Source.name == source_name
         )
     if status:
         status = models.RefreshStatus[status].value

@@ -115,10 +115,10 @@ class MySQLToAvroConverter(BaseConverter):
 
             mysql_types.MySQLChar: self._convert_char_type,
             mysql_types.MySQLVarChar: self._convert_varchar_type,
-            mysql_types.MySQLTinyText: self._convert_string_type,
-            mysql_types.MySQLText: self._convert_string_type,
-            mysql_types.MySQLMediumText: self._convert_string_type,
-            mysql_types.MySQLLongText: self._convert_string_type,
+            mysql_types.MySQLTinyText: self._convert_tinytext_type,
+            mysql_types.MySQLText: self._convert_text_type,
+            mysql_types.MySQLMediumText: self._convert_mediumtext_type,
+            mysql_types.MySQLLongText: self._convert_longtext_type,
 
             mysql_types.MySQLDate: self._convert_date_type,
             mysql_types.MySQLDateTime: self._convert_datetime_type,
@@ -128,9 +128,9 @@ class MySQLToAvroConverter(BaseConverter):
             mysql_types.MySQLEnum: self._convert_enum_type,
 
             mysql_types.MySQLBlob: self._convert_blob_type,
-            mysql_types.MySQLTinyBlob: self._convert_blob_type,
-            mysql_types.MySQLMediumBlob: self._convert_blob_type,
-            mysql_types.MySQLLongBlob: self._convert_blob_type,
+            mysql_types.MySQLTinyBlob: self._convert_tinyblob_type,
+            mysql_types.MySQLMediumBlob: self._convert_mediumblob_type,
+            mysql_types.MySQLLongBlob: self._convert_longblob_type,
 
             mysql_types.MySQLBinary: self._convert_binary_type,
             mysql_types.MySQLVarBinary: self._convert_varbinary_type,
@@ -198,10 +198,12 @@ class MySQLToAvroConverter(BaseConverter):
 
     def _convert_decimal_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata.update(self._get_precision_metadata(column))
-        metadata.update(self._get_unsigned_metadata(column.type.is_unsigned))
-        metadata.update({AvroMetaDataKeys.FIXED_POINT: True})
-        return self._builder.create_double(), metadata
+        precision = int(column.type.precision)
+        scale = int(column.type.scale)
+        return self._builder.begin_decimal_bytes(
+            precision,
+            scale
+        ).end(), metadata
 
     def _convert_string_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
@@ -215,6 +217,27 @@ class MySQLToAvroConverter(BaseConverter):
     def _convert_varchar_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.MAX_LEN] = column.type.length
+        return self._builder.create_string(), metadata
+
+    def _convert_tinytext_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLTinyText().length
+        return self._builder.create_string(), metadata
+
+    def _convert_text_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLText().length
+        return self._builder.create_string(), metadata
+
+    def _convert_mediumtext_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeys.MAX_LEN] = \
+            mysql_types.MySQLMediumText().length
+        return self._builder.create_string(), metadata
+
+    def _convert_longtext_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLLongText().length
         return self._builder.create_string(), metadata
 
     def _convert_date_type(self, column):
@@ -263,8 +286,25 @@ class MySQLToAvroConverter(BaseConverter):
             column.type.values
         ).end(), {}
 
+    def _convert_tinyblob_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLTinyBlob().length
+        return self._builder.create_bytes(), metadata
+
     def _convert_blob_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLBlob().length
+        return self._builder.create_bytes(), metadata
+
+    def _convert_mediumblob_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeys.MAX_LEN] = \
+            mysql_types.MySQLMediumBlob().length
+        return self._builder.create_bytes(), metadata
+
+    def _convert_longblob_type(self, column):
+        metadata = self._get_primary_key_metadata(column.primary_key_order)
+        metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLLongBlob().length
         return self._builder.create_bytes(), metadata
 
     def _convert_binary_type(self, column):

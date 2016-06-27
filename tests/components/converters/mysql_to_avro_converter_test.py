@@ -48,7 +48,6 @@ class TestMySQLToAvroConverter(object):
             expected_schema.update(
                 {AvroMetaDataKeys.PRIMARY_KEY: [sql_column.name]}
             )
-
         actual_schema = converter.convert(sql_table)
         assert expected_schema == actual_schema
 
@@ -133,16 +132,21 @@ class TestMySQLToAvroConverter(object):
              AvroMetaDataKeys.SCALE: 2},
         )
 
-    def test_convert_with_col_decimal(self, converter):
+    def test_convert_with_col_decimal_bytes(self, converter):
+        bytes_decimal = {
+            'type': 'bytes',
+            'logicalType': 'decimal',
+            'precision': 5,
+            'scale': 2
+        }
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_decimal', mysql_data_types.MySQLDecimal(8, 0)),
-            {'name': 'col_decimal',
-             'type': ['null', 'double'],
-             'default': None,
-             AvroMetaDataKeys.PRECISION: 8,
-             AvroMetaDataKeys.SCALE: 0,
-             AvroMetaDataKeys.FIXED_POINT: True}
+            SQLColumn('col_decimal', mysql_data_types.MySQLDecimal(5, 2)),
+            {
+                'name': 'col_decimal',
+                'type': ['null', bytes_decimal],
+                'default': None
+            }
         )
 
     def test_convert_with_col_float(self, converter):
@@ -176,12 +180,36 @@ class TestMySQLToAvroConverter(object):
              AvroMetaDataKeys.MAX_LEN: 16}
         )
 
-    def test_convert_with_col_text(self, converter):
+    def _convert_and_assert_with_variable_maxlen_type_column(
+        self,
+        converter,
+        data_type,
+        expected_avro_type
+    ):
+        column_name = 'col_{}'.format(data_type.type_name)
+
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_text', mysql_data_types.MySQLText()),
-            {'name': 'col_text', 'type': ['null', 'string'], 'default': None},
+            SQLColumn(column_name, data_type()),
+            {'name': column_name,
+             'type': ['null', expected_avro_type],
+             'default': None,
+             AvroMetaDataKeys.MAX_LEN: data_type().length}
         )
+
+    def test_convert_with_col_text(self, converter):
+        text_data_types = [
+            mysql_data_types.MySQLText,
+            mysql_data_types.MySQLTinyText,
+            mysql_data_types.MySQLMediumText,
+            mysql_data_types.MySQLLongText
+        ]
+        for data_type in text_data_types:
+            self._convert_and_assert_with_variable_maxlen_type_column(
+                converter,
+                data_type,
+                expected_avro_type='string'
+            )
 
     def test_convert_with_col_date(self, converter):
         self._convert_and_assert_with_one_column(
@@ -295,19 +323,17 @@ class TestMySQLToAvroConverter(object):
         )
 
     def test_convert_with_col_blob(self, converter):
-        data_type_to_column_name = {
-            mysql_data_types.MySQLBlob: 'col_blob',
-            mysql_data_types.MySQLTinyBlob: 'col_tiny_blob',
-            mysql_data_types.MySQLMediumBlob: 'col_medium_blob',
-            mysql_data_types.MySQLLongBlob: 'col_long_blob',
-        }
-        for data_type, column_name in data_type_to_column_name.iteritems():
-            self._convert_and_assert_with_one_column(
+        blob_data_types = [
+            mysql_data_types.MySQLBlob,
+            mysql_data_types.MySQLTinyBlob,
+            mysql_data_types.MySQLMediumBlob,
+            mysql_data_types.MySQLLongBlob
+        ]
+        for data_type in blob_data_types:
+            self._convert_and_assert_with_variable_maxlen_type_column(
                 converter,
-                SQLColumn(column_name, data_type()),
-                {'name': column_name,
-                 'type': ['null', 'bytes'],
-                 'default': None},
+                data_type,
+                expected_avro_type='bytes'
             )
 
     def test_convert_with_set(self, converter):

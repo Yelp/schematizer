@@ -8,6 +8,7 @@ from schematizer.api.decorators import log_api
 from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.requests import requests_v1
+from schematizer.api.responses import responses_v1
 from schematizer.logic import doc_tool
 from schematizer.logic import schema_repository
 from schematizer.models.note import ReferenceTypeEnum
@@ -23,12 +24,13 @@ from schematizer.models.note import ReferenceTypeEnum
 def create_note(request):
     req = requests_v1.CreateNoteRequest(**request.json_body)
     assert_reference_exists(req.reference_type, req.reference_id)
-    return doc_tool.create_note(
+    note = doc_tool.create_note(
         reference_type=req.reference_type,
         reference_id=req.reference_id,
         note_text=req.note,
         last_updated_by=req.last_updated_by
-    ).to_dict()
+    )
+    return responses_v1.get_note_response_from_note(note)
 
 
 def assert_reference_exists(reference_type, reference_id):
@@ -67,4 +69,4 @@ def update_note(request):
         note_text=req.note,
         last_updated_by=req.last_updated_by
     )
-    return note.to_dict()
+    return responses_v1.get_note_response_from_note(note)

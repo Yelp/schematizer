@@ -149,7 +149,7 @@ class TestSchemaRepository(DBTestCase):
                         field['name']
                     ),
                     element_type='field',
-                    doc=field['doc']
+                    doc=field.get('doc')
                 )
             )
         return avro_schema_elements
@@ -295,8 +295,18 @@ class TestSchemaRepository(DBTestCase):
             "name": "table_pkey",
             "namespace": self.namespace_name,
             "fields": [
-                {"name": "field_1", "type": "int", "doc": "", "pkey": 1},
-                {"name": "field_2", "type": "int", "doc": "", "pkey": 2},
+                {
+                    "name": "field_1",
+                    "type": "int",
+                    "doc": "field_1",
+                    "pkey": 1
+                },
+                {
+                    "name": "field_2",
+                    "type": "int",
+                    "doc": "field_2",
+                    "pkey": 2
+                },
             ],
             "doc": "I have a pkey!"
         }
@@ -308,9 +318,24 @@ class TestSchemaRepository(DBTestCase):
             "name": "table_pkey",
             "namespace": self.namespace_name,
             "fields": [
-                {"name": "field_1", "type": "int", "doc": "", "pkey": 1},
-                {"name": "field_2", "type": "int", "doc": "", "pkey": 2},
-                {"name": "field_3", "type": "int", "doc": "", "pkey": 3}
+                {
+                    "name": "field_1",
+                    "type": "int",
+                    "doc": "field_1",
+                    "pkey": 1
+                },
+                {
+                    "name": "field_2",
+                    "type": "int",
+                    "doc": "field_2",
+                    "pkey": 2
+                },
+                {
+                    "name": "field_3",
+                    "type": "int",
+                    "doc": "field_3",
+                    "pkey": 3
+                }
             ],
             "doc": "I have a pkey!"
         }
@@ -322,8 +347,18 @@ class TestSchemaRepository(DBTestCase):
             "name": "table_pkey",
             "namespace": self.namespace_name,
             "fields": [
-                {"name": "field_1", "type": "int", "doc": "", "pkey": 1},
-                {"name": "field_3", "type": "int", "doc": "", "pkey": 2}
+                {
+                    "name": "field_1",
+                    "type": "int",
+                    "doc": "field_1",
+                    "pkey": 1
+                },
+                {
+                    "name": "field_3",
+                    "type": "int",
+                    "doc": "field_3",
+                    "pkey": 2
+                }
             ],
             "doc": "I have a pkey!"
         }
@@ -335,9 +370,24 @@ class TestSchemaRepository(DBTestCase):
             "name": "table_pkey",
             "namespace": self.namespace_name,
             "fields": [
-                {"name": "field_1", "type": "int", "doc": "", "pkey": 1},
-                {"name": "field_2", "type": "int", "doc": "", "pkey": 2},
-                {"name": "field_new", "type": "int", "doc": "", "default": 123}
+                {
+                    "name": "field_1",
+                    "type": "int",
+                    "doc": "field_1",
+                    "pkey": 1
+                },
+                {
+                    "name": "field_2",
+                    "type": "int",
+                    "doc": "field_2",
+                    "pkey": 2
+                },
+                {
+                    "name": "field_new",
+                    "type": "int",
+                    "doc": "field_new",
+                    "default": 123
+                }
             ],
             "doc": "I have a pkey!"
         }
@@ -483,6 +533,91 @@ class TestSchemaRepository(DBTestCase):
 
         # the new topic should still be under the same source
         assert topic.source_id == actual_schema.topic.source_id
+
+    @pytest.fixture(params=[{
+        "name": "foo",
+        "doc": "test_doc",
+        "type": "record",
+        "namespace": "test_namespace",
+        "fields": [
+            {"type": "int", "name": "col", "doc": "test_doc"}
+        ]},
+        {"name": "color", "doc": "test_d", "type": "enum", "symbols": ["red"]}
+    ])
+    def avro_schema_with_docs(self, request):
+        return request.param
+
+    def test_register_avro_schema_with_docs_require_doc(
+        self,
+        topic,
+        avro_schema_with_docs
+    ):
+        actual_schema = schema_repo.register_avro_schema_from_avro_json(
+            avro_schema_with_docs,
+            topic.source.namespace.name,
+            topic.source.name,
+            topic.source.owner_email,
+            contains_pii=False,
+            docs_required=True
+        )
+        assert actual_schema.avro_schema_json == avro_schema_with_docs
+
+    def test_register_avro_schema_with_docs_dont_require_doc(
+        self,
+        topic,
+        avro_schema_with_docs
+    ):
+        actual_schema = schema_repo.register_avro_schema_from_avro_json(
+            avro_schema_with_docs,
+            topic.source.namespace.name,
+            topic.source.name,
+            topic.source.owner_email,
+            contains_pii=False,
+            docs_required=False
+        )
+        assert actual_schema.avro_schema_json == avro_schema_with_docs
+
+    @pytest.fixture(params=[{
+        "name": "foo",
+        "doc": " ",
+        "type": "record",
+        "namespace": "test_namespace",
+        "fields": [
+            {"type": "int", "name": "col"}
+        ]},
+        {"name": "color", "type": "enum", "symbols": ["red"]}
+    ])
+    def avro_schema_without_docs(self, request):
+        return request.param
+
+    def test_register_avro_schema_without_docs_require_doc(
+        self,
+        topic,
+        avro_schema_without_docs
+    ):
+        with pytest.raises(ValueError):
+            schema_repo.register_avro_schema_from_avro_json(
+                avro_schema_without_docs,
+                topic.source.namespace.name,
+                topic.source.name,
+                topic.source.owner_email,
+                contains_pii=False
+            )
+
+    def test_register_avro_schema_without_docs_dont_require_doc(
+        self,
+        topic,
+        avro_schema_without_docs
+    ):
+        actual_schema = schema_repo.register_avro_schema_from_avro_json(
+            avro_schema_without_docs,
+            topic.source.namespace.name,
+            topic.source.name,
+            topic.source.owner_email,
+            contains_pii=False,
+            docs_required=False
+        )
+        assert actual_schema.avro_schema_json == avro_schema_without_docs
 
     @pytest.mark.usefixtures('rw_schema')
     def test_create_schema_from_avro_json_with_incompatible_schema(
@@ -816,6 +951,38 @@ class TestSchemaRepository(DBTestCase):
     def test_get_schemas_by_topic_id_with_nonexistent_topic(self):
         actual = schema_repo.get_schemas_by_topic_id(0)
         assert [] == actual
+
+    def test_get_schemas_by_namespace_name(
+        self,
+        rw_schema
+    ):
+        actual = schema_repo.get_schemas_by_criteria(self.namespace_name)
+        assert len(actual) == 1
+        self.assert_equal_avro_schema(rw_schema, actual[0])
+
+    def test_get_schemas_by_namespace_and_source_name(
+        self,
+        rw_schema
+    ):
+        actual = schema_repo.get_schemas_by_criteria(
+            self.namespace_name,
+            source_name=self.source_name
+        )
+        assert len(actual) == 1
+        self.assert_equal_avro_schema(rw_schema, actual[0])
+
+    def test_get_schemas_by_namespace_and_nonexistant_source_name(self):
+        actual = schema_repo.get_schemas_by_criteria(
+            self.namespace_name,
+            source_name="this_source_does_not_exist"
+        )
+        assert not actual
+
+    def test_get_schemas_by_nonexistant_namespace(self):
+        actual = schema_repo.get_schemas_by_criteria(
+            "this_namespace_doesnt_exist"
+        )
+        assert not actual
 
     def test_mark_schema_disabled(self, rw_schema):
         schema_repo.mark_schema_disabled(rw_schema.id)
@@ -1227,6 +1394,18 @@ class TestByCriteria(DBTestCase):
             )
         )
 
+    def test_refresh_get_biz_source_only(
+        self,
+        biz_refresh,
+        biz_source
+    ):
+        self.assert_equal_refreshes(
+            actual_refreshes=schema_repo.get_refreshes_by_criteria(
+                source_name=biz_source.name
+            ),
+            expected_refreshes=[biz_refresh]
+        )
+
     def test_get_by_refresh_status_only(
             self,
             biz_refresh,
@@ -1293,6 +1472,19 @@ class TestByCriteria(DBTestCase):
                 [user_topic_1, user_topic_2]
             )
         )
+
+    def test_get_topics_count(self, sorted_topics):
+        expected = [sorted_topics[0]]
+        actual = schema_repo.get_topics_by_criteria(count=1)
+        assert len(actual) == 1
+        assert len(schema_repo.get_topics_by_criteria()) > 1
+        self.assert_equal_topics(actual, expected)
+
+    def test_get_topics_min_id(self, sorted_topics):
+        min_id = sorted_topics[1].id
+        expected = [topic for topic in sorted_topics if topic.id >= min_id]
+        actual = schema_repo.get_topics_by_criteria(min_id=min_id)
+        self.assert_equal_topics(actual, expected)
 
     def assert_equal_refreshes(self, expected_refreshes, actual_refreshes):
         assert len(actual_refreshes) == len(expected_refreshes)

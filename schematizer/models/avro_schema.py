@@ -85,22 +85,6 @@ class AvroSchema(Base, BaseModel):
         backref="avro_schema"
     )
 
-    def to_dict(self):
-        avro_schema_dict = {
-            'schema_id': self.id,
-            'schema': self.avro_schema,
-            'status': self.status,
-            'topic': self.topic.to_dict(),
-            'note': self.note,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
-        }
-        # Since swagger cannot take null or None value for integer type,
-        # here we just simply strip out this field.
-        if self.base_schema_id is not None:
-            avro_schema_dict['base_schema_id'] = self.base_schema_id
-        return avro_schema_dict
-
     @property
     def note(self):
         note = session.query(
@@ -161,17 +145,10 @@ class AvroSchema(Base, BaseModel):
         :param avro_schema_json: JSON representation of an Avro schema
         :return: List of AvroSchemaElement objects
         """
-        avro_schema_obj = schema.make_avsc_object(avro_schema_json)
 
         avro_schema_elements = []
-        schema_elements = deque([(avro_schema_obj, None)])
-        while len(schema_elements) > 0:
-            schema_obj, parent_key = schema_elements.popleft()
-            element_cls = _schema_to_element_map.get(schema_obj.__class__)
-            if not element_cls:
-                continue
-
-            _schema_element = element_cls(schema_obj, parent_key)
+        elements = cls._create_schema_elements_from_json(avro_schema_json)
+        for _schema_element, schema_obj in elements:
             avro_schema_element = AvroSchemaElement(
                 key=_schema_element.key,
                 element_type=_schema_element.element_type,
@@ -179,11 +156,25 @@ class AvroSchema(Base, BaseModel):
             )
             avro_schema_elements.append(avro_schema_element)
 
+        return avro_schema_elements
+
+    @classmethod
+    def _create_schema_elements_from_json(cls, avro_schema_json):
+        avro_schema_obj = schema.make_avsc_object(avro_schema_json)
+        schema_elements = []
+        schema_elements_queue = deque([(avro_schema_obj, None)])
+        while schema_elements_queue:
+            schema_obj, parent_key = schema_elements_queue.popleft()
+            element_cls = _schema_to_element_map.get(schema_obj.__class__)
+            if not element_cls:
+                continue
+
+            _schema_element = element_cls(schema_obj, parent_key)
+            schema_elements.append((_schema_element, schema_obj))
             parent_key = _schema_element.key
             for nested_schema in _schema_element.nested_schema_objects:
-                schema_elements.append((nested_schema, parent_key))
-
-        return avro_schema_elements
+                schema_elements_queue.append((nested_schema, parent_key))
+        return schema_elements
 
     @classmethod
     def verify_avro_schema(cls, avro_schema_json):
@@ -200,6 +191,33 @@ class AvroSchema(Base, BaseModel):
         except Exception as e:
             return False, repr(e)
 
+    @classmethod
+    def verify_avro_schema_has_docs(cls, avro_schema_json):
+        """ Verify if the given Avro schema has docs.
+        According to avro spec `doc` is supported by `record` type,
+        all fields within the `record` and `enum`.
+
+        :param avro_schema_json: JSON representation of the Avro schema
+
+        :raises ValueError: avro_schema_json with missing docs
+        :raises Exception: invalid avro_schema_json
+        """
+        elements = cls._create_schema_elements_from_json(
+            avro_schema_json
+        )
+        schema_elements_missing_doc = [
+            schema_element.key
+            for schema_element, schema_obj in elements
+            if not schema_element.has_docs_if_supported
+        ]
+
+        if schema_elements_missing_doc:
+            # TODO DATAPIPE-970  implement better exception response during
+            # registering avro schema with missing docs
+            raise ValueError("Missing `doc` for Schema Elements(s) {}".format(
+                ', '.join(schema_elements_missing_doc)
+            ))
+
 
 class _SchemaElement(object):
     """Helper class that wraps the avro schema object and its corresponding
@@ -208,6 +226,7 @@ class _SchemaElement(object):
 
     target_schema_type = None
     element_type = None
+    support_doc = None
 
     def __init__(self, schema_obj, parent_key):
         if not isinstance(schema_obj, self.target_schema_type):
@@ -226,11 +245,21 @@ class _SchemaElement(object):
     def nested_schema_objects(self):
         return []
 
+    @property
+    def has_docs_if_supported(self):
+        if not self.support_doc:
+            return True
+        doc = self.schema_obj.get_prop('doc')
+        if doc and doc.strip():
+            return True
+        return False
+
 
 class _RecordSchemaElement(_SchemaElement):
 
     target_schema_type = schema.RecordSchema
     element_type = 'record'
+    support_doc = True
 
     @property
     def key(self):
@@ -245,6 +274,7 @@ class _FieldElement(_SchemaElement):
 
     target_schema_type = schema.Field
     element_type = 'field'
+    support_doc = True
 
     @property
     def key(self):
@@ -262,6 +292,7 @@ class _EnumSchemaElement(_SchemaElement):
 
     target_schema_type = schema.EnumSchema
     element_type = 'enum'
+    support_doc = True
 
     @property
     def key(self):
@@ -272,6 +303,7 @@ class _FixedSchemaElement(_SchemaElement):
 
     target_schema_type = schema.FixedSchema
     element_type = 'fixed'
+    support_doc = False
 
     @property
     def key(self):
@@ -282,6 +314,7 @@ class _ArraySchemaElement(_SchemaElement):
 
     target_schema_type = schema.ArraySchema
     element_type = 'array'
+    support_doc = False
 
     @property
     def key(self):
@@ -299,6 +332,7 @@ class _MapSchemaElement(_SchemaElement):
 
     target_schema_type = schema.MapSchema
     element_type = 'map'
+    support_doc = False
 
     @property
     def key(self):

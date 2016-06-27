@@ -50,21 +50,25 @@ class RedshiftInt8(RedshiftBigInt):
     type_name = 'int8'
 
 
-class RedshiftRealNumber(SQLColumnDataType):
-    """Base class for Redshift real number data types"""
+class RedshiftFloatingPointNumeric(SQLColumnDataType):
+    """Base class for non-parametric floating point numeric types"""
 
-    def __init__(self, precision=None, scale=None):
-        super(RedshiftRealNumber, self).__init__()
+    def __init__(self):
+        super(RedshiftFloatingPointNumeric, self).__init__()
+
+
+class RedshiftUDPNumeric(SQLColumnDataType):
+    """Base class for user-defined parametric floating point numeric types"""
+
+    def __init__(self, precision, scale):
+        super(RedshiftUDPNumeric, self).__init__()
         self.precision = precision
         self.scale = scale
 
 
-class RedshiftReal(RedshiftRealNumber):
+class RedshiftReal(RedshiftFloatingPointNumeric):
 
     type_name = 'real'
-
-    def __init__(self):
-        super(RedshiftReal, self).__init__()
 
 
 class RedshiftFloat4(RedshiftReal):
@@ -72,12 +76,9 @@ class RedshiftFloat4(RedshiftReal):
     type_name = 'float4'
 
 
-class RedshiftDouble(RedshiftRealNumber):
+class RedshiftDouble(RedshiftFloatingPointNumeric):
 
     type_name = 'double precision'
-
-    def __init__(self):
-        super(RedshiftDouble, self).__init__()
 
 
 class RedshiftFloat(RedshiftDouble):
@@ -90,7 +91,7 @@ class RedshiftFloat8(RedshiftDouble):
     type_name = 'float8'
 
 
-class RedshiftDecimal(RedshiftRealNumber):
+class RedshiftDecimal(RedshiftUDPNumeric):
 
     type_name = 'decimal'
 
@@ -131,7 +132,7 @@ class RedshiftBPChar(RedshiftChar):
     type_name = 'bpchar'
 
     def __init__(self):
-        super(RedshiftBPChar).__init__(256)
+        super(RedshiftBPChar, self).__init__(256)
 
 
 class RedshiftVarChar(RedshiftString):

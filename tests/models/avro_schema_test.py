@@ -314,7 +314,7 @@ class TestAvroSchemaModel(DBTestCase):
         assert is_valid
         assert error is None
 
-    @pytest.mark.parametrize("avro_schema", [
+    @pytest.fixture(params=[
         {"name": "foo", "type": "record", "fields": ["bar"]},
         {"name": "", "type": "enum", "symbols": ["a"]},
         {"name": "foo", "type": "fixed"},
@@ -324,7 +324,65 @@ class TestAvroSchemaModel(DBTestCase):
         ["null", "null"],
         100
     ])
-    def test_verify_avro_schema_with_invalid_schema_json(self, avro_schema):
-        is_valid, error = models.AvroSchema.verify_avro_schema(avro_schema)
+    def invalid_avro_schema(self, request):
+        return request.param
+
+    def test_verify_avro_schema_with_invalid_schema_json(
+        self,
+        invalid_avro_schema
+    ):
+        is_valid, error = models.AvroSchema.verify_avro_schema(
+            invalid_avro_schema
+        )
         assert not is_valid
         assert error
+
+    @pytest.mark.parametrize("avro_schema", [
+        {
+            "name": "foo",
+            "doc": "test_doc",
+            "type": "record",
+            "namespace": "test_namespace",
+            "fields": [
+                {"type": "int", "name": "col", "doc": "test_doc"},
+                {"name": "clientHash", "doc": "test_doc",
+                 "type": {"type": "fixed", "name": "MD5", "size": 16}}
+            ]
+        },
+        {"name": "foo", "type": "fixed", "size": 16},
+        {"name": "color", "doc": "test_d", "type": "enum", "symbols": ["red"]}
+    ])
+    def test_verify_avro_schema_with_schema_doc(self, avro_schema):
+        models.AvroSchema.verify_avro_schema_has_docs(avro_schema)
+
+    @pytest.mark.parametrize("avro_schema_with_missing_docs", [
+        {
+            "name": "foo",
+            "doc": "",
+            "type": "record",
+            "namespace": "test_namespace",
+            "fields": [
+                {"type": "int", "name": "col"},
+                {"name": "clientHash", "doc": " ",
+                 "type": {"type": "fixed", "name": "MD5", "size": 16}}
+            ]
+        },
+        {"name": "color", "type": "enum", "symbols": ["red"]}
+    ])
+    def test_avro_schema_with_missing_doc_fails(
+        self,
+        avro_schema_with_missing_docs
+    ):
+        with pytest.raises(ValueError):
+            models.AvroSchema.verify_avro_schema_has_docs(
+                avro_schema_with_missing_docs
+            )
+
+    def test_avro_schema_with_invalid_schema_fails(
+        self,
+        invalid_avro_schema
+    ):
+        with pytest.raises(Exception):
+            models.AvroSchema.verify_avro_schema_has_docs(
+                invalid_avro_schema
+            )

@@ -148,6 +148,33 @@
                     ]
                 }
             ]
+        },
+        {
+            "path": "/v1/schemas/created_after/{created_after}",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get the Avro schemas created after the specified creation_date.",
+                    "notes": "",
+                    "type": "array",
+                    "items": {
+                        "$ref": "Schema"
+                    },
+                    "nickname": "get_schemas_created_after",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "created_after",
+                            "description": "Starting date of schemas to be fetched (inclusive)",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": []
+                }
+            ]
         }
     ],
     "models": {

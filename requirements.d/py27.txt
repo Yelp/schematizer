@@ -1,0 +1,7 @@
+-r ../requirements.txt
+coverage
+ipdb
+ipython
+mock
+pytest
+pytest-ipdb==0.1-prerelease
