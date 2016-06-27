@@ -104,13 +104,19 @@ class AvroToRedshiftConverter(BaseConverter):
     def _is_union_schema(self, avro_schema):
         return isinstance(avro_schema, schema.UnionSchema)
 
-    def _is_enum_schema(self, avro_schema):
-        return isinstance(avro_schema, schema.EnumSchema)
+    def _is_complex_schema(self, avro_schema):
+        return any([
+            isinstance(avro_schema, schema.ArraySchema),
+            isinstance(avro_schema, schema.EnumSchema),
+            isinstance(avro_schema, schema.FixedSchema),
+            isinstance(avro_schema, schema.MapSchema),
+            isinstance(avro_schema, schema.UnionSchema),
+        ])
 
     def _convert_field_type(self, field_type, field):
         if self._is_primitive_schema(field_type):
             typ = field_type.fullname
-        elif self._is_enum_schema(field_type):
+        elif self._is_complex_schema(field_type):
             typ = field_type.type
         else:
             typ = field_type
@@ -187,7 +193,9 @@ class AvroToRedshiftConverter(BaseConverter):
 
         max_len = field.props.get(AvroMetaDataKeys.MAX_LEN)
         if max_len:
-            return self._construct_varchar_column(max_len)
+            return redshift_data_types.RedshiftVarChar(
+                min(int(max_len) * self.CHAR_BYTES, self.MAX_VARCHAR_BYTES)
+            )
 
         raise SchemaConversionException(
             "Unable to convert `string` type without metadata {0} or {1}."
@@ -200,7 +208,9 @@ class AvroToRedshiftConverter(BaseConverter):
     def _convert_enum_type(self, field):
         symbols = field.type.get_prop(AvroMetaDataKeys.SYMBOLS)
         max_symbol_len = max(len(symbol) for symbol in symbols)
-        return self._construct_varchar_column(max_symbol_len)
+        return redshift_data_types.RedshiftVarChar(
+            min(int(max_symbol_len), self.MAX_VARCHAR_BYTES)
+        )
 
     def _get_table_metadata(self, record_schema):
         table_metadata = ({MetaDataKey.NAMESPACE: record_schema.namespace}

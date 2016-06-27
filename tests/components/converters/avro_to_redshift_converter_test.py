@@ -192,7 +192,7 @@ class TestAvroToRedshiftConverter(object):
                  'type': 'enum',
                  'name': self.col_name,
                  'symbols': ['1', '123', '12']}
-            },
+             },
             SQLColumn(
                 self.col_name,
                 redshift_types.RedshiftVarChar(3 * 2),
