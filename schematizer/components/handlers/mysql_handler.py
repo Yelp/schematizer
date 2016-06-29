@@ -330,7 +330,8 @@ class ParsedMySQLProcessor(object):
             elif state == EXPECT_COLUMN and isinstance(token, sql.Parenthesis):
                 return [
                     self._clean_identifier_quotes(t.value)
-                    for t in token.tokens[1:-1] if t.ttype == T.Name
+                    for t in token.tokens[1:-1]
+                    if t.ttype == T.Name or t.ttype == T.Literal.String.Symbol
                 ]
         return []
 

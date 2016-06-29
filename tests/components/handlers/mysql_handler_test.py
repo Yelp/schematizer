@@ -422,11 +422,16 @@ class TestMySQLHandler(object):
             expected_columns
         )
 
-    def test_create_sql_table_stmt_with_quoted_primary_keys(self, handler):
+    @pytest.mark.parametrize('primary_key_identifier', ['`id`', '"id"'])
+    def test_create_sql_table_stmt_with_quoted_primary_keys(
+        self,
+        handler,
+        primary_key_identifier
+    ):
         create_definitions = [
             'id int(11) not null',
-            'name varchar(8)',
-            'primary key(`id`)'
+            '`name` varchar(8)',
+            'primary key({})'.format(primary_key_identifier)
         ]
         expected_columns = [
             SQLColumn(
