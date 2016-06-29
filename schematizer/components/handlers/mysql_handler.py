@@ -331,7 +331,7 @@ class ParsedMySQLProcessor(object):
                 return [
                     self._clean_identifier_quotes(t.value)
                     for t in token.tokens[1:-1]
-                    if t.ttype == T.Name or t.ttype == T.Literal.String.Symbol
+                    if t.ttype in (T.Name, T.Literal.String.Symbol)
                 ]
         return []
 
