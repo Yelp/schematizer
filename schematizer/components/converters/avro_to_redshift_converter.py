@@ -105,13 +105,17 @@ class AvroToRedshiftConverter(BaseConverter):
         return isinstance(avro_schema, schema.UnionSchema)
 
     def _is_complex_schema(self, avro_schema):
-        return any([
-            isinstance(avro_schema, schema.ArraySchema),
-            isinstance(avro_schema, schema.EnumSchema),
-            isinstance(avro_schema, schema.FixedSchema),
-            isinstance(avro_schema, schema.MapSchema),
-            isinstance(avro_schema, schema.UnionSchema),
-        ])
+        # The RecordSchema type is excluded because the Redshift converter
+        # doesn't support nested table schemas.
+        return isinstance(
+            avro_schema, (
+                schema.ArraySchema,
+                schema.EnumSchema,
+                schema.FixedSchema,
+                schema.MapSchema,
+                schema.UnionSchema
+            )
+        )
 
     def _convert_field_type(self, field_type, field):
         if self._is_primitive_schema(field_type):
@@ -204,7 +208,7 @@ class AvroToRedshiftConverter(BaseConverter):
         symbols = field.type.get_prop(AvroMetaDataKeys.SYMBOLS)
         max_symbol_len = max(len(symbol) for symbol in symbols)
         return redshift_data_types.RedshiftVarChar(
-            min(int(max_symbol_len), self.MAX_VARCHAR_BYTES)
+            min(max_symbol_len, self.MAX_VARCHAR_BYTES)
         )
 
     def _get_table_metadata(self, record_schema):

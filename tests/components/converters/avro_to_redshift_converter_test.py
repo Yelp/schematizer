@@ -195,7 +195,7 @@ class TestAvroToRedshiftConverter(object):
              },
             SQLColumn(
                 self.col_name,
-                redshift_types.RedshiftVarChar(3 * 2),
+                redshift_types.RedshiftVarChar(3),
                 is_nullable=False
             ),
         )
