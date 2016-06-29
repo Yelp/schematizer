@@ -328,8 +328,10 @@ class ParsedMySQLProcessor(object):
             elif state == EXPECT_KEY and token.value.upper() == 'KEY':
                 state = EXPECT_COLUMN
             elif state == EXPECT_COLUMN and isinstance(token, sql.Parenthesis):
-                return [t.value for t in token.tokens[1:-1]
-                        if t.ttype == T.Name]
+                return [
+                    self._clean_identifier_quotes(t.value)
+                    for t in token.tokens[1:-1] if t.ttype == T.Name
+                ]
         return []
 
     def _set_column_primary_keys(self, primary_keys, columns):
@@ -338,6 +340,24 @@ class ParsedMySQLProcessor(object):
                 if primary_key == col.name:
                     col.primary_key_order = idx
                     break
+
+    def _clean_identifier_quotes(self, identifier):
+        """Clean the quotes for identifiers.  For the information of identifier:
+        https://dev.mysql.com/doc/refman/5.5/en/identifiers.html.
+        """
+        clean_identifier = self._remove_quote(identifier, '`')
+        if clean_identifier == identifier:
+            clean_identifier = self._remove_quote(clean_identifier, '"')
+        return clean_identifier
+
+    def _remove_quote(self, text, quote):
+        clean_text = text
+        if clean_text:
+            first_char = clean_text[0]
+            last_char = clean_text[-1]
+            if first_char == quote and first_char == last_char:
+                clean_text = text[1:-1].replace(quote * 2, quote)
+        return clean_text
 
 
 class MySQLHandler(SQLHandlerBase):

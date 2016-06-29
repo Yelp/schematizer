@@ -422,6 +422,27 @@ class TestMySQLHandler(object):
             expected_columns
         )
 
+    def test_create_sql_table_stmt_with_quoted_primary_keys(self, handler):
+        create_definitions = [
+            'id int(11) not null',
+            'name varchar(8)',
+            'primary key(`id`)'
+        ]
+        expected_columns = [
+            SQLColumn(
+                'id',
+                data_types.MySQLInt(11),
+                is_nullable=False,
+                primary_key_order=1
+            ),
+            SQLColumn('name', data_types.MySQLVarChar(8))
+        ]
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            create_definitions,
+            expected_columns
+        )
+
     def test_create_sql_table_column_types_are_case_insensitive(self, handler):
         create_definitions = [
             'lows int(11)',
