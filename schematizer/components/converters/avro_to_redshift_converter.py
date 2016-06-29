@@ -205,8 +205,7 @@ class AvroToRedshiftConverter(BaseConverter):
         return redshift_data_types.RedshiftBoolean()
 
     def _convert_enum_type(self, field):
-        symbols = field.type.get_prop(AvroMetaDataKeys.SYMBOLS)
-        max_symbol_len = max(len(symbol) for symbol in symbols)
+        max_symbol_len = max(len(symbol) for symbol in field.type.symbols)
         return redshift_data_types.RedshiftVarChar(
             min(max_symbol_len, self.MAX_VARCHAR_BYTES)
         )
