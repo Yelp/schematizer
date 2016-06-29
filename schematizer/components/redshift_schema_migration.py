@@ -117,7 +117,7 @@ class RedshiftSchemaMigration(object):
                 cls.convert_none_or_string(column.default_value)
             )
         constraints = cls.concatenate_attributes(column.attributes)
-        return '{name} {data_type}{nullable}{default}{attributes}'.format(
+        return '"{name}" {data_type}{nullable}{default}{attributes}'.format(
             name=column.name,
             data_type=cls.construct_data_type(column.type),
             nullable=nullable,
@@ -160,7 +160,10 @@ class RedshiftSchemaMigration(object):
             (c for c in table.columns if c.primary_key_order),
             key=lambda c: c.primary_key_order
         )
-        primary_keys = ', '.join(col.name for col in primary_key_cols)
+        primary_keys = ', '.join(
+            '"{}"'.format(col.name)
+            for col in primary_key_cols
+        )
         return ('PRIMARY KEY ({0})'.format(primary_keys)
                 if primary_keys else '')
 
@@ -190,8 +193,14 @@ class RedshiftSchemaMigration(object):
                 '(SELECT {src_columns} FROM "{src_table}");'
                 .format(
                     new_table=new_table.full_name,
-                    new_columns=', '.join(new_col for _, new_col in col_pairs),
-                    src_columns=', '.join(src_col for src_col, _ in col_pairs),
+                    new_columns=', '.join(
+                        '"{}"'.format(new_col)
+                        for _, new_col in col_pairs
+                    ),
+                    src_columns=', '.join(
+                        '"{}"'.format(src_col)
+                        for src_col, _ in col_pairs
+                    ),
                     src_table=src_table.full_name))
 
     @classmethod
