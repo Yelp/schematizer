@@ -222,15 +222,6 @@ class TestAvroToRedshiftConverter(object):
             ),
         )
 
-    def test_convert_with_field_null(self, converter):
-        with pytest.raises(SchemaConversionException):
-            record_schema = self.compose_record_schema(
-                {'name': self.col_name, 
-                 'type': 'null', 
-                 'default': None}
-            )
-            converter.convert(record_schema)
-
     def test_convert_with_unsupported_type(self, converter):
         with pytest.raises(UnsupportedTypeException):
             record_schema = self.compose_record_schema(
