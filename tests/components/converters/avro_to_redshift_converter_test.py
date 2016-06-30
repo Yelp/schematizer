@@ -22,10 +22,6 @@ class TestAvroToRedshiftConverter(object):
     def converter(self):
         return AvroToRedshiftConverter()
 
-    @pytest.fixture(params=['string', 'bytes'])
-    def avro_string_type(self, request):
-        return request.param
-
     @property
     def avro_schema_name(self):
         return 'foo'
@@ -132,57 +128,61 @@ class TestAvroToRedshiftConverter(object):
             SQLColumn(self.col_name, redshift_types.RedshiftReal())
         )
 
-    def test_convert_with_field_string_with_fixed_len(
-        self,
-        converter,
-        avro_string_type
-    ):
+    def test_convert_with_field_string_with_fixed_len(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
-             'type': ['null', avro_string_type],
+             'type': ['null', 'string'],
              'default': None,
              AvroMetaDataKeys.FIX_LEN: 16},
             SQLColumn(self.col_name, redshift_types.RedshiftChar(16))
         )
 
-    def test_convert_with_field_string_with_max_len(
-        self,
-        converter,
-        avro_string_type
-    ):
+    def test_convert_with_field_string_with_max_len(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
-             'type': ['null', avro_string_type],
+             'type': ['null', 'string'],
              'default': None,
              AvroMetaDataKeys.MAX_LEN: 16},
             SQLColumn(self.col_name, redshift_types.RedshiftVarChar(32))
         )
 
-    def test_convert_string_field_with_exceeded_max_len(
-        self,
-        converter,
-        avro_string_type
-    ):
+    def test_convert_with_field_bytes_with_max_len(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
-             'type': ['null', avro_string_type],
+             'type': ['null', 'bytes'],
+             'default': None,
+             AvroMetaDataKeys.MAX_LEN: 16},
+            SQLColumn(self.col_name, redshift_types.RedshiftVarChar(16))
+        )
+
+    def test_convert_string_field_with_exceeded_max_len(self, converter):
+        self._convert_and_assert_with_one_column(
+            converter,
+            {'name': self.col_name,
+             'type': ['null', 'string'],
              'default': None,
              AvroMetaDataKeys.MAX_LEN: 32768},
             SQLColumn(self.col_name, redshift_types.RedshiftVarChar(65535))
         )
 
-    def test_convert_with_field_string_without_specified_len(
-        self,
-        converter,
-        avro_string_type
-    ):
+    def test_convert_bytes_field_with_exceeded_max_len(self, converter):
+        self._convert_and_assert_with_one_column(
+            converter,
+            {'name': self.col_name,
+             'type': ['null', 'bytes'],
+             'default': None,
+             AvroMetaDataKeys.MAX_LEN: 65536},
+            SQLColumn(self.col_name, redshift_types.RedshiftVarChar(65535))
+        )
+
+    def test_convert_with_field_string_without_specified_len(self, converter):
         with pytest.raises(SchemaConversionException):
             record_schema = self.compose_record_schema(
                 {'name': self.col_name,
-                 'type': avro_string_type,
+                 'type': 'string',
                  'default': ''}
             )
             converter.convert(record_schema)
