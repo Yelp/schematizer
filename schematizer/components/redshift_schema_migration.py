@@ -88,13 +88,13 @@ class RedshiftSchemaMigration(object):
 
     @classmethod
     def create_schema_sql(cls, table):
-        return 'CREATE SCHEMA IF NOT EXISTS {schema}'.format(
+        return 'CREATE SCHEMA IF NOT EXISTS "{schema}"'.format(
             schema=table.schema_name
         )
 
     @classmethod
     def create_table_sql(cls, table):
-        begin_create_table = 'CREATE TABLE {table} ('.format(
+        begin_create_table = 'CREATE TABLE "{table}" ('.format(
             table=table.full_name
         )
         end_create_table = ');'
@@ -117,7 +117,7 @@ class RedshiftSchemaMigration(object):
                 cls.convert_none_or_string(column.default_value)
             )
         constraints = cls.concatenate_attributes(column.attributes)
-        return '{name} {data_type}{nullable}{default}{attributes}'.format(
+        return '"{name}" {data_type}{nullable}{default}{attributes}'.format(
             name=column.name,
             data_type=cls.construct_data_type(column.type),
             nullable=nullable,
@@ -160,7 +160,10 @@ class RedshiftSchemaMigration(object):
             (c for c in table.columns if c.primary_key_order),
             key=lambda c: c.primary_key_order
         )
-        primary_keys = ', '.join(col.name for col in primary_key_cols)
+        primary_keys = ', '.join(
+            '"{}"'.format(col.name)
+            for col in primary_key_cols
+        )
         return ('PRIMARY KEY ({0})'.format(primary_keys)
                 if primary_keys else '')
 
@@ -186,17 +189,23 @@ class RedshiftSchemaMigration(object):
             if new_column:
                 col_pairs.append((src_column.name, new_column.name))
 
-        return ('INSERT INTO {new_table} ({new_columns}) '
-                '(SELECT {src_columns} FROM {src_table});'
+        return ('INSERT INTO "{new_table}" ({new_columns}) '
+                '(SELECT {src_columns} FROM "{src_table}");'
                 .format(
                     new_table=new_table.full_name,
-                    new_columns=', '.join(new_col for _, new_col in col_pairs),
-                    src_columns=', '.join(src_col for src_col, _ in col_pairs),
+                    new_columns=', '.join(
+                        '"{}"'.format(new_col)
+                        for _, new_col in col_pairs
+                    ),
+                    src_columns=', '.join(
+                        '"{}"'.format(src_col)
+                        for src_col, _ in col_pairs
+                    ),
                     src_table=src_table.full_name))
 
     @classmethod
     def rename_table_sql(cls, old_table_full_name, new_table_name):
-        return 'ALTER TABLE {old_table} RENAME TO {new_table};'.format(
+        return 'ALTER TABLE "{old_table}" RENAME TO "{new_table}";'.format(
             old_table=old_table_full_name,
             new_table=new_table_name
         )
@@ -222,7 +231,7 @@ class RedshiftSchemaMigration(object):
 
     @classmethod
     def drop_table_sql(cls, table_name):
-        return 'DROP TABLE {table};'.format(table=table_name)
+        return 'DROP TABLE "{table}";'.format(table=table_name)
 
     @classmethod
     def begin_transaction_sql(cls):
