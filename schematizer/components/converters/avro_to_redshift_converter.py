@@ -104,9 +104,27 @@ class AvroToRedshiftConverter(BaseConverter):
     def _is_union_schema(self, avro_schema):
         return isinstance(avro_schema, schema.UnionSchema)
 
+    def _is_complex_schema(self, avro_schema):
+        # The RecordSchema type is excluded because the Redshift converter
+        # doesn't support nested table schemas.
+        return isinstance(
+            avro_schema, (
+                schema.ArraySchema,
+                schema.EnumSchema,
+                schema.FixedSchema,
+                schema.MapSchema,
+                schema.UnionSchema
+            )
+        )
+
     def _convert_field_type(self, field_type, field):
-        typ = (field_type.fullname if self._is_primitive_schema(field_type)
-               else field_type)
+        if self._is_primitive_schema(field_type):
+            typ = field_type.fullname
+        elif self._is_complex_schema(field_type):
+            typ = field_type.type
+        else:
+            typ = field_type
+
         converter_func = self._type_converters.get(typ)
         if converter_func:
             return converter_func(field)
@@ -126,6 +144,7 @@ class AvroToRedshiftConverter(BaseConverter):
             'double': self._convert_double_type,
             'string': self._convert_string_type,
             'boolean': self._convert_boolean_type,
+            'enum': self._convert_enum_type,
         }
 
     def _convert_null_type(self, field):
@@ -184,6 +203,12 @@ class AvroToRedshiftConverter(BaseConverter):
 
     def _convert_boolean_type(self, field):
         return redshift_data_types.RedshiftBoolean()
+
+    def _convert_enum_type(self, field):
+        max_symbol_len = max(len(symbol) for symbol in field.type.symbols)
+        return redshift_data_types.RedshiftVarChar(
+            min(max_symbol_len, self.MAX_VARCHAR_BYTES)
+        )
 
     def _get_table_metadata(self, record_schema):
         table_metadata = ({MetaDataKey.NAMESPACE: record_schema.namespace}
