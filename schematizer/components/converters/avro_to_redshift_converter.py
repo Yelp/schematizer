@@ -189,7 +189,11 @@ class AvroToRedshiftConverter(BaseConverter):
         """
         fix_len = field.props.get(AvroMetaDataKeys.FIX_LEN)
         if fix_len:
-            return redshift_data_types.RedshiftChar(fix_len)
+            # Columns with a CHAR data type only accept single-byte UTF-8
+            # characters. This means we can't support char columns since they
+            # will not be able to accept multibyte chars. We can instead use
+            # VARCHAR columns, which accept multibyte UTF-8 characters.
+            return redshift_data_types.RedshiftVarChar(fix_len)
 
         max_len = field.props.get(AvroMetaDataKeys.MAX_LEN)
         if max_len:
