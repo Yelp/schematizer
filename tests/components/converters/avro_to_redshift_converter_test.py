@@ -148,7 +148,17 @@ class TestAvroToRedshiftConverter(object):
             SQLColumn(self.col_name, redshift_types.RedshiftVarChar(32))
         )
 
-    def test_convert_with_field_string_upper_bound_max_len(self, converter):
+    def test_convert_with_field_bytes_with_max_len(self, converter):
+        self._convert_and_assert_with_one_column(
+            converter,
+            {'name': self.col_name,
+             'type': ['null', 'bytes'],
+             'default': None,
+             AvroMetaDataKeys.MAX_LEN: 16},
+            SQLColumn(self.col_name, redshift_types.RedshiftVarChar(16))
+        )
+
+    def test_convert_string_field_with_exceeded_max_len(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
@@ -158,10 +168,22 @@ class TestAvroToRedshiftConverter(object):
             SQLColumn(self.col_name, redshift_types.RedshiftVarChar(65535))
         )
 
+    def test_convert_bytes_field_with_exceeded_max_len(self, converter):
+        self._convert_and_assert_with_one_column(
+            converter,
+            {'name': self.col_name,
+             'type': ['null', 'bytes'],
+             'default': None,
+             AvroMetaDataKeys.MAX_LEN: 65536},
+            SQLColumn(self.col_name, redshift_types.RedshiftVarChar(65535))
+        )
+
     def test_convert_with_field_string_without_specified_len(self, converter):
         with pytest.raises(SchemaConversionException):
             record_schema = self.compose_record_schema(
-                {'name': self.col_name, 'type': 'string', 'default': ''}
+                {'name': self.col_name,
+                 'type': 'string',
+                 'default': ''}
             )
             converter.convert(record_schema)
 
@@ -203,7 +225,9 @@ class TestAvroToRedshiftConverter(object):
     def test_convert_with_field_null(self, converter):
         with pytest.raises(SchemaConversionException):
             record_schema = self.compose_record_schema(
-                {'name': self.col_name, 'type': 'null', 'default': None}
+                {'name': self.col_name, 
+                 'type': 'null', 
+                 'default': None}
             )
             converter.convert(record_schema)
 
@@ -211,8 +235,20 @@ class TestAvroToRedshiftConverter(object):
         with pytest.raises(UnsupportedTypeException):
             record_schema = self.compose_record_schema(
                 {'name': self.col_name,
-                 'type': ['null', 'bytes'],
-                 'default': None}
+                 'type': {
+                     'type': 'array',
+                     'items': {
+                         'type': 'map',
+                         'values': 'string'
+                     }
+                 }}
+            )
+            converter.convert(record_schema)
+
+    def test_convert_with_field_null(self, converter):
+        with pytest.raises(SchemaConversionException):
+            record_schema = self.compose_record_schema(
+                {'name': self.col_name, 'type': 'null', 'default': None}
             )
             converter.convert(record_schema)
 
