@@ -133,15 +133,15 @@ class TestRedshiftSchemaMigration(object):
 
     @property
     def expected_new_schema_sql(self):
-        return 'CREATE SCHEMA IF NOT EXISTS "{}"'.format(
+        return 'CREATE SCHEMA IF NOT EXISTS {}'.format(
             self.new_table.schema_name
         )
 
     @property
     def expected_new_table_sql(self):
         return (
-            'CREATE TABLE "{0}" ("{1}" varchar(64),"{2}" decimal(4,2),'
-            '"{3}" integer,PRIMARY KEY ("{3}"));'.format(
+            'CREATE TABLE {0} ({1} varchar(64),{2} decimal(4,2),'
+            '{3} integer,PRIMARY KEY ({3}));'.format(
                 self.new_table.full_name,
                 self.same_col.name,
                 self.renamed_col.name,
@@ -154,7 +154,7 @@ class TestRedshiftSchemaMigration(object):
         actual = migration.create_simple_push_plan(simple_table)
         expected = [
             'BEGIN;',
-            'CREATE TABLE "{}" ("same_col" varchar(64));'.format(
+            'CREATE TABLE {} (same_col varchar(64));'.format(
                 simple_table.full_name
             ),
             '',
@@ -177,19 +177,12 @@ class TestRedshiftSchemaMigration(object):
         assert expected == actual
 
     def test_create_simple_push_plan_with_different_name(self, migration):
-        insert_sql = (
-            'INSERT INTO "{0}" ({1}) (SELECT {2} FROM "{3}");'.format(
-                self.new_table.full_name,
-                '"{0}", "{1}"'.format(
-                    self.same_col.name,
-                    self.renamed_col.name
-                ),
-                '"{0}", "{1}"'.format(
-                    self.same_col.name,
-                    self.old_col.name
-                ),
-                self.another_old_table.full_name
-            ))
+        insert_sql = ('INSERT INTO {0} ({1}) (SELECT {2} FROM {3});'.format(
+            self.new_table.full_name,
+            ', '.join([self.same_col.name, self.renamed_col.name]),
+            ', '.join([self.same_col.name, self.old_col.name]),
+            self.another_old_table.full_name
+        ))
         expected = [
             'BEGIN;',
             self.expected_new_schema_sql,
@@ -215,20 +208,12 @@ class TestRedshiftSchemaMigration(object):
             temp_table_full_name
         )
 
-        insert_sql = (
-            'INSERT INTO "{0}" ({1}) (SELECT {2} FROM "{3}");'.format(
-                temp_table_full_name,
-                '"{0}", "{1}"'.format(
-                    self.same_col.name,
-                    self.renamed_col.name
-                ),
-                '"{0}", "{1}"'.format(
-                    self.same_col.name,
-                    self.old_col.name
-                ),
-                self.old_table.full_name
-            )
-        )
+        insert_sql = ('INSERT INTO {0} ({1}) (SELECT {2} FROM {3});'.format(
+            temp_table_full_name,
+            ', '.join([self.same_col.name, self.renamed_col.name]),
+            ', '.join([self.same_col.name, self.old_col.name]),
+            self.old_table.full_name
+        ))
 
         old_table_name = self.new_table.name + '_old'
         old_table_full_name = self.new_table.full_name + '_old'
@@ -238,17 +223,17 @@ class TestRedshiftSchemaMigration(object):
             self.expected_new_schema_sql,
             create_sql,
             insert_sql,
-            'ALTER TABLE "{0}" RENAME TO "{1}";'.format(
+            'ALTER TABLE {0} RENAME TO {1};'.format(
                 self.new_table.full_name,
                 old_table_name
             ),
-            'ALTER TABLE "{0}" RENAME TO "{1}";'.format(
+            'ALTER TABLE {0} RENAME TO {1};'.format(
                 temp_table_full_name,
                 self.new_table.name
             ),
             self.expected_permission_one,
             self.expected_permission_two,
-            'DROP TABLE "{0}";'.format(old_table_full_name),
+            'DROP TABLE {0};'.format(old_table_full_name),
             'COMMIT;'
         ]
         actual = migration.create_simple_push_plan(
@@ -259,7 +244,7 @@ class TestRedshiftSchemaMigration(object):
 
     def test_get_column_def_sql(self, migration):
         column = SQLColumn('foo', data_types.RedshiftInteger())
-        expected = '"foo" integer'
+        expected = 'foo integer'
         actual = migration.get_column_def_sql(column)
         assert expected == actual
 
@@ -273,7 +258,7 @@ class TestRedshiftSchemaMigration(object):
             attributes=attributes,
             aliases='bar'
         )
-        expected = '"foo" integer not null default \'\' attr_one'
+        expected = 'foo integer not null default \'\' attr_one'
         actual = migration.get_column_def_sql(column)
         assert expected == actual
 
@@ -284,7 +269,7 @@ class TestRedshiftSchemaMigration(object):
             attributes=[SQLAttribute.create_with_value('attr', '')],
             aliases='bar'
         )
-        expected = '"foo" varchar(256) attr \'\''
+        expected = 'foo varchar(256) attr \'\''
         actual = migration.get_column_def_sql(column)
         assert expected == actual
 
@@ -305,7 +290,7 @@ class TestRedshiftSchemaMigration(object):
         assert '' == actual
 
     def test_get_primary_key_sql(self, migration):
-        expected = 'PRIMARY KEY ("{0}")'.format(self.primary_key_column.name)
+        expected = 'PRIMARY KEY ({0})'.format(self.primary_key_column.name)
         actual = migration.get_primary_key_sql(self.new_table)
         assert expected == actual
 
@@ -314,7 +299,7 @@ class TestRedshiftSchemaMigration(object):
         assert '' == actual
 
     def test_rename_table_sql(self, migration):
-        expected = 'ALTER TABLE "foo" RENAME TO "bar";'
+        expected = 'ALTER TABLE foo RENAME TO bar;'
         actual = migration.rename_table_sql('foo', 'bar')
         assert expected == actual
 
@@ -331,12 +316,12 @@ class TestRedshiftSchemaMigration(object):
         assert expected == actual
 
     def test_drop_table_sql(self, migration):
-        assert 'DROP TABLE "foo";' == migration.drop_table_sql('foo')
+        assert 'DROP TABLE foo;' == migration.drop_table_sql('foo')
 
     def test_create_table_sql_with_no_primary_key(self, migration):
         expected = (
-            'CREATE TABLE "{0}" ("{1}" varchar(64),"{2}" decimal(4,2),'
-            '"{3}" integer);'.format(
+            'CREATE TABLE {0} ({1} varchar(64),{2} decimal(4,2),'
+            '{3} integer);'.format(
                 self.old_table.full_name,
                 self.same_col.name,
                 self.old_col.name,
@@ -352,16 +337,13 @@ class TestRedshiftSchemaMigration(object):
         actual = migration.create_table_sql(table)
 
         expected = (
-            'CREATE TABLE "{0}" ("{1}" integer,"{2}" integer,'
-            'PRIMARY KEY ({3}));'
+            'CREATE TABLE {0} ({1} integer,{2} integer,PRIMARY KEY ({3}));'
             .format(
                 self.table_name,
                 self.second_primary_key_column.name,
                 self.primary_key_column.name,
-                '"{0}", "{1}"'.format(
-                    self.primary_key_column.name,
-                    self.second_primary_key_column.name
-                )
+                ', '.join([self.primary_key_column.name,
+                           self.second_primary_key_column.name])
             )
         )
         assert expected == actual
@@ -372,7 +354,7 @@ class TestRedshiftSchemaMigration(object):
         actual = migration.create_table_sql(table)
 
         expected = (
-            'CREATE TABLE "{0}" ("{1}" double precision,"{2}" real);'
+            'CREATE TABLE {0} ({1} double precision,{2} real);'
             .format(
                 self.table_name,
                 self.double_precision_column.name,
