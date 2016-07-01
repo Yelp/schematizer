@@ -1,232 +1,269 @@
 # -*- coding: utf-8 -*-
+""" This module spins up a test schematizer container and registers all the
+mysql tables against the schematizer container. It picks up the database
+credentials from the topology file and verifies if the returned schema complies
+with the input table. Displays the number of successfully registered tables and
+failed tables.
+"""
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import getpass
 import json
 import optparse
 import subprocess
 import sys
+from contextlib import contextmanager
 
 import pymysql
 import requests
-import yaml
+from docker import Client
+from yelp_conn.topology import TopologyFile
 
 
-def _get_options(args):
+PROJECT = "testschematizer" + getpass.getuser()
+SERVICE = "schematizerservice"
+
+
+class ContainerUnavailableError(Exception):
+    def __init__(self, project='unknown', service='unknown'):
+        Exception.__init__(
+            self,
+            "Container for project {0} and service {1} failed to start".format(
+                project, service
+            )
+        )
+
+
+def get_arguments():
+    """ Parse the command-line options found in sys.argv[1:] and returns a pair
+        (values, args) where 'values' is an Values instance (with all your
+        option values) and 'args' is the list of arguments left over after
+        parsing options.
+    """
+    args = sys.argv[1:]
+
     op = optparse.OptionParser(
         usage='%prog [options]',
         description="Register all the tables of a database against a test "
-        "Schematizer container.")
+        "Schematizer container."
+    )
     op.add_option(
-        '--cluster_name', '-c',
+        '--cluster_name',
+        '-c',
         default='primary',
         help='Name of the cluster to connect to. Default is "%default"'
     )
     op.add_option(
-        '--config_file', '-f',
-        default='/nail/srv/configs/topology-proddb.yaml',
-        help='Path of the config file containing db information. '
-             'Default is "%default"'
-    )
-    op.add_option(
-        '--db_name', '-d',
-        help='Name of the database in the cluster to connect to. DB name from '
-             'the config_file will be picked up if not specified.'
-    )
-    op.add_option(
-        '--username', '-u',
-        help='username to connect to mysql as. Username will be picked up '
-             'from the config file if not specified.'
-    )
-    op.add_option(
-        '--password', '-p',
-        help='password for the username to connect to mysql. Password will be '
-             'picked up from the config file if not specified.'
+        '--proddb',
+        '-p',
+        action='store_true',
+        default=False,
+        help='Use topology for proddbs'
     )
     return op.parse_args(args)
 
 
-def _get_db_connection(host_ipaddress, db_name, db_user, db_password):
-    return pymysql.connect(
-        host=host_ipaddress,
-        user=db_user,
-        password=db_password,
-        db=db_name,
-        charset='utf8mb4',
-        cursorclass=pymysql.cursors.DictCursor
-    )
+def get_container_ip_address(project, service):
+    """ Returns container IP address of the first container matching project
+    and service.
+    Raises ContainerUnavailableError if the container is unavailable.
 
-
-def _execute_query_get_all_rows(connection, query):
+    Args:
+        project: Name of the project the container is hosting
+        service: Name of the service that the container is hosting
+    """
+    docker_client = Client(version='auto')
     try:
-        with connection.cursor() as cursor:
-            cursor.execute(query)
-            results = cursor.fetchall()
-            connection.commit()
-            return results
+        for container in docker_client.containers():
+            if container['Labels'].get(
+                'com.docker.compose.project'
+            ) == project and container['Labels'].get(
+                'com.docker.compose.service'
+            ) == service:
+                return container[
+                    'NetworkSettings'
+                ]['Networks']['bridge']['IPAddress']
     except:
-        connection.close()
+        raise ContainerUnavailableError(project=project, service=service)
 
 
-def _get_column_maps(tables, cluster_ipaddress, db_name, username, password):
-    connection = _get_db_connection(
-        cluster_ipaddress,
-        db_name,
-        username,
-        password
-    )
-    table_to_columns_map = {}
-    table_to_create_schema_stmt_map = {}
-    for table_name in tables:
-        query = "show create table " + db_name + "." + table_name + ";"
-        table_create_stmt = _execute_query_get_all_rows(connection, query)
-        table_create_stmt[0]['Create Table'] = table_create_stmt[0][
-            'Create Table'
-        ].replace('\n', '')
-        table_to_create_schema_stmt_map[table_create_stmt[0]['Table']] = \
-            table_create_stmt[0]['Create Table']
-        query = "show columns from yelp." + table_name + ";"
-        table_columns = _execute_query_get_all_rows(connection, query)
-        column_names = set()
-        for column in table_columns:
-            column_names.add(column['Field'])
-        table_to_columns_map[table_name] = column_names
-    connection.close()
-    return (table_to_create_schema_stmt_map, table_to_columns_map)
+def _execute_query(connection, query):
+    """ Executes the query and returns the result """
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        results = cursor.fetchall()
+        connection.commit()
+        return results
 
 
-def _get_table_names(cluster_ipaddress, db_name, username, password):
-    tables = []
-    query = "show tables;"
-    connection = _get_db_connection(
-        cluster_ipaddress,
-        db_name,
-        username,
-        password
-    )
-    result = _execute_query_get_all_rows(connection, query)
-    connection.close()
-    for row in result:
-        tables.append(row['Tables_in_yelp'])
-    return tables
-
-
-def _set_up_schematizer_container():
-    print "Setting up Schematizer container..."
-    db_container_name = "db_test_container"
-    configs_container_name = "configs_test_container"
-    schematizer_container_name = "schematizer_test_container"
-
-    db_container_not_found = subprocess.call(
-        "docker ps -a | grep " + db_container_name,
-        shell=True
-    )
-    if db_container_not_found:
-        subprocess.call(
-            "docker run -d --name " + db_container_name +
-            " docker-dev.yelpcorp.com/schematizer_database",
-            shell=True
+def get_mysql_tables_info(conn):
+    """ Fetches create table statements and columns of all the tables and
+    returns a table_to_info_map with table names as keys and tuples of create
+    table statement and list of columns as values.
+    """
+    table_to_info_map = {}
+    table_entries = _execute_query(conn, query='show tables;')
+    for entry in table_entries:
+        table_name = entry[0]
+        results = _execute_query(
+            conn,
+            query='show create table {};'.format(table_name)
         )
-
-    configs_container_not_found = subprocess.call(
-        "docker ps -a | grep " + configs_container_name,
-        shell=True
-    )
-    if configs_container_not_found:
-        subprocess.call(
-            "docker run -d --name " + configs_container_name +
-            " docker-dev.yelpcorp.com/schematizer_configs",
-            shell=True
+        _, create_tbl_stmt = results[0]
+        create_tbl_stmt = create_tbl_stmt.replace('\n', '')
+        results = _execute_query(
+            conn,
+            query='show columns from {};'.format(table_name)
         )
-
-    schematizer_container_not_found = subprocess.call(
-        "docker ps -a | grep " + schematizer_container_name,
-        shell=True
-    )
-    if schematizer_container_not_found:
-        subprocess.call(
-            "docker run -d --name " + schematizer_container_name +
-            " --link " + db_container_name + ":schematizerdatabase "
-            "--volumes-from=" + configs_container_name +
-            " docker-dev.yelpcorp.com/schematizer_service "
-            "/code/virtualenv_run/bin/python /code/serviceinit.d/schematizer "
-            "start-dev", shell=True
-        )
-
-    schematizer_ipaddresss = subprocess.check_output(
-        "docker inspect -f '{{ .NetworkSettings.IPAddress }}' " +
-        schematizer_container_name, shell=True
-    )
-    schematizer_ipaddresss = schematizer_ipaddresss.rstrip()
-    if schematizer_ipaddresss:
-        print "Schematizer container setup completed successfully."
-    else:
-        print "Error while setting up schematizer container.Exiting..."
-        sys.exit(2)
-    return schematizer_ipaddresss
+        columns = [column[0] for column in results]
+        table_to_info_map[table_name] = (create_tbl_stmt, columns)
+    return table_to_info_map
 
 
-if __name__ == "__main__":
-    db_args = sys.argv[1:]
-    options, args = _get_options(db_args)
-    yaml_file = open(options.config_file)
-    config = yaml.load(yaml_file)['topology']
-    host_ipaddress = ''
-    user = ''
-    pwd = ''
-    db_name = ''
+@contextmanager
+def setup_schematizer_container():
+    """ Set up a scheamtizer container and yields the IP address of the host
+    container.
+    Note: Removes the container when exiting the context manager.
+    """
+    try:
+        run_docker_compose_command('up', '-d', SERVICE)
+        host = get_container_ip_address(PROJECT, SERVICE)
+        yield host
+    finally:
+        run_docker_compose_command('kill')
+        run_docker_compose_command('rm', '--force')
 
-    for entry_obj in config:
-        if options.cluster_name == entry_obj['cluster']:
-            entry = entry_obj['entries'][0]
-            host_ipaddress = entry['host']
-            db_name = options.db_name if options.db_name else entry['db']
-            user = options.username if options.username else entry['user']
-            pwd = options.password if options.password else entry['passwd']
-            break
-    else:
-        print 'Please enter a valid cluster_name. Exiting...'
-        sys.exit(2)
-    schematizer_ipaddress = _set_up_schematizer_container()
 
-    print 'Executing script...'
-    tables = _get_table_names(host_ipaddress, db_name, user, pwd)
-    table_to_create_schema_stmt_map, table_to_columns_map = _get_column_maps(
-        tables, host_ipaddress, db_name, user, pwd
+def run_docker_compose_command(*args):
+    """ Executes docker compose command with the given arguments """
+    subprocess.call(
+        ['docker-compose', '--project-name={}'.format(PROJECT)] + list(args),
+        stderr=subprocess.STDOUT
     )
 
+
+def get_connection_param_from_topology(topology_file, cluster):
+    """ Reads the given topology file and returns the first element in the
+    connection params for the given cluster replica ('slave') pair. Throws
+    exception if the given cluster, replica pair is not part of this toplogy
+    file """
+    topology = TopologyFile.new_from_file(topology_file)
+    return topology.get_first_connection_param(cluster, 'slave')
+
+
+def register_mysql_tables(cluster, mysql_tables, curler, host):
+    """ Registers the given mysql tables against the Schematizer container. """
+    payload = {
+        'namespace': 'schematizer_test_for_{}'.format(cluster),
+        'source': None,
+        'source_owner_email': 'test_schematizer@yelp.com',
+        'contains_pii': False,
+        'new_create_table_stmt': None
+    }
+    table_to_avro_fields_map = {}
+    for table_name, table_info in mysql_tables.iteritems():
+        payload['source'] = table_name
+        payload['new_create_table_stmt'] = table_info[0]
+        fields = curler(host=host, post_payload=payload)
+        table_to_avro_fields_map[table_name] = fields
+    return table_to_avro_fields_map
+
+
+def post_to_schematizer(host, post_payload):
+    uri = 'http://{}:8888/v1/schemas/mysql'.format(host)
     headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
-    url = 'http://' + schematizer_ipaddress + ':8888/v1/schemas/mysql'
-    table_to_schema_id_map = {}
-    error_tables = []
+    response = requests.post(
+        uri,
+        data=json.dumps(post_payload),
+        headers=headers
+    )
+    if response.status_code == 200:
+        response_json = json.loads(response.json()['schema'])
+        fields = response_json['fields']
+        return [field['name'] for field in fields]
+    return []
 
-    for table_name, create_schema_stmt in (
-            table_to_create_schema_stmt_map.iteritems()
-    ):
-        payload = (
-            '{"namespace": "test_namespace", '
-            '"source_owner_email": "bam+batch@yelp.com", '
-            '"source": "test_source", '
-            '"contains_pii": true, '
-            '"new_create_table_stmt": "' + create_schema_stmt + '"}'
-        )
-        response = requests.post(url, data=payload, headers=headers)
-        if response.status_code == 200:
-            response_json = json.loads(response.json()['schema'])
-            columns = response_json['fields']
-            column_names = set()
-            for column in columns:
-                column_names.add(column['name'])
-            if table_to_columns_map[table_name] == column_names:
-                table_to_schema_id_map[table_name] = response.json()[
-                    'schema_id'
-                ]
-            else:
-                error_tables.append(table_name)
+
+def verify_mysql_table_to_avro_schema(
+    table_to_mysql_columns_map,
+    table_to_schema_fields_map
+):
+    """ Compares the mysql_tables columns with the avro schema columns and
+    returns a tuple with number of successfully registed tables and
+    unregistered tables as values.
+    """
+    registered_tables = []
+    error_tables = []
+    for table_name, table_info in table_to_mysql_columns_map.iteritems():
+        _, columns = table_info
+        output_columns = table_to_schema_fields_map.get(table_name)
+        if (set(columns) == set(output_columns) and
+                len(columns) == len(output_columns)):
+            registered_tables.append(table_name)
         else:
             error_tables.append(table_name)
 
+    return registered_tables, error_tables
+
+
+@contextmanager
+def setup_connection(connection_param):
+    """ Connect to a MySQL database with the given connection parameters and
+    yields the connection.
+    Note: Closes the connection when exiting the context manager.
+    """
+    connection = None
+    try:
+        connection = pymysql.connect(
+            host=connection_param['host'],
+            user=connection_param['user'],
+            password=connection_param['passwd'],
+            db=connection_param['db'],
+            port=connection_param['port'],
+            charset=connection_param['charset']
+        )
+        yield connection
+    finally:
+        if connection:
+            connection.close()
+
+
+def get_topology_file(is_proddb):
+    return (
+        '/nail/srv/configs/topology-proddb.yaml'
+        if is_proddb else '/nail/srv/configs/topology.yaml'
+    )
+
+
+def main():
+    options, _ = get_arguments()
+    topology_file = get_topology_file(options.proddb)
+    conn_param = get_connection_param_from_topology(
+        topology_file,
+        options.cluster_name
+    )
+
+    with setup_connection(conn_param) as conn:
+        table_to_info_map = get_mysql_tables_info(conn)
+
+    with setup_schematizer_container() as host:
+        table_to_avro_fields_map = register_mysql_tables(
+            options.cluster_name,
+            table_to_info_map,
+            post_to_schematizer,
+            host
+        )
+    registered_tables, error_tables = verify_mysql_table_to_avro_schema(
+        table_to_info_map,
+        table_to_avro_fields_map
+    )
     print ("Schematizer successfully processed " +
-           str(len(table_to_schema_id_map)) + " tables.")
+           str(len(registered_tables)) + " tables.")
     print ("Schematizer failed for " + str(len(error_tables)) +
            " tables which are: " + str(error_tables))
+
+
+if __name__ == "__main__":
+    main()

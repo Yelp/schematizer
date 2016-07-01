@@ -17,6 +17,7 @@ setup(
         'pyramid',
         'pyramid_uwsgi_metrics',
         'pyramid_yelp_conn',
+        'PyMySQL',
         'yelp_pyramid',
         'yelp_servlib',
         'yelp_conn',
