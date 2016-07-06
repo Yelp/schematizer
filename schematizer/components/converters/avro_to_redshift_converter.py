@@ -104,9 +104,27 @@ class AvroToRedshiftConverter(BaseConverter):
     def _is_union_schema(self, avro_schema):
         return isinstance(avro_schema, schema.UnionSchema)
 
+    def _is_complex_schema(self, avro_schema):
+        # The RecordSchema type is excluded because the Redshift converter
+        # doesn't support nested table schemas.
+        return isinstance(
+            avro_schema, (
+                schema.ArraySchema,
+                schema.EnumSchema,
+                schema.FixedSchema,
+                schema.MapSchema,
+                schema.UnionSchema
+            )
+        )
+
     def _convert_field_type(self, field_type, field):
-        typ = (field_type.fullname if self._is_primitive_schema(field_type)
-               else field_type)
+        if self._is_primitive_schema(field_type):
+            typ = field_type.fullname
+        elif self._is_complex_schema(field_type):
+            typ = field_type.type
+        else:
+            typ = field_type
+
         converter_func = self._type_converters.get(typ)
         if converter_func:
             return converter_func(field)
@@ -126,6 +144,8 @@ class AvroToRedshiftConverter(BaseConverter):
             'double': self._convert_double_type,
             'string': self._convert_string_type,
             'boolean': self._convert_boolean_type,
+            'enum': self._convert_enum_type,
+            'bytes': self._convert_bytes_type,
         }
 
     def _convert_null_type(self, field):
@@ -163,18 +183,22 @@ class AvroToRedshiftConverter(BaseConverter):
     # http://docs.aws.amazon.com/redshift/latest/dg/r_Character_types.html
     MAX_VARCHAR_BYTES = 65535
 
-    def _convert_string_type(self, field):
+    def _convert_string_type(self, field, char_bytes=CHAR_BYTES):
         """Only supports char and varchar. If neither fix_len nor max_len
         is specified, an exception is thrown.
         """
         fix_len = field.props.get(AvroMetaDataKeys.FIX_LEN)
         if fix_len:
-            return redshift_data_types.RedshiftChar(fix_len)
+            # Columns with a CHAR data type only accept single-byte UTF-8
+            # characters. This means we can't support char columns since they
+            # will not be able to accept multibyte chars. We can instead use
+            # VARCHAR columns, which accept multibyte UTF-8 characters.
+            return redshift_data_types.RedshiftVarChar(fix_len)
 
         max_len = field.props.get(AvroMetaDataKeys.MAX_LEN)
         if max_len:
             return redshift_data_types.RedshiftVarChar(
-                min(int(max_len) * self.CHAR_BYTES, self.MAX_VARCHAR_BYTES)
+                min(int(max_len) * char_bytes, self.MAX_VARCHAR_BYTES)
             )
 
         raise SchemaConversionException(
@@ -182,8 +206,17 @@ class AvroToRedshiftConverter(BaseConverter):
             .format(AvroMetaDataKeys.FIX_LEN, AvroMetaDataKeys.MAX_LEN)
         )
 
+    def _convert_bytes_type(self, field):
+        return self._convert_string_type(field, char_bytes=1)
+
     def _convert_boolean_type(self, field):
         return redshift_data_types.RedshiftBoolean()
+
+    def _convert_enum_type(self, field):
+        max_symbol_len = max(len(symbol) for symbol in field.type.symbols)
+        return redshift_data_types.RedshiftVarChar(
+            min(max_symbol_len, self.MAX_VARCHAR_BYTES)
+        )
 
     def _get_table_metadata(self, record_schema):
         table_metadata = ({MetaDataKey.NAMESPACE: record_schema.namespace}

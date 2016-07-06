@@ -26,4 +26,10 @@
       <append value=" ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci"/>
     </modifySql>
   </changeSet>
+  <changeSet author="clin" id="BAM-6197-1467761000">
+    <createIndex indexName="topic_id" tableName="avro_schema" unique="false">
+      <column name="topic_id" type="INT(11)"/>
+    </createIndex>
+    <comment>Add index on topic_id column.</comment>
+  </changeSet>
 </databaseChangeLog>
