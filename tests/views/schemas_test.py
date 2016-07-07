@@ -64,7 +64,7 @@ class TestGetSchemaAfterDate(ApiTestBase):
                                           '%Y-%m-%dT%H:%M:%S')
         creation_timestamp = (created_after -
                               datetime.utcfromtimestamp(0)).total_seconds()
-        mock_request.matchdict = {'created_after': creation_timestamp}
+        mock_request.params = {'created_after': creation_timestamp}
         schemas = schema_views.get_schemas_created_after(mock_request)
         for schema in schemas:
             assert datetime.strptime(schema['created_at'],
@@ -78,15 +78,72 @@ class TestGetSchemaAfterDate(ApiTestBase):
         biz_created_at = biz_schema.created_at - timedelta(100, 0)
         creation_timestamp = (biz_created_at -
                               datetime.utcfromtimestamp(0)).total_seconds()
-        mock_request.matchdict = {'created_after': creation_timestamp}
+        mock_request.params = {'created_after': creation_timestamp}
         schemas_early = schema_views.get_schemas_created_after(mock_request)
 
         biz_created_at = biz_schema.created_at + timedelta(1, 0)
         creation_timestamp = (biz_created_at -
                               datetime.utcfromtimestamp(0)).total_seconds()
-        mock_request.matchdict = {'created_after': creation_timestamp}
+        mock_request.params = {'created_after': creation_timestamp}
         schemas_later = schema_views.get_schemas_created_after(mock_request)
         assert len(schemas_early) > len(schemas_later)
+
+    def test_count(self, mock_request, biz_schema, biz_pkey_schema):
+        """ Tests that only 1 schema is returned """
+        biz_created_at = biz_schema.created_at - timedelta(10, 0)
+        creation_timestamp = (biz_created_at -
+                              datetime.utcfromtimestamp(0)).total_seconds()
+        mock_request.params = {
+            'created_after': creation_timestamp,
+            'count': 1
+        }
+
+        # Without the count param, length would be 2
+        assert len(schema_views.get_schemas_created_after(mock_request)) == 1
+
+    def test_min_id(self, mock_request, biz_schema, biz_pkey_schema):
+        """ Finds the schema with the lower created_at datetime and then set
+        the min_id to be one higher. So we are guaranteed to have only one
+        schema with the higher id (if min_id is working properly)
+        """
+        sorted_schemas = sorted(
+            [biz_schema, biz_pkey_schema],
+            key=lambda schema: schema.id
+        )
+        schema_created_at = sorted_schemas[0].created_at - timedelta(10, 0)
+        creation_timestamp = (schema_created_at -
+                              datetime.utcfromtimestamp(0)).total_seconds()
+        mock_request.params = {
+            'created_after': creation_timestamp,
+            'min_id': sorted_schemas[0].id + 1
+        }
+        actual_schema = schema_views.get_schemas_created_after(mock_request)
+        expected_schema = [self.get_expected_schema_resp(sorted_schemas[1].id)]
+        assert len(actual_schema) == 1
+        assert actual_schema == expected_schema
+
+    def test_min_id_equal(self, mock_request, biz_schema, biz_pkey_schema):
+        """ Finds the schema with the lower created_at datetime and then set
+        the min_id to be equal. So we are guaranteed to have both schemas
+        (if min_id is working properly)
+        """
+        sorted_schemas = sorted(
+            [biz_schema, biz_pkey_schema],
+            key=lambda schema: schema.id
+        )
+        schema_created_at = sorted_schemas[0].created_at - timedelta(10, 0)
+        creation_timestamp = (schema_created_at -
+                              datetime.utcfromtimestamp(0)).total_seconds()
+        mock_request.params = {
+            'created_after': creation_timestamp,
+            'min_id': sorted_schemas[0].id
+        }
+        actual_schema = schema_views.get_schemas_created_after(mock_request)
+        expected_schema = [
+            self.get_expected_schema_resp(schema.id)
+            for schema in sorted_schemas
+        ]
+        assert actual_schema == expected_schema
 
 
 class RegisterSchemaTestBase(ApiTestBase):

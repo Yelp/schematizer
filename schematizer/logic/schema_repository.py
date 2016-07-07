@@ -481,22 +481,33 @@ def get_schema_by_id(schema_id):
     ).first()
 
 
-def get_schemas_created_after(created_after):
+def get_schemas_created_after(created_after, count=None, min_id=None):
     """Get the Avro schemas created after the specified creation_date.
 
     Args:
         creation_date(datetime): get schemas created after given utc
             datetime (inclusive).
+        count(Optional[int]): number of schemas to return in this query
+        min_id(Optional[int]): limits results to those with an id greater than
+        or equal to the given id
     Returns:
         (list[:class:schematizer.models.AvroSchema]): List of avro
             schemas created after (inclusive) the specified creation
             date.
     """
-    return session.query(
+    qry = session.query(
         models.AvroSchema
     ).filter(
         models.AvroSchema.created_at >= created_after
-    ).all()
+    )
+    if min_id:
+        qry = qry.filter(
+            models.AvroSchema.id >= min_id
+        )
+    qry = qry.order_by(models.AvroSchema.created_at)
+    if count:
+        qry = qry.limit(count)
+    return qry.all()
 
 
 def get_latest_schema_by_topic_id(topic_id):
