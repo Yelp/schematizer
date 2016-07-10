@@ -481,15 +481,17 @@ def get_schema_by_id(schema_id):
     ).first()
 
 
-def get_schemas_created_after(created_after, count=None, min_id=None):
-    """Get the Avro schemas created after the specified creation_date.
+def get_schemas_created_after(created_after, page_info):
+    """ Get the Avro schemas (excluding disabled schemas) created after the
+    specified created_after timestamp and with id greater than or equal to
+    the min_id. Limits the returned schemas to count.
 
     Args:
-        creation_date(datetime): get schemas created after given utc
+        created_after(datetime): get schemas created after given utc
             datetime (inclusive).
-        count(Optional[int]): number of schemas to return in this query
-        min_id(Optional[int]): limits results to those with an id greater than
-        or equal to the given id
+        page_info(:class:schematizer.api.requests.requests_v1.PageInfo):
+            limits the schemas to count and those with an id greater than or
+            equal to min_id.
     Returns:
         (list[:class:schematizer.models.AvroSchema]): List of avro
             schemas created after (inclusive) the specified creation
@@ -498,15 +500,16 @@ def get_schemas_created_after(created_after, count=None, min_id=None):
     qry = session.query(
         models.AvroSchema
     ).filter(
-        models.AvroSchema.created_at >= created_after
+        models.AvroSchema.created_at >= created_after,
+        models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
     )
-    if min_id:
+    if page_info.min_id:
         qry = qry.filter(
-            models.AvroSchema.id >= min_id
+            models.AvroSchema.id >= page_info.min_id
         )
-    qry = qry.order_by(models.AvroSchema.created_at)
-    if count:
-        qry = qry.limit(count)
+    qry = qry.order_by(models.AvroSchema.id)
+    if page_info.count:
+        qry = qry.limit(page_info.count)
     return qry.all()
 
 

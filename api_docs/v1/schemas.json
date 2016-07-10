@@ -150,11 +150,11 @@
             ]
         },
         {
-            "path": "/v1/schemas/created_after/{created_after}",
+            "path": "/v1/schemas",
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Get the Avro schemas created after the specified creation_date.",
+                    "summary": "Get the Avro schemas (excluding disabled schemas) created after the specified created_after timestamp.",
                     "notes": "",
                     "type": "array",
                     "items": {
@@ -165,10 +165,10 @@
                     "parameters": [
                         {
                             "name": "created_after",
-                            "description": "Starting date of schemas to be fetched (inclusive)",
+                            "description": "It's the epoch timestamp and limits schemas to those created at or after this timestamp.",
                             "required": true,
                             "type": "integer",
-                            "paramType": "path",
+                            "paramType": "query",
                             "allowMultiple": false
                         },
                         {

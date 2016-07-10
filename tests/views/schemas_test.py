@@ -53,8 +53,7 @@ class TestGetSchemaByID(ApiTestBase):
 class TestGetSchemaAfterDate(ApiTestBase):
 
     def test_get_schemas_created_after_dates(self, mock_request, biz_schema):
-        """
-        First retrieves all schemas created after 2015, then iterates
+        """ First retrieves all schemas created after 2015, then iterates
         through the returned list and verifies that the creation
         dates are all after 2015.
         """
@@ -70,9 +69,12 @@ class TestGetSchemaAfterDate(ApiTestBase):
             assert datetime.strptime(schema['created_at'],
                                      '%Y-%m-%dT%H:%M:%S') >= created_after
 
-    def test_filter_works(self, mock_request, biz_schema):
-        """
-        Tests that filtering with a later date returns less schemas than
+    def test_get_schemas_filter_by_created_timestamp(
+        self,
+        mock_request,
+        biz_schema
+    ):
+        """ Tests that filtering with a later date returns less schemas than
         filtering with an earlier date.
         """
         biz_created_at = biz_schema.created_at - timedelta(100, 0)
@@ -88,8 +90,13 @@ class TestGetSchemaAfterDate(ApiTestBase):
         schemas_later = schema_views.get_schemas_created_after(mock_request)
         assert len(schemas_early) > len(schemas_later)
 
-    def test_count(self, mock_request, biz_schema, biz_pkey_schema):
-        """ Tests that only 1 schema is returned """
+    def test_limit_schemas_by_count(
+        self,
+        mock_request,
+        biz_schema,
+        biz_pkey_schema
+    ):
+        """ Tests that schemas are filtered by count. """
         biz_created_at = biz_schema.created_at - timedelta(10, 0)
         creation_timestamp = (biz_created_at -
                               datetime.utcfromtimestamp(0)).total_seconds()
@@ -101,10 +108,14 @@ class TestGetSchemaAfterDate(ApiTestBase):
         # Without the count param, length would be 2
         assert len(schema_views.get_schemas_created_after(mock_request)) == 1
 
-    def test_min_id(self, mock_request, biz_schema, biz_pkey_schema):
-        """ Finds the schema with the lower created_at datetime and then set
-        the min_id to be one higher. So we are guaranteed to have only one
-        schema with the higher id (if min_id is working properly)
+    def test_limit_schemas_by_min_id(
+        self,
+        mock_request,
+        biz_schema,
+        biz_pkey_schema
+    ):
+        """ Tests that filtering by min_id returns all the schemas which have
+        id equal to or greater than min_id.
         """
         sorted_schemas = sorted(
             [biz_schema, biz_pkey_schema],
@@ -113,37 +124,21 @@ class TestGetSchemaAfterDate(ApiTestBase):
         schema_created_at = sorted_schemas[0].created_at - timedelta(10, 0)
         creation_timestamp = (schema_created_at -
                               datetime.utcfromtimestamp(0)).total_seconds()
-        mock_request.params = {
-            'created_after': creation_timestamp,
-            'min_id': sorted_schemas[0].id + 1
-        }
-        actual_schema = schema_views.get_schemas_created_after(mock_request)
-        expected_schema = [self.get_expected_schema_resp(sorted_schemas[1].id)]
-        assert len(actual_schema) == 1
-        assert actual_schema == expected_schema
 
-    def test_min_id_equal(self, mock_request, biz_schema, biz_pkey_schema):
-        """ Finds the schema with the lower created_at datetime and then set
-        the min_id to be equal. So we are guaranteed to have both schemas
-        (if min_id is working properly)
-        """
-        sorted_schemas = sorted(
-            [biz_schema, biz_pkey_schema],
-            key=lambda schema: schema.id
-        )
-        schema_created_at = sorted_schemas[0].created_at - timedelta(10, 0)
-        creation_timestamp = (schema_created_at -
-                              datetime.utcfromtimestamp(0)).total_seconds()
-        mock_request.params = {
-            'created_after': creation_timestamp,
-            'min_id': sorted_schemas[0].id
-        }
-        actual_schema = schema_views.get_schemas_created_after(mock_request)
-        expected_schema = [
-            self.get_expected_schema_resp(schema.id)
-            for schema in sorted_schemas
-        ]
-        assert actual_schema == expected_schema
+        for delta in xrange(2):
+            min_id = sorted_schemas[0].id + delta
+            mock_request.params = {
+                'created_after': creation_timestamp,
+                'min_id': min_id
+            }
+            actual_schemas = schema_views.get_schemas_created_after(
+                mock_request
+            )
+            expected_schemas = [
+                self.get_expected_schema_resp(schema.id)
+                for schema in sorted_schemas if schema.id >= min_id
+            ]
+            assert actual_schemas == expected_schemas
 
 
 class RegisterSchemaTestBase(ApiTestBase):

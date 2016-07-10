@@ -9,6 +9,7 @@ import mock
 import pytest
 
 from schematizer import models
+from schematizer.api.requests.requests_v1 import PageInfo
 from schematizer.components import converters
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
@@ -146,16 +147,6 @@ class TestSchemaRepository(DBTestCase):
             "doc": "table foo"
         }
 
-    @property
-    def baz_schema_json(self):
-        return {
-            "name": "baz",
-            "namespace": self.namespace_name,
-            "type": "record",
-            "fields": [{"name": "baz", "type": "int", "doc": "baz"}],
-            "doc": "table baz"
-        }
-
     def _build_elements(self, json):
         base_key = "{}.{}".format(json['namespace'], json['name'])
         avro_schema_elements = [
@@ -182,10 +173,6 @@ class TestSchemaRepository(DBTestCase):
     def rw_schema_elements(self):
         return self._build_elements(self.rw_schema_json)
 
-    @property
-    def baz_schema_elements(self):
-        return self._build_elements(self.baz_schema_json)
-
     @pytest.fixture
     def rw_schema(self, topic):
         return factories.create_avro_schema(
@@ -196,27 +183,18 @@ class TestSchemaRepository(DBTestCase):
         )
 
     @pytest.fixture
-    def baz_schema(self, topic):
-        return factories.create_avro_schema(
-            self.baz_schema_json,
-            self.baz_schema_elements,
-            topic_name=topic.name,
-            created_at=self.some_datetime + datetime.timedelta(seconds=4)
-        )
-
-    @pytest.fixture
     def user_schema(self, user_topic):
         return factories.create_avro_schema(
             self.rw_schema_json,
             self.rw_schema_elements,
             topic_name=user_topic.name,
-            created_at=self.some_datetime + datetime.timedelta(seconds=5)
+            created_at=self.some_datetime + datetime.timedelta(seconds=6)
         )
 
     @pytest.fixture
-    def sorted_schemas(self, rw_schema, baz_schema, user_schema):
+    def sorted_schemas(self, rw_schema, another_rw_schema, user_schema):
         return sorted(
-            [rw_schema, baz_schema, user_schema],
+            [rw_schema, another_rw_schema, user_schema],
             key=lambda schema: schema.created_at
         )
 
@@ -290,7 +268,8 @@ class TestSchemaRepository(DBTestCase):
         return factories.create_avro_schema(
             self.another_rw_schema_json,
             self.another_rw_schema_elements,
-            topic_name=topic.name
+            topic_name=topic.name,
+            created_at=self.some_datetime + datetime.timedelta(seconds=4)
         )
 
     @property
@@ -339,7 +318,8 @@ class TestSchemaRepository(DBTestCase):
             self.disabled_schema_json,
             self.disabled_schema_elements,
             topic_name=topic.name,
-            status=models.AvroSchemaStatus.DISABLED
+            status=models.AvroSchemaStatus.DISABLED,
+            created_at=self.some_datetime + datetime.timedelta(seconds=5)
         )
 
     @property
@@ -1025,18 +1005,23 @@ class TestSchemaRepository(DBTestCase):
         assert 1 == len(actual)
         self.assert_equal_avro_schema(rw_schema, actual[0])
 
-    def test_get_schemas_after_given_timestamp(
+    def test_get_schemas_after_given_timestamp_excluding_disabled_schemas(
         self,
-        sorted_schemas
+        sorted_schemas,
+        disabled_schema
     ):
         expected = sorted_schemas[1:]
         after_dt = expected[0].created_at
-        actual = schema_repo.get_schemas_created_after(created_after=after_dt)
+        actual = schema_repo.get_schemas_created_after(
+            created_after=after_dt,
+            page_info=PageInfo(count=None, min_id=None)
+        )
 
+        assert disabled_schema not in actual
         self.assert_equal_schemas(actual, expected)
         assert all(topic.created_at >= after_dt for topic in actual)
 
-    def test_get_schemas_count(
+    def test_get_schemas_filter_by_count(
         self,
         sorted_schemas
     ):
@@ -1044,17 +1029,17 @@ class TestSchemaRepository(DBTestCase):
         after_dt = expected[0].created_at
         actual = schema_repo.get_schemas_created_after(
             created_after=after_dt,
-            count=1
+            page_info=PageInfo(count=1, min_id=None)
         )
         self.assert_equal_schemas(actual, expected)
 
-    def test_get_schemas_min_id(self, sorted_schemas):
+    def test_get_schemas_filter_by_min_id(self, sorted_schemas):
         min_id = sorted_schemas[1].id
         created_dt = sorted_schemas[0].created_at
         expected = [schema for schema in sorted_schemas if schema.id >= min_id]
         actual = schema_repo.get_schemas_created_after(
             created_after=created_dt,
-            min_id=min_id
+            page_info=PageInfo(count=None, min_id=min_id)
         )
         self.assert_equal_schemas(actual, expected)
 
@@ -1062,7 +1047,10 @@ class TestSchemaRepository(DBTestCase):
         last_schema = sorted_schemas[-1]
         after_dt = last_schema.created_at + datetime.timedelta(seconds=1)
 
-        actual = schema_repo.get_schemas_created_after(created_after=after_dt)
+        actual = schema_repo.get_schemas_created_after(
+            created_after=after_dt,
+            page_info=PageInfo(count=None, min_id=None)
+        )
         assert actual == []
 
     def test_get_schemas_by_topic_id_including_disabled(
