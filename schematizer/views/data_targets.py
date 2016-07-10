@@ -12,7 +12,6 @@ from schematizer.api.requests import requests_v1
 from schematizer.api.responses import responses_v1 as resp_v1
 from schematizer.logic import registration_repository as reg_repo
 from schematizer.models import exceptions as sch_exc
-from schematizer.models.database import session
 
 
 @view_config(
@@ -23,7 +22,7 @@ from schematizer.models.database import session
 @transform_api_response()
 def get_data_targets(request):
     return [resp_v1.get_data_target_response_from_data_target(data_target)
-            for data_target in models.DataTarget.get_all(session)]
+            for data_target in models.DataTarget.get_all()]
 
 
 @view_config(
@@ -54,7 +53,7 @@ def create_data_target(request):
 def get_data_target_by_id(request):
     data_target_id = request.matchdict.get('data_target_id')
     try:
-        data_target = models.DataTarget.get_by_id(session, data_target_id)
+        data_target = models.DataTarget.get_by_id(data_target_id)
         return resp_v1.get_data_target_response_from_data_target(data_target)
     except sch_exc.EntityNotFoundError as e:
         raise exc_v1.entity_not_found_exception(e.message)

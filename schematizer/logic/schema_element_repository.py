@@ -25,7 +25,7 @@ def get_element_chains_by_schema_id(schema_id):
     element of given schema.
     """
     try:
-        avro_schema = models.AvroSchema.get_by_id(session, schema_id)
+        avro_schema = models.AvroSchema.get_by_id(schema_id)
     except orm_exc.NoResultFound:
         raise sch_exc.EntityNotFoundException(
             "Cannot find Avro schema id {0}.".format(schema_id)

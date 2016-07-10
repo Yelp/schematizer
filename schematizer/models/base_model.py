@@ -4,16 +4,20 @@ from __future__ import unicode_literals
 
 from sqlalchemy.orm import exc as orm_exc
 
+from schematizer.models.database import session
 from schematizer.models.exceptions import EntityNotFoundError
 
 
 class BaseModel(object):
     """Base class of model classes which contains common simple operations
     (operations that only involve single model class only).
+
+    These functions only work when they are inside the request context manager.
+    See http://servicedocs/docs/yelp_conn/session.html.
     """
 
     @classmethod
-    def get_by_id(cls, session, obj_id):
+    def get_by_id(cls, obj_id):
         try:
             return session.query(cls).filter(cls.id == obj_id).one()
         except orm_exc.NoResultFound:
@@ -23,7 +27,7 @@ class BaseModel(object):
             )
 
     @classmethod
-    def get_all(cls, session):
+    def get_all(cls):
         return session.query(cls).all()
 
     @classmethod

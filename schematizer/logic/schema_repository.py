@@ -630,10 +630,6 @@ def get_sources():
     return session.query(models.Source).order_by(models.Source.id).all()
 
 
-def get_namespaces():
-    return session.query(models.Namespace).order_by(models.Namespace.id).all()
-
-
 def get_sources_by_namespace(namespace_name):
     return session.query(
         models.Source

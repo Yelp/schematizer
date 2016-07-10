@@ -8,6 +8,7 @@ from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.responses import responses_v1
 from schematizer.logic import schema_repository
+from schematizer.models.namespace import Namespace
 
 
 @view_config(
@@ -17,7 +18,7 @@ from schematizer.logic import schema_repository
 )
 @transform_api_response()
 def list_namespaces(request):
-    namespaces = schema_repository.get_namespaces()
+    namespaces = Namespace.get_all()
     return [responses_v1.get_namespace_response_from_namespace(namespace)
             for namespace in namespaces]
 
