@@ -19,6 +19,10 @@ class BaseModel(object):
     @classmethod
     def get_by_id(cls, obj_id):
         try:
+            # starting sqlalchemy 1.0.9, it can use one_or_none so that here
+            # it doesn't need to catch the exception and re-throw our custom
+            # excpetion. See http://docs.sqlalchemy.org/en/latest/orm/
+            # query.html#sqlalchemy.orm.query.Query.one_or_none
             return session.query(cls).filter(cls.id == obj_id).one()
         except orm_exc.NoResultFound:
             raise EntityNotFoundError(
