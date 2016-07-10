@@ -44,3 +44,17 @@ class TestGetNamespaceById(DBTestCase):
     def test_non_existed_namespace(self):
         with pytest.raises(EntityNotFoundError):
             Namespace.get_by_id(obj_id=0)
+
+
+class TestFindNamespaceById(DBTestCase):
+
+    @pytest.fixture
+    def namespace_foo(self):
+        return factories.create_namespace('foo')
+
+    def test_happy_case(self, namespace_foo):
+        actual = Namespace.find_by_id(namespace_foo.id)
+        asserts.assert_equal_namespace(actual, expected=namespace_foo)
+
+    def test_non_existed_namespace(self):
+        assert Namespace.find_by_id(obj_id=0) is None
