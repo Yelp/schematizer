@@ -26,8 +26,7 @@ class BaseModel(object):
             return session.query(cls).filter(cls.id == obj_id).one()
         except orm_exc.NoResultFound:
             raise EntityNotFoundError(
-                entity_cls=cls,
-                message='{} id {} not found.'.format(cls.__name__, obj_id)
+                entity_desc='{} id {}'.format(cls.__name__, obj_id)
             )
 
     @classmethod
