@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 import pytest
 
-from schematizer.api.exceptions import exceptions_v1
 from schematizer.views import namespaces as namespace_views
 from tests.views.api_test_base import ApiTestBase
 
@@ -18,7 +17,7 @@ class TestListSourcesByNamespace(ApiTestBase):
             namespace_views.list_sources_by_namespace(mock_request)
 
         assert e.value.code == expected_exception.code
-        assert str(e.value) == exceptions_v1.NAMESPACE_NOT_FOUND_ERROR_MESSAGE
+        assert str(e.value) == "Namespace name `foo` not found."
 
     def test_happy_case(self, mock_request, yelp_namespace, biz_source):
         mock_request.matchdict = {'namespace': yelp_namespace.name}
@@ -48,7 +47,7 @@ class TestListRefreshesByNamespace(ApiTestBase):
             namespace_views.list_refreshes_by_namespace(mock_request)
 
         assert e.value.code == expected_exception.code
-        assert str(e.value) == exceptions_v1.NAMESPACE_NOT_FOUND_ERROR_MESSAGE
+        assert str(e.value) == "Namespace name `foo` not found."
 
     def test_happy_case(self, mock_request, yelp_namespace, biz_src_refresh):
         mock_request.matchdict = {'namespace': yelp_namespace.name}

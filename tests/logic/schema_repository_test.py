@@ -1063,18 +1063,6 @@ class TestSchemaRepository(DBTestCase):
         assert 1 == len(actual)
         self.assert_equal_source(source, actual[0])
 
-    def test_get_sources_by_namespace(self, source):
-        namespace = factories.NamespaceFactory.create('another namespace')
-        factories.SourceFactory.create('another source', namespace)
-        actual = schema_repo.get_sources_by_namespace(self.namespace_name)
-        assert 1 == len(actual)
-        self.assert_equal_source(source, actual[0])
-
-    @pytest.mark.usefixtures('source')
-    def test_get_sources_by_namespace_with_nonexistent_namespace(self):
-        actual = schema_repo.get_sources_by_namespace('foo')
-        assert 0 == len(actual)
-
     def test_get_topics_by_source_id(self, source, topic):
         actual = schema_repo.get_topics_by_source_id(source.id)
         assert 1 == len(actual)

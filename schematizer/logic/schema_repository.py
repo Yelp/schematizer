@@ -630,19 +630,6 @@ def get_sources():
     return session.query(models.Source).order_by(models.Source.id).all()
 
 
-def get_sources_by_namespace(namespace_name):
-    return session.query(
-        models.Source
-    ).join(
-        models.Namespace
-    ).filter(
-        models.Source.namespace_id == models.Namespace.id,
-        models.Namespace.name == namespace_name
-    ).order_by(
-        models.Source.id
-    ).all()
-
-
 def get_topics_by_source_id(source_id):
     return session.query(
         models.Topic
@@ -651,14 +638,6 @@ def get_topics_by_source_id(source_id):
     ).order_by(
         models.Topic.id
     ).all()
-
-
-def get_namespace_by_id(namespace_id):
-    return session.query(
-        models.Namespace
-    ).filter(
-        models.Namespace.id == namespace_id
-    ).first()
 
 
 def get_source_by_id(source_id):
