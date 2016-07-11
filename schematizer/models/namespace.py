@@ -6,10 +6,13 @@ from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
+from sqlalchemy.orm import exc as orm_exc
 from sqlalchemy.orm import relationship
 
 from schematizer.models.base_model import BaseModel
 from schematizer.models.database import Base
+from schematizer.models.database import session
+from schematizer.models.exceptions import EntityNotFoundError
 from schematizer.models.source import Source
 from schematizer.models.types.time import build_time_column
 
@@ -43,3 +46,12 @@ class Namespace(Base, BaseModel):
         onupdate_now=True,
         nullable=False
     )
+
+    @classmethod
+    def get_by_name(cls, name):
+        try:
+            return session.query(Namespace).filter(name == name).one()
+        except orm_exc.NoResultFound:
+            raise EntityNotFoundError(
+                entity_desc='{} name `{}`'.format(cls.__name__, name)
+            )
