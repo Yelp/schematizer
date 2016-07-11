@@ -210,3 +210,8 @@ def routes(config):
         '/v1/schemas/created_after/{created_after}',
         request_method="GET"
     )
+
+    config.add_route(
+        'api.v1.get_data_target_by_schema_id',
+        '/v1/schemas/{schema_id}/data_target'
+    )

@@ -9,11 +9,13 @@ be easier to see which one fails when asserting each value separately.
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+def assert_equal_data_target(actual, expected):
+    attrs = ('id', 'target_type', 'destination','created_at', 'updated_at')
+    _assert_equal_multi_attrs(actual, expected, *attrs)
 
 def assert_equal_namespace(actual, expected):
     attrs = ('id', 'name', 'created_at', 'updated_at')
     _assert_equal_multi_attrs(actual, expected, *attrs)
-
 
 def assert_equal_source(actual, expected):
     attrs = ('id', 'name', 'owner_email', 'created_at', 'updated_at')

@@ -12,6 +12,8 @@ from schematizer import models
 from schematizer.logic.validators import verify_entity_exists
 from schematizer.logic.validators import verify_truthy_value
 from schematizer.models.database import session
+from schematizer.models.consumer_group_data_source \
+    import DataSourceTypeEnum as SrcType
 
 
 def create_data_target(target_type, destination):
@@ -185,6 +187,61 @@ def get_data_sources_by_consumer_group_id(consumer_group_id):
 
     return data_srcs
 
+def get_data_targets_by_data_origin_id(
+        schema_id= None,
+        data_src_id=None,
+        namespace_id=None
+):
+    """Get the data targets of the corresponding schema id, data source id and
+     namespace id.
+
+    Returns:
+        A list of unique data targets
+
+    Raises:
+        :class:schematizer.models.exceptions.EntityNotFoundError: if specified
+            data source id is not found.
+    """
+    consumer_group_ids = set()
+
+    if not data_src_id:
+        for consumer_groups_src in session.query(
+                models.ConsumerGroupDataSource
+        ).filter(
+            models.ConsumerGroupDataSource.data_source_id == data_src_id,
+            models.ConsumerGroupDataSource.data_source_type == SrcType.SOURCE
+        ):
+
+            consumer_group_ids.add(consumer_groups_src.consumer_group_id)
+
+    if not schema_id:
+        for consumer_groups_schema in session.query(
+            models.ConsumerGroupDataSource
+        ).filter(
+            models.ConsumerGroupDataSource.data_source_id == schema_id,
+            models.ConsumerGroupDataSource.data_source_type == SrcType.SCHEMA
+        ):
+
+            consumer_group_ids.add(consumer_groups_schema.consumer_group_id)
+    if not namespace_id:
+        for consumer_groups_namespace in session.query(
+            models.ConsumerGroupDataSource
+        ).filter(
+            models.ConsumerGroupDataSource.data_source_id == namespace_id,
+            models.ConsumerGroupDataSource.data_source_type == SrcType.NAMESPACE
+        ):
+            consumer_group_ids.add(consumer_groups_namespace.consumer_group_id)
+
+    data_targets = session.query(
+        models.DataTarget
+    ).join(
+        models.ConsumerGroup
+    ).filter(
+        models.DataTarget.id == models.ConsumerGroup.data_target_id,
+        models.ConsumerGroup.id.in_(consumer_group_ids)
+    ).all()
+
+    return data_targets
 
 def get_data_sources_by_data_target_id(data_target_id):
     """Get all the data sources that associate to the given data target.
