@@ -227,8 +227,8 @@ def get_data_targets_by_data_origin_id(
         for consumer_groups_namespace in session.query(
             models.ConsumerGroupDataSource
         ).filter(
-            models.ConsumerGroupDataSource.data_source_id == namespace_id,
-            models.ConsumerGroupDataSource.data_source_type == SrcType.NAMESPACE
+            models.ConsumerGroupDataSource.data_source_id==namespace_id,
+            models.ConsumerGroupDataSource.data_source_type==SrcType.NAMESPACE
         ):
             consumer_group_ids.add(consumer_groups_namespace.consumer_group_id)
 

@@ -266,6 +266,7 @@ class TestGetTopicsByDataTargetId(DBTestCase):
         with pytest.raises(sch_exc.EntityNotFoundError):
             reg_repo.get_topics_by_data_target_id(data_target_id=0)
 
+
 @pytest.mark.usefixtures(
     'yelp_namespace',
     'biz_schema',
