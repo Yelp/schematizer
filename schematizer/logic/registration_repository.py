@@ -187,8 +187,9 @@ def get_data_sources_by_consumer_group_id(consumer_group_id):
 
     return data_srcs
 
+
 def get_data_targets_by_data_origin_id(
-        schema_id= None,
+        schema_id=None,
         data_src_id=None,
         namespace_id=None
 ):
@@ -215,8 +216,7 @@ def get_data_targets_by_data_origin_id(
             models.ConsumerGroupDataSource
         ).filter(
             models.ConsumerGroupDataSource.data_source_id == schema_id,
-            models.ConsumerGroupDataSource.data_source_type ==
-                    SrcType.SCHEMA
+            models.ConsumerGroupDataSource.data_source_type == SrcType.SCHEMA
         ):
 
             consumer_group_ids.add(consumer_groups_schema.consumer_group_id)
@@ -224,8 +224,9 @@ def get_data_targets_by_data_origin_id(
         for consumer_groups_namespace in session.query(
             models.ConsumerGroupDataSource
         ).filter(
-            models.ConsumerGroupDataSource.data_source_id==namespace_id,
-            models.ConsumerGroupDataSource.data_source_type==SrcType.NAMESPACE
+            models.ConsumerGroupDataSource.data_source_id == namespace_id,
+            models.ConsumerGroupDataSource.data_source_type ==
+            SrcType.NAMESPACE
         ):
             consumer_group_ids.add(
                 consumer_groups_namespace.consumer_group_id
@@ -241,6 +242,7 @@ def get_data_targets_by_data_origin_id(
     ).all()
 
     return data_targets
+
 
 def get_data_sources_by_data_target_id(data_target_id):
     """Get all the data sources that associate to the given data target.
