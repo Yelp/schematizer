@@ -215,7 +215,8 @@ def get_data_targets_by_data_origin_id(
             models.ConsumerGroupDataSource
         ).filter(
             models.ConsumerGroupDataSource.data_source_id == schema_id,
-            models.ConsumerGroupDataSource.data_source_type == SrcType.SCHEMA
+            models.ConsumerGroupDataSource.data_source_type ==
+                    SrcType.SCHEMA
         ):
 
             consumer_group_ids.add(consumer_groups_schema.consumer_group_id)
