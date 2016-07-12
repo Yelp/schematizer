@@ -11,9 +11,9 @@ from sqlalchemy import exc
 from schematizer import models
 from schematizer.logic.validators import verify_entity_exists
 from schematizer.logic.validators import verify_truthy_value
-from schematizer.models.database import session
 from schematizer.models.consumer_group_data_source \
     import DataSourceTypeEnum as SrcType
+from schematizer.models.database import session
 
 
 def create_data_target(target_type, destination):
