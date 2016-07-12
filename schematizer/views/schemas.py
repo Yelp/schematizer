@@ -41,7 +41,8 @@ def get_schemas_created_after(request):
     req = requests_v1.GetSchemasRequest(request.params)
     schemas = schema_repository.get_schemas_created_after(
         created_after=req.created_after_datetime,
-        page_info=req.page_info
+        page_info=req.page_info,
+        include_disabled=req.include_disabled
     )
     return [responses_v1.get_schema_response_from_avro_schema(avro_schema)
             for avro_schema in schemas]
