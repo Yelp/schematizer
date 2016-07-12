@@ -290,14 +290,40 @@ class TestGetDataTargetBySchemaID(DBTestCase):
             data_src_id=yelp_namespace.id
         )
 
+    @pytest.fixture
+    def dw_new_consumer_group(self, dw_new_data_target):
+        return factories.create_consumer_group('dw2', dw_new_data_target)
+
+    @pytest.fixture
+    def dw_new_data_target(self):
+        return factories.create_data_target(
+            target_type='redshift',
+            destination='dwv2.redshift.yelpcorp.com'
+        )
+
+    @pytest.fixture
+    def dw_new_consumer_group_namespace_data_src_namespace(
+            self, dw_new_consumer_group, biz_source
+    ):
+        return factories.create_consumer_group_data_source(
+            dw_new_consumer_group,
+            data_src_type=models.DataSourceTypeEnum.SOURCE,
+            data_src_id=biz_source.id
+        )
+
     def test_get_data_target_by_schema_id(
         self,
         biz_schema,
+        biz_source,
+        yelp_namespace,
         dw_data_target,
-        dw_consumer_group_namespace_data_src_namespace,
-
+        dw_consumer_group_namespace_data_src_namespace
     ):
-        actuals = reg_repo.get_topics_by_data_target_id(biz_schema.id)
+        actuals = reg_repo.get_data_targets_by_data_origin_id(
+            biz_schema.id,
+            biz_source.id,
+            yelp_namespace.id
+        )
         expected = [dw_data_target]
         asserts.assert_equal_entity_list(
             actuals,
@@ -305,5 +331,38 @@ class TestGetDataTargetBySchemaID(DBTestCase):
             assert_func=asserts.assert_equal_data_target
         )
 
-    def test_return_multiple_data_targets(self):
-        pass
+    def test_return_multiple_data_targets(
+        self,
+        biz_schema,
+        biz_source,
+        yelp_namespace,
+        dw_data_target,
+        dw_new_data_target,
+        dw_consumer_group_namespace_data_src_namespace,
+        dw_new_consumer_group_namespace_data_src_namespace
+    ):
+        actuals = reg_repo.get_data_targets_by_data_origin_id(
+            biz_schema.id,
+            biz_source.id,
+            yelp_namespace.id
+        )
+        expected = [dw_data_target, dw_new_data_target]
+        asserts.assert_equal_entity_list(
+            actuals,
+            expected,
+            assert_func=asserts.assert_equal_data_target
+        )
+
+    def test_return_zero_data_targets(
+            self,
+            biz_schema
+    ):
+        actuals = reg_repo.get_data_targets_by_data_origin_id(
+            biz_schema.id,
+        )
+        expected = []
+        asserts.assert_equal_entity_list(
+            actuals,
+            expected,
+            assert_func=asserts.assert_equal_data_target
+        )

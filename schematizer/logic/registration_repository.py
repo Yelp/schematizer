@@ -204,7 +204,7 @@ def get_data_targets_by_data_origin_id(
     """
     consumer_group_ids = set()
 
-    if not data_src_id:
+    if data_src_id:
         for consumer_groups_src in session.query(
                 models.ConsumerGroupDataSource
         ).filter(
@@ -214,7 +214,7 @@ def get_data_targets_by_data_origin_id(
 
             consumer_group_ids.add(consumer_groups_src.consumer_group_id)
 
-    if not schema_id:
+    if schema_id:
         for consumer_groups_schema in session.query(
             models.ConsumerGroupDataSource
         ).filter(
@@ -223,7 +223,7 @@ def get_data_targets_by_data_origin_id(
         ):
 
             consumer_group_ids.add(consumer_groups_schema.consumer_group_id)
-    if not namespace_id:
+    if namespace_id:
         for consumer_groups_namespace in session.query(
             models.ConsumerGroupDataSource
         ).filter(
