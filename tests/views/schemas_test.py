@@ -427,6 +427,7 @@ class TestGetSchemaElements(ApiTestBase):
 
         return response
 
+
 class TestGetDataTaragetsBySchemaID(ApiTestBase):
 
     def test_get_data_targets_by_schemaID(
@@ -441,7 +442,6 @@ class TestGetDataTaragetsBySchemaID(ApiTestBase):
         assert actual == self._get_expected_data_targets_response(
             dw_data_target
         )
-
 
     def _get_expected_data_targets_response(self, dw_data_target):
         response = []

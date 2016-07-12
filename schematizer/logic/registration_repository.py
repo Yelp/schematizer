@@ -11,9 +11,9 @@ from sqlalchemy import exc
 from schematizer import models
 from schematizer.logic.validators import verify_entity_exists
 from schematizer.logic.validators import verify_truthy_value
+from schematizer.models.database import session
 from schematizer.models.consumer_group_data_source \
     import DataSourceTypeEnum as SrcType
-from schematizer.models.database import session
 
 
 def create_data_target(target_type, destination):
@@ -187,9 +187,8 @@ def get_data_sources_by_consumer_group_id(consumer_group_id):
 
     return data_srcs
 
-
 def get_data_targets_by_data_origin_id(
-        schema_id=None,
+        schema_id= None,
         data_src_id=None,
         namespace_id=None
 ):
@@ -198,10 +197,6 @@ def get_data_targets_by_data_origin_id(
 
     Returns:
         A list of unique data targets
-
-    Raises:
-        :class:schematizer.models.exceptions.EntityNotFoundError: if specified
-            data source id is not found.
     """
     consumer_group_ids = set()
 
@@ -228,10 +223,12 @@ def get_data_targets_by_data_origin_id(
         for consumer_groups_namespace in session.query(
             models.ConsumerGroupDataSource
         ).filter(
-            models.ConsumerGroupDataSource.data_source_id == namespace_id,
-            models.ConsumerGroupDataSource.data_source_type == SrcType.NAMESPACE
+            models.ConsumerGroupDataSource.data_source_id==namespace_id,
+            models.ConsumerGroupDataSource.data_source_type==SrcType.NAMESPACE
         ):
-            consumer_group_ids.add(consumer_groups_namespace.consumer_group_id)
+            consumer_group_ids.add(
+                consumer_groups_namespace.consumer_group_id
+            )
 
     data_targets = session.query(
         models.DataTarget
@@ -243,7 +240,6 @@ def get_data_targets_by_data_origin_id(
     ).all()
 
     return data_targets
-
 
 def get_data_sources_by_data_target_id(data_target_id):
     """Get all the data sources that associate to the given data target.
