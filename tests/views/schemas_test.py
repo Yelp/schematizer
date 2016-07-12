@@ -11,6 +11,7 @@ import simplejson
 
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
+from schematizer.api.responses import responses_v1 as rep_v1
 from schematizer.views import schemas as schema_views
 from tests.views.api_test_base import ApiTestBase
 
@@ -424,4 +425,19 @@ class TestGetSchemaElements(ApiTestBase):
                 }
             )
 
+        return response
+
+class TestGetDataTaragetsBySchemaID(ApiTestBase):
+
+    def test_get_data_targets_by_schemaID(self, mock_request, biz_schema):
+        mock_request.matchdict = {'schema_id': str(biz_schema.id)}
+        actual = schema_views.get_data_targets_by_schema_id(mock_request)
+        assert actual == self._get_expected_data_targets_response(biz_schema)
+
+
+    def _get_expected_data_targets_response(self, dw_data_target):
+        response = []
+        response.append(
+            rep_v1.get_data_target_response_from_data_target(dw_data_target)
+        )
         return response

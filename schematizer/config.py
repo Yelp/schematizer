@@ -212,6 +212,7 @@ def routes(config):
     )
 
     config.add_route(
-        'api.v1.get_data_target_by_schema_id',
-        '/v1/schemas/{schema_id}/data_target'
+        'api.v1.get_data_targets_by_schema_id',
+        '/v1/schemas/{schema_id}/data_targets'
     )
+

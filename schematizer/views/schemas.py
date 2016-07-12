@@ -14,8 +14,8 @@ from schematizer.api.requests import requests_v1
 from schematizer.api.responses import responses_v1
 from schematizer.config import get_config
 from schematizer.config import log
-from schematizer.logic import registration_repository as reg_repo
 from schematizer.logic import schema_repository
+from schematizer.logic import registration_repository as reg_repo
 from schematizer.utils.utils import get_current_func_arg_name_values
 from schematizer.views import view_common
 
@@ -154,22 +154,26 @@ def get_schema_elements_by_schema_id(request):
 
 
 @view_config(
-    route_name='api.v1.get_data_target_by_schema_id',
+    route_name='api.v1.get_data_targets_by_schema_id',
     request_method='GET',
     renderer='json'
 )
 @transform_api_response()
-def get_data_target_by_schema_id(request):
+def get_data_targets_by_schema_id(request):
     schema_id = request.matchdict.get('schema_id')
     avro_schema = schema_repository.get_schema_by_id(int(schema_id))
     source_id = avro_schema.topic.source.id
     namespace_id = avro_schema.topic.source.namespace_id
-    data_targets = reg_repo.get_data_target_by_data_origin_id(
+    data_targets = reg_repo.get_data_targets_by_data_origin_id(
         schema_id,
         source_id,
         namespace_id
     )
-    return data_targets
+
+    return [
+        responses_v1.get_data_target_response_from_data_target(data_target)
+        for data_target in data_targets
+    ]
 
 
 def validate_name(name):

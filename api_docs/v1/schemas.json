@@ -150,6 +150,33 @@
             ]
         },
         {
+            "path": "/v1/schemas/{schema_id}/data_targets",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get the data targets of specified schema id.",
+                    "notes": "",
+                    "type": "array",
+                    "items": {
+                        "$ref": "DataTarget"
+                    },
+                    "nickname": "get_data_targets_by_schema_id",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "schema_id",
+                            "description": "ID of schema that will be fetched",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": []
+                }
+            ]
+        },
+        {
             "path": "/v1/schemas/created_after/{created_after}",
             "operations": [
                 {
@@ -472,6 +499,33 @@
                     "type": "string",
                     "format": "date-time",
                     "description": "When this note is last updated"
+                }
+            }
+        },
+        "DataTarget": {
+            "id": "DataTarget",
+            "properties": {
+                "data_target_id": {
+                    "type": "integer",
+                    "description": "Data target ID"
+                },
+                "target_type": {
+                    "type": "string",
+                    "description": "Short description of the data target type, such as Redshift."
+                },
+                "destination": {
+                    "type": "string",
+                    "description": "Url that connects to the data target, such as Redshift cluster connection url."
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this data target is created. This should be a datetime string in UTC."
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "When this data target is last updated"
                 }
             }
         }
