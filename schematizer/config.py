@@ -215,4 +215,3 @@ def routes(config):
         'api.v1.get_data_targets_by_schema_id',
         '/v1/schemas/{schema_id}/data_targets'
     )
-

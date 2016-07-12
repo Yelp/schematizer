@@ -14,6 +14,7 @@ def assert_equal_namespace(actual, expected):
     attrs = ('id', 'name', 'created_at', 'updated_at')
     _assert_equal_multi_attrs(actual, expected, *attrs)
 
+
 def assert_equal_source(actual, expected):
     attrs = ('id', 'name', 'owner_email', 'created_at', 'updated_at')
     _assert_equal_multi_attrs(actual, expected, *attrs)
