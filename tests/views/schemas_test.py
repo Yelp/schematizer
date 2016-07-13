@@ -431,11 +431,11 @@ class TestGetSchemaElements(ApiTestBase):
 class TestGetDataTaragetsBySchemaID(ApiTestBase):
 
     def test_get_data_targets_by_schemaID(
-            self,
-            mock_request,
-            biz_schema,
-            dw_data_target,
-            dw_consumer_group_source_data_src
+        self,
+        mock_request,
+        biz_schema,
+        dw_data_target,
+        dw_consumer_group_source_data_src
     ):
         mock_request.matchdict = {'schema_id': str(biz_schema.id)}
         actual = schema_views.get_data_targets_by_schema_id(mock_request)

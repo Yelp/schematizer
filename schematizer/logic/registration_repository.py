@@ -208,7 +208,6 @@ def get_data_targets_by_data_origin_id(
             models.ConsumerGroupDataSource.data_source_id == data_src_id,
             models.ConsumerGroupDataSource.data_source_type == SrcType.SOURCE
         ):
-
             consumer_group_ids.add(consumer_groups_src.consumer_group_id)
 
     if schema_id:
@@ -218,8 +217,8 @@ def get_data_targets_by_data_origin_id(
             models.ConsumerGroupDataSource.data_source_id == schema_id,
             models.ConsumerGroupDataSource.data_source_type == SrcType.SCHEMA
         ):
-
             consumer_group_ids.add(consumer_groups_schema.consumer_group_id)
+
     if namespace_id:
         for consumer_groups_namespace in session.query(
             models.ConsumerGroupDataSource

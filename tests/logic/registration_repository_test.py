@@ -278,7 +278,7 @@ class TestGetDataTargetBySchemaID(DBTestCase):
 
     @pytest.fixture
     def dw_consumer_group_namespace_data_src_namespace(
-            self, dw_consumer_group, biz_source, yelp_namespace
+        self, dw_consumer_group, biz_source, yelp_namespace
     ):
         factories.create_consumer_group_data_source(
             dw_consumer_group,
@@ -304,7 +304,8 @@ class TestGetDataTargetBySchemaID(DBTestCase):
 
     @pytest.fixture
     def dw_new_consumer_group_namespace_data_src_namespace(
-            self, dw_new_consumer_group, biz_source
+        self,
+        dw_new_consumer_group, biz_source
     ):
         return factories.create_consumer_group_data_source(
             dw_new_consumer_group,
@@ -355,8 +356,8 @@ class TestGetDataTargetBySchemaID(DBTestCase):
         )
 
     def test_return_zero_data_targets(
-            self,
-            biz_schema
+        self,
+        biz_schema
     ):
         actuals = reg_repo.get_data_targets_by_data_origin_id(
             biz_schema.id,

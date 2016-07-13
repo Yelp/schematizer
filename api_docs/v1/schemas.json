@@ -165,7 +165,7 @@
                     "parameters": [
                         {
                             "name": "schema_id",
-                            "description": "ID of schema that will be fetched",
+                            "description": "ID of schema whose data targets will be fetched",
                             "required": true,
                             "type": "integer",
                             "paramType": "path",
@@ -520,7 +520,7 @@
                 "created_at": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "When this data target is created. This should be a datetime string in UTC."
+                    "description": "When this data target is created. This should be a datetime string in UTC, such as '2016-07-13T18:44:01.090Z'"
                 },
                 "updated_at": {
                     "type": "string",
