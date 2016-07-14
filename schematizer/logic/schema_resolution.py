@@ -221,7 +221,7 @@ class SchemaResolution(object):
                 self._resolve_decimal_schema(writer_schema, reader_schema))
 
     def _resolve_logical_schema(self, writer_schema, reader_schema):
-        return writer_schema.logicalType == reader_schema.logicalType
+        return writer_schema.logical_type == reader_schema.logical_type
 
     def resolve_date_and_time_schema(self, writer_schema, reader_schema):
         return (self.resolve_primitive_schema(writer_schema, reader_schema) and
@@ -239,7 +239,11 @@ class SchemaResolution(object):
             schema.UnionSchema: self.resolve_union_schema,
             schema.BytesDecimalSchema: self.resolve_bytes_decimal_schema,
             schema.FixedDecimalSchema: self.resolve_fixed_decimal_schema,
-            schema.DateAndTimeSchema: self.resolve_date_and_time_schema,
+            schema.DateSchema: self.resolve_date_and_time_schema,
+            schema.TimeMillisSchema: self.resolve_date_and_time_schema,
+            schema.TimeMicrosSchema: self.resolve_date_and_time_schema,
+            schema.TimestampMillisSchema: self.resolve_date_and_time_schema,
+            schema.TimestampMicrosSchema: self.resolve_date_and_time_schema,
         }
 
     def resolve_schema(self, writer_schema, reader_schema):

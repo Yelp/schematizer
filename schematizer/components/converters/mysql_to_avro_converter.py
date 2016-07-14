@@ -221,7 +221,6 @@ class MySQLToAvroConverter(BaseConverter):
 
     def _convert_date_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.DATE] = True
         return self._builder.begin_date(metadata).end(), metadata
 
     def _convert_datetime_type(self, column):
@@ -229,8 +228,12 @@ class MySQLToAvroConverter(BaseConverter):
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.DATETIME] = True
-        fsp = int(column.type.fsp)
-        if fsp is None or fsp > 3:
+
+        fsp = column.type.fsp
+        if fsp is None:
+            fsp = 0
+            return self._builder.begin_timestamp_millis(metadata).end(), metadata
+        elif int(fsp) > 3:
             return self._builder.begin_timestamp_micros(metadata).end(), metadata
         else:
             return self._builder.begin_timestamp_millis(metadata).end(), metadata
@@ -240,8 +243,11 @@ class MySQLToAvroConverter(BaseConverter):
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.TIME] = True
-        fsp = int(column.type.fsp)
-        if fsp is None or fsp > 3:
+
+        fsp = column.type.fsp
+        if fsp is None:
+            return self._builder.begin_time_millis(metadata).end(), metadata
+        elif int(fsp) > 3:
             return self._builder.begin_time_micros(metadata).end(), metadata
         else:
             return self._builder.begin_time_millis(metadata).end(), metadata
@@ -259,8 +265,11 @@ class MySQLToAvroConverter(BaseConverter):
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.TIMESTAMP] = True
-        fsp = int(column.type.fsp)
-        if fsp is None or fsp > 3:
+        fsp = column.type.fsp
+        if fsp is None:
+            fsp = 0
+            return self._builder.begin_timestamp_millis(metadata).end(), metadata
+        elif int(fsp) > 3:
             return self._builder.begin_timestamp_micros(metadata).end(), metadata
         else:
             return self._builder.begin_timestamp_millis(metadata).end(), metadata
