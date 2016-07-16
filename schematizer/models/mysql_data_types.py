@@ -285,6 +285,9 @@ class MySQLDate(MySQLDateAndTime):
 
     type_name = 'date'
 
+    def __init__(self):
+        super(MySQLDate, self).__init__()
+
 
 class MySQLYear(MySQLDateAndTime):
 
