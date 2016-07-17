@@ -204,33 +204,6 @@ def create_consumer_group_data_source(
     )
 
 
-class NamespaceFactory(object):
-
-    @classmethod
-    def create(
-        cls,
-        name,
-        created_at=fake_created_at,
-        updated_at=fake_updated_at,
-        fake_id=None
-    ):
-        namespace = models.Namespace(
-            name=name,
-            created_at=created_at,
-            updated_at=updated_at
-        )
-        if fake_id:
-            namespace.id = fake_id
-        return namespace
-
-    @classmethod
-    def create_in_db(cls, name):
-        namespace = cls.create(name)
-        session.add(namespace)
-        session.flush()
-        return namespace
-
-
 class SourceFactory(object):
 
     @classmethod
