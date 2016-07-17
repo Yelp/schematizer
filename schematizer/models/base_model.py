@@ -30,15 +30,6 @@ class BaseModel(object):
             )
 
     @classmethod
-    def find_by_id(cls, obj_id):
-        # Similar to get_by_id, it returns the entity of specified ID, and
-        # returns `None` if no such entity is found.
-        try:
-            return session.query(cls).filter(cls.id == obj_id).one()
-        except orm_exc.NoResultFound:
-            return None
-
-    @classmethod
     def get_all(cls):
         return session.query(cls).all()
 
