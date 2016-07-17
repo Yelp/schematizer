@@ -2,10 +2,13 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from collections import namedtuple
 from datetime import datetime
 
 import simplejson
 from cached_property import cached_property
+
+PageInfo = namedtuple('PageInfo', 'count min_id')
 
 
 class RequestBase(object):
@@ -126,6 +129,20 @@ class UpdateCategoryRequest(RequestBase):
         self.category = category
 
 
+class GetSchemasRequest(RequestBase):
+
+    def __init__(self, query_params):
+        super(GetSchemasRequest, self).__init__()
+        self.created_after, self.created_after_datetime = self._get_datetime(
+            query_params.get('created_after')
+        )
+        self.page_info = PageInfo(
+            query_params.get('count'),
+            query_params.get('min_id')
+        )
+        self.include_disabled = query_params.get('include_disabled')
+
+
 class GetTopicsRequest(RequestBase):
 
     def __init__(self, query_params):
@@ -135,8 +152,10 @@ class GetTopicsRequest(RequestBase):
         self.created_after, self.created_after_datetime = self._get_datetime(
             query_params.get('created_after')
         )
-        self.count = query_params.get('count')
-        self.min_id = query_params.get('min_id')
+        self.page_info = PageInfo(
+            query_params.get('count'),
+            query_params.get('min_id')
+        )
 
 
 class GetRefreshesRequest(RequestBase):

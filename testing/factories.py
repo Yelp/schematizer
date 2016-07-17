@@ -82,7 +82,12 @@ def create_topic(topic_name, namespace_name, source_name, **overrides):
     return models.Topic.create(session, **params)
 
 
-def get_or_create_topic(topic_name, namespace_name=None, source_name=None):
+def get_or_create_topic(
+    topic_name,
+    namespace_name=None,
+    source_name=None,
+    created_at=None
+):
     """Get the topic of specified topic name. If it doesn't exist, create it
     in the specified namespace name and source name.
     """
@@ -94,7 +99,8 @@ def get_or_create_topic(topic_name, namespace_name=None, source_name=None):
     return topic or create_topic(
         topic_name,
         namespace_name=namespace_name,
-        source_name=source_name
+        source_name=source_name,
+        created_at=created_at
     )
 
 
@@ -105,12 +111,13 @@ def create_avro_schema(
         namespace=None,
         source=None,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
-        base_schema_id=None
+        base_schema_id=None,
+        created_at=None
 ):
     topic = get_or_create_topic(
         topic_name,
         namespace_name=namespace,
-        source_name=source
+        source_name=source,
     )
 
     avro_schema = models.AvroSchema.create(
@@ -118,7 +125,8 @@ def create_avro_schema(
         avro_schema_json=schema_json,
         topic_id=topic.id,
         status=status,
-        base_schema_id=base_schema_id
+        base_schema_id=base_schema_id,
+        created_at=created_at
     )
 
     for schema_element in schema_elements:
