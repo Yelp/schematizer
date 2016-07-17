@@ -26,7 +26,7 @@ class TestGetAll(DBTestCase):
             id_attr='id'
         )
 
-    def test_get_consumer_group_by_id(self):
+    def test_when_no_namespace_exists(self):
         actual = Namespace.get_all()
         assert actual == []
 
