@@ -483,7 +483,7 @@ def get_schema_by_id(schema_id):
 
 def get_schemas_created_after(
     created_after,
-    page_info,
+    page_info=None,
     include_disabled=False
 ):
     """ Get the Avro schemas (excluding disabled schemas) created after the
@@ -494,11 +494,11 @@ def get_schemas_created_after(
     Args:
         created_after(datetime): get schemas created after given utc
             datetime (inclusive).
-        page_info(:class:schematizer.api.requests.requests_v1.PageInfo):
+        page_info(Optional[:class:schematizer.api.requests.requests_v1.PageInfo]):
             limits the schemas to count and those with an id greater than or
             equal to min_id.
-        include_disabled(bool): set it to True to include disabled schemas.
-            Default it excludes disabled ones.
+        include_disabled(Optional[bool]): set it to True to include disabled
+            schemas. Default it excludes disabled ones.
     Returns:
         (list[:class:schematizer.models.AvroSchema]): List of avro
             schemas created after (inclusive) the specified creation
@@ -513,12 +513,12 @@ def get_schemas_created_after(
         qry = qry.filter(
             models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
         )
-    if page_info.min_id:
+    if page_info and page_info.min_id:
         qry = qry.filter(
             models.AvroSchema.id >= page_info.min_id
         )
     qry = qry.order_by(models.AvroSchema.id)
-    if page_info.count:
+    if page_info and page_info.count:
         qry = qry.limit(page_info.count)
     return qry.all()
 
@@ -758,10 +758,10 @@ def get_schema_elements_by_schema_id(schema_id):
 
 
 def get_topics_by_criteria(
-    page_info,
     namespace=None,
     source=None,
-    created_after=None
+    created_after=None,
+    page_info=None
 ):
     """Get all the topics that match given filter criteria.
 
@@ -770,9 +770,10 @@ def get_topics_by_criteria(
         source(Optional[str]): get topics of given source name if specified
         created_after(Optional[datetime]): get topics created after given utc
             datetime (inclusive) if specified.
-        count(Optional[int]): number of topics to return in this query
-        min_id(Optional[int]): limits results to those with an id greater than
-            or equal to given id.
+        page_info(Optional[:class:schematizer.api.requests.requests_v1.PageInfo]):
+            limits the topics to count and those with id greater than or
+            equal to min_id.
+
     Returns:
         (list[:class:schematizer.models.Topic]): List of topic models sorted
         by their ids.
@@ -791,10 +792,10 @@ def get_topics_by_criteria(
         qry = qry.filter(models.Source.name == source)
     if created_after:
         qry = qry.filter(models.Topic.created_at >= created_after)
-    if page_info.min_id:
+    if page_info and page_info.min_id:
         qry = qry.filter(models.Topic.id >= page_info.min_id)
     qry = qry.order_by(models.Topic.id)
-    if page_info.count:
+    if page_info and page_info.count:
         qry = qry.limit(page_info.count)
     return qry.all()
 
