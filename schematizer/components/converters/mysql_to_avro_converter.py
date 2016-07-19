@@ -219,6 +219,11 @@ class MySQLToAvroConverter(BaseConverter):
         metadata[AvroMetaDataKeys.MAX_LEN] = column.type.length
         return self._builder.create_string(), metadata
 
+    def _get_fsp_metadata(self, column):
+        return {
+            AvroMetaDataKeys.FSP: column.type.fsp
+        }
+
     def _convert_date_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         return self._builder.begin_date().end(), metadata
@@ -227,13 +232,13 @@ class MySQLToAvroConverter(BaseConverter):
         """We use the same avro object for datetime and timestamp
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.DATETIME] = True
 
         fsp = column.type.fsp
         if fsp is None:
             fsp = 0
-            return self._builder.begin_timestamp_millis().end(), metadata
-        elif int(fsp) > 3:
+        metadata.update(self._get_fsp_metadata(column))
+
+        if int(fsp) > 3:
             return self._builder.begin_timestamp_micros().end(), metadata
         else:
             return self._builder.begin_timestamp_millis().end(), metadata
@@ -243,14 +248,9 @@ class MySQLToAvroConverter(BaseConverter):
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.TIME] = True
+        metadata.update(self._get_fsp_metadata(column))
 
-        fsp = column.type.fsp
-        if fsp is None:
-            return self._builder.begin_time_millis().end(), metadata
-        elif int(fsp) > 3:
-            return self._builder.begin_time_micros().end(), metadata
-        else:
-            return self._builder.begin_time_millis().end(), metadata
+        return self._builder.create_long(), metadata
 
     def _convert_year_type(self, column):
         """Avro currently doesn't support year, so map the
@@ -264,14 +264,16 @@ class MySQLToAvroConverter(BaseConverter):
         """We map to micros over millis for safety
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.TIMESTAMP] = True
+
         fsp = column.type.fsp
         if fsp is None:
             fsp = 0
             return self._builder.begin_timestamp_millis().end(), metadata
         elif int(fsp) > 3:
+            metadata.update(self._get_fsp_metadata(column))
             return self._builder.begin_timestamp_micros().end(), metadata
         else:
+            metadata.update(self._get_fsp_metadata(column))
             return self._builder.begin_timestamp_millis().end(), metadata
 
     def _convert_enum_type(self, column):
