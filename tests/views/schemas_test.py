@@ -430,7 +430,7 @@ class TestGetSchemaElements(ApiTestBase):
 
 class TestGetDataTaragetsBySchemaID(ApiTestBase):
 
-    def test_get_data_targets_by_schemaID(
+    def test_get_data_targets_by_schema_id(
         self,
         mock_request,
         biz_schema,
@@ -439,13 +439,5 @@ class TestGetDataTaragetsBySchemaID(ApiTestBase):
     ):
         mock_request.matchdict = {'schema_id': str(biz_schema.id)}
         actual = schema_views.get_data_targets_by_schema_id(mock_request)
-        assert actual == self._get_expected_data_targets_response(
-            dw_data_target
-        )
 
-    def _get_expected_data_targets_response(self, dw_data_target):
-        response = []
-        response.append(
-            rep_v1.get_data_target_response_from_data_target(dw_data_target)
-        )
-        return response
+        assert actual==[self.get_expected_data_target_resp(dw_data_target.id)]

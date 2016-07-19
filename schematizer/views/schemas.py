@@ -153,6 +153,7 @@ def get_schema_elements_by_schema_id(request):
             for element in elements]
 
 
+
 @view_config(
     route_name='api.v1.get_data_targets_by_schema_id',
     request_method='GET',
@@ -160,20 +161,20 @@ def get_schema_elements_by_schema_id(request):
 )
 @transform_api_response()
 def get_data_targets_by_schema_id(request):
-    schema_id = request.matchdict.get('schema_id')
-    avro_schema = schema_repository.get_schema_by_id(int(schema_id))
-    source_id = avro_schema.topic.source.id
-    namespace_id = avro_schema.topic.source.namespace_id
-    data_targets = reg_repo.get_data_targets_by_data_origin_id(
-        schema_id,
-        source_id,
-        namespace_id
-    )
+    try:
+        schema_id = int(request.matchdict.get('schema_id'))
+        # First check if schema exists
+        schema = schema_repository.get_schema_by_id(schema_id)
+        if schema is None:
+            raise exceptions_v1.schema_not_found_exception()
+        data_targets = reg_repo.get_data_targets_by_schema_id(schema_id)
 
-    return [
-        responses_v1.get_data_target_response_from_data_target(data_target)
-        for data_target in data_targets
-    ]
+        return [
+            responses_v1.get_data_target_response_from_data_target(data_target)
+            for data_target in data_targets
+        ]
+    except ValueError as e:
+        raise exceptions_v1.Invalid_request_exception(e.message)
 
 
 def validate_name(name):

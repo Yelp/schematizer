@@ -188,17 +188,15 @@ def get_data_sources_by_consumer_group_id(consumer_group_id):
     return data_srcs
 
 
-def get_data_targets_by_data_origin_id(
-        schema_id=None,
-        data_src_id=None,
-        namespace_id=None
-):
-    """Get the data targets of the corresponding schema id, data source id and
-     namespace id.
+def get_data_targets_by_schema_id(schema_id=None):
+    """Get the data targets of the corresponding schema id
 
     Returns:
         A list of unique data targets
     """
+    avro_schema = models.AvroSchema.get_by_id(session, schema_id)
+    data_src_id = avro_schema.topic.source.id
+    namespace_id = avro_schema.topic.source.namespace_id
     consumer_group_ids = set()
 
     if data_src_id:

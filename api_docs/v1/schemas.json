@@ -172,7 +172,20 @@
                             "allowMultiple": false
                         }
                     ],
-                    "responseMessages": []
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid schema ID supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Schema not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
                 }
             ]
         },

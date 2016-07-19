@@ -278,7 +278,10 @@ class TestGetDataTargetBySchemaID(DBTestCase):
 
     @pytest.fixture
     def dw_consumer_group_namespace_data_src_namespace(
-        self, dw_consumer_group, biz_source, yelp_namespace
+        self,
+        dw_consumer_group,
+        biz_source,
+        yelp_namespace
     ):
         factories.create_consumer_group_data_source(
             dw_consumer_group,
@@ -305,7 +308,8 @@ class TestGetDataTargetBySchemaID(DBTestCase):
     @pytest.fixture
     def dw_new_consumer_group_namespace_data_src_namespace(
         self,
-        dw_new_consumer_group, biz_source
+        dw_new_consumer_group,
+        biz_source
     ):
         return factories.create_consumer_group_data_source(
             dw_new_consumer_group,
@@ -316,15 +320,11 @@ class TestGetDataTargetBySchemaID(DBTestCase):
     def test_get_data_target_by_schema_id(
         self,
         biz_schema,
-        biz_source,
-        yelp_namespace,
         dw_data_target,
         dw_consumer_group_namespace_data_src_namespace
     ):
-        actuals = reg_repo.get_data_targets_by_data_origin_id(
+        actuals = reg_repo.get_data_targets_by_schema_id(
             biz_schema.id,
-            biz_source.id,
-            yelp_namespace.id
         )
         expected = [dw_data_target]
         asserts.assert_equal_entity_list(
@@ -336,17 +336,13 @@ class TestGetDataTargetBySchemaID(DBTestCase):
     def test_return_multiple_data_targets(
         self,
         biz_schema,
-        biz_source,
-        yelp_namespace,
         dw_data_target,
         dw_new_data_target,
         dw_consumer_group_namespace_data_src_namespace,
         dw_new_consumer_group_namespace_data_src_namespace
     ):
-        actuals = reg_repo.get_data_targets_by_data_origin_id(
+        actuals = reg_repo.get_data_targets_by_schema_id(
             biz_schema.id,
-            biz_source.id,
-            yelp_namespace.id
         )
         expected = [dw_data_target, dw_new_data_target]
         asserts.assert_equal_entity_list(
@@ -355,11 +351,8 @@ class TestGetDataTargetBySchemaID(DBTestCase):
             assert_func=asserts.assert_equal_data_target
         )
 
-    def test_return_zero_data_targets(
-        self,
-        biz_schema
-    ):
-        actuals = reg_repo.get_data_targets_by_data_origin_id(
+    def test_return_zero_data_targets(self, biz_schema):
+        actuals = reg_repo.get_data_targets_by_schema_id(
             biz_schema.id,
         )
         expected = []
