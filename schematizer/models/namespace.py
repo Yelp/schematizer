@@ -50,7 +50,7 @@ class Namespace(Base, BaseModel):
     @classmethod
     def get_by_name(cls, name):
         try:
-            return session.query(Namespace).filter(name == name).one()
+            return session.query(Namespace).filter(cls.name == name).one()
         except orm_exc.NoResultFound:
             raise EntityNotFoundError(
                 entity_desc='{} name `{}`'.format(cls.__name__, name)

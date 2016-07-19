@@ -51,7 +51,7 @@ def create_data_target(request):
 )
 @transform_api_response()
 def get_data_target_by_id(request):
-    data_target_id = request.matchdict.get('data_target_id')
+    data_target_id = int(request.matchdict.get('data_target_id'))
     try:
         data_target = models.DataTarget.get_by_id(data_target_id)
         return resp_v1.get_data_target_response_from_data_target(data_target)
