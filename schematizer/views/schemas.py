@@ -153,7 +153,6 @@ def get_schema_elements_by_schema_id(request):
             for element in elements]
 
 
-
 @view_config(
     route_name='api.v1.get_data_targets_by_schema_id',
     request_method='GET',
