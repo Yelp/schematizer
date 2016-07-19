@@ -439,6 +439,6 @@ class TestGetDataTaragetsBySchemaID(ApiTestBase):
         mock_request.matchdict = {'schema_id': str(biz_schema.id)}
         actual = schema_views.get_data_targets_by_schema_id(mock_request)
 
-        assert actual==[
+        assert actual == [
             self.get_expected_data_target_resp(dw_data_target.id)
         ]
