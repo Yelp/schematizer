@@ -15,6 +15,8 @@ class SchemaMetaAttributeMapping(Base, BaseModel):
 
     __tablename__ = 'schema_meta_attribute_mapping'
 
+    id = Column(Integer, primary_key=True)
+
     # schema_id of schema for which meta attributes are required.
     schema_id = Column(Integer, ForeignKey('avro_schema.id'))
 

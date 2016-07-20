@@ -23,7 +23,9 @@ class MetaAttributeMappingStore(Base, BaseModel):
 
     __tablename__ = 'meta_attribute_mapping_store'
 
-    # The name of the entity type. It can be either namespace, source or schema.
+    id = Column(Integer, primary_key=True)
+
+    # The name of the entity type, can be namespace, source or schema.
     entity_type = Column(
         Enum(
             EntityType.NAMESPACE,
