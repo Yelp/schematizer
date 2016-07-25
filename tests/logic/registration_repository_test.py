@@ -295,11 +295,11 @@ class TestGetDataTargetBySchemaID(DBTestCase):
         )
 
     @pytest.fixture
-    def dwv2_new_consumer_group(self, dw_new_data_target):
-        return factories.create_consumer_group('dw2', dw_new_data_target)
+    def dwv2_consumer_group(self, dwv2_data_target):
+        return factories.create_consumer_group('dw2', dwv2_data_target)
 
     @pytest.fixture
-    def dwv2_new_data_target(self):
+    def dwv2_data_target(self):
         return factories.create_data_target(
             target_type='redshift',
             destination='dwv2.redshift.yelpcorp.com'
@@ -308,11 +308,11 @@ class TestGetDataTargetBySchemaID(DBTestCase):
     @pytest.fixture
     def dw_new_consumer_group_namespace_data_src_namespace(
         self,
-        dwv2_new_consumer_group,
+        dwv2_consumer_group,
         biz_source
     ):
         return factories.create_consumer_group_data_source(
-            dwv2_new_consumer_group,
+            dwv2_consumer_group,
             data_src_type=models.DataSourceTypeEnum.SOURCE,
             data_src_id=biz_source.id
         )
@@ -337,14 +337,14 @@ class TestGetDataTargetBySchemaID(DBTestCase):
         self,
         biz_schema,
         dw_data_target,
-        dwv2_new_data_target,
+        dwv2_data_target,
         dw_consumer_group_namespace_data_src_namespace,
         dw_new_consumer_group_namespace_data_src_namespace
     ):
         actual = reg_repo.get_data_targets_by_schema_id(
             biz_schema.id,
         )
-        expected = [dw_data_target, dwv2_new_data_target]
+        expected = [dw_data_target, dwv2_data_target]
         asserts.assert_equal_entity_set(
             actual,
             expected,

@@ -9,7 +9,6 @@ from __future__ import unicode_literals
 from sqlalchemy import exc
 from sqlalchemy import or_
 
-
 from schematizer import models
 from schematizer.logic.validators import verify_entity_exists
 from schematizer.logic.validators import verify_truthy_value
@@ -212,30 +211,29 @@ def get_data_targets_by_schema_id(schema_id):
                 models.ConsumerGroupDataSource.data_source_id == namespace_id
             ) &
             (
-                models.ConsumerGroupDataSource.data_source_type == \
+                models.ConsumerGroupDataSource.data_source_type ==
                 SrcType.NAMESPACE
             )
-        )|
+        ) |
         (
             (
                 models.ConsumerGroupDataSource.data_source_id == schema_id
             ) &
             (
-                models.ConsumerGroupDataSource.data_source_type == \
+                models.ConsumerGroupDataSource.data_source_type ==
                 SrcType.SCHEMA
             )
-        )|
+        ) |
         (
             (
                 models.ConsumerGroupDataSource.data_source_id == src_id
             ) &
             (
-                models.ConsumerGroupDataSource.data_source_type == \
+                models.ConsumerGroupDataSource.data_source_type ==
                 SrcType.SOURCE
             )
         )
     )
-
 
     consumer_group_ids.update(
         consumer_group.consumer_group_id for consumer_group in results

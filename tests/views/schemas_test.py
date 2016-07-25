@@ -442,6 +442,7 @@ class TestGetDataTaragetsBySchemaID(ApiTestBase):
         assert actual == [
             self.get_expected_data_target_resp(dw_data_target.id)
         ]
+
     def test_non_existing_schema(self, mock_request):
         expected_exception = self.get_http_exception(404)
         with pytest.raises(expected_exception) as e:
