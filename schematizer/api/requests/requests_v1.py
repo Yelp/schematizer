@@ -2,13 +2,12 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from collections import namedtuple
 from datetime import datetime
 
 import simplejson
 from cached_property import cached_property
 
-PageInfo = namedtuple('PageInfo', 'count min_id')
+from schematizer.models.tuples import PageInfo
 
 
 class RequestBase(object):

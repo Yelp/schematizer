@@ -9,11 +9,12 @@ import mock
 import pytest
 
 from schematizer import models
-from schematizer.api.requests.requests_v1 import PageInfo
 from schematizer.components import converters
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
 from schematizer.models.database import session
+from schematizer.models.tuples import PageInfo
+from testing import asserts
 from testing import factories
 from tests.models.testing_db import DBTestCase
 
@@ -1004,7 +1005,11 @@ class TestSchemaRepository(DBTestCase):
         expected = sorted_schemas[1:]
         after_dt = expected[0].created_at
         actual = schema_repo.get_schemas_created_after(created_after=after_dt)
-        assert actual == expected
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=expected,
+            assert_func=asserts.assert_equal_avro_schema
+        )
 
     def test_get_schemas_after_given_timestamp_including_disabled_schemas(
         self,
@@ -1022,7 +1027,11 @@ class TestSchemaRepository(DBTestCase):
             created_after=after_dt,
             include_disabled=True
         )
-        assert actual == expected
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=expected,
+            assert_func=asserts.assert_equal_avro_schema
+        )
 
     def test_get_schemas_filter_by_count(
         self,
@@ -1034,7 +1043,11 @@ class TestSchemaRepository(DBTestCase):
             created_after=after_dt,
             page_info=PageInfo(count=1, min_id=None)
         )
-        assert actual == expected
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=expected,
+            assert_func=asserts.assert_equal_avro_schema
+        )
 
     def test_get_schemas_filter_by_min_id(self, sorted_schemas):
         min_id = sorted_schemas[1].id
@@ -1044,7 +1057,11 @@ class TestSchemaRepository(DBTestCase):
             created_after=created_dt,
             page_info=PageInfo(count=None, min_id=min_id)
         )
-        assert actual == expected
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=expected,
+            assert_func=asserts.assert_equal_avro_schema
+        )
 
     def test_no_newer_schema(self, sorted_schemas):
         last_schema = sorted_schemas[-1]
@@ -1478,7 +1495,7 @@ class TestByCriteria(DBTestCase):
         )
 
     @pytest.fixture
-    def sorted_topics(self, user_topic_1, user_topic_2, biz_topic, cta_topic):
+    def sorted_topics(self, user_topic_1, biz_topic, user_topic_2, cta_topic):
         return sorted(
             [user_topic_1, biz_topic, user_topic_2, cta_topic],
             key=lambda topic: topic.created_at
@@ -1591,17 +1608,21 @@ class TestByCriteria(DBTestCase):
             )
         )
 
-    def test_get_topics_count(self, sorted_topics):
+    def test_get_topics(self, sorted_topics):
+        expected = sorted_topics
+        actual = schema_repo.get_topics_by_criteria()
+        assert len(actual) > 1
+        self.assert_equal_topics(actual, expected)
+
+    def test_get_topics_limited_by_count(self, sorted_topics):
         expected = [sorted_topics[0]]
         actual = schema_repo.get_topics_by_criteria(
             page_info=PageInfo(count=1, min_id=None)
         )
         assert len(actual) == 1
-        assert len(
-            schema_repo.get_topics_by_criteria()) > 1
         self.assert_equal_topics(actual, expected)
 
-    def test_get_topics_min_id(self, sorted_topics):
+    def test_get_topics_limited_by_min_topic_id(self, sorted_topics):
         min_id = sorted_topics[1].id
         expected = [topic for topic in sorted_topics if topic.id >= min_id]
         actual = schema_repo.get_topics_by_criteria(

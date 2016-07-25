@@ -494,7 +494,7 @@ def get_schemas_created_after(
     Args:
         created_after(datetime): get schemas created after given utc
             datetime (inclusive).
-        page_info(Optional[:class:schematizer.api.requests.requests_v1.PageInfo]):
+        page_info(Optional[:class:schematizer.models.tuples.PageInfo]):
             limits the schemas to count and those with an id greater than or
             equal to min_id.
         include_disabled(Optional[bool]): set it to True to include disabled
@@ -770,7 +770,7 @@ def get_topics_by_criteria(
         source(Optional[str]): get topics of given source name if specified
         created_after(Optional[datetime]): get topics created after given utc
             datetime (inclusive) if specified.
-        page_info(Optional[:class:schematizer.api.requests.requests_v1.PageInfo]):
+        page_info(Optional[:class:schematizer.models.tuples.PageInfo]):
             limits the topics to count and those with id greater than or
             equal to min_id.
 
