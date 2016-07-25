@@ -86,7 +86,6 @@ def get_or_create_topic(
     topic_name,
     namespace_name=None,
     source_name=None,
-    created_at=None
 ):
     """Get the topic of specified topic name. If it doesn't exist, create it
     in the specified namespace name and source name.
@@ -99,8 +98,7 @@ def get_or_create_topic(
     return topic or create_topic(
         topic_name,
         namespace_name=namespace_name,
-        source_name=source_name,
-        created_at=created_at
+        source_name=source_name
     )
 
 
@@ -117,7 +115,7 @@ def create_avro_schema(
     topic = get_or_create_topic(
         topic_name,
         namespace_name=namespace,
-        source_name=source,
+        source_name=source
     )
 
     avro_schema = models.AvroSchema.create(

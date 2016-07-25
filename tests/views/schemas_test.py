@@ -52,23 +52,6 @@ class TestGetSchemaByID(ApiTestBase):
 
 class TestGetSchemaAfterDate(ApiTestBase):
 
-    def test_get_schemas_created_after_dates(self, mock_request, biz_schema):
-        """ First retrieves all schemas created after 2015, then iterates
-        through the returned list and verifies that the creation
-        dates are all after 2015.
-        """
-        # Inclusion of biz_schema is so that there is a sample schema
-        created_after_str = "2015-01-01T19:10:26"
-        created_after = datetime.strptime(created_after_str,
-                                          '%Y-%m-%dT%H:%M:%S')
-        creation_timestamp = (created_after -
-                              datetime.utcfromtimestamp(0)).total_seconds()
-        mock_request.params = {'created_after': creation_timestamp}
-        schemas = schema_views.get_schemas_created_after(mock_request)
-        for schema in schemas:
-            assert datetime.strptime(schema['created_at'],
-                                     '%Y-%m-%dT%H:%M:%S') >= created_after
-
     def test_get_schemas_filter_by_created_timestamp(
         self,
         mock_request,
