@@ -295,11 +295,11 @@ class TestGetDataTargetBySchemaID(DBTestCase):
         )
 
     @pytest.fixture
-    def dw_new_consumer_group(self, dw_new_data_target):
+    def dwv2_new_consumer_group(self, dw_new_data_target):
         return factories.create_consumer_group('dw2', dw_new_data_target)
 
     @pytest.fixture
-    def dw_new_data_target(self):
+    def dwv2_new_data_target(self):
         return factories.create_data_target(
             target_type='redshift',
             destination='dwv2.redshift.yelpcorp.com'
@@ -308,11 +308,11 @@ class TestGetDataTargetBySchemaID(DBTestCase):
     @pytest.fixture
     def dw_new_consumer_group_namespace_data_src_namespace(
         self,
-        dw_new_consumer_group,
+        dwv2_new_consumer_group,
         biz_source
     ):
         return factories.create_consumer_group_data_source(
-            dw_new_consumer_group,
+            dwv2_new_consumer_group,
             data_src_type=models.DataSourceTypeEnum.SOURCE,
             data_src_id=biz_source.id
         )
@@ -337,27 +337,28 @@ class TestGetDataTargetBySchemaID(DBTestCase):
         self,
         biz_schema,
         dw_data_target,
-        dw_new_data_target,
+        dwv2_new_data_target,
         dw_consumer_group_namespace_data_src_namespace,
         dw_new_consumer_group_namespace_data_src_namespace
     ):
-        actuals = reg_repo.get_data_targets_by_schema_id(
+        actual = reg_repo.get_data_targets_by_schema_id(
             biz_schema.id,
         )
-        expected = [dw_data_target, dw_new_data_target]
-        asserts.assert_equal_entity_list(
-            actuals,
+        expected = [dw_data_target, dwv2_new_data_target]
+        asserts.assert_equal_entity_set(
+            actual,
             expected,
-            assert_func=asserts.assert_equal_data_target
+            assert_func=asserts.assert_equal_data_target,
+            id_attr='id'
         )
 
     def test_return_zero_data_targets(self, biz_schema):
-        actuals = reg_repo.get_data_targets_by_schema_id(
+        actual = reg_repo.get_data_targets_by_schema_id(
             biz_schema.id,
         )
         expected = []
         asserts.assert_equal_entity_list(
-            actuals,
+            actual,
             expected,
             assert_func=asserts.assert_equal_data_target
         )

@@ -442,3 +442,11 @@ class TestGetDataTaragetsBySchemaID(ApiTestBase):
         assert actual == [
             self.get_expected_data_target_resp(dw_data_target.id)
         ]
+    def test_non_existing_schema(self, mock_request):
+        expected_exception = self.get_http_exception(404)
+        with pytest.raises(expected_exception) as e:
+            mock_request.matchdict = {'schema_id': '0'}
+            schema_views.get_schema_by_id(mock_request)
+
+        assert e.value.code == expected_exception.code
+        assert str(e.value) == exceptions_v1.SCHEMA_NOT_FOUND_ERROR_MESSAGE
