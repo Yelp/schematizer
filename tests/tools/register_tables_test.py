@@ -2,16 +2,20 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import sys
 from tempfile import NamedTemporaryFile
 
 import mock
 import pytest
 
-from schematizer.tools import register_tables
+from schematizer.tools.register_tables import RegisterTables
+from schematizer.tools.register_tables import table_info
 
 
 class TestRegisterTables(object):
+
+    @pytest.fixture
+    def example_register_tables_batch(self):
+        return RegisterTables()
 
     @pytest.yield_fixture
     def topology_file(self):
@@ -102,11 +106,11 @@ class TestRegisterTables(object):
     @pytest.fixture
     def table_to_info_map(self):
         return {
-            self.table_1: register_tables.table_info(
+            self.table_1: table_info(
                 create_table_stmt=self.create_stmt_table_1,
                 columns=['id', 'value']
             ),
-            self.table_2: register_tables.table_info(
+            self.table_2: table_info(
                 create_table_stmt=self.create_stmt_table_2,
                 columns=['id2', 'value2']
             )
@@ -140,21 +144,25 @@ class TestRegisterTables(object):
         self,
         topology_file,
         cluster,
-        connection_param
+        connection_param,
+        example_register_tables_batch
     ):
-        conn_param = register_tables.get_connection_param_from_topology(
-            topology_file,
-            cluster
+        conn_param = (
+            example_register_tables_batch.get_connection_param_from_topology(
+                topology_file,
+                cluster
+            )
         )
         assert conn_param == connection_param
 
     def test_verify_mysql_table_to_avro_schema(
         self,
         table_to_info_map,
-        table_to_avro_fields_map
+        table_to_avro_fields_map,
+        example_register_tables_batch
     ):
         actual_registered_tables, actual_failed_tables = (
-            register_tables.verify_mysql_table_to_avro_schema(
+            example_register_tables_batch.verify_mysql_table_to_avro_schema(
                 table_to_info_map,
                 table_to_avro_fields_map
             )
@@ -163,22 +171,23 @@ class TestRegisterTables(object):
         assert set(actual_failed_tables) == set()
 
     def test_execute_only_whitelisted_queries(
-            self,
-            insert_query,
-            delete_query,
-            select_query,
-            show_columns_query,
-            connection_param
+        self,
+        insert_query,
+        delete_query,
+        select_query,
+        show_columns_query,
+        connection_param,
+        example_register_tables_batch
     ):
         with mock.patch(
             'schematizer.tools.register_tables.pymysql.connect'
         ) as mock_connection:
-            result = register_tables._execute_query(
+            result = example_register_tables_batch._execute_query(
                 mock_connection,
                 select_query
             )
             assert result is not None
-            result = register_tables._execute_query(
+            result = example_register_tables_batch._execute_query(
                 mock_connection,
                 show_columns_query
             )
@@ -187,45 +196,40 @@ class TestRegisterTables(object):
         with mock.patch(
             'schematizer.tools.register_tables.pymysql.connect'
         ) as mock_connection:
-            result = register_tables._execute_query(
+            result = example_register_tables_batch._execute_query(
                 connection_param,
                 insert_query
             )
             assert mock_connection.cursor.call_count == 0
             assert result == []
-            result = register_tables._execute_query(
+            result = example_register_tables_batch._execute_query(
                 connection_param,
                 delete_query
             )
             assert mock_connection.cursor.call_count == 0
             assert result == []
 
-    def test_main(
+    def test_dry_run(
         self,
         topology_file,
         table_to_info_map,
-        table_to_avro_fields_map
+        table_to_avro_fields_map,
+        example_register_tables_batch
     ):
-        test_args = [
-            'schematizer/tools/register_tables.py',
-            '-c',
-            'test',
-            '--proddb'
-        ]
-        with mock.patch.object(sys, 'argv', test_args), mock.patch(
-                'schematizer.tools.register_tables.get_topology_file'
-        ) as mock_get_topology_file, mock.patch(
-            'schematizer.tools.register_tables._execute_query'
+        options = mock.Mock(config_file=topology_file, cluster_name='test')
+        with mock.patch.object(
+            example_register_tables_batch,
+            '_execute_query'
         ) as exec_query, mock.patch(
             'schematizer.tools.register_tables.pymysql.connect'
-        ), mock.patch(
-            'schematizer.tools.register_tables.'
+        ), mock.patch.object(
+            example_register_tables_batch,
             'verify_mysql_table_to_avro_schema'
         ) as mock_verify_mysql_table:
+            example_register_tables_batch.options = options
             mock_verify_mysql_table.return_value = ([], [])
-            mock_get_topology_file.return_value = topology_file
             exec_query.side_effect = self.query_result
-            register_tables.main()
+            example_register_tables_batch.run()
             mock_verify_mysql_table.assert_called_once_with(
                 table_to_info_map,
                 table_to_avro_fields_map
