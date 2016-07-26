@@ -62,7 +62,9 @@ class RegisterTables(Batch):
             'This module spins up a Schematizer container and registers all '
             'the mysql tables against the container to test how many tables '
             'can be successfully registered with the Schematizer. Prints the '
-            'number of successfully registered tables and failed tables.'
+            'number of successfully registered tables and failed tables. '
+            'NOTE: This batch should be run with at least -v (INFO) verbosity '
+            'to view the results.'
         )
 
         opt_group.add_option(
