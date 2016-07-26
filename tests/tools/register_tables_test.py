@@ -72,15 +72,15 @@ class TestRegisterTables(object):
     @property
     def query_to_result_map(self):
         return {
-            "show tables;": ((self.table_1,), (self.table_2,)),
-            "show create table test_table_1;": (
+            "show tables": ((self.table_1,), (self.table_2,)),
+            "show create table test_table_1": (
                 (self.table_1, self.create_stmt_table_1),
             ),
-            "show create table test_table_2;": (
+            "show create table test_table_2": (
                 (self.table_2, self.create_stmt_table_2),
             ),
-            "show columns from test_table_1;": self.columns_for_table_1,
-            "show columns from test_table_2;": self.columns_for_table_2
+            "show columns from test_table_1": self.columns_for_table_1,
+            "show columns from test_table_2": self.columns_for_table_2
         }
 
     @pytest.fixture
@@ -115,24 +115,6 @@ class TestRegisterTables(object):
                 columns=['id2', 'value2']
             )
         }
-
-    @pytest.fixture
-    def insert_query(self):
-        return "insert into {} values (23, \"test_value\")".format(
-            self.table_1
-        )
-
-    @pytest.fixture
-    def delete_query(self):
-        return "delete from {};".format(self.table_1)
-
-    @pytest.fixture
-    def select_query(self):
-        return 'show create table {};'.format(self.table_1)
-
-    @pytest.fixture
-    def show_columns_query(self):
-        return "show columns from {};".format(self.table_1)
 
     def query_result(self, connection, query):
         if self.query_to_result_map.get(query):
@@ -170,12 +152,16 @@ class TestRegisterTables(object):
         assert set(actual_registered_tables) == {self.table_1, self.table_2}
         assert set(actual_failed_tables) == set()
 
-    def test_execute_only_whitelisted_queries(
+    @pytest.mark.parametrize("bad_query", [
+        "insert into business values (23, 'bad_value')",
+        "delete from business",
+        "select * from good_table; delete from business;",
+        "show tables; delete from business;",
+        "show create table good_table; drop table business"
+    ])
+    def test_execute_query_should_not_execute_bad_queries(
         self,
-        insert_query,
-        delete_query,
-        select_query,
-        show_columns_query,
+        bad_query,
         connection_param,
         example_register_tables_batch
     ):
@@ -183,31 +169,31 @@ class TestRegisterTables(object):
             'schematizer.tools.register_tables.pymysql.connect'
         ) as mock_connection:
             result = example_register_tables_batch._execute_query(
-                mock_connection,
-                select_query
+                connection_param,
+                bad_query
             )
-            assert result is not None
-            result = example_register_tables_batch._execute_query(
-                mock_connection,
-                show_columns_query
-            )
-            assert result is not None
+            assert mock_connection.cursor.call_count == 0
+            assert result == []
 
+    @pytest.mark.parametrize("good_query", [
+        "show create table test1",
+        "show tables",
+        "show columns from test1"
+    ])
+    def test_execute_only_whitelisted_queries(
+        self,
+        good_query,
+        example_register_tables_batch
+    ):
         with mock.patch(
             'schematizer.tools.register_tables.pymysql.connect'
         ) as mock_connection:
             result = example_register_tables_batch._execute_query(
-                connection_param,
-                insert_query
+                mock_connection,
+                good_query
             )
-            assert mock_connection.cursor.call_count == 0
-            assert result == []
-            result = example_register_tables_batch._execute_query(
-                connection_param,
-                delete_query
-            )
-            assert mock_connection.cursor.call_count == 0
-            assert result == []
+            assert mock_connection.cursor.call_count == 1
+            assert result is not None
 
     def test_dry_run(
         self,

@@ -48,9 +48,9 @@ class RegisterTables(Batch):
         'content-type': 'application/json',
         'Accept-Charset': 'UTF-8'
     }
-    SELECT_QUERY_PATTERN = 'show create table *'
-    SHOW_COLUMNS_QUERY_PATTERN = 'show columns from *'
-    SHOW_TABLES_QUERY_PATTERN = 'show tables *'
+    SELECT_QUERY_PATTERN = '^show create table [\w$]+$'
+    SHOW_COLUMNS_QUERY_PATTERN = '^show columns from [\w$]+$'
+    SHOW_TABLES_QUERY_PATTERN = '^show tables$'
 
     notify_emails = ['bam+batch@yelp.com']
 
@@ -129,19 +129,19 @@ class RegisterTables(Batch):
         create table statement and list of columns as values.
         """
         table_to_info_map = {}
-        table_entries = self._execute_query(conn, query='show tables;')
+        table_entries = self._execute_query(conn, query='show tables')
         for entry in table_entries:
             table_name = entry[0]
             results = self._execute_query(
                 conn,
-                query='show create table {};'.format(table_name)
+                query='show create table {}'.format(table_name)
             )
             if results:
                 _, create_tbl_stmt = results[0]
                 create_tbl_stmt = create_tbl_stmt.replace('\n', '')
                 results = self._execute_query(
                     conn,
-                    query='show columns from {};'.format(table_name)
+                    query='show columns from {}'.format(table_name)
                 )
                 columns = [column[0] for column in results]
                 table_to_info_map[table_name] = table_info(
@@ -286,7 +286,6 @@ class RegisterTables(Batch):
                 self.post_to_schematizer,
                 host
             )
-
         registered_tables, error_tables = (
             self.verify_mysql_table_to_avro_schema(
                 table_to_info_map,
