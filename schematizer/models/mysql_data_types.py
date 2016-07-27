@@ -297,7 +297,7 @@ class MySQLTime(MySQLDateAndTime):
 
     def __init__(self, fsp=None):
         super(MySQLTime, self).__init__()
-        self.fsp = fsp
+        self.fsp = 0 if fsp is None else fsp
 
 
 class MySQLTimestamp(MySQLDateAndTime):
@@ -306,7 +306,7 @@ class MySQLTimestamp(MySQLDateAndTime):
 
     def __init__(self, fsp=None):
         super(MySQLTimestamp, self).__init__()
-        self.fsp = fsp
+        self.fsp = 0 if fsp is None else fsp
 
 
 class MySQLDateTime(MySQLDateAndTime):
@@ -315,7 +315,7 @@ class MySQLDateTime(MySQLDateAndTime):
 
     def __init__(self, fsp=None):
         super(MySQLDateTime, self).__init__()
-        self.fsp = fsp
+        self.fsp = 0 if fsp is None else fsp
 
 
 class MySQLEnum(SQLColumnDataType):

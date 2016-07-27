@@ -229,16 +229,16 @@ class MySQLToAvroConverter(BaseConverter):
         return self._builder.begin_date().end(), metadata
 
     def _convert_datetime_type(self, column):
-        """We use the same avro object for datetime and timestamp
+        """The Avro timestamp logical type is used to represent 
+        MySQL datetime type, and it chooses timestamp-millis or 
+        timestamp-micros depending on the fsp value.
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
 
         fsp = column.type.fsp
-        if fsp is None:
-            fsp = 0
         metadata.update(self._get_fsp_metadata(column))
 
-        if int(fsp) > 3:
+        if fsp > 3:
             return self._builder.begin_timestamp_micros().end(), metadata
         else:
             return self._builder.begin_timestamp_millis().end(), metadata
@@ -266,10 +266,8 @@ class MySQLToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
 
         fsp = column.type.fsp
-        if fsp is None:
-            fsp = 0
-            return self._builder.begin_timestamp_millis().end(), metadata
-        elif int(fsp) > 3:
+
+        if fsp > 3:
             metadata.update(self._get_fsp_metadata(column))
             return self._builder.begin_timestamp_micros().end(), metadata
         else:

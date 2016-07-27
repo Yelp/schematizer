@@ -213,6 +213,15 @@ class TestMySQLToAvroConverter(object):
 
         self._convert_and_assert_with_one_column(
             converter,
+            SQLColumn('col_datetime', mysql_data_types.MySQLDateTime()),
+            {'name': 'col_datetime',
+             'type': ['null', timestamp_millis_schema],
+             'default': None,
+             AvroMetaDataKeys.FSP: 0}
+        )
+
+        self._convert_and_assert_with_one_column(
+            converter,
             SQLColumn('col_datetime', mysql_data_types.MySQLDateTime(5)),
             {'name': 'col_datetime',
              'type': ['null', timestamp_micros_schema],
@@ -231,21 +240,12 @@ class TestMySQLToAvroConverter(object):
     def test_convert_with_col_time(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_time', mysql_data_types.MySQLTime(5)),
+            SQLColumn('col_time', mysql_data_types.MySQLTime(0)),
             {'name': 'col_time',
              'type': ['null', 'long'],
              'default': None,
              AvroMetaDataKeys.TIME: True,
-             AvroMetaDataKeys.FSP: 5}
-        )
-        self._convert_and_assert_with_one_column(
-            converter,
-            SQLColumn('col_time', mysql_data_types.MySQLTime(2)),
-            {'name': 'col_time',
-             'type': ['null', 'long'],
-             'default': None,
-             AvroMetaDataKeys.TIME: True,
-             AvroMetaDataKeys.FSP: 2}
+             AvroMetaDataKeys.FSP: 0}
         )
 
     def test_convert_with_col_year(self, converter):
@@ -268,6 +268,14 @@ class TestMySQLToAvroConverter(object):
             'logicalType': 'timestamp-millis'
         }
 
+        self._convert_and_assert_with_one_column(
+            converter,
+            SQLColumn('col_ts', mysql_data_types.MySQLTimestamp()),
+            {'name': 'col_ts',
+             'type': ['null', timestamp_millis_schema],
+             'default': None,
+             AvroMetaDataKeys.FSP: 0}
+        )
         self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_ts', mysql_data_types.MySQLTimestamp(5)),

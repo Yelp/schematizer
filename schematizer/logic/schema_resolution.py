@@ -221,7 +221,9 @@ class SchemaResolution(object):
                 self._resolve_decimal_schema(writer_schema, reader_schema))
 
     def _resolve_logical_schema(self, writer_schema, reader_schema):
-        return writer_schema.logical_type == reader_schema.logical_type
+        if hasattr(reader_schema, 'logical_type'):
+            return writer_schema.logical_type == reader_schema.logical_type
+        return False
 
     def resolve_date_and_time_schema(self, writer_schema, reader_schema):
         return (self.resolve_primitive_schema(writer_schema, reader_schema) and
