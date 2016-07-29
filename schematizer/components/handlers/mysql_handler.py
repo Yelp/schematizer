@@ -252,7 +252,7 @@ class ParsedMySQLProcessor(object):
         if col_type_cls is not data_types.MySQLTime:
             return None
 
-        fsp = 0
+        fsp = None
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
         if len_token:
             token = len_token.token_next_by_type(0, T.Number.Integer)
@@ -264,7 +264,7 @@ class ParsedMySQLProcessor(object):
         if col_type_cls is not data_types.MySQLTimestamp:
             return None
 
-        fsp = 0
+        fsp = None
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
         if len_token:
             token = len_token.token_next_by_type(0, T.Number.Integer)
@@ -276,7 +276,7 @@ class ParsedMySQLProcessor(object):
         if col_type_cls is not data_types.MySQLDateTime:
             return None
 
-        fsp = 0
+        fsp = None
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
         if len_token:
             token = len_token.token_next_by_type(0, T.Number.Integer)

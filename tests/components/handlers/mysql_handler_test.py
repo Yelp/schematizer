@@ -62,6 +62,59 @@ class TestMySQLHandler(object):
         col_age = SQLColumn('age', data_types.MySQLInt(None))
         return SQLTable('foo', [col_id, col_name, col_amount, col_age])
 
+    @property
+    def create_table_date_and_time_sql(self):
+        return ('CREATE TABLE `date_and_time` ('
+                '`id` int(11) auto_increment not null, '
+                'dttm datetime default \'1000-01-01 00:00:00\' not null,'
+                'tstmp timestamp default \'1970-01-01 00:00:01\' not null,'
+                'tm time default \'11:12:00\' not null,'
+                'yr year default \'2000\' not null,'
+                'dt date default \'1000-01-01\' not null,'
+                'primary key (id) '
+                ');')
+
+    @property
+    def expected_sql_table_date_and_time(self):
+        col_id = SQLColumn(
+            'id',
+            data_types.MySQLInt(11),
+            primary_key_order=1,
+            is_nullable=False
+        )
+        col_dt = SQLColumn(
+            'dt',
+            data_types.MySQLDate(),
+            default_value='1000-01-01',
+            is_nullable=False
+        )
+        col_yr = SQLColumn(
+            'yr',
+            data_types.MySQLYear(),
+            default_value='2000',
+            is_nullable=False
+        )
+        col_tm = SQLColumn(
+            'tm',
+            data_types.MySQLTime(),
+            default_value='11:12:00',
+            is_nullable=False
+        )
+        col_tstmp = SQLColumn(
+            'tstmp',
+            data_types.MySQLTimestamp(),
+            default_value='1970-01-01 00:00:01',
+            is_nullable=False
+        )
+        col_dttm = SQLColumn(
+            'dttm',
+            data_types.MySQLDateTime(),
+            default_value='1000-01-01 00:00:00',
+            is_nullable=False
+        )
+        return SQLTable('date_and_time',
+                        [col_id, col_dt, col_yr, col_tm, col_tstmp, col_dttm])
+
     def test_create_sql_table_from_sql_stmts(self, handler):
         sql_table = handler.create_sql_table_from_sql_stmts(
             [self.create_table_foo_sql]
@@ -294,6 +347,13 @@ class TestMySQLHandler(object):
              default_value='11:12:00',
              is_nullable=False
          )),
+        ('bar time(2) default \'11:12:00\' not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLTime(2),
+             default_value='11:12:00',
+             is_nullable=False
+         )),
         ('bar time null', SQLColumn('bar', data_types.MySQLTime())),
     ])
     def test_create_sql_table_from_sql_stmts_with_time_type(
@@ -316,7 +376,15 @@ class TestMySQLHandler(object):
              default_value='1970-01-01 00:00:01',
              is_nullable=False
          )),
+        ('bar timestamp(2) default \'1970-01-01 00:00:01\' not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLTimestamp(2),
+             default_value='1970-01-01 00:00:01',
+             is_nullable=False
+         )),
         ('bar timestamp null', SQLColumn('bar', data_types.MySQLTimestamp())),
+
     ])
     def test_create_sql_table_from_sql_stmts_with_timestamp_type(
         self,
@@ -335,6 +403,13 @@ class TestMySQLHandler(object):
          SQLColumn(
              'bar',
              data_types.MySQLDateTime(),
+             default_value='1000-01-01 00:00:00',
+             is_nullable=False
+         )),
+        ('bar datetime(2) default \'1000-01-01 00:00:00\' not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLDateTime(2),
              default_value='1000-01-01 00:00:00',
              is_nullable=False
          )),

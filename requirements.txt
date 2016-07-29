@@ -20,7 +20,7 @@ pyramid-swagger==1.1.0
 pyramid-uwsgi-metrics==0.3.1
 pyramid-yelp-conn==0.4.0
 pysubnettree==0.23
-pytz==2014.9
+pytz==2016.4
 repoze.lru==0.6
 simplejson==3.6.5
 six==1.9.0
@@ -33,8 +33,8 @@ treap==1.23.1
 uWSGI==2.0.8
 uwsgi-metrics==1.1.4
 venusian==1.0
-avro==1.11.0
--e ../yelp_avro
+avro==1.9.0-yelp1
+yelp-avro==0.1.9
 yelp-cgeom==1.3.1
 yelp-clog==1.4.2
 yelp-conn==6.0.0

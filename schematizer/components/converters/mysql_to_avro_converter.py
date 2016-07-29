@@ -236,9 +236,12 @@ class MySQLToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
 
         fsp = column.type.fsp
+
         metadata.update(self._get_fsp_metadata(column))
 
-        if fsp > 3:
+        if fsp is None:
+            return self._builder.begin_timestamp_millis().end(), metadata
+        elif fsp > 3:
             return self._builder.begin_timestamp_micros().end(), metadata
         else:
             return self._builder.begin_timestamp_millis().end(), metadata
@@ -270,12 +273,13 @@ class MySQLToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
 
         fsp = column.type.fsp
+        metadata.update(self._get_fsp_metadata(column))
 
-        if fsp > 3:
-            metadata.update(self._get_fsp_metadata(column))
+        if fsp is None:
+            return self._builder.begin_timestamp_millis().end(), metadata
+        elif fsp > 3:
             return self._builder.begin_timestamp_micros().end(), metadata
         else:
-            metadata.update(self._get_fsp_metadata(column))
             return self._builder.begin_timestamp_millis().end(), metadata
 
     def _convert_enum_type(self, column):
