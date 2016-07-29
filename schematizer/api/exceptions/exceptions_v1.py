@@ -7,7 +7,6 @@ from pyramid import httpexceptions
 
 LATEST_SCHEMA_NOT_FOUND_ERROR_MESSAGE = 'Latest schema is not found.'
 LATEST_TOPIC_NOT_FOUND_ERROR_MESSAGE = 'Latest topic is not found.'
-NAMESPACE_NOT_FOUND_ERROR_MESSAGE = 'Namespace is not found.'
 SCHEMA_NOT_FOUND_ERROR_MESSAGE = 'Schema is not found.'
 SOURCE_NOT_FOUND_ERROR_MESSAGE = 'Source is not found.'
 TOPIC_NOT_FOUND_ERROR_MESSAGE = 'Topic is not found.'
@@ -24,9 +23,14 @@ NUMERIC_NAME_ERROR_MESSAGE = 'Source or Namespace name should not be numeric'
 REFRESH_NOT_FOUND_ERROR_MESSAGE = 'Refresh not found for the given refresh id'
 ENTITY_NOT_FOUND_ERROR = 'Entity not found.'
 UNSUPPORTED_TARGET_SCHEMA_MESSAGE = 'Desired target schema type is unsupported'
+EMPTY_SRC_NAME_ERROR = 'Source name must be non-empty.'
 
 
 def invalid_schema_exception(err_message=INVALID_AVRO_SCHEMA_ERROR):
+    return httpexceptions.exception_response(422, detail=err_message)
+
+
+def empty_src_name_exception(err_message=EMPTY_SRC_NAME_ERROR):
     return httpexceptions.exception_response(422, detail=err_message)
 
 
@@ -35,12 +39,6 @@ def entity_not_found_exception(err_message=ENTITY_NOT_FOUND_ERROR):
 
 
 def schema_not_found_exception(err_message=SCHEMA_NOT_FOUND_ERROR_MESSAGE):
-    return httpexceptions.exception_response(404, detail=err_message)
-
-
-def namespace_not_found_exception(
-    err_message=NAMESPACE_NOT_FOUND_ERROR_MESSAGE
-):
     return httpexceptions.exception_response(404, detail=err_message)
 
 

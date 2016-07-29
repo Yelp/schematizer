@@ -4,8 +4,30 @@ from __future__ import unicode_literals
 
 import logging
 
+import staticconf
+from cached_property import cached_property
+
+from schematizer.helpers.singleton import Singleton
+
 
 log = logging.getLogger('schematizer')
+
+
+class Config(object):
+
+    __metaclass__ = Singleton
+
+    @cached_property
+    def namespace_no_doc_required(self):
+        return staticconf.read_list_of_string(
+            'namespace_no_doc_required',
+            default=[]
+        )
+
+
+def get_config():
+    """Returns the global schematizer configuration object"""
+    return Config()
 
 
 def routes(config):
@@ -180,5 +202,11 @@ def routes(config):
     config.add_route(
         'api.v1.get_schema_migration',
         '/v1/schema_migrations',
+        request_method="GET"
+    )
+
+    config.add_route(
+        'api.v1.get_schemas_created_after',
+        '/v1/schemas',
         request_method="GET"
     )

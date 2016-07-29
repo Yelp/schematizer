@@ -42,6 +42,8 @@ class TestMySQLHandler(object):
                 'name varchar(255),'
                 'amount decimal(10, 2) default 0.0 unsigned,'
                 'age int default NULL,'
+                "bar enum (\"a1\", \"a2\", 'a3') CHARACTER SET latin1,"
+                "bar_one set (\"a1\", 'a2', 'a3') CHARACTER SET latin1,"
                 'primary key (id) '
                 ');')
 
@@ -60,7 +62,24 @@ class TestMySQLHandler(object):
             default_value=0.0
         )
         col_age = SQLColumn('age', data_types.MySQLInt(None))
-        return SQLTable('foo', [col_id, col_name, col_amount, col_age])
+        col_bar = SQLColumn(
+            'bar',
+            data_types.MySQLEnum(
+                values=['a1', 'a2', 'a3'],
+                char_set="latin1"
+            )
+        )
+        col_bar_one = SQLColumn(
+            'bar_one',
+            data_types.MySQLSet(
+                values=['a1', 'a2', 'a3'],
+                char_set="latin1"
+            )
+        )
+        return SQLTable(
+            'foo',
+            [col_id, col_name, col_amount, col_age, col_bar, col_bar_one]
+        )
 
     @property
     def create_table_date_and_time_sql(self):
@@ -150,13 +169,13 @@ class TestMySQLHandler(object):
         ('bar bit default 0b0101',
          SQLColumn(
              'bar',
-             data_types.MySQLBit(False),
+             data_types.MySQLBit(None),
              default_value=5
          )),
         ('bar bit default b\'101\'',
          SQLColumn(
              'bar',
-             data_types.MySQLBit(False),
+             data_types.MySQLBit(None),
              default_value=5
          )),
     ])
@@ -264,6 +283,8 @@ class TestMySQLHandler(object):
 
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
         ('bar char(3) not null',
+         SQLColumn('bar', data_types.MySQLChar(3), is_nullable=False)),
+        ('bar char not null',
          SQLColumn('bar', data_types.MySQLChar(3), is_nullable=False)),
         ('bar varchar(255) null',
          SQLColumn('bar', data_types.MySQLVarChar(255))),
@@ -429,6 +450,7 @@ class TestMySQLHandler(object):
 
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
         ('bar binary(64)', SQLColumn('bar', data_types.MySQLBinary(64))),
+        ('bar binary', SQLColumn('bar', data_types.MySQLBinary())),
         ('bar varbinary(64)', SQLColumn('bar', data_types.MySQLVarBinary(64))),
         ('bar blob null', SQLColumn('bar', data_types.MySQLBlob())),
         ('bar tinyblob', SQLColumn('bar', data_types.MySQLTinyBlob())),
@@ -458,15 +480,26 @@ class TestMySQLHandler(object):
         )
 
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
-        ('bar enum (a1, a2, a3) character set latin1',
-         SQLColumn('bar', data_types.MySQLEnum(['a1', 'a2', 'a3']))),
-        ('bar enum (a1, a2, a3) not null',
+        ("bar enum ('a1', \"a2\", 'a3') CHARACTER SET latin1",
          SQLColumn(
              'bar',
-             data_types.MySQLEnum(['a1', 'a2', 'a3']),
+             data_types.MySQLEnum(
+                 values=['a1', 'a2', 'a3'],
+                 char_set="latin1"
+             )
+         )),
+        ("bar enum ('a1', 'a2', 'a3') "
+         "CHARACTER SET latin1 COLLATE latin1_german1_ci not null",
+         SQLColumn(
+             'bar',
+             data_types.MySQLEnum(
+                 values=['a1', 'a2', 'a3'],
+                 char_set="latin1",
+                 collate="latin1_german1_ci"
+             ),
              is_nullable=False
          )),
-        ('bar enum (a1, a2, a3) default a1',
+        ("bar enum (\"a1\", 'a2', 'a3') default a1",
          SQLColumn(
              'bar',
              data_types.MySQLEnum(['a1', 'a2', 'a3']),
@@ -486,15 +519,26 @@ class TestMySQLHandler(object):
         )
 
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
-        ('bar set (a1, a2, a3) character set latin1',
-         SQLColumn('bar', data_types.MySQLSet(['a1', 'a2', 'a3']))),
-        ('bar set (a1, a2, a3) not null',
+        ("bar set (\"a1\", 'a2', 'a3') CHARACTER SET latin1",
          SQLColumn(
              'bar',
-             data_types.MySQLSet(['a1', 'a2', 'a3']),
+             data_types.MySQLSet(
+                 values=['a1', 'a2', 'a3'],
+                 char_set="latin1"
+             )
+         )),
+        ("bar set ('a1', 'a2', \"a3\") "
+         " CHARACTER SET latin1 COLLATE latin1_german1_ci not null",
+         SQLColumn(
+             'bar',
+             data_types.MySQLSet(
+                 values=['a1', 'a2', 'a3'],
+                 char_set="latin1",
+                 collate="latin1_german1_ci"
+             ),
              is_nullable=False
          )),
-        ('bar set (a1, a2, a3) default a2',
+        ("bar set ('a1', \"a2\", 'a3') default a2",
          SQLColumn(
              'bar',
              data_types.MySQLSet(['a1', 'a2', 'a3']),
@@ -534,6 +578,32 @@ class TestMySQLHandler(object):
                 primary_key_order=2
             ),
             SQLColumn('tag', data_types.MySQLChar(3))
+        ]
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            create_definitions,
+            expected_columns
+        )
+
+    @pytest.mark.parametrize('primary_key_identifier', ['`id`', '"id"'])
+    def test_create_sql_table_stmt_with_quoted_primary_keys(
+        self,
+        handler,
+        primary_key_identifier
+    ):
+        create_definitions = [
+            'id int(11) not null',
+            '`name` varchar(8)',
+            'primary key({})'.format(primary_key_identifier)
+        ]
+        expected_columns = [
+            SQLColumn(
+                'id',
+                data_types.MySQLInt(11),
+                is_nullable=False,
+                primary_key_order=1
+            ),
+            SQLColumn('name', data_types.MySQLVarChar(8))
         ]
         self.assert_sql_table_equal_with_create_defs(
             handler,

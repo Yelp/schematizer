@@ -149,7 +149,7 @@ class ParsedMySQLProcessor(object):
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
         if len_token:
             token = len_token.token_next_by_type(0, T.Number.Integer)
-            length = token.value
+            length = int(token.value)
 
         return col_type_cls(length)
 
@@ -161,7 +161,7 @@ class ParsedMySQLProcessor(object):
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
         if len_token:
             token = len_token.token_next_by_type(0, T.Number.Integer)
-            length = token.value
+            length = int(token.value)
 
         attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
         attr_token = self._get_attribute_token('unsigned', attributes)
@@ -190,11 +190,11 @@ class ParsedMySQLProcessor(object):
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
         if len_token:
             token = len_token.token_next_by_type(0, T.Number.Integer)
-            precision = token.value
+            precision = int(token.value)
 
             index = len_token.token_index(token)
             token = len_token.token_next_by_type(index + 1, T.Number.Integer)
-            scale = token.value if token else None
+            scale = int(token.value) if token else None
 
         attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
         attr_token = self._get_attribute_token('unsigned', attributes)
@@ -213,9 +213,12 @@ class ParsedMySQLProcessor(object):
 
         if col_type_cls in (data_types.MySQLChar, data_types.MySQLVarChar):
             token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
-            token = token.token_next_by_type(0, T.Number.Integer)
+            if col_type_cls == data_types.MySQLChar and not token:
+                length = None
+            else:
+                length = token.token_next_by_type(0, T.Number.Integer).value
             return col_type_cls(
-                token.value,
+                int(length) if length is not None else length,
                 binary=is_binary,
                 char_set=char_set,
                 collate=collate
@@ -232,8 +235,13 @@ class ParsedMySQLProcessor(object):
 
         if col_type_cls in (data_types.MySQLBinary, data_types.MySQLVarBinary):
             token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
-            token = token.token_next_by_type(0, T.Number.Integer)
-            return col_type_cls(token.value)
+            if col_type_cls == data_types.MySQLBinary and not token:
+                length = None
+            else:
+                length = token.token_next_by_type(0, T.Number.Integer).value
+            return col_type_cls(
+                int(length) if length is not None else length
+            )
         return col_type_cls()
 
     def _create_date_type(self, col_type_cls, col_token):
@@ -288,18 +296,33 @@ class ParsedMySQLProcessor(object):
         if col_type_cls is not data_types.MySQLEnum:
             return None
 
-        token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
-        values = [t.value for t in token.tokens if t.ttype != T.Punctuation]
-        return col_type_cls(values)
+        attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
+        char_set = self._get_char_set_value(attributes)
+        collate = self._get_attribute_value('collate', attributes)
+
+        token = col_token.token_next_by_instance(0, sql.ColumnTypeValues)
+        values = [t.value
+                  for t in token.tokens
+                  if t.ttype in [
+                      T.Literal.String.Single,
+                      T.Literal.String.Symbol]]
+        return col_type_cls(values, char_set, collate)
 
     def _create_set_type(self, col_type_cls, col_token):
         if col_type_cls is not data_types.MySQLSet:
             return None
 
-        len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
-        values = [token.value for token in len_token.tokens
-                  if token.ttype != T.Punctuation]
-        return col_type_cls(values)
+        attributes = col_token.token_next_by_instance(0, sql.ColumnAttributes)
+        char_set = self._get_char_set_value(attributes)
+        collate = self._get_attribute_value('collate', attributes)
+
+        token = col_token.token_next_by_instance(0, sql.ColumnTypeValues)
+        values = [t.value
+                  for t in token.tokens
+                  if t.ttype in [
+                      T.Literal.String.Single,
+                      T.Literal.String.Symbol]]
+        return col_type_cls(values, char_set, collate)
 
     def _get_attribute_token(self, attribute_name, attributes):
         return next((attr for attr in attributes.tokens
@@ -351,8 +374,11 @@ class ParsedMySQLProcessor(object):
             elif state == EXPECT_KEY and token.value.upper() == 'KEY':
                 state = EXPECT_COLUMN
             elif state == EXPECT_COLUMN and isinstance(token, sql.Parenthesis):
-                return [t.value for t in token.tokens[1:-1]
-                        if t.ttype == T.Name]
+                return [
+                    self._clean_identifier_quotes(t.value)
+                    for t in token.tokens[1:-1]
+                    if t.ttype in (T.Name, T.Literal.String.Symbol)
+                ]
         return []
 
     def _set_column_primary_keys(self, primary_keys, columns):
@@ -361,6 +387,24 @@ class ParsedMySQLProcessor(object):
                 if primary_key == col.name:
                     col.primary_key_order = idx
                     break
+
+    def _clean_identifier_quotes(self, identifier):
+        """Clean the quotes for identifiers.  For the information of identifier:
+        https://dev.mysql.com/doc/refman/5.5/en/identifiers.html.
+        """
+        clean_identifier = self._remove_quote(identifier, '`')
+        if clean_identifier == identifier:
+            clean_identifier = self._remove_quote(clean_identifier, '"')
+        return clean_identifier
+
+    def _remove_quote(self, text, quote):
+        clean_text = text
+        if clean_text:
+            first_char = clean_text[0]
+            last_char = clean_text[-1]
+            if first_char == quote and first_char == last_char:
+                clean_text = text[1:-1].replace(quote * 2, quote)
+        return clean_text
 
 
 class MySQLHandler(SQLHandlerBase):

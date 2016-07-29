@@ -2,6 +2,9 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from datetime import datetime
+from datetime import timedelta
+
 import mock
 import pytest
 import simplejson
@@ -45,6 +48,80 @@ class TestGetSchemaByID(ApiTestBase):
         actual = schema_views.get_schema_by_id(mock_request)
         expected = self.get_expected_schema_resp(biz_pkey_schema.id)
         assert actual == expected
+
+
+class TestGetSchemaAfterDate(ApiTestBase):
+
+    def test_get_schemas_filter_by_created_timestamp(
+        self,
+        mock_request,
+        biz_schema
+    ):
+        """ Tests that filtering with a later date returns less schemas than
+        filtering with an earlier date.
+        """
+        biz_created_at = biz_schema.created_at - timedelta(100, 0)
+        creation_timestamp = (biz_created_at -
+                              datetime.utcfromtimestamp(0)).total_seconds()
+        mock_request.params = {'created_after': creation_timestamp}
+        schemas_early = schema_views.get_schemas_created_after(mock_request)
+
+        biz_created_at = biz_schema.created_at + timedelta(1, 0)
+        creation_timestamp = (biz_created_at -
+                              datetime.utcfromtimestamp(0)).total_seconds()
+        mock_request.params = {'created_after': creation_timestamp}
+        schemas_later = schema_views.get_schemas_created_after(mock_request)
+        assert len(schemas_early) > len(schemas_later)
+
+    def test_limit_schemas_by_count(
+        self,
+        mock_request,
+        biz_schema,
+        biz_pkey_schema
+    ):
+        """ Tests that schemas are filtered by count. """
+        biz_created_at = biz_schema.created_at - timedelta(10, 0)
+        creation_timestamp = (biz_created_at -
+                              datetime.utcfromtimestamp(0)).total_seconds()
+        mock_request.params = {
+            'created_after': creation_timestamp,
+            'count': 1
+        }
+
+        # Without the count param, length would be 2
+        assert len(schema_views.get_schemas_created_after(mock_request)) == 1
+
+    def test_limit_schemas_by_min_id(
+        self,
+        mock_request,
+        biz_schema,
+        biz_pkey_schema
+    ):
+        """ Tests that filtering by min_id returns all the schemas which have
+        id equal to or greater than min_id.
+        """
+        sorted_schemas = sorted(
+            [biz_schema, biz_pkey_schema],
+            key=lambda schema: schema.id
+        )
+        schema_created_at = sorted_schemas[0].created_at - timedelta(10, 0)
+        creation_timestamp = (schema_created_at -
+                              datetime.utcfromtimestamp(0)).total_seconds()
+
+        for delta in xrange(2):
+            min_id = sorted_schemas[0].id + delta
+            mock_request.params = {
+                'created_after': creation_timestamp,
+                'min_id': min_id
+            }
+            actual_schemas = schema_views.get_schemas_created_after(
+                mock_request
+            )
+            expected_schemas = [
+                self.get_expected_schema_resp(schema.id)
+                for schema in sorted_schemas if schema.id >= min_id
+            ]
+            assert actual_schemas == expected_schemas
 
 
 class RegisterSchemaTestBase(ApiTestBase):
@@ -115,6 +192,84 @@ class TestRegisterSchema(RegisterSchemaTestBase):
         assert e.value.code == expected_exception.code
         assert "Invalid Avro schema JSON." in str(e.value)
 
+    @pytest.mark.parametrize("biz_schema_without_doc_json", [
+        {
+            "name": "biz",
+            "type": "record",
+            "fields": [{
+                "name": "id",
+                "type": "int",
+                "doc": "id",
+                "default": 0
+            }],
+        },
+        {
+            "name": "biz",
+            "type": "record",
+            "fields": [{"name": "id",
+                        "type": "int",
+                        "doc": "id",
+                        "default": 0
+                        }],
+            "doc": ""
+        },
+        {
+            "name": "biz",
+            "type": "record",
+            "fields": [{
+                "name": "id",
+                "type": "int",
+                "default": 0
+            }],
+            "doc": "doc"
+        },
+        {
+            "name": "biz",
+            "type": "record",
+            "fields": [{"name": "id",
+                        "type": "int",
+                        "doc": "   ",
+                        "default": 0
+                        }],
+            "doc": "doc"
+        },
+    ])
+    def test_register_missing_doc_schema(
+        self,
+        mock_request,
+        request_json,
+        biz_schema_without_doc_json
+    ):
+        request_json['schema'] = simplejson.dumps(biz_schema_without_doc_json)
+        mock_request.json_body = request_json
+
+        expected_exception = self.get_http_exception(422)
+        with pytest.raises(expected_exception) as e:
+            schema_views.register_schema(mock_request)
+
+        assert e.value.code == expected_exception.code
+        assert "Missing `doc` " in str(e.value)
+
+    @property
+    def biz_wl_schema_json(self):
+        return {
+            "name": "biz_wl",
+            "type": "record",
+            "fields": [{"name": "id", "type": "int", "default": 0}],
+            "doc": ""
+        }
+
+    def test_register_missing_doc_schema_NS_whitelisted(
+        self,
+        mock_request,
+        request_json
+    ):
+        request_json['schema'] = simplejson.dumps(self.biz_wl_schema_json)
+        request_json['namespace'] = 'yelp_wl'
+        mock_request.json_body = request_json
+        actual = schema_views.register_schema(mock_request)
+        self._assert_equal_schema_response(actual, request_json)
+
     def test_register_invalid_namespace_name(self, mock_request, request_json):
         request_json['namespace'] = 'yelp|main'
         mock_request.json_body = request_json
@@ -143,6 +298,40 @@ class TestRegisterSchema(RegisterSchemaTestBase):
 
         assert e.value.code == expected_exception.code
         assert str(e.value) == 'Source or Namespace name should not be numeric'
+
+    @pytest.mark.parametrize("src_name", [(None), (' ')])
+    def test_register_empty_src_name(
+        self,
+        src_name,
+        mock_request,
+        request_json
+    ):
+        request_json['source'] = src_name
+        mock_request.json_body = request_json
+
+        expected_exception = self.get_http_exception(422)
+        with pytest.raises(expected_exception) as e:
+            schema_views.register_schema(mock_request)
+
+        assert e.value.code == expected_exception.code
+        assert str(e.value) == "Source name must be non-empty."
+
+    @pytest.mark.parametrize("email", [(None), (' ')])
+    def test_register_empty_args(
+        self,
+        email,
+        mock_request,
+        request_json
+    ):
+        request_json['source_owner_email'] = email
+        mock_request.json_body = request_json
+
+        expected_exception = self.get_http_exception(422)
+        with pytest.raises(expected_exception) as e:
+            schema_views.register_schema(mock_request)
+
+        assert e.value.code == expected_exception.code
+        assert str(e.value) == "Source owner email must be non-empty."
 
 
 class TestRegisterSchemaFromMySQL(RegisterSchemaTestBase):

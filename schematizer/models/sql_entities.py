@@ -11,19 +11,36 @@ class SQLTable(object):
     """Internal data structure that represents a general sql table.
     """
 
-    def __init__(self, table_name, columns=None, doc=None, **metadata):
+    def __init__(
+        self,
+        table_name,
+        columns=None,
+        doc=None,
+        schema_name=None,
+        **metadata
+    ):
         self.name = table_name
         self.columns = columns or []
         self.doc = doc
+        self.schema_name = schema_name
         # any additional metadata that does not belong to sql table
         # definition but would like to be tracked.
         self.metadata = metadata
 
     def __eq__(self, other):
-        return (isinstance(other, SQLTable) and
-                self.name == other.name and
-                self.columns == other.columns and
-                self.metadata == other.metadata)
+        return all([
+            isinstance(other, SQLTable),
+            self.name == other.name,
+            self.columns == other.columns,
+            self.metadata == other.metadata,
+            self.schema_name == other.schema_name
+        ])
+
+    @property
+    def full_name(self):
+        if self.schema_name:
+            return '{0}.{1}'.format(self.schema_name, self.name)
+        return self.name
 
     @property
     def primary_keys(self):

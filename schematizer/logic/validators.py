@@ -11,7 +11,7 @@ def verify_entity_exists(session, entity_cls, entity_id):
     throw exception if not.  The `get_by_id` function will throw
     :class:schematizer.models.exceptions.EntityNotFoundError if not found.
     """
-    entity_cls.get_by_id(session, entity_id)
+    entity_cls.get_by_id(entity_id)
 
 
 def verify_truthy_value(value, value_name):

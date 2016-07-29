@@ -76,7 +76,8 @@ def register_avro_schema_from_avro_json(
         source_email_owner,
         contains_pii,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
-        base_schema_id=None
+        base_schema_id=None,
+        docs_required=True
 ):
     """Add an Avro schema of given schema json object into schema store.
     The steps from checking compatibility to create new topic should be atomic.
@@ -88,20 +89,34 @@ def register_avro_schema_from_avro_json(
     :param status: AvroStatusEnum: RW/R/Disabled
     :param base_schema_id: Id of the Avro schema from which the new schema is
     derived from
+    :param docs_required: whether to-be-registered schema must contain doc
+    strings
     :return: New created AvroSchema object.
     """
+
+    source_email_owner = _strip_if_not_none(source_email_owner)
+    source_name = _strip_if_not_none(source_name)
+
+    _assert_non_empty_email(source_email_owner)
+    _assert_non_empty_src_name(source_name)
+
     is_valid, error = models.AvroSchema.verify_avro_schema(avro_schema_json)
     if not is_valid:
         raise ValueError("Invalid Avro schema JSON. Value: {0}. Error: {1}"
                          .format(avro_schema_json, error))
+
+    if docs_required:
+        models.AvroSchema.verify_avro_schema_has_docs(
+            avro_schema_json
+        )
 
     namespace = _get_namespace_or_create(namespace_name)
     _lock_namespace(namespace)
 
     source = _get_source_or_create(
         namespace.id,
-        source_name,
-        source_email_owner
+        source_name.strip(),
+        source_email_owner.strip()
     )
     _lock_source(source)
 
@@ -139,6 +154,12 @@ def register_avro_schema_from_avro_json(
         status=status,
         base_schema_id=base_schema_id
     )
+
+
+def _strip_if_not_none(original_str):
+    if not original_str:
+        return original_str
+    return original_str.strip()
 
 
 def _is_same_schema(schema, avro_schema_json, base_schema_id):
@@ -243,6 +264,16 @@ def _create_source_if_not_exist(namespace_id, source_name, owner_email):
             source_name
         )
     return new_source
+
+
+def _assert_non_empty_email(email):
+    if not email or email.strip() == "":
+        raise ValueError("Source owner email must be non-empty.")
+
+
+def _assert_non_empty_src_name(name):
+    if not name or name.strip() == "":
+        raise ValueError("Source name must be non-empty.")
 
 
 def _get_source_by_namespace_id_and_src_name(namespace_id, source):
@@ -450,6 +481,48 @@ def get_schema_by_id(schema_id):
     ).first()
 
 
+def get_schemas_created_after(
+    created_after,
+    page_info=None,
+    include_disabled=False
+):
+    """ Get the Avro schemas (excluding disabled schemas) created after the
+    specified created_after timestamp and with id greater than or equal to
+    the min_id. Limits the returned schemas to count. Default it excludes
+    disabled schemas.
+
+    Args:
+        created_after(datetime): get schemas created after given utc
+            datetime (inclusive).
+        page_info(Optional[:class:schematizer.models.tuples.PageInfo]):
+            limits the schemas to count and those with an id greater than or
+            equal to min_id.
+        include_disabled(Optional[bool]): set it to True to include disabled
+            schemas. Default it excludes disabled ones.
+    Returns:
+        (list[:class:schematizer.models.AvroSchema]): List of avro
+            schemas created after (inclusive) the specified creation
+            date.
+    """
+    qry = session.query(
+        models.AvroSchema
+    ).filter(
+        models.AvroSchema.created_at >= created_after,
+    )
+    if not include_disabled:
+        qry = qry.filter(
+            models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
+        )
+    if page_info and page_info.min_id:
+        qry = qry.filter(
+            models.AvroSchema.id >= page_info.min_id
+        )
+    qry = qry.order_by(models.AvroSchema.id)
+    if page_info and page_info.count:
+        qry = qry.limit(page_info.count)
+    return qry.all()
+
+
 def get_latest_schema_by_topic_id(topic_id):
     """Get the latest enabled (Read-Write or Read-Only) schema of given topic.
     It returns None if no such schema can be found.
@@ -581,23 +654,6 @@ def get_sources():
     return session.query(models.Source).order_by(models.Source.id).all()
 
 
-def get_namespaces():
-    return session.query(models.Namespace).order_by(models.Namespace.id).all()
-
-
-def get_sources_by_namespace(namespace_name):
-    return session.query(
-        models.Source
-    ).join(
-        models.Namespace
-    ).filter(
-        models.Source.namespace_id == models.Namespace.id,
-        models.Namespace.name == namespace_name
-    ).order_by(
-        models.Source.id
-    ).all()
-
-
 def get_topics_by_source_id(source_id):
     return session.query(
         models.Topic
@@ -606,14 +662,6 @@ def get_topics_by_source_id(source_id):
     ).order_by(
         models.Topic.id
     ).all()
-
-
-def get_namespace_by_id(namespace_id):
-    return session.query(
-        models.Namespace
-    ).filter(
-        models.Namespace.id == namespace_id
-    ).first()
 
 
 def get_source_by_id(source_id):
@@ -688,8 +736,7 @@ def get_topics_by_criteria(
     namespace=None,
     source=None,
     created_after=None,
-    count=None,
-    min_id=None
+    page_info=None
 ):
     """Get all the topics that match given filter criteria.
 
@@ -698,9 +745,10 @@ def get_topics_by_criteria(
         source(Optional[str]): get topics of given source name if specified
         created_after(Optional[datetime]): get topics created after given utc
             datetime (inclusive) if specified.
-        count(Optional[int]): number of topics to return in this query
-        min_id(Optional[int]): limits results to those with an id greater than
-            or equal to given id.
+        page_info(Optional[:class:schematizer.models.tuples.PageInfo]):
+            limits the topics to count and those with id greater than or
+            equal to min_id.
+
     Returns:
         (list[:class:schematizer.models.Topic]): List of topic models sorted
         by their ids.
@@ -719,11 +767,11 @@ def get_topics_by_criteria(
         qry = qry.filter(models.Source.name == source)
     if created_after:
         qry = qry.filter(models.Topic.created_at >= created_after)
-    if min_id:
-        qry = qry.filter(models.Topic.id >= min_id)
+    if page_info and page_info.min_id:
+        qry = qry.filter(models.Topic.id >= page_info.min_id)
     qry = qry.order_by(models.Topic.id)
-    if count:
-        qry = qry.limit(count)
+    if page_info and page_info.count:
+        qry = qry.limit(page_info.count)
     return qry.all()
 
 
