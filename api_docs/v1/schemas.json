@@ -150,6 +150,46 @@
             ]
         },
         {
+            "path": "/v1/schemas/{schema_id}/meta_attributes",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get the meta_attribute schema_ids for specified schema id.",
+                    "notes": "",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "nickname": "get_meta_attributes_by_schema_id",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "schema_id",
+                            "description": "ID of schema that will be fetched",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid schema ID supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Schema not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "path": "/v1/schemas/created_after/{created_after}",
             "operations": [
                 {

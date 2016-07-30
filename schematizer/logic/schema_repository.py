@@ -12,6 +12,7 @@ from sqlalchemy.orm import exc as orm_exc
 from schematizer import models
 from schematizer.components.converters.converter_base import BaseConverter
 from schematizer.logic import exceptions as sch_exc
+from schematizer.logic.meta_attribute_mappers import add_meta_attribute_mappings
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.models.database import session
 
@@ -148,12 +149,14 @@ def register_avro_schema_from_avro_json(
             source=source,
             contains_pii=contains_pii
         )
-    return _create_avro_schema(
+    avro_schema = _create_avro_schema(
         avro_schema_json=avro_schema_json,
         topic_id=most_recent_topic.id,
         status=status,
         base_schema_id=base_schema_id
     )
+    add_meta_attribute_mappings(avro_schema)
+    return avro_schema
 
 
 def _strip_if_not_none(original_str):
@@ -731,6 +734,15 @@ def get_schema_elements_by_schema_id(schema_id):
     ).order_by(
         models.AvroSchemaElement.id
     ).all()
+
+
+def get_meta_attributes_by_schema_id(schema_id):
+    mappings = session.query(
+        models.SchemaMetaAttributeMapping
+    ).filter(
+        models.SchemaMetaAttributeMapping.schema_id == schema_id
+    ).all()
+    return [m.meta_attr_schema_id for m in mappings]
 
 
 def get_topics_by_criteria(

@@ -210,3 +210,49 @@ def routes(config):
         '/v1/schemas/created_after/{created_after}',
         request_method="GET"
     )
+
+    config.add_route(
+        'api.v1.register_meta_attribute_mapping_for_namespace',
+        '/v1/meta_attribute_mapping/namespace',
+        request_method="POST"
+    )
+    config.add_route(
+        'api.v1.delete_meta_attribute_mapping_for_namespace',
+        '/v1/meta_attribute_mapping/namespace',
+        request_method="DELETE"
+    )
+    config.add_route(
+        'api.v1.register_meta_attribute_mapping_for_source',
+        '/v1/meta_attribute_mapping/source',
+        request_method="POST"
+    )
+    config.add_route(
+        'api.v1.delete_meta_attribute_mapping_for_source',
+        '/v1/meta_attribute_mapping/source',
+        request_method="DELETE"
+    )
+    config.add_route(
+        'api.v1.register_meta_attribute_mapping_for_schema',
+        '/v1/meta_attribute_mapping/schema',
+        request_method="POST"
+    )
+    config.add_route(
+        'api.v1.delete_meta_attribute_mapping_for_schema',
+        '/v1/meta_attribute_mapping/schema',
+        request_method="DELETE"
+    )
+    config.add_route(
+        'api.v1.get_meta_attr_mappings_by_namespace_id',
+        '/v1/meta_attribute_mapping/namespace/{namespace_id}',
+        request_method="GET"
+    )
+    config.add_route(
+        'api.v1.get_meta_attr_mappings_by_source_id',
+        '/v1/meta_attribute_mapping/source/{source_id}',
+        request_method="GET"
+    )
+    config.add_route(
+        'api.v1.get_meta_attr_mappings_by_schema_id',
+        '/v1/meta_attribute_mapping/schema/{schema_id}',
+        request_method="GET"
+    )

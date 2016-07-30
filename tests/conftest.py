@@ -222,3 +222,77 @@ def mock_namespace_whitelist():
         }
     ):
         yield
+
+
+@pytest.fixture
+def meta_attr_namespace_name():
+    return 'yelp_meta'
+
+
+@pytest.fixture
+def meta_attr_namespace(meta_attr_namespace_name):
+    return factories.create_namespace(meta_attr_namespace_name)
+
+
+@pytest.fixture
+def meta_attr_src_name():
+    return 'dummy_meta_attr'
+
+
+@pytest.fixture
+def meta_attr_source(meta_attr_namespace, meta_attr_src_name):
+    return factories.create_source(
+        namespace_name=meta_attr_namespace.name,
+        source_name=meta_attr_src_name,
+        owner_email='test-meta-src@yelp.com'
+    )
+
+
+@pytest.fixture
+def meta_attr_topic(meta_attr_source):
+    return factories.create_topic(
+        topic_name='yelp_meta.dummy_meta_attr.1',
+        namespace_name=meta_attr_source.namespace.name,
+        source_name=meta_attr_source.name
+    )
+
+
+@pytest.fixture
+def meta_attr_schema_json():
+    return {
+        "name": "dummy_meta_attr",
+        "type": "record",
+        "fields": [
+            {"name": "id", "type": "int", "doc": "id", "default": 0},
+            {"name": "info", "type": "string", "doc": "dummy meta_attr info"}
+        ],
+        "doc": "Dummy Meta Attribute"
+    }
+
+
+@pytest.fixture
+def meta_attr_schema_elements():
+    return [
+        models.AvroSchemaElement(
+            key='dummy_meta_attr',
+            element_type='record',
+            doc="Meta Attr table"
+        ),
+        models.AvroSchemaElement(
+            key='dummy_meta_attr|id',
+            element_type='field',
+            doc="id"
+        )
+    ]
+
+
+@pytest.fixture
+def meta_attr_schema(meta_attr_topic, meta_attr_schema_json, meta_attr_schema_elements):
+    return factories.create_avro_schema(
+        meta_attr_schema_json,
+        meta_attr_schema_elements,
+        topic_name=meta_attr_topic.name,
+        namespace=meta_attr_topic.source.namespace.name,
+        source=meta_attr_topic.source.name
+    )
+

@@ -196,6 +196,19 @@ def create_consumer_group_data_source(
     )
 
 
+def create_meta_attribute_mapping(
+    meta_attr_schema_id,
+    entity_type,
+    entity_id
+):
+    return models.MetaAttributeMappingStore.create(
+        session,
+        entity_type=entity_type,
+        entity_id=entity_id,
+        meta_attr_schema_id=meta_attr_schema_id
+    )
+
+
 class NamespaceFactory(object):
 
     @classmethod

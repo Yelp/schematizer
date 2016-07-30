@@ -151,6 +151,21 @@ def get_schema_elements_by_schema_id(request):
     return [responses_v1.get_element_response_from_element(element)
             for element in elements]
 
+@view_config(
+    route_name='api.v1.get_meta_attributes_by_schema_id',
+    request_method='GET',
+    renderer='json'
+)
+@transform_api_response()
+def get_meta_attributes_by_schema_id(request):
+    schema_id = int(request.matchdict.get('schema_id'))
+    # First check if schema exists
+    schema = schema_repository.get_schema_by_id(schema_id)
+    if schema is None:
+        raise exceptions_v1.schema_not_found_exception()
+    # Get schema elements
+    return schema_repository.get_meta_attributes_by_schema_id(schema_id)
+
 
 def validate_name(name):
     if not name:
