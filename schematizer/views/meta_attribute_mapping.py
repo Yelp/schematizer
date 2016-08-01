@@ -7,7 +7,7 @@ from pyramid.view import view_config
 from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.responses import responses_v1
-from schematizer.logic import meta_attribute_mappers
+from schematizer.logic import meta_attribute_mappers as meta_attr_logic
 from schematizer.logic import schema_repository
 
 
@@ -45,7 +45,7 @@ def register_meta_attribute_mapping_for_namespace(request):
     namespace_id = _get_namespace_from_request(request, 'entity_id').id
     meta_attr_schema_id = _get_schema_from_request(
         request, 'meta_attribute_schema_id').id
-    mapping = meta_attribute_mappers.register_meta_attribute_mapping_for_namespace(
+    mapping = meta_attr_logic.register_meta_attribute_mapping_for_namespace(
         meta_attr_schema_id,
         namespace_id
     )
@@ -64,7 +64,7 @@ def delete_meta_attribute_mapping_for_namespace(request):
     namespace_id = _get_namespace_from_request(request, 'entity_id').id
     meta_attr_schema_id = _get_schema_from_request(
         request, 'meta_attribute_schema_id').id
-    meta_attribute_mappers.delete_meta_attribute_mapping_for_namespace(
+    meta_attr_logic.delete_meta_attribute_mapping_for_namespace(
         meta_attr_schema_id,
         namespace_id
     )
@@ -80,7 +80,7 @@ def register_meta_attribute_mapping_for_source(request):
     source_id = _get_source_from_request(request, 'entity_id').id
     meta_attr_schema_id = _get_schema_from_request(
         request, 'meta_attribute_schema_id').id
-    mapping = meta_attribute_mappers.register_meta_attribute_mapping_for_source(
+    mapping = meta_attr_logic.register_meta_attribute_mapping_for_source(
         meta_attr_schema_id,
         source_id
     )
@@ -99,7 +99,7 @@ def delete_meta_attribute_mapping_for_source(request):
     source_id = _get_source_from_request(request, 'entity_id').id
     meta_attr_schema_id = _get_schema_from_request(
         request, 'meta_attribute_schema_id').id
-    meta_attribute_mappers.delete_meta_attribute_mapping_for_source(
+    meta_attr_logic.delete_meta_attribute_mapping_for_source(
         meta_attr_schema_id,
         source_id
     )
@@ -115,7 +115,7 @@ def register_meta_attribute_mapping_for_schema(request):
     schema_id = _get_schema_from_request(request, 'entity_id').id
     meta_attr_schema_id = _get_schema_from_request(
         request, 'meta_attribute_schema_id').id
-    mapping = meta_attribute_mappers.register_meta_attribute_mapping_for_schema(
+    mapping = meta_attr_logic.register_meta_attribute_mapping_for_schema(
         meta_attr_schema_id,
         schema_id
     )
@@ -134,7 +134,7 @@ def delete_meta_attribute_mapping_for_schema(request):
     schema_id = _get_schema_from_request(request, 'entity_id').id
     meta_attr_schema_id = _get_schema_from_request(
         request, 'meta_attribute_schema_id').id
-    meta_attribute_mappers.delete_meta_attribute_mapping_for_schema(
+    meta_attr_logic.delete_meta_attribute_mapping_for_schema(
         meta_attr_schema_id,
         schema_id
     )
@@ -147,7 +147,7 @@ def delete_meta_attribute_mapping_for_schema(request):
 @transform_api_response()
 def get_meta_attr_mappings_by_namespace_id(request):
     namespace = _get_namespace_from_request(request, 'namespace_id')
-    meta_attr_ids = meta_attribute_mappers.get_meta_attributes_by_namespace(namespace)
+    meta_attr_ids = meta_attr_logic.get_meta_attributes_by_namespace(namespace)
     return responses_v1.get_meta_attr_mapping_response(
         'namespace_id', namespace.id, meta_attr_ids
     )
@@ -161,7 +161,7 @@ def get_meta_attr_mappings_by_namespace_id(request):
 @transform_api_response()
 def get_meta_attr_mappings_by_source_id(request):
     source = _get_source_from_request(request, 'source_id')
-    meta_attr_ids = meta_attribute_mappers.get_meta_attributes_by_source(source)
+    meta_attr_ids = meta_attr_logic.get_meta_attributes_by_source(source)
     return responses_v1.get_meta_attr_mapping_response(
         'source_id', source.id, meta_attr_ids
     )
@@ -175,7 +175,7 @@ def get_meta_attr_mappings_by_source_id(request):
 @transform_api_response()
 def get_meta_attr_mappings_by_schema_id(request):
     schema = _get_schema_from_request(request, 'schema_id')
-    meta_attr_ids = meta_attribute_mappers.get_meta_attributes_by_schema(schema)
+    meta_attr_ids = meta_attr_logic.get_meta_attributes_by_schema(schema)
     return responses_v1.get_meta_attr_mapping_response(
         'schema_id', schema.id, meta_attr_ids
     )

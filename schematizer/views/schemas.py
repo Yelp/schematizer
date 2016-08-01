@@ -151,6 +151,7 @@ def get_schema_elements_by_schema_id(request):
     return [responses_v1.get_element_response_from_element(element)
             for element in elements]
 
+
 @view_config(
     route_name='api.v1.get_meta_attributes_by_schema_id',
     request_method='GET',

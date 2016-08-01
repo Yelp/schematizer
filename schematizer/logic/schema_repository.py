@@ -12,7 +12,8 @@ from sqlalchemy.orm import exc as orm_exc
 from schematizer import models
 from schematizer.components.converters.converter_base import BaseConverter
 from schematizer.logic import exceptions as sch_exc
-from schematizer.logic.meta_attribute_mappers import add_meta_attribute_mappings
+from schematizer.logic.meta_attribute_mappers \
+    import add_meta_attribute_mappings
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.models.database import session
 

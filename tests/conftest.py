@@ -287,7 +287,11 @@ def meta_attr_schema_elements():
 
 
 @pytest.fixture
-def meta_attr_schema(meta_attr_topic, meta_attr_schema_json, meta_attr_schema_elements):
+def meta_attr_schema(
+    meta_attr_topic,
+    meta_attr_schema_json,
+    meta_attr_schema_elements
+):
     return factories.create_avro_schema(
         meta_attr_schema_json,
         meta_attr_schema_elements,
@@ -295,4 +299,3 @@ def meta_attr_schema(meta_attr_topic, meta_attr_schema_json, meta_attr_schema_el
         namespace=meta_attr_topic.source.namespace.name,
         source=meta_attr_topic.source.name
     )
-

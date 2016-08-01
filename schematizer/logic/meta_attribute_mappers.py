@@ -2,8 +2,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from sqlalchemy import or_
 from sqlalchemy import and_
+from sqlalchemy import or_
 from sqlalchemy.orm import exc as orm_exc
 
 from schematizer.models import AvroSchema
@@ -17,6 +17,7 @@ from schematizer.models.database import session
 
 def _verify_id_exists(model_cls, id):
     session.query(model_cls).filter(getattr(model_cls, 'id') == id).one()
+
 
 def _create_meta_attribute_mapping_if_not_exist(
     entity_type,
@@ -33,7 +34,7 @@ def _create_meta_attribute_mapping_if_not_exist(
 
 
 def _register_meta_attribute_for_entity(
-    meta_attr_schema_id,
+    meta_attr_sch_id,
     entity_type,
     entity_id
 ):
@@ -43,13 +44,13 @@ def _register_meta_attribute_for_entity(
         ).filter(
             MetaAttributeMappingStore.entity_type == entity_type,
             MetaAttributeMappingStore.entity_id == entity_id,
-            MetaAttributeMappingStore.meta_attr_schema_id == meta_attr_schema_id
+            MetaAttributeMappingStore.meta_attr_schema_id == meta_attr_sch_id
         ).one()
     except orm_exc.NoResultFound:
         return _create_meta_attribute_mapping_if_not_exist(
             entity_type=entity_type,
             entity_id=entity_id,
-            meta_attr_schema_id=meta_attr_schema_id
+            meta_attr_schema_id=meta_attr_sch_id
         )
     else:
         return mapping
@@ -61,12 +62,12 @@ def _delete_meta_attribute_mapping_for_entity(
     entity_id
 ):
     return session.query(
-            MetaAttributeMappingStore
-        ).filter(
-            MetaAttributeMappingStore.entity_type == entity_type,
-            MetaAttributeMappingStore.entity_id == entity_id,
-            MetaAttributeMappingStore.meta_attr_schema_id == meta_attr_schema_id
-        ).delete()
+        MetaAttributeMappingStore
+    ).filter(
+        MetaAttributeMappingStore.entity_type == entity_type,
+        MetaAttributeMappingStore.entity_id == entity_id,
+        MetaAttributeMappingStore.meta_attr_schema_id == meta_attr_schema_id
+    ).delete()
 
 
 def register_meta_attribute_mapping_for_namespace(
