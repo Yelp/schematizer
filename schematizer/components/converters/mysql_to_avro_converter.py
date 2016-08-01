@@ -219,10 +219,10 @@ class MySQLToAvroConverter(BaseConverter):
         metadata[AvroMetaDataKeys.MAX_LEN] = column.type.length
         return self._builder.create_string(), metadata
 
-    def _get_fsp_metadata(self, column):
+    def _get_fsp_metadata(self, fsp):
         return {
-            AvroMetaDataKeys.FSP: column.type.fsp
-        }
+            AvroMetaDataKeys.FSP: fsp
+        } if fsp else {}
 
     def _convert_tinytext_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
@@ -258,14 +258,12 @@ class MySQLToAvroConverter(BaseConverter):
 
         fsp = column.type.fsp
 
-        metadata.update(self._get_fsp_metadata(column))
+        metadata.update(self._get_fsp_metadata(fsp))
 
-        if fsp is None:
+        if fsp is None or fsp <= 3:
             return self._builder.begin_timestamp_millis().end(), metadata
-        elif fsp > 3:
-            return self._builder.begin_timestamp_micros().end(), metadata
         else:
-            return self._builder.begin_timestamp_millis().end(), metadata
+            return self._builder.begin_timestamp_micros().end(), metadata
 
     def _convert_time_type(self, column):
         """the long type is used instead of Avro time logical type
@@ -276,7 +274,7 @@ class MySQLToAvroConverter(BaseConverter):
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.TIME] = True
-        metadata.update(self._get_fsp_metadata(column))
+        metadata.update(self._get_fsp_metadata(column.type.fsp))
 
         return self._builder.create_long(), metadata
 
@@ -294,14 +292,12 @@ class MySQLToAvroConverter(BaseConverter):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
 
         fsp = column.type.fsp
-        metadata.update(self._get_fsp_metadata(column))
+        metadata.update(self._get_fsp_metadata(fsp))
 
-        if fsp is None:
+        if fsp is None or fsp <= 3:
             return self._builder.begin_timestamp_millis().end(), metadata
-        elif fsp > 3:
-            return self._builder.begin_timestamp_micros().end(), metadata
         else:
-            return self._builder.begin_timestamp_millis().end(), metadata
+            return self._builder.begin_timestamp_micros().end(), metadata
 
     def _convert_enum_type(self, column):
         return self._builder.begin_enum(

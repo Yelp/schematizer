@@ -264,7 +264,7 @@ class ParsedMySQLProcessor(object):
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
         if len_token:
             token = len_token.token_next_by_type(0, T.Number.Integer)
-            fsp = token.value if token else 0
+            fsp = token.value if token else fsp
 
         return col_type_cls(fsp)
 
@@ -276,7 +276,7 @@ class ParsedMySQLProcessor(object):
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
         if len_token:
             token = len_token.token_next_by_type(0, T.Number.Integer)
-            fsp = token.value if token else 0
+            fsp = token.value if token else fsp
 
         return col_type_cls(fsp)
 
@@ -288,7 +288,7 @@ class ParsedMySQLProcessor(object):
         len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
         if len_token:
             token = len_token.token_next_by_type(0, T.Number.Integer)
-            fsp = token.value if token else 0
+            fsp = token.value if token else fsp
 
         return col_type_cls(fsp)
 

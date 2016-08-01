@@ -85,11 +85,11 @@ class TestMySQLHandler(object):
     def create_table_date_and_time_sql(self):
         return ('CREATE TABLE `date_and_time` ('
                 '`id` int(11) auto_increment not null, '
-                'dttm datetime default \'1000-01-01 00:00:00\' not null,'
-                'tstmp timestamp default \'1970-01-01 00:00:01\' not null,'
-                'tm time default \'11:12:00\' not null,'
-                'yr year default \'2000\' not null,'
-                'dt date default \'1000-01-01\' not null,'
+                'dttm datetime default \'1000-01-01 00:00:00\' not null, '
+                'tstmp timestamp default \'1970-01-01 00:00:01\' not null, '
+                'tm time default \'11:12:00\' not null, '
+                'yr year default \'2000\' not null, '
+                'dt date default \'1000-01-01\' not null, '
                 'primary key (id) '
                 ');')
 
@@ -101,22 +101,10 @@ class TestMySQLHandler(object):
             primary_key_order=1,
             is_nullable=False
         )
-        col_dt = SQLColumn(
-            'dt',
-            data_types.MySQLDate(),
-            default_value='1000-01-01',
-            is_nullable=False
-        )
-        col_yr = SQLColumn(
-            'yr',
-            data_types.MySQLYear(),
-            default_value='2000',
-            is_nullable=False
-        )
-        col_tm = SQLColumn(
-            'tm',
-            data_types.MySQLTime(),
-            default_value='11:12:00',
+        col_dttm = SQLColumn(
+            'dttm',
+            data_types.MySQLDateTime(),
+            default_value='1000-01-01 00:00:00',
             is_nullable=False
         )
         col_tstmp = SQLColumn(
@@ -125,20 +113,40 @@ class TestMySQLHandler(object):
             default_value='1970-01-01 00:00:01',
             is_nullable=False
         )
-        col_dttm = SQLColumn(
-            'dttm',
-            data_types.MySQLDateTime(),
-            default_value='1000-01-01 00:00:00',
+        col_tm = SQLColumn(
+            'tm',
+            data_types.MySQLTime(),
+            default_value='11:12:00',
             is_nullable=False
         )
-        return SQLTable('date_and_time',
-                        [col_id, col_dt, col_yr, col_tm, col_tstmp, col_dttm])
+        col_yr = SQLColumn(
+            'yr',
+            data_types.MySQLYear(),
+            default_value='2000',
+            is_nullable=False
+        )
+        col_dt = SQLColumn(
+            'dt',
+            data_types.MySQLDate(),
+            default_value='1000-01-01',
+            is_nullable=False
+        )
+        return SQLTable(
+            'date_and_time',
+            [col_id, col_dttm, col_tstmp, col_tm, col_yr, col_dt]
+        )
 
     def test_create_sql_table_from_sql_stmts(self, handler):
         sql_table = handler.create_sql_table_from_sql_stmts(
             [self.create_table_foo_sql]
         )
         assert self.expected_sql_table_foo == sql_table
+
+    def test_create_sql_table_from_sql_stmts_date_types(self, handler):
+        sql_table = handler.create_sql_table_from_sql_stmts(
+            [self.create_table_date_and_time_sql]
+        )
+        assert self.expected_sql_table_date_and_time == sql_table
 
     def assert_sql_table_equal_with_create_defs(
         self,
