@@ -400,6 +400,36 @@ class TestSchemaRepository(DBTestCase):
         ) as mock_func:
             yield mock_func
 
+    @pytest.fixture
+    def setup_meta_attr_mapping(self, meta_attr_schema, biz_source):
+        factories.create_meta_attribute_mapping(
+            meta_attr_schema.id,
+            models.EntityType.SOURCE,
+            biz_source.id
+        )
+
+    @pytest.fixture
+    def new_biz_schema_json(self):
+        return {
+            "name": "biz",
+            "type": "record",
+            "fields": [
+                {"name": "id", "type": "int", "doc": "id", "default": 0},
+                {"name": "name", "type": "string", "doc": "biz name"}
+            ],
+            "doc": "biz table"
+        }
+
+    @pytest.fixture
+    def new_biz_schema(self, new_biz_schema_json, biz_source):
+        return schema_repo.register_avro_schema_from_avro_json(
+            new_biz_schema_json,
+            biz_source.namespace.name,
+            biz_source.name,
+            'biz.user@yelp.com',
+            contains_pii=False,
+        )
+
     def test_registering_from_avro_json_with_new_schema(self, namespace):
         expected_base_schema_id = 100
         actual_schema = schema_repo.register_avro_schema_from_avro_json(
@@ -1193,6 +1223,25 @@ class TestSchemaRepository(DBTestCase):
         actual = schema_repo.list_refreshes_by_source_id(source.id)
         assert 1 == len(actual)
         self.assert_equal_refresh(actual[0], refresh)
+
+    def test_get_meta_attr_by_new_schema_id(
+        self,
+        setup_meta_attr_mapping,
+        new_biz_schema,
+        meta_attr_schema
+    ):
+        actual = schema_repo.get_meta_attributes_by_schema_id(new_biz_schema.id)
+        expected = [meta_attr_schema.id]
+        assert actual == expected
+
+    def test_get_meta_attr_by_old_schema_id(
+        self,
+        setup_meta_attr_mapping,
+        biz_schema
+    ):
+        actual = schema_repo.get_meta_attributes_by_schema_id(biz_schema.id)
+        expected = []
+        assert actual == expected
 
     def assert_equal_namespace(self, expected, actual):
         assert expected.id == actual.id
