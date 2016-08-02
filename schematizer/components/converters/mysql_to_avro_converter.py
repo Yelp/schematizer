@@ -219,6 +219,11 @@ class MySQLToAvroConverter(BaseConverter):
         metadata[AvroMetaDataKeys.MAX_LEN] = column.type.length
         return self._builder.create_string(), metadata
 
+    def _get_fsp_metadata(self, fsp):
+        return {
+            AvroMetaDataKeys.FSP: fsp
+        } if fsp else {}
+
     def _convert_tinytext_type(self, column):
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.MAX_LEN] = mysql_types.MySQLTinyText().length
@@ -241,28 +246,37 @@ class MySQLToAvroConverter(BaseConverter):
         return self._builder.create_string(), metadata
 
     def _convert_date_type(self, column):
-        """Avro currently doesn't support date, so map the
-        date sql column type to string (ISO 8601 format)
-        """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.DATE] = True
-        return self._builder.create_string(), metadata
+        return self._builder.begin_date().end(), metadata
 
     def _convert_datetime_type(self, column):
-        """Avro currently doesn't support datetime, so map the
-        datetime sql column type to string (ISO 8601 format)
+        """The Avro timestamp logical type is used to represent
+        MySQL datetime type, and it chooses timestamp-millis or
+        timestamp-micros depending on the fsp value.
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.DATETIME] = True
-        return self._builder.create_string(), metadata
+
+        fsp = column.type.fsp
+
+        metadata.update(self._get_fsp_metadata(fsp))
+
+        if fsp is None or fsp <= 3:
+            return self._builder.begin_timestamp_millis().end(), metadata
+        else:
+            return self._builder.begin_timestamp_micros().end(), metadata
 
     def _convert_time_type(self, column):
-        """Avro currently doesn't support time, so map the
-        time sql column type to string (ISO 8601 format)
+        """the long type is used instead of Avro time logical type
+        is because the MySQL time type may represent a time interval
+        in addition to a time of day. Also, because the value could
+        contain fractional part, it expects the value to be converted
+        to milli-seconds.
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
         metadata[AvroMetaDataKeys.TIME] = True
-        return self._builder.create_string(), metadata
+        metadata.update(self._get_fsp_metadata(column.type.fsp))
+
+        return self._builder.create_long(), metadata
 
     def _convert_year_type(self, column):
         """Avro currently doesn't support year, so map the
@@ -273,12 +287,17 @@ class MySQLToAvroConverter(BaseConverter):
         return self._builder.create_long(), metadata
 
     def _convert_timestamp_type(self, column):
-        """Avro currently doesn't support timestamp, so map the
-        timestamp sql column type to long (unix timestamp)
+        """We map to micros over millis for safety
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-        metadata[AvroMetaDataKeys.TIMESTAMP] = True
-        return self._builder.create_long(), metadata
+
+        fsp = column.type.fsp
+        metadata.update(self._get_fsp_metadata(fsp))
+
+        if fsp is None or fsp <= 3:
+            return self._builder.begin_timestamp_millis().end(), metadata
+        else:
+            return self._builder.begin_timestamp_micros().end(), metadata
 
     def _convert_enum_type(self, column):
         return self._builder.begin_enum(
