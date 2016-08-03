@@ -3,6 +3,9 @@
   <changeSet author="askatti" id="1468599816">
     <comment>Adding meta_attribute_mapping_store table as per DATAPIPE-1200</comment>
     <createTable tableName="meta_attribute_mapping_store">
+      <column autoIncrement="true" name="id" type="INT(11)">
+        <constraints primaryKey="true"/>
+      </column>
       <column name="entity_type" type="VARCHAR(20)">
         <constraints nullable="false"/>
       </column>

@@ -31,6 +31,14 @@
                     "responseMessages": [
                         {
                             "code": 400,
+                            "message": "Meta Attribute Schema ID not found"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Namespace not found"
+                        },
+                        {
+                            "code": 404,
                             "message": "Invalid request"
                         },
                         {
@@ -42,8 +50,8 @@
                 {
                     "method": "DELETE",
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified namespace.",
-                    "notes": "The namespace and the schema_id Meta attribute schema should exist.",
-                    "type": "string",
+                    "notes": "The namespace and the schema_id of Meta attribute schema should exist.",
+                    "type": "boolean",
                     "nickname": "delete_meta_attribute_mapping_for_namespace",
                     "authorizations": {},
                     "parameters": [
@@ -55,6 +63,14 @@
                         }
                     ],
                     "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Meta Attribute Schema ID not found"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Namespace not found"
+                        },
                         {
                             "code": 400,
                             "message": "Invalid request"
@@ -88,6 +104,14 @@
                     "responseMessages": [
                         {
                             "code": 400,
+                            "message": "Meta Attribute Schema ID not found"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Source not found"
+                        },
+                        {
+                            "code": 400,
                             "message": "Invalid request"
                         },
                         {
@@ -99,8 +123,8 @@
                 {
                     "method": "DELETE",
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified source.",
-                    "notes": "The source and the schema_id Meta attribute schema should exist.",
-                    "type": "string",
+                    "notes": "The source and the schema_id of Meta attribute schema should exist.",
+                    "type": "boolean",
                     "nickname": "delete_meta_attribute_mapping_for_source",
                     "authorizations": {},
                     "parameters": [
@@ -112,6 +136,14 @@
                         }
                     ],
                     "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Meta Attribute Schema ID not found"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Source not found"
+                        },
                         {
                             "code": 400,
                             "message": "Invalid request"
@@ -145,6 +177,14 @@
                     "responseMessages": [
                         {
                             "code": 400,
+                            "message": "Meta Attribute Schema ID not found"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Schema not found"
+                        },
+                        {
+                            "code": 400,
                             "message": "Invalid request"
                         },
                         {
@@ -157,7 +197,7 @@
                     "method": "DELETE",
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified schema.",
                     "notes": "The schema_id of both the AvroSchema and Meta attribute should exist.",
-                    "type": "string",
+                    "type": "boolean",
                     "nickname": "delete_meta_attribute_mapping_for_schema",
                     "authorizations": {},
                     "parameters": [
@@ -169,6 +209,14 @@
                         }
                     ],
                     "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Meta Attribute Schema ID not found"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Schema not found"
+                        },
                         {
                             "code": 400,
                             "message": "Invalid request"
@@ -186,7 +234,7 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Get list of all meta attribute schema_ids mapped to specified namespace_id.",
+                    "summary": "Get a list of all meta attribute schema_ids mapped to specified namespace_id.",
                     "notes": "",
                     "type": "MetaAttributeMappingsResponse",
                     "nickname": "get_meta_attr_mappings_by_namespace_id",
@@ -223,7 +271,7 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Get list of all meta attribute schema_ids mapped to specified source_id.",
+                    "summary": "Get a list of all meta attribute schema_ids mapped to specified source_id.",
                     "notes": "",
                     "type": "MetaAttributeMappingsResponse",
                     "nickname": "get_meta_attr_mappings_by_source_id",
@@ -260,7 +308,7 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Get list of all meta attribute schema_ids mapped to specified schema_id.",
+                    "summary": "Get a list of all meta attribute schema_ids mapped to specified schema_id.",
                     "notes": "",
                     "type": "MetaAttributeMappingsResponse",
                     "nickname": "get_meta_attr_mappings_by_schema_id",

@@ -34,20 +34,6 @@ class RegisterMetaAttributeBase(DBTestCase):
             entity_id
         )
 
-    def test_register_non_existing_entity(self, setup_test, meta_attr_schema):
-        with pytest.raises(orm_exc.NoResultFound):
-            self.register_logic_method(
-                meta_attr_schema.id,
-                1234
-            )
-
-    def test_register_non_existing_meta_attr(self, setup_test):
-        with pytest.raises(orm_exc.NoResultFound):
-            self.register_logic_method(
-                1234,
-                self.entity.id
-            )
-
     def test_register_first_time(self, setup_test, meta_attr_schema):
         actual = self.register_logic_method(
             meta_attr_schema.id,
@@ -84,7 +70,7 @@ class RegisterMetaAttributeBase(DBTestCase):
             meta_attr_schema.id,
             self.entity.id
         )
-        assert actual
+        assert actual is True
         with pytest.raises(orm_exc.NoResultFound):
             session.query(
                 meta_attr_model

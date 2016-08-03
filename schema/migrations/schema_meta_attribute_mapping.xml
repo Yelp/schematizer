@@ -3,6 +3,9 @@
   <changeSet author="askatti" id="1468599816">
     <comment>Adding schema_meta_attribute_mapping table as per DATAPIPE-1200</comment>
     <createTable tableName="schema_meta_attribute_mapping">
+      <column autoIncrement="true" name="id" type="INT(11)">
+        <constraints primaryKey="true"/>
+      </column>
       <column name="schema_id" type="INT(11)">
         <constraints nullable="false"/>
       </column>

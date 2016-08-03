@@ -48,7 +48,7 @@
         },
         {
             "path": "/v1/meta_attribute_mapping",
-            "description": "Operations meta_attribute mappings."
+            "description": "Operations about meta_attribute mappings."
         }
     ],
     "info": {

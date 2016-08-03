@@ -165,7 +165,7 @@
                     "parameters": [
                         {
                             "name": "schema_id",
-                            "description": "ID of schema that will be fetched",
+                            "description": "Schema ID for which Meta Attributes will be fetched",
                             "required": true,
                             "type": "integer",
                             "paramType": "path",

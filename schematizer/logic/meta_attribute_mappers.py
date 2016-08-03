@@ -6,17 +6,10 @@ from sqlalchemy import and_
 from sqlalchemy import or_
 from sqlalchemy.orm import exc as orm_exc
 
-from schematizer.models import AvroSchema
 from schematizer.models import EntityType
 from schematizer.models import MetaAttributeMappingStore
-from schematizer.models import Namespace
 from schematizer.models import SchemaMetaAttributeMapping
-from schematizer.models import Source
 from schematizer.models.database import session
-
-
-def _verify_id_exists(model_cls, id):
-    session.query(model_cls).filter(getattr(model_cls, 'id') == id).one()
 
 
 def _create_meta_attribute_mapping_if_not_exist(
@@ -24,7 +17,6 @@ def _create_meta_attribute_mapping_if_not_exist(
     entity_id,
     meta_attr_schema_id
 ):
-    _verify_id_exists(AvroSchema, meta_attr_schema_id)
     return MetaAttributeMappingStore.create(
         session,
         entity_type=entity_type,
@@ -61,20 +53,21 @@ def _delete_meta_attribute_mapping_for_entity(
     entity_type,
     entity_id
 ):
-    return session.query(
-        MetaAttributeMappingStore
-    ).filter(
-        MetaAttributeMappingStore.entity_type == entity_type,
-        MetaAttributeMappingStore.entity_id == entity_id,
-        MetaAttributeMappingStore.meta_attr_schema_id == meta_attr_schema_id
-    ).delete()
+    return bool(
+        session.query(
+            MetaAttributeMappingStore
+        ).filter(
+            MetaAttributeMappingStore.entity_type == entity_type,
+            MetaAttributeMappingStore.entity_id == entity_id,
+            MetaAttributeMappingStore.meta_attr_schema_id == meta_attr_schema_id
+        ).delete()
+    )
 
 
 def register_meta_attribute_mapping_for_namespace(
     meta_attr_schema_id,
     namespace_id
 ):
-    _verify_id_exists(Namespace, namespace_id)
     return _register_meta_attribute_for_entity(
         meta_attr_schema_id,
         EntityType.NAMESPACE,
@@ -86,7 +79,6 @@ def register_meta_attribute_mapping_for_source(
     meta_attr_schema_id,
     source_id
 ):
-    _verify_id_exists(Source, source_id)
     return _register_meta_attribute_for_entity(
         meta_attr_schema_id,
         EntityType.SOURCE,
@@ -98,7 +90,6 @@ def register_meta_attribute_mapping_for_schema(
     meta_attr_schema_id,
     schema_id
 ):
-    _verify_id_exists(AvroSchema, schema_id)
     return _register_meta_attribute_for_entity(
         meta_attr_schema_id,
         EntityType.SCHEMA,
@@ -153,10 +144,10 @@ def _filter_param_for_source(source_id):
     )
 
 
-def _filter_param_for_schema(source_id):
+def _filter_param_for_schema(schema_id):
     return and_(
         MetaAttributeMappingStore.entity_type == EntityType.SCHEMA,
-        MetaAttributeMappingStore.entity_id == source_id
+        MetaAttributeMappingStore.entity_id == schema_id
     )
 
 
