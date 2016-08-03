@@ -82,7 +82,11 @@ def create_topic(topic_name, namespace_name, source_name, **overrides):
     return models.Topic.create(session, **params)
 
 
-def get_or_create_topic(topic_name, namespace_name=None, source_name=None):
+def get_or_create_topic(
+    topic_name,
+    namespace_name=None,
+    source_name=None,
+):
     """Get the topic of specified topic name. If it doesn't exist, create it
     in the specified namespace name and source name.
     """
@@ -105,7 +109,8 @@ def create_avro_schema(
         namespace=None,
         source=None,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
-        base_schema_id=None
+        base_schema_id=None,
+        created_at=None
 ):
     topic = get_or_create_topic(
         topic_name,
@@ -118,7 +123,8 @@ def create_avro_schema(
         avro_schema_json=schema_json,
         topic_id=topic.id,
         status=status,
-        base_schema_id=base_schema_id
+        base_schema_id=base_schema_id,
+        created_at=created_at
     )
 
     for schema_element in schema_elements:
@@ -207,33 +213,6 @@ def create_meta_attribute_mapping(
         entity_id=entity_id,
         meta_attr_schema_id=meta_attr_schema_id
     )
-
-
-class NamespaceFactory(object):
-
-    @classmethod
-    def create(
-        cls,
-        name,
-        created_at=fake_created_at,
-        updated_at=fake_updated_at,
-        fake_id=None
-    ):
-        namespace = models.Namespace(
-            name=name,
-            created_at=created_at,
-            updated_at=updated_at
-        )
-        if fake_id:
-            namespace.id = fake_id
-        return namespace
-
-    @classmethod
-    def create_in_db(cls, name):
-        namespace = cls.create(name)
-        session.add(namespace)
-        session.flush()
-        return namespace
 
 
 class SourceFactory(object):

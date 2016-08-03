@@ -13,6 +13,8 @@ from schematizer.components import converters
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
 from schematizer.models.database import session
+from schematizer.models.tuples import PageInfo
+from testing import asserts
 from testing import factories
 from tests.models.testing_db import DBTestCase
 
@@ -48,6 +50,10 @@ class TestSchemaRepository(DBTestCase):
         return factories.create_source(self.namespace_name, self.source_name)
 
     @property
+    def some_datetime(self):
+        return datetime.datetime(2014, 8, 11, 19, 23, 5, 254)
+
+    @property
     def topic_name(self):
         return factories.fake_topic_name
 
@@ -56,7 +62,8 @@ class TestSchemaRepository(DBTestCase):
         return factories.create_topic(
             topic_name=self.topic_name,
             namespace_name=self.namespace_name,
-            source_name=self.source_name
+            source_name=self.source_name,
+            created_at=self.some_datetime + datetime.timedelta(seconds=1)
         )
 
     @property
@@ -163,7 +170,24 @@ class TestSchemaRepository(DBTestCase):
         return factories.create_avro_schema(
             self.rw_schema_json,
             self.rw_schema_elements,
-            topic_name=topic.name
+            topic_name=topic.name,
+            created_at=self.some_datetime + datetime.timedelta(seconds=3)
+        )
+
+    @pytest.fixture
+    def user_schema(self, topic):
+        return factories.create_avro_schema(
+            self.rw_schema_json,
+            self.rw_schema_elements,
+            topic_name=topic.name,
+            created_at=self.some_datetime + datetime.timedelta(seconds=6)
+        )
+
+    @pytest.fixture
+    def sorted_schemas(self, rw_schema, another_rw_schema, user_schema):
+        return sorted(
+            [rw_schema, another_rw_schema, user_schema],
+            key=lambda schema: schema.id
         )
 
     @property
@@ -236,7 +260,8 @@ class TestSchemaRepository(DBTestCase):
         return factories.create_avro_schema(
             self.another_rw_schema_json,
             self.another_rw_schema_elements,
-            topic_name=topic.name
+            topic_name=topic.name,
+            created_at=self.some_datetime + datetime.timedelta(seconds=4)
         )
 
     @property
@@ -285,7 +310,8 @@ class TestSchemaRepository(DBTestCase):
             self.disabled_schema_json,
             self.disabled_schema_elements,
             topic_name=topic.name,
-            status=models.AvroSchemaStatus.DISABLED
+            status=models.AvroSchemaStatus.DISABLED,
+            created_at=self.some_datetime + datetime.timedelta(seconds=5)
         )
 
     @property
@@ -1001,6 +1027,79 @@ class TestSchemaRepository(DBTestCase):
         assert 1 == len(actual)
         self.assert_equal_avro_schema(rw_schema, actual[0])
 
+    def test_get_schemas_after_given_timestamp_excluding_disabled_schemas(
+        self,
+        sorted_schemas,
+        disabled_schema
+    ):
+        expected = sorted_schemas[1:]
+        after_dt = expected[0].created_at
+        actual = schema_repo.get_schemas_created_after(created_after=after_dt)
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=expected,
+            assert_func=asserts.assert_equal_avro_schema
+        )
+
+    def test_get_schemas_after_given_timestamp_including_disabled_schemas(
+        self,
+        rw_schema,
+        another_rw_schema,
+        user_schema,
+        disabled_schema
+    ):
+        expected = sorted(
+            [rw_schema, disabled_schema, another_rw_schema, user_schema],
+            key=lambda schema: schema.id
+        )
+        after_dt = expected[0].created_at
+        actual = schema_repo.get_schemas_created_after(
+            created_after=after_dt,
+            include_disabled=True
+        )
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=expected,
+            assert_func=asserts.assert_equal_avro_schema
+        )
+
+    def test_get_schemas_filter_by_count(
+        self,
+        sorted_schemas
+    ):
+        expected = [sorted_schemas[1]]
+        after_dt = expected[0].created_at
+        actual = schema_repo.get_schemas_created_after(
+            created_after=after_dt,
+            page_info=PageInfo(count=1, min_id=None)
+        )
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=expected,
+            assert_func=asserts.assert_equal_avro_schema
+        )
+
+    def test_get_schemas_filter_by_min_id(self, sorted_schemas):
+        min_id = sorted_schemas[1].id
+        created_dt = sorted_schemas[0].created_at
+        expected = [schema for schema in sorted_schemas if schema.id >= min_id]
+        actual = schema_repo.get_schemas_created_after(
+            created_after=created_dt,
+            page_info=PageInfo(count=None, min_id=min_id)
+        )
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=expected,
+            assert_func=asserts.assert_equal_avro_schema
+        )
+
+    def test_no_newer_schema(self, sorted_schemas):
+        last_schema = sorted_schemas[-1]
+        after_dt = last_schema.created_at + datetime.timedelta(seconds=1)
+
+        actual = schema_repo.get_schemas_created_after(created_after=after_dt)
+        assert actual == []
+
     def test_get_schemas_by_topic_id_including_disabled(
             self,
             topic,
@@ -1092,25 +1191,6 @@ class TestSchemaRepository(DBTestCase):
         actual = schema_repo.get_sources()
         assert 1 == len(actual)
         self.assert_equal_source(source, actual[0])
-
-    @pytest.mark.usefixtures('source')
-    def test_get_namespaces(self, namespace):
-        factories.SourceFactory.create('another source', namespace)
-        actual = schema_repo.get_namespaces()
-        assert 1 == len(actual)
-        self.assert_equal_namespace(namespace, actual[0])
-
-    def test_get_sources_by_namespace(self, source):
-        namespace = factories.NamespaceFactory.create('another namespace')
-        factories.SourceFactory.create('another source', namespace)
-        actual = schema_repo.get_sources_by_namespace(self.namespace_name)
-        assert 1 == len(actual)
-        self.assert_equal_source(source, actual[0])
-
-    @pytest.mark.usefixtures('source')
-    def test_get_sources_by_namespace_with_nonexistent_namespace(self):
-        actual = schema_repo.get_sources_by_namespace('foo')
-        assert 0 == len(actual)
 
     def test_get_topics_by_source_id(self, source, topic):
         actual = schema_repo.get_topics_by_source_id(source.id)
@@ -1445,7 +1525,7 @@ class TestByCriteria(DBTestCase):
         )
 
     @pytest.fixture
-    def sorted_topics(self, user_topic_1, user_topic_2, biz_topic, cta_topic):
+    def sorted_topics(self, user_topic_1, biz_topic, user_topic_2, cta_topic):
         return sorted(
             [user_topic_1, biz_topic, user_topic_2, cta_topic],
             key=lambda topic: topic.created_at
@@ -1558,17 +1638,26 @@ class TestByCriteria(DBTestCase):
             )
         )
 
-    def test_get_topics_count(self, sorted_topics):
-        expected = [sorted_topics[0]]
-        actual = schema_repo.get_topics_by_criteria(count=1)
-        assert len(actual) == 1
-        assert len(schema_repo.get_topics_by_criteria()) > 1
+    def test_get_topics(self, sorted_topics):
+        expected = sorted_topics
+        actual = schema_repo.get_topics_by_criteria()
+        assert len(actual) > 1
         self.assert_equal_topics(actual, expected)
 
-    def test_get_topics_min_id(self, sorted_topics):
+    def test_get_topics_limited_by_count(self, sorted_topics):
+        expected = [sorted_topics[0]]
+        actual = schema_repo.get_topics_by_criteria(
+            page_info=PageInfo(count=1, min_id=None)
+        )
+        assert len(actual) == 1
+        self.assert_equal_topics(actual, expected)
+
+    def test_get_topics_limited_by_min_topic_id(self, sorted_topics):
         min_id = sorted_topics[1].id
         expected = [topic for topic in sorted_topics if topic.id >= min_id]
-        actual = schema_repo.get_topics_by_criteria(min_id=min_id)
+        actual = schema_repo.get_topics_by_criteria(
+            page_info=PageInfo(count=None, min_id=min_id)
+        )
         self.assert_equal_topics(actual, expected)
 
     def assert_equal_refreshes(self, expected_refreshes, actual_refreshes):

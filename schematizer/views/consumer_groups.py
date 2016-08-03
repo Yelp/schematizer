@@ -12,7 +12,6 @@ from schematizer.api.requests import requests_v1
 from schematizer.api.responses import responses_v1 as resp_v1
 from schematizer.logic import registration_repository as reg_repo
 from schematizer.models import exceptions as sch_exc
-from schematizer.models.database import session
 
 
 @view_config(
@@ -23,7 +22,7 @@ from schematizer.models.database import session
 @transform_api_response()
 def get_consumer_groups(request):
     return [resp_v1.get_consumer_group_response_from_consumer_group(group)
-            for group in models.ConsumerGroup.get_all(session)]
+            for group in models.ConsumerGroup.get_all()]
 
 
 @view_config(
@@ -35,7 +34,7 @@ def get_consumer_groups(request):
 def get_consumer_group_by_id(request):
     consumer_group_id = int(request.matchdict.get('consumer_group_id'))
     try:
-        group = models.ConsumerGroup.get_by_id(session, consumer_group_id)
+        group = models.ConsumerGroup.get_by_id(consumer_group_id)
         return resp_v1.get_consumer_group_response_from_consumer_group(group)
     except sch_exc.EntityNotFoundError as e:
         raise exc_v1.entity_not_found_exception(e.message)

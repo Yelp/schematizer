@@ -76,8 +76,7 @@ def get_topics_by_criteria(request):
         namespace=criteria.namespace,
         source=criteria.source,
         created_after=criteria.created_after_datetime,
-        count=criteria.count,
-        min_id=criteria.min_id
+        page_info=criteria.page_info
     )
     return [responses_v1.get_topic_response_from_topic(topic)
             for topic in topics]

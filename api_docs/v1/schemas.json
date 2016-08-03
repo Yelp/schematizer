@@ -190,11 +190,11 @@
             ]
         },
         {
-            "path": "/v1/schemas/created_after/{created_after}",
+            "path": "/v1/schemas",
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Get the Avro schemas created after the specified creation_date.",
+                    "summary": "Get the Avro schemas created after the specified created_after timestamp. Default it excludes disabled schemas.",
                     "notes": "",
                     "type": "array",
                     "items": {
@@ -205,10 +205,34 @@
                     "parameters": [
                         {
                             "name": "created_after",
-                            "description": "Starting date of schemas to be fetched (inclusive)",
+                            "description": "It's the epoch timestamp and limits schemas to those created at or after this timestamp.",
                             "required": true,
                             "type": "integer",
-                            "paramType": "path",
+                            "paramType": "query",
+                            "allowMultiple": false
+                        },
+                        {
+                            "name": "count",
+                            "description": "Maximum number of schemas to retrieve.",
+                            "required": false,
+                            "type": "integer",
+                            "paramType": "query",
+                            "allowMultiple": false
+                        },
+                        {
+                            "name": "min_id",
+                            "description": "Limits results to those schemas with an id greater than or equal to given min_id.",
+                            "required": false,
+                            "type": "integer",
+                            "paramType": "query",
+                            "allowMultiple": false
+                        },
+                        {
+                            "name": "include_disabled",
+                            "description": "Set to True to include disabled schemas. Default it excludes disabled ones.",
+                            "required": false,
+                            "type": "boolean",
+                            "paramType": "query",
                             "allowMultiple": false
                         }
                     ],
