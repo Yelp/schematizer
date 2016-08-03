@@ -172,7 +172,7 @@ def get_data_targets_by_schema_id(request):
             responses_v1.get_data_target_response_from_data_target(data_target)
             for data_target in data_targets
         ]
-    except ValueError as e:
+    except TypeError as e:
         raise exceptions_v1.Invalid_request_exception(e.message)
 
 
