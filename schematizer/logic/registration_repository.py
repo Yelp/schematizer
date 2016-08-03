@@ -6,7 +6,9 @@ data, such as data sources and data targets.
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from sqlalchemy import and_
 from sqlalchemy import exc
+from sqlalchemy import or_
 
 from schematizer import models
 from schematizer.logic.validators import verify_entity_exists
@@ -188,6 +190,27 @@ def get_data_sources_by_consumer_group_id(consumer_group_id):
     return data_srcs
 
 
+def _filter_consumer_group_data_src_by_namespace(namespace_id):
+    return and_(
+        models.ConsumerGroupDataSource.data_source_id == namespace_id,
+        models.ConsumerGroupDataSource.data_source_type == SrcType.NAMESPACE
+    )
+
+
+def _filter_consumer_group_data_src_by_source(src_id):
+    return and_(
+        models.ConsumerGroupDataSource.data_source_id == src_id,
+        models.ConsumerGroupDataSource.data_source_type == SrcType.SOURCE
+    )
+
+
+def _filter_consumer_group_data_src_by_schema(schema_id):
+    return and_(
+        models.ConsumerGroupDataSource.data_source_id == schema_id,
+        models.ConsumerGroupDataSource.data_source_type == SrcType.SCHEMA
+    )
+
+
 def get_data_targets_by_schema_id(schema_id):
     """Get the data targets of the corresponding schema id.
     Since the the data source in ConsumerGroupDataSource can be a
@@ -202,41 +225,18 @@ def get_data_targets_by_schema_id(schema_id):
     avro_schema = models.AvroSchema.get_by_id(session, schema_id)
     src_id = avro_schema.topic.source.id
     namespace_id = avro_schema.topic.source.namespace_id
-    consumer_group_ids = set()
 
-    results = session.query(models.ConsumerGroupDataSource).filter(
-        (
-            (
-                models.ConsumerGroupDataSource.data_source_id == namespace_id
-            ) &
-            (
-                models.ConsumerGroupDataSource.data_source_type ==
-                SrcType.NAMESPACE
-            )
-        ) |
-        (
-            (
-                models.ConsumerGroupDataSource.data_source_id == schema_id
-            ) &
-            (
-                models.ConsumerGroupDataSource.data_source_type ==
-                SrcType.SCHEMA
-            )
-        ) |
-        (
-            (
-                models.ConsumerGroupDataSource.data_source_id == src_id
-            ) &
-            (
-                models.ConsumerGroupDataSource.data_source_type ==
-                SrcType.SOURCE
-            )
+    results = session.query(
+        models.ConsumerGroupDataSource.consumer_group_id
+    ).filter(
+        or_(
+            _filter_consumer_group_data_src_by_namespace(namespace_id) |
+            _filter_consumer_group_data_src_by_source(src_id) |
+            _filter_consumer_group_data_src_by_schema(schema_id)
         )
     )
 
-    consumer_group_ids.update(
-        consumer_group.consumer_group_id for consumer_group in results
-    )
+    consumer_group_ids = set(results)
 
     data_targets = session.query(
         models.DataTarget
