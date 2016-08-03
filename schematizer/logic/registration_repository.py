@@ -230,13 +230,13 @@ def get_data_targets_by_schema_id(schema_id):
         models.ConsumerGroupDataSource.consumer_group_id
     ).filter(
         or_(
-            _filter_consumer_group_data_src_by_namespace(namespace_id) |
-            _filter_consumer_group_data_src_by_source(src_id) |
+            _filter_consumer_group_data_src_by_namespace(namespace_id),
+            _filter_consumer_group_data_src_by_source(src_id),
             _filter_consumer_group_data_src_by_schema(schema_id)
         )
-    )
+    ).all()
 
-    consumer_group_ids = set(results)
+    consumer_group_ids = set([id[0] for id in results])
 
     data_targets = session.query(
         models.DataTarget
