@@ -115,6 +115,10 @@ def routes(config):
         '/v1/schemas/{schema_id}/elements'
     )
     config.add_route(
+        'api.v1.get_meta_attributes_by_schema_id',
+        '/v1/schemas/{schema_id}/meta_attributes'
+    )
+    config.add_route(
         'api.v1.is_avro_schema_compatible',
         '/v1/compatibility/schemas/avro'
     )
