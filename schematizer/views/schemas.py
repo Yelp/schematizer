@@ -18,6 +18,10 @@ from schematizer.logic import registration_repository as reg_repo
 from schematizer.logic import schema_repository
 from schematizer.utils.utils import get_current_func_arg_name_values
 from schematizer.views import view_common
+from schematizer.models.avro_schema import AvroSchema
+from schematizer.models.exceptions import EntityNotFoundError
+
+
 
 
 @view_config(
@@ -163,7 +167,7 @@ def get_data_targets_by_schema_id(request):
     try:
         schema_id = int(request.matchdict.get('schema_id'))
         # First check if schema exists
-        schema = schema_repository.get_schema_by_id(schema_id)
+        schema = AvroSchema.get_by_id(schema_id)
         if schema is None:
             raise exceptions_v1.schema_not_found_exception()
         data_targets = reg_repo.get_data_targets_by_schema_id(schema_id)
@@ -172,8 +176,8 @@ def get_data_targets_by_schema_id(request):
             responses_v1.get_data_target_response_from_data_target(data_target)
             for data_target in data_targets
         ]
-    except TypeError as e:
-        raise exceptions_v1.Invalid_request_exception(e.message)
+    except EntityNotFoundError as e:
+        raise exceptions_v1.entity_not_found_exception(e.message)
 
 
 def validate_name(name):
