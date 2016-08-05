@@ -7,5 +7,5 @@ CREATE TABLE `meta_attribute_mapping_store` (
   `updated_at` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `entity_index` (`entity_type`, `entity_id`),
-  UNIQUE KEY `unique_mapping_constraint` (`entity_type`, `entity_id`, `meta_attr_schema_id`)
+  UNIQUE KEY `unique_entity_mapping_constraint` (`entity_type`, `entity_id`, `meta_attr_schema_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
