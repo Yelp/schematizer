@@ -20,8 +20,9 @@ from schematizer.logic import schema_repository
 )
 @transform_api_response()
 def list_sources(request):
+    req = requests_v1.GetSourcesRequest(request.params)
     return [responses_v1.get_source_response_from_source(src)
-            for src in schema_repository.get_sources()]
+            for src in schema_repository.get_sources(req.page_info)]
 
 
 @view_config(

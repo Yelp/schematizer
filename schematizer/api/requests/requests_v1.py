@@ -26,6 +26,16 @@ class RequestBase(object):
         return long_timestamp, datetime.utcfromtimestamp(long_timestamp)
 
 
+class GetSourcesRequest(RequestBase):
+
+    def __init__(self, query_params):
+        super(GetSourcesRequest, self).__init__()
+        self.page_info = PageInfo(
+            query_params.get('count'),
+            query_params.get('min_id')
+        )
+
+
 class RegisterSchemaRequest(RequestBase):
 
     def __init__(

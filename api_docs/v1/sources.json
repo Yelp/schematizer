@@ -22,7 +22,24 @@
                     },
                     "nickname": "list_sources",
                     "authorizations": {},
-                    "parameters": [],
+                    "parameters": [
+                        {
+                            "name": "count",
+                            "description": "Maximum number of sources to retrieve.",
+                            "required": false,
+                            "type": "integer",
+                            "paramType": "query",
+                            "allowMultiple": false
+                        },
+                        {
+                            "name": "min_id",
+                            "description": "Limits results to those sources with an id greater than or equal to given min_id.",
+                            "required": false,
+                            "type": "integer",
+                            "paramType": "query",
+                            "allowMultiple": false
+                        }
+                    ],
                     "responseMessages": [
                         {
                             "code": 500,
