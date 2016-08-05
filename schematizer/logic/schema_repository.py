@@ -746,15 +746,27 @@ def get_meta_attributes_by_schema_id(schema_id):
 
 
 def add_meta_attribute_mappings(avro_schema):
-    return [
-        models.SchemaMetaAttributeMapping.create(
-            session,
-            schema_id=avro_schema.id,
-            meta_attr_schema_id=meta_attr_schema_id
-        ) for meta_attr_schema_id in
-        meta_attr_logic.get_meta_attributes_by_schema(avro_schema.id)
-    ]
-
+    mappings = []
+    for meta_attr_schema_id in meta_attr_logic.get_meta_attributes_by_schema(
+            avro_schema.id
+    ):
+        try:
+            with session.begin_nested():
+                new_mapping = models.SchemaMetaAttributeMapping(
+                    schema_id=avro_schema.id,
+                    meta_attr_schema_id=meta_attr_schema_id
+                )
+                session.add(new_mapping)
+        except exc.IntegrityError:
+            # Ignore this error due to trying to create a duplicate mapping
+            new_mapping = session.query(
+                models.SchemaMetaAttributeMapping
+            ).filter(
+                models.SchemaMetaAttributeMapping.schema_id == avro_schema.id,
+                models.SchemaMetaAttributeMapping.meta_attr_schema_id == meta_attr_schema_id
+            ).first()
+        mappings.append(new_mapping)
+    return mappings
 
 
 def get_topics_by_criteria(
