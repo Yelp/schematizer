@@ -142,7 +142,7 @@ class ApiTestBase(DBTestCase):
         )
         if not mappings:
             return {}
-        expected_entity_type = mappings[0].entity_type + '_id'
+        expected_entity_type = (mappings[0].entity_type + '_id').lower()
         expected_entity_id = mappings[0].entity_id
         expected_meta_attr_ids = [
             mapping.meta_attr_schema_id for mapping in mappings

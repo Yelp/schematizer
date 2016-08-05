@@ -12,13 +12,6 @@ from schematizer.models.database import Base
 from schematizer.models.types.time import build_time_column
 
 
-class EntityType(object):
-
-    NAMESPACE = 'namespace'
-    SOURCE = 'source'
-    SCHEMA = 'schema'
-
-
 class MetaAttributeMappingStore(Base, BaseModel):
 
     __tablename__ = 'meta_attribute_mapping_store'
@@ -28,9 +21,9 @@ class MetaAttributeMappingStore(Base, BaseModel):
     # The name of the entity type, can be namespace, source or schema.
     entity_type = Column(
         Enum(
-            EntityType.NAMESPACE,
-            EntityType.SOURCE,
-            EntityType.SCHEMA,
+            'Namespace',
+            'Source',
+            'AvroSchema',
             name='entity_type'
         ),
         nullable=False

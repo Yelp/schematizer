@@ -29,5 +29,10 @@
       <column name="entity_type" type="VARCHAR(20)"/>
       <column name="entity_id" type="INT(11)"/>
     </createIndex>
+    <createIndex indexName="unique_mapping_constraint" tableName="meta_attribute_mapping_store" unique="true">
+      <column name="entity_type" type="VARCHAR(20)"/>
+      <column name="entity_id" type="INT(11)"/>
+      <column name="meta_attr_schema_id" type="INT(11)"/>
+    </createIndex>
   </changeSet>
 </databaseChangeLog>

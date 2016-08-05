@@ -12,8 +12,7 @@ from sqlalchemy.orm import exc as orm_exc
 from schematizer import models
 from schematizer.components.converters.converter_base import BaseConverter
 from schematizer.logic import exceptions as sch_exc
-from schematizer.logic.meta_attribute_mappers \
-    import add_meta_attribute_mappings
+from schematizer.logic import meta_attribute_mappers as meta_attr_logic
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.models.database import session
 
@@ -743,6 +742,18 @@ def get_meta_attributes_by_schema_id(schema_id):
         models.SchemaMetaAttributeMapping.schema_id == schema_id
     ).all()
     return [m.meta_attr_schema_id for m in mappings]
+
+
+def add_meta_attribute_mappings(avro_schema):
+    return [
+        models.SchemaMetaAttributeMapping.create(
+            session,
+            schema_id=avro_schema.id,
+            meta_attr_schema_id=meta_attr_schema_id
+        ) for meta_attr_schema_id in
+        meta_attr_logic.get_meta_attributes_by_schema(avro_schema.id)
+    ]
+
 
 
 def get_topics_by_criteria(

@@ -31,11 +31,7 @@
                     "responseMessages": [
                         {
                             "code": 404,
-                            "message": "Meta Attribute Schema ID not found"
-                        },
-                        {
-                            "code": 404,
-                            "message": "Namespace not found"
+                            "message": "Entity not found"
                         },
                         {
                             "code": 400,
@@ -51,7 +47,6 @@
                     "method": "DELETE",
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified namespace.",
                     "notes": "The namespace and the schema_id of Meta attribute schema should exist.",
-                    "type": "boolean",
                     "nickname": "delete_meta_attribute_mapping_for_namespace",
                     "authorizations": {},
                     "parameters": [
@@ -64,12 +59,12 @@
                     ],
                     "responseMessages": [
                         {
-                            "code": 404,
-                            "message": "Meta Attribute Schema ID not found"
+                            "code": 204,
+                            "message": "Deletion sccessful"
                         },
                         {
                             "code": 404,
-                            "message": "Namespace not found"
+                            "message": "Entity not found"
                         },
                         {
                             "code": 400,
@@ -104,11 +99,7 @@
                     "responseMessages": [
                         {
                             "code": 404,
-                            "message": "Meta Attribute Schema ID not found"
-                        },
-                        {
-                            "code": 404,
-                            "message": "Source not found"
+                            "message": "Entity not found"
                         },
                         {
                             "code": 400,
@@ -124,7 +115,6 @@
                     "method": "DELETE",
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified source.",
                     "notes": "The source and the schema_id of Meta attribute schema should exist.",
-                    "type": "boolean",
                     "nickname": "delete_meta_attribute_mapping_for_source",
                     "authorizations": {},
                     "parameters": [
@@ -137,12 +127,12 @@
                     ],
                     "responseMessages": [
                         {
-                            "code": 404,
-                            "message": "Meta Attribute Schema ID not found"
+                            "code": 204,
+                            "message": "Deletion sccessful"
                         },
                         {
                             "code": 404,
-                            "message": "Source not found"
+                            "message": "Entity not found"
                         },
                         {
                             "code": 400,
@@ -177,11 +167,7 @@
                     "responseMessages": [
                         {
                             "code": 404,
-                            "message": "Meta Attribute Schema ID not found"
-                        },
-                        {
-                            "code": 404,
-                            "message": "Schema not found"
+                            "message": "Entity not found"
                         },
                         {
                             "code": 400,
@@ -197,7 +183,6 @@
                     "method": "DELETE",
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified schema.",
                     "notes": "The schema_id of both the AvroSchema and Meta attribute should exist.",
-                    "type": "boolean",
                     "nickname": "delete_meta_attribute_mapping_for_schema",
                     "authorizations": {},
                     "parameters": [
@@ -210,12 +195,12 @@
                     ],
                     "responseMessages": [
                         {
-                            "code": 404,
-                            "message": "Meta Attribute Schema ID not found"
+                            "code": 204,
+                            "message": "Deletion sccessful"
                         },
                         {
                             "code": 404,
-                            "message": "Schema not found"
+                            "message": "Entity not found"
                         },
                         {
                             "code": 400,

@@ -6,10 +6,13 @@ import pytest
 from sqlalchemy.orm import exc as orm_exc
 
 from schematizer.logic import meta_attribute_mappers as meta_attr_logic
-from schematizer.models import EntityType
+from schematizer.logic import schema_repository as schema_repo_logic
+from schematizer.models import AvroSchema
 from schematizer.models import MetaAttributeMappingStore as meta_attr_model
 from schematizer.models import Namespace
+from schematizer.models import Source
 from schematizer.models.database import session
+from schematizer.models.exceptions import EntityNotFoundError
 from testing import factories
 from tests.models.testing_db import DBTestCase
 
@@ -30,23 +33,23 @@ class RegisterMetaAttributeBase(DBTestCase):
     def _setup_meta_attribute_mapping(self, meta_attr_schema, entity_id):
         factories.create_meta_attribute_mapping(
             meta_attr_schema.id,
-            self.entity_type,
+            self.entity_model.__name__,
             entity_id
         )
 
-    def test_register_first_time(self, setup_test, meta_attr_schema):
+    def test_register_first_time(self, meta_attr_schema):
         actual = self.register_logic_method(
             meta_attr_schema.id,
             self.entity.id
         )
         expected = meta_attr_model(
-            entity_type=self.entity_type,
+            entity_type=self.entity_model.__name__,
             entity_id=self.entity.id,
             meta_attr_schema_id=meta_attr_schema.id
         )
         self.assert_equal_meta_attr_partial(expected, actual)
 
-    def test_idempotent_registration(self, setup_test, meta_attr_schema):
+    def test_idempotent_registration(self, meta_attr_schema):
         self._setup_meta_attribute_mapping(meta_attr_schema, self.entity.id)
         first_result = self.register_logic_method(
             meta_attr_schema.id,
@@ -57,14 +60,14 @@ class RegisterMetaAttributeBase(DBTestCase):
             self.entity.id
         )
         expected = meta_attr_model(
-            entity_type=self.entity_type,
+            entity_type=self.entity_model.__name__,
             entity_id=self.entity.id,
             meta_attr_schema_id=meta_attr_schema.id
         )
         self.assert_equal_meta_attr_partial(expected, first_result)
         self.assert_equal_meta_attr(first_result, second_result)
 
-    def test_delete_mapping(self, setup_test, meta_attr_schema):
+    def test_delete_mapping(self, meta_attr_schema):
         self._setup_meta_attribute_mapping(meta_attr_schema, self.entity.id)
         actual = self.delete_logic_method(
             meta_attr_schema.id,
@@ -75,17 +78,18 @@ class RegisterMetaAttributeBase(DBTestCase):
             session.query(
                 meta_attr_model
             ).filter(
-                meta_attr_model.entity_type == self.entity_type,
+                meta_attr_model.entity_type == self.entity_model.__name__,
                 meta_attr_model.entity_id == self.entity.id,
                 meta_attr_model.meta_attr_schema_id == meta_attr_schema.id
             ).one()
 
 
+@pytest.mark.usefixtures('setup_test')
 class TestRegisterMetaAttributeForNamespace(RegisterMetaAttributeBase):
 
     @pytest.fixture
     def setup_test(self, yelp_namespace):
-        self.entity_type = EntityType.NAMESPACE
+        self.entity_model = Namespace
         self.register_logic_method = meta_attr_logic.\
             register_meta_attribute_mapping_for_namespace
         self.delete_logic_method = meta_attr_logic.\
@@ -93,11 +97,12 @@ class TestRegisterMetaAttributeForNamespace(RegisterMetaAttributeBase):
         self.entity = yelp_namespace
 
 
+@pytest.mark.usefixtures('setup_test')
 class TestRegisterMetaAttributeForSource(RegisterMetaAttributeBase):
 
     @pytest.fixture
     def setup_test(self, biz_source):
-        self.entity_type = EntityType.SOURCE
+        self.entity_model = Source
         self.register_logic_method = meta_attr_logic.\
             register_meta_attribute_mapping_for_source
         self.delete_logic_method = meta_attr_logic.\
@@ -105,11 +110,12 @@ class TestRegisterMetaAttributeForSource(RegisterMetaAttributeBase):
         self.entity = biz_source
 
 
+@pytest.mark.usefixtures('setup_test')
 class TestRegisterMetaAttributeForSchema(RegisterMetaAttributeBase):
 
     @pytest.fixture
     def setup_test(self, biz_schema):
-        self.entity_type = EntityType.SCHEMA
+        self.entity_model = AvroSchema
         self.register_logic_method = meta_attr_logic.\
             register_meta_attribute_mapping_for_schema
         self.delete_logic_method = \
@@ -206,30 +212,30 @@ class GetMetaAttributeBaseTest(DBTestCase):
     ):
         factories.create_meta_attribute_mapping(
             meta_attr_1.id,
-            EntityType.NAMESPACE,
+            Namespace.__name__,
             test_nsp.id
         )
         factories.create_meta_attribute_mapping(
             meta_attr_2.id,
-            EntityType.SOURCE,
+            Source.__name__,
             test_src.id
         )
         factories.create_meta_attribute_mapping(
             meta_attr_3.id,
-            EntityType.SCHEMA,
+            AvroSchema.__name__,
             test_schema.id
         )
 
 
+@pytest.mark.usefixtures('setup_meta_attr_mappings')
 class TestGetMetaAttributeMappings(GetMetaAttributeBaseTest):
 
     def test_get_mapping_by_namespace(
         self,
         test_nsp,
-        meta_attr_1,
-        setup_meta_attr_mappings
+        meta_attr_1
     ):
-        actual = meta_attr_logic.get_meta_attributes_by_namespace(test_nsp)
+        actual = meta_attr_logic.get_meta_attributes_by_namespace(test_nsp.id)
         expected = [meta_attr_1.id]
         assert actual == expected
 
@@ -237,10 +243,9 @@ class TestGetMetaAttributeMappings(GetMetaAttributeBaseTest):
         self,
         test_src,
         meta_attr_1,
-        meta_attr_2,
-        setup_meta_attr_mappings
+        meta_attr_2
     ):
-        actual = meta_attr_logic.get_meta_attributes_by_source(test_src)
+        actual = meta_attr_logic.get_meta_attributes_by_source(test_src.id)
         expected = [meta_attr_1.id, meta_attr_2.id]
         assert actual == expected
 
@@ -249,20 +254,19 @@ class TestGetMetaAttributeMappings(GetMetaAttributeBaseTest):
         test_schema,
         meta_attr_1,
         meta_attr_2,
-        meta_attr_3,
-        setup_meta_attr_mappings
+        meta_attr_3
     ):
-        actual = meta_attr_logic.get_meta_attributes_by_schema(test_schema)
+        actual = meta_attr_logic.get_meta_attributes_by_schema(test_schema.id)
         expected = [meta_attr_1.id, meta_attr_2.id, meta_attr_3.id]
         assert actual == expected
 
-    def test_get_non_existing_mapping(self, setup_meta_attr_mappings):
-        fake_nsp = Namespace(name='fake_namespace')
-        actual = meta_attr_logic.get_meta_attributes_by_namespace(fake_nsp)
-        expected = []
-        assert actual == expected
+    def test_get_non_existing_mapping(self):
+        fake_nsp_id = 1234
+        with pytest.raises(EntityNotFoundError):
+            meta_attr_logic.get_meta_attributes_by_namespace(fake_nsp_id)
 
 
+@pytest.mark.usefixtures('setup_meta_attr_mappings')
 class TestAddToMetaAttrStore(GetMetaAttributeBaseTest):
 
     def _get_meta_attr_mappings_as_dict(self, mappings):
@@ -279,16 +283,15 @@ class TestAddToMetaAttrStore(GetMetaAttributeBaseTest):
         test_schema,
         meta_attr_1,
         meta_attr_2,
-        meta_attr_3,
-        setup_meta_attr_mappings
+        meta_attr_3
     ):
-        actual = meta_attr_logic.add_meta_attribute_mappings(test_schema)
+        actual = schema_repo_logic.add_meta_attribute_mappings(test_schema)
         expected = {
             test_schema.id: {meta_attr_1.id, meta_attr_2.id, meta_attr_3.id}
         }
         assert self._get_meta_attr_mappings_as_dict(actual) == expected
 
-        actual_2 = meta_attr_logic.add_meta_attribute_mappings(test_schema)
+        actual_2 = schema_repo_logic.add_meta_attribute_mappings(test_schema)
         assert self._get_meta_attr_mappings_as_dict(actual_2) == expected
 
     def test_add_duplicate_mappings(
@@ -296,15 +299,14 @@ class TestAddToMetaAttrStore(GetMetaAttributeBaseTest):
         test_schema,
         meta_attr_1,
         meta_attr_2,
-        meta_attr_3,
-        setup_meta_attr_mappings
+        meta_attr_3
     ):
         factories.create_meta_attribute_mapping(
             meta_attr_2.id,
-            EntityType.SOURCE,
+            Source.__name__,
             test_schema.id
         )
-        actual = meta_attr_logic.add_meta_attribute_mappings(test_schema)
+        actual = schema_repo_logic.add_meta_attribute_mappings(test_schema)
         expected = {
             test_schema.id: {meta_attr_1.id, meta_attr_2.id, meta_attr_3.id}
         }
@@ -312,9 +314,8 @@ class TestAddToMetaAttrStore(GetMetaAttributeBaseTest):
 
     def test_handle_non_existing_mappings(
         self,
-        biz_schema,
-        setup_meta_attr_mappings
+        biz_schema
     ):
-        actual = meta_attr_logic.add_meta_attribute_mappings(biz_schema)
+        actual = schema_repo_logic.add_meta_attribute_mappings(biz_schema)
         expected = []
         assert actual == expected
