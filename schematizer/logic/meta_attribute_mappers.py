@@ -3,8 +3,8 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from sqlalchemy import and_
-from sqlalchemy import or_
 from sqlalchemy import exc
+from sqlalchemy import or_
 
 from schematizer.models import AvroSchema
 from schematizer.models import MetaAttributeMappingStore
@@ -145,7 +145,7 @@ def _filter_param_for_schema(schema_id):
     )
 
 
-def _get_meta_attributes_by_entity():
+def _get_meta_attributes():
     return session.query(
         MetaAttributeMappingStore
     ).order_by(
@@ -155,7 +155,7 @@ def _get_meta_attributes_by_entity():
 
 def get_meta_attributes_by_namespace(namespace_id):
     Namespace.get_by_id(namespace_id)
-    query = _get_meta_attributes_by_entity()
+    query = _get_meta_attributes()
     meta_attr_mappings = query.filter(
         _filter_param_for_namespace(namespace_id)
     ).all()
@@ -164,7 +164,7 @@ def get_meta_attributes_by_namespace(namespace_id):
 
 def get_meta_attributes_by_source(source_id):
     source = Source.get_by_id((source_id))
-    query = _get_meta_attributes_by_entity()
+    query = _get_meta_attributes()
     meta_attr_mappings = query.filter(
         or_(
             _filter_param_for_namespace(source.namespace_id),
@@ -178,7 +178,7 @@ def get_meta_attributes_by_schema(avro_schema_id):
     avro_schema = AvroSchema.get_by_id(avro_schema_id)
     source_id = avro_schema.topic.source_id
     namespace_id = avro_schema.topic.source.namespace_id
-    query = _get_meta_attributes_by_entity()
+    query = _get_meta_attributes()
     meta_attr_mappings = query.filter(
         or_(
             _filter_param_for_namespace(namespace_id),

@@ -12,10 +12,12 @@ from schematizer import models
 from schematizer.components import converters
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
+from schematizer.models import Source
 from schematizer.models.database import session
 from schematizer.models.tuples import PageInfo
 from testing import asserts
 from testing import factories
+from tests.logic.meta_attribute_mappers_test import GetMetaAttributeBaseTest
 from tests.models.testing_db import DBTestCase
 
 
@@ -1675,3 +1677,58 @@ class TestByCriteria(DBTestCase):
 
     def _sort_topics_by_id(self, topics):
         return sorted(topics, key=lambda topic: topic.id)
+
+
+@pytest.mark.usefixtures('setup_meta_attr_mappings')
+class TestAddToMetaAttrStore(GetMetaAttributeBaseTest):
+
+    def _get_meta_attr_mappings_as_dict(self, mappings):
+        mappings_dict = {}
+        for m in mappings:
+            if m.schema_id in mappings_dict:
+                mappings_dict.get(m.schema_id).add(m.meta_attr_schema_id)
+            else:
+                mappings_dict[m.schema_id] = {m.meta_attr_schema_id}
+        return mappings_dict
+
+    def test_add_unique_mappings(
+        self,
+        test_schema,
+        meta_attr_1,
+        meta_attr_2,
+        meta_attr_3
+    ):
+        actual = schema_repo.add_meta_attribute_mappings(test_schema)
+        expected = {
+            test_schema.id: {meta_attr_1.id, meta_attr_2.id, meta_attr_3.id}
+        }
+        assert self._get_meta_attr_mappings_as_dict(actual) == expected
+
+        actual_2 = schema_repo.add_meta_attribute_mappings(test_schema)
+        assert self._get_meta_attr_mappings_as_dict(actual_2) == expected
+
+    def test_add_duplicate_mappings(
+        self,
+        test_schema,
+        meta_attr_1,
+        meta_attr_2,
+        meta_attr_3
+    ):
+        factories.create_meta_attribute_mapping(
+            meta_attr_2.id,
+            Source.__name__,
+            test_schema.id
+        )
+        actual = schema_repo.add_meta_attribute_mappings(test_schema)
+        expected = {
+            test_schema.id: {meta_attr_1.id, meta_attr_2.id, meta_attr_3.id}
+        }
+        assert self._get_meta_attr_mappings_as_dict(actual) == expected
+
+    def test_handle_non_existing_mappings(
+        self,
+        biz_schema
+    ):
+        actual = schema_repo.add_meta_attribute_mappings(biz_schema)
+        expected = []
+        assert actual == expected

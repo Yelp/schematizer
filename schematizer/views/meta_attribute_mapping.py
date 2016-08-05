@@ -140,7 +140,6 @@ def delete_meta_attribute_mapping_for_schema(request):
         raise exceptions_v1.entity_not_found_exception(e.message)
 
 
-
 @view_config(
     route_name='api.v1.get_meta_attr_mappings_by_namespace_id',
     request_method='GET',
