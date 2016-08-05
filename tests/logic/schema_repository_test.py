@@ -38,6 +38,10 @@ class TestSchemaRepository(DBTestCase):
         return "business_v2"
 
     @property
+    def user_source_name(self):
+        return "business_v3"
+
+    @property
     def source_owner_email(self):
         return factories.fake_owner_email
 
@@ -54,10 +58,24 @@ class TestSchemaRepository(DBTestCase):
         return factories.create_source(self.namespace_name, self.source_name)
 
     @pytest.fixture
+    def user_source(self, namespace):
+        return factories.create_source(
+            self.namespace_name,
+            self.user_source_name
+        )
+
+    @pytest.fixture
     def another_source(self, namespace):
         return factories.create_source(
             self.namespace_name,
             self.another_source_name
+        )
+
+    @pytest.fixture
+    def sorted_sources(self, source, another_source, user_source):
+        return sorted(
+            [source, another_source, user_source],
+            key=lambda source: source.id
         )
 
     @property
@@ -1168,19 +1186,18 @@ class TestSchemaRepository(DBTestCase):
         ).one()
         assert models.AvroSchemaStatus.READ_AND_WRITE == actual.status
 
-    def test_get_all_sources(self, source, another_source):
-        expected = [source, another_source]
+    def test_get_all_sources(self, sorted_sources):
         actual = schema_repo.get_sources()
         asserts.assert_equal_entity_list(
             actual_list=actual,
-            expected_list=expected,
+            expected_list=sorted_sources,
             assert_func=asserts.assert_equal_source
         )
 
-    def test_get_sources_filter_by_count(self, source, another_source):
-        expected = [source]
+    def test_get_sources_filter_by_count_with_no_min_id(self, sorted_sources):
+        expected = sorted_sources[:2]
         actual = schema_repo.get_sources(
-            page_info=PageInfo(count=1, min_id=None)
+            page_info=PageInfo(count=2, min_id=None)
         )
         asserts.assert_equal_entity_list(
             actual_list=actual,
@@ -1188,9 +1205,21 @@ class TestSchemaRepository(DBTestCase):
             assert_func=asserts.assert_equal_source
         )
 
-    def test_get_sources_filter_by_min_id(self, source, another_source):
-        min_id = another_source.id
-        expected = [another_source]
+    def test_get_sources_filter_by_count_and_min_id(self, sorted_sources):
+        min_id = sorted_sources[1].id
+        expected = [sorted_sources[1]]
+        actual = schema_repo.get_sources(
+            page_info=PageInfo(count=1, min_id=min_id)
+        )
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=expected,
+            assert_func=asserts.assert_equal_source
+        )
+
+    def test_get_sources_filter_by_min_id_with_no_count(self, sorted_sources):
+        min_id = sorted_sources[1].id
+        expected = sorted_sources[1:]
         actual = schema_repo.get_sources(
             page_info=PageInfo(count=None, min_id=min_id)
         )
