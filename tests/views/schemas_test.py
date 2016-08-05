@@ -463,13 +463,14 @@ class TestGetSchemaElements(ApiTestBase):
         return response
 
 
+@pytest.mark.usefixtures('setup_mappings')
 class TestGetMetaAttrBySchemaID(ApiTestBase):
 
     @pytest.fixture
     def setup_mappings(self, meta_attr_schema, biz_source):
         factories.create_meta_attribute_mapping(
             meta_attr_schema.id,
-            models.EntityType.SOURCE,
+            models.Source.__name__,
             biz_source.id
         )
 
@@ -501,18 +502,19 @@ class TestGetMetaAttrBySchemaID(ApiTestBase):
         new_biz_schema = schema_views.register_schema(mock_request)
         return new_biz_schema['schema_id']
 
-    def test_non_existing_schema(self, setup_mappings, mock_request):
+    def test_non_existing_schema(self, mock_request):
         expected_exception = self.get_http_exception(404)
         with pytest.raises(expected_exception) as e:
             mock_request.matchdict = {'schema_id': '0'}
             schema_views.get_meta_attributes_by_schema_id(mock_request)
 
         assert e.value.code == expected_exception.code
-        assert str(e.value) == exceptions_v1.SCHEMA_NOT_FOUND_ERROR_MESSAGE
+        assert str(e.value) == '{0} id 0 not found.'.format(
+            models.AvroSchema.__name__
+        )
 
     def test_get_meta_attr_by_new_schema_id(
         self,
-        setup_mappings,
         mock_request,
         new_biz_schema_id,
         meta_attr_schema
@@ -522,12 +524,7 @@ class TestGetMetaAttrBySchemaID(ApiTestBase):
         expected = [meta_attr_schema.id]
         assert actual == expected
 
-    def test_get_meta_attr_by_old_schema_id(
-        self,
-        setup_mappings,
-        mock_request,
-        biz_schema
-    ):
+    def test_get_meta_attr_by_old_schema_id(self, mock_request, biz_schema):
         mock_request.matchdict = {'schema_id': str(biz_schema.id)}
         actual = schema_views.get_meta_attributes_by_schema_id(mock_request)
         expected = []

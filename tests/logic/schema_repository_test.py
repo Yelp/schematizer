@@ -430,7 +430,7 @@ class TestSchemaRepository(DBTestCase):
     def setup_meta_attr_mapping(self, meta_attr_schema, biz_source):
         factories.create_meta_attribute_mapping(
             meta_attr_schema.id,
-            models.EntityType.SOURCE,
+            models.Source.__name__,
             biz_source.id
         )
 

@@ -736,6 +736,7 @@ def get_schema_elements_by_schema_id(schema_id):
 
 
 def get_meta_attributes_by_schema_id(schema_id):
+    models.AvroSchema.get_by_id(schema_id)
     mappings = session.query(
         models.SchemaMetaAttributeMapping
     ).filter(

@@ -5,5 +5,6 @@ CREATE TABLE `schema_meta_attribute_mapping` (
   `created_at` int(11) NOT NULL,
   `updated_at` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `schema_id_index` (`schema_id`)
+  KEY `schema_id_index` (`schema_id`),
+  UNIQUE KEY `unique_mapping_constraint` (`schema_id`, `meta_attr_schema_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

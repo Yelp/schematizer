@@ -13,6 +13,7 @@ from schematizer.api.responses import responses_v1
 from schematizer.config import get_config
 from schematizer.config import log
 from schematizer.logic import schema_repository
+from schematizer.models.exceptions import EntityNotFoundError
 from schematizer.utils.utils import get_current_func_arg_name_values
 from schematizer.views import view_common
 
@@ -159,13 +160,11 @@ def get_schema_elements_by_schema_id(request):
 )
 @transform_api_response()
 def get_meta_attributes_by_schema_id(request):
-    schema_id = int(request.matchdict.get('schema_id'))
-    # First check if schema exists
-    schema = schema_repository.get_schema_by_id(schema_id)
-    if schema is None:
-        raise exceptions_v1.schema_not_found_exception()
-    # Get schema elements
-    return schema_repository.get_meta_attributes_by_schema_id(schema_id)
+    try:
+        schema_id = int(request.matchdict.get('schema_id'))
+        return schema_repository.get_meta_attributes_by_schema_id(schema_id)
+    except EntityNotFoundError as e:
+        raise exceptions_v1.entity_not_found_exception(e.message)
 
 
 def validate_name(name):
