@@ -41,19 +41,19 @@ def _register_meta_attribute_for_entity(
 
 
 def _delete_meta_attribute_mapping_for_entity(
-    meta_attr_schema_id,
+    meta_attr_sch_id,
     entity_model,
     entity_id
 ):
     entity_model.get_by_id(entity_id)
-    AvroSchema.get_by_id(meta_attr_schema_id)
+    AvroSchema.get_by_id(meta_attr_sch_id)
     return bool(
         session.query(
             MetaAttributeMappingStore
         ).filter(
             MetaAttributeMappingStore.entity_type == entity_model.__name__,
             MetaAttributeMappingStore.entity_id == entity_id,
-            MetaAttributeMappingStore.meta_attr_schema_id == meta_attr_schema_id
+            MetaAttributeMappingStore.meta_attr_schema_id == meta_attr_sch_id
         ).delete()
     )
 
@@ -96,7 +96,7 @@ def delete_meta_attribute_mapping_for_namespace(
     namespace_id
 ):
     return _delete_meta_attribute_mapping_for_entity(
-        meta_attr_schema_id=meta_attr_schema_id,
+        meta_attr_sch_id=meta_attr_schema_id,
         entity_model=Namespace,
         entity_id=namespace_id
     )
@@ -107,7 +107,7 @@ def delete_meta_attribute_mapping_for_source(
     source_id
 ):
     return _delete_meta_attribute_mapping_for_entity(
-        meta_attr_schema_id=meta_attr_schema_id,
+        meta_attr_sch_id=meta_attr_schema_id,
         entity_model=Source,
         entity_id=source_id
     )
@@ -118,7 +118,7 @@ def delete_meta_attribute_mapping_for_schema(
     schema_id
 ):
     return _delete_meta_attribute_mapping_for_entity(
-        meta_attr_schema_id=meta_attr_schema_id,
+        meta_attr_sch_id=meta_attr_schema_id,
         entity_model=AvroSchema,
         entity_id=schema_id
     )
@@ -187,4 +187,3 @@ def get_meta_attributes_by_schema(avro_schema_id):
         )
     ).all()
     return [m.meta_attr_schema_id for m in meta_attr_mappings]
-

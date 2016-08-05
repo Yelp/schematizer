@@ -1312,7 +1312,9 @@ class TestSchemaRepository(DBTestCase):
         new_biz_schema,
         meta_attr_schema
     ):
-        actual = schema_repo.get_meta_attributes_by_schema_id(new_biz_schema.id)
+        actual = schema_repo.get_meta_attributes_by_schema_id(
+            new_biz_schema.id
+        )
         expected = [meta_attr_schema.id]
         assert actual == expected
 

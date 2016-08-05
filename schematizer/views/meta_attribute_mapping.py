@@ -23,10 +23,11 @@ def register_meta_attribute_mapping_for_namespace(request):
         meta_attr_schema_id = int(
             request.matchdict.get('meta_attribute_schema_id')
         )
-        mapping = meta_attr_logic.register_meta_attribute_mapping_for_namespace(
-            meta_attr_schema_id,
-            namespace_id
-        )
+        mapping = \
+            meta_attr_logic.register_meta_attribute_mapping_for_namespace(
+                meta_attr_schema_id,
+                namespace_id
+            )
         return responses_v1.get_meta_attr_mapping_response(
             'namespace_id', mapping.entity_id, [mapping.meta_attr_schema_id]
         )
@@ -167,7 +168,9 @@ def get_meta_attr_mappings_by_namespace_id(request):
 def get_meta_attr_mappings_by_source_id(request):
     try:
         source_id = int(request.matchdict.get('source_id'))
-        meta_attr_ids = meta_attr_logic.get_meta_attributes_by_source(source_id)
+        meta_attr_ids = meta_attr_logic.get_meta_attributes_by_source(
+            source_id
+        )
         return responses_v1.get_meta_attr_mapping_response(
             'source_id', source_id, meta_attr_ids
         )
@@ -184,7 +187,9 @@ def get_meta_attr_mappings_by_source_id(request):
 def get_meta_attr_mappings_by_schema_id(request):
     try:
         schema_id = int(request.matchdict.get('schema_id'))
-        meta_attr_ids = meta_attr_logic.get_meta_attributes_by_schema(schema_id)
+        meta_attr_ids = meta_attr_logic.get_meta_attributes_by_schema(
+            schema_id
+        )
         return responses_v1.get_meta_attr_mapping_response(
             'avroschema_id', schema_id, meta_attr_ids
         )

@@ -6,7 +6,6 @@ import pytest
 from sqlalchemy.orm import exc as orm_exc
 
 from schematizer.logic import meta_attribute_mappers as meta_attr_logic
-from schematizer.logic import schema_repository as schema_repo_logic
 from schematizer.models import AvroSchema
 from schematizer.models import MetaAttributeMappingStore as meta_attr_model
 from schematizer.models import Namespace
