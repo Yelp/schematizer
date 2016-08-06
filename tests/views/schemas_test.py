@@ -450,4 +450,4 @@ class TestGetDataTaragetsBySchemaID(ApiTestBase):
             schema_views.get_schema_by_id(mock_request)
 
         assert e.value.code == expected_exception.code
-        assert str(e.value) == 'AvroSchema id 0 not found.'
+        assert str(e.value) == 'Schema is not found.'

@@ -16,10 +16,11 @@ from schematizer.config import get_config
 from schematizer.config import log
 from schematizer.logic import registration_repository as reg_repo
 from schematizer.logic import schema_repository
-from schematizer.models.avro_schema import AvroSchema
-from schematizer.models.exceptions import EntityNotFoundError
 from schematizer.utils.utils import get_current_func_arg_name_values
 from schematizer.views import view_common
+from schematizer.models.exceptions import EntityNotFoundError
+
+
 
 
 @view_config(
