@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import copy
 import datetime
+from collections import defaultdict
 
 import mock
 import pytest
@@ -12,7 +13,7 @@ from schematizer import models
 from schematizer.components import converters
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
-from schematizer.models import Source
+from schematizer.models import AvroSchema
 from schematizer.models.database import session
 from schematizer.models.tuples import PageInfo
 from testing import asserts
@@ -1685,45 +1686,42 @@ class TestByCriteria(DBTestCase):
 class TestAddToMetaAttrStore(GetMetaAttributeBaseTest):
 
     def _get_meta_attr_mappings_as_dict(self, mappings):
-        mappings_dict = {}
+        mappings_dict = defaultdict(set)
         for m in mappings:
-            if m.schema_id in mappings_dict:
-                mappings_dict.get(m.schema_id).add(m.meta_attr_schema_id)
-            else:
-                mappings_dict[m.schema_id] = {m.meta_attr_schema_id}
+            mappings_dict[m.schema_id].add(m.meta_attr_schema_id)
         return mappings_dict
 
     def test_add_unique_mappings(
         self,
-        test_schema,
+        dummy_schema,
         meta_attr_1,
         meta_attr_2,
         meta_attr_3
     ):
-        actual = schema_repo.add_meta_attribute_mappings(test_schema)
+        actual = schema_repo.add_meta_attribute_mappings(dummy_schema)
         expected = {
-            test_schema.id: {meta_attr_1.id, meta_attr_2.id, meta_attr_3.id}
+            dummy_schema.id: {meta_attr_1.id, meta_attr_2.id, meta_attr_3.id}
         }
         assert self._get_meta_attr_mappings_as_dict(actual) == expected
 
-        actual_2 = schema_repo.add_meta_attribute_mappings(test_schema)
+        actual_2 = schema_repo.add_meta_attribute_mappings(dummy_schema)
         assert self._get_meta_attr_mappings_as_dict(actual_2) == expected
 
     def test_add_duplicate_mappings(
         self,
-        test_schema,
+        dummy_schema,
         meta_attr_1,
         meta_attr_2,
         meta_attr_3
     ):
         factories.create_meta_attribute_mapping(
             meta_attr_2.id,
-            Source.__name__,
-            test_schema.id
+            AvroSchema.__name__,
+            dummy_schema.id
         )
-        actual = schema_repo.add_meta_attribute_mappings(test_schema)
+        actual = schema_repo.add_meta_attribute_mappings(dummy_schema)
         expected = {
-            test_schema.id: {meta_attr_1.id, meta_attr_2.id, meta_attr_3.id}
+            dummy_schema.id: {meta_attr_1.id, meta_attr_2.id, meta_attr_3.id}
         }
         assert self._get_meta_attr_mappings_as_dict(actual) == expected
 

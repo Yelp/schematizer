@@ -145,31 +145,31 @@ class GetMetaAttributeBaseTest(DBTestCase):
     """
 
     @pytest.fixture
-    def test_nsp(self):
+    def dummy_nsp(self):
         return factories.create_namespace('yelp_meta_A')
 
     @pytest.fixture
-    def test_src(self, test_nsp):
+    def dummy_src(self, dummy_nsp):
         return factories.create_source(
-            namespace_name=test_nsp.name,
+            namespace_name=dummy_nsp.name,
             source_name='meta_source_A_1',
             owner_email='test-meta-src@yelp.com'
         )
 
     @pytest.fixture
-    def test_schema(
+    def dummy_schema(
         self,
-        test_nsp,
-        test_src,
+        dummy_nsp,
+        dummy_src,
         meta_attr_schema_json,
         meta_attr_schema_elements
     ):
         return factories.create_avro_schema(
             meta_attr_schema_json,
             meta_attr_schema_elements,
-            topic_name='.'.join([test_nsp.name, test_src.name, '1']),
-            namespace=test_nsp.name,
-            source=test_src.name
+            topic_name='.'.join([dummy_nsp.name, dummy_src.name, '1']),
+            namespace=dummy_nsp.name,
+            source=dummy_src.name
         )
 
     def _create_meta_attribute_schema(
@@ -206,23 +206,28 @@ class GetMetaAttributeBaseTest(DBTestCase):
 
     @pytest.fixture
     def setup_meta_attr_mappings(
-        self, meta_attr_1, meta_attr_2, meta_attr_3,
-        test_nsp, test_src, test_schema
+        self,
+        meta_attr_1,
+        meta_attr_2,
+        meta_attr_3,
+        dummy_nsp,
+        dummy_src,
+        dummy_schema
     ):
         factories.create_meta_attribute_mapping(
             meta_attr_1.id,
             Namespace.__name__,
-            test_nsp.id
+            dummy_nsp.id
         )
         factories.create_meta_attribute_mapping(
             meta_attr_2.id,
             Source.__name__,
-            test_src.id
+            dummy_src.id
         )
         factories.create_meta_attribute_mapping(
             meta_attr_3.id,
             AvroSchema.__name__,
-            test_schema.id
+            dummy_schema.id
         )
 
 
@@ -231,31 +236,31 @@ class TestGetMetaAttributeMappings(GetMetaAttributeBaseTest):
 
     def test_get_mapping_by_namespace(
         self,
-        test_nsp,
+        dummy_nsp,
         meta_attr_1
     ):
-        actual = meta_attr_logic.get_meta_attributes_by_namespace(test_nsp.id)
+        actual = meta_attr_logic.get_meta_attributes_by_namespace(dummy_nsp.id)
         expected = [meta_attr_1.id]
         assert actual == expected
 
     def test_get_mapping_by_source(
         self,
-        test_src,
+        dummy_src,
         meta_attr_1,
         meta_attr_2
     ):
-        actual = meta_attr_logic.get_meta_attributes_by_source(test_src.id)
+        actual = meta_attr_logic.get_meta_attributes_by_source(dummy_src.id)
         expected = [meta_attr_1.id, meta_attr_2.id]
         assert actual == expected
 
     def test_get_mapping_by_schema(
         self,
-        test_schema,
+        dummy_schema,
         meta_attr_1,
         meta_attr_2,
         meta_attr_3
     ):
-        actual = meta_attr_logic.get_meta_attributes_by_schema(test_schema.id)
+        actual = meta_attr_logic.get_meta_attributes_by_schema(dummy_schema.id)
         expected = [meta_attr_1.id, meta_attr_2.id, meta_attr_3.id]
         assert actual == expected
 

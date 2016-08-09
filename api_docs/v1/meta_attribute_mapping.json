@@ -47,6 +47,7 @@
                     "method": "DELETE",
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified namespace.",
                     "notes": "The namespace and the schema_id of Meta attribute schema should exist.",
+                    "type": "boolean",
                     "nickname": "delete_meta_attribute_mapping_for_namespace",
                     "authorizations": {},
                     "parameters": [
@@ -115,6 +116,7 @@
                     "method": "DELETE",
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified source.",
                     "notes": "The source and the schema_id of Meta attribute schema should exist.",
+                    "type": "boolean",
                     "nickname": "delete_meta_attribute_mapping_for_source",
                     "authorizations": {},
                     "parameters": [
@@ -183,6 +185,7 @@
                     "method": "DELETE",
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified schema.",
                     "notes": "The schema_id of both the AvroSchema and Meta attribute should exist.",
+                    "type": "boolean",
                     "nickname": "delete_meta_attribute_mapping_for_schema",
                     "authorizations": {},
                     "parameters": [

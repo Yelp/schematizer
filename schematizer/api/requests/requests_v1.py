@@ -224,3 +224,15 @@ class CreateConsumerGroupDataSourceRequest(RequestBase):
         super(CreateConsumerGroupDataSourceRequest, self).__init__()
         self.data_source_type = data_source_type
         self.data_source_id = data_source_id
+
+
+class RegisterMetaAttributeRequest(RequestBase):
+
+    def __init__(
+        self,
+        entity_id,
+        meta_attribute_schema_id
+    ):
+        super(RegisterMetaAttributeRequest, self).__init__()
+        self.entity_id = int(entity_id)
+        self.meta_attribute_schema_id = int(meta_attribute_schema_id)

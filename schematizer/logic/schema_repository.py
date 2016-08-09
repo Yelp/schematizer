@@ -748,7 +748,7 @@ def get_meta_attributes_by_schema_id(schema_id):
 def add_meta_attribute_mappings(avro_schema):
     mappings = []
     for meta_attr_schema_id in meta_attr_logic.get_meta_attributes_by_schema(
-            avro_schema.id
+        avro_schema.id
     ):
         try:
             with session.begin_nested():
@@ -763,7 +763,8 @@ def add_meta_attribute_mappings(avro_schema):
                 models.SchemaMetaAttributeMapping
             ).filter(
                 models.SchemaMetaAttributeMapping.schema_id == avro_schema.id,
-                models.SchemaMetaAttributeMapping.meta_attr_schema_id == meta_attr_schema_id
+                models.SchemaMetaAttributeMapping.meta_attr_schema_id == \
+                meta_attr_schema_id
             ).first()
         mappings.append(new_mapping)
     return mappings

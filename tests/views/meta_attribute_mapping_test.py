@@ -104,7 +104,7 @@ class RegisterMetaAttributeBase(ApiTestBase):
         expected_exception = self.get_http_exception(404)
         fake_entity_id = 1234
         with pytest.raises(expected_exception) as e:
-            mock_request.matchdict = {
+            mock_request.json_body = {
                 'entity_id': fake_entity_id,
                 'meta_attribute_schema_id': meta_attr_schema.id
             }
@@ -118,7 +118,7 @@ class RegisterMetaAttributeBase(ApiTestBase):
         expected_exception = self.get_http_exception(404)
         fake_meta_attr_id = 1234
         with pytest.raises(expected_exception) as e:
-            mock_request.matchdict = {
+            mock_request.json_body = {
                 'entity_id': self.entity.id,
                 'meta_attribute_schema_id': fake_meta_attr_id
             }
@@ -133,7 +133,7 @@ class RegisterMetaAttributeBase(ApiTestBase):
         mock_request,
         meta_attr_schema
     ):
-        mock_request.matchdict = {
+        mock_request.json_body = {
             'entity_id': self.entity.id,
             'meta_attribute_schema_id': meta_attr_schema.id
         }
@@ -153,7 +153,7 @@ class RegisterMetaAttributeBase(ApiTestBase):
             self.entity_type,
             self.entity.id
         )
-        mock_request.matchdict = {
+        mock_request.json_body = {
             'entity_id': self.entity.id,
             'meta_attribute_schema_id': meta_attr_schema.id
         }

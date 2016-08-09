@@ -6,9 +6,30 @@ from pyramid.view import view_config
 
 from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
+from schematizer.api.requests import requests_v1
 from schematizer.api.responses import responses_v1
 from schematizer.logic import meta_attribute_mappers as meta_attr_logic
 from schematizer.models.exceptions import EntityNotFoundError
+
+
+def _register_meta_attribute_mapping_for_entity(request, register_func):
+    try:
+        req = requests_v1.RegisterMetaAttributeRequest(**request.json_body)
+        entity_id = req.entity_id
+        meta_attr_schema_id = req.meta_attribute_schema_id
+        return register_func(meta_attr_schema_id, entity_id)
+    except EntityNotFoundError as e:
+        raise exceptions_v1.entity_not_found_exception(e.message)
+
+
+def _delete_meta_attribute_mapping_for_entity(request, delete_func):
+    try:
+        req = requests_v1.RegisterMetaAttributeRequest(**request.json_body)
+        entity_id = req.entity_id
+        meta_attr_schema_id = req.meta_attribute_schema_id
+        return delete_func(meta_attr_schema_id, entity_id)
+    except EntityNotFoundError as e:
+        raise exceptions_v1.entity_not_found_exception(e.message)
 
 
 @view_config(
@@ -18,21 +39,13 @@ from schematizer.models.exceptions import EntityNotFoundError
 )
 @transform_api_response()
 def register_meta_attribute_mapping_for_namespace(request):
-    try:
-        namespace_id = int(request.matchdict.get('entity_id'))
-        meta_attr_schema_id = int(
-            request.matchdict.get('meta_attribute_schema_id')
-        )
-        mapping = \
-            meta_attr_logic.register_meta_attribute_mapping_for_namespace(
-                meta_attr_schema_id,
-                namespace_id
-            )
-        return responses_v1.get_meta_attr_mapping_response(
-            'namespace_id', mapping.entity_id, [mapping.meta_attr_schema_id]
-        )
-    except EntityNotFoundError as e:
-        raise exceptions_v1.entity_not_found_exception(e.message)
+    mapping = _register_meta_attribute_mapping_for_entity(
+        request,
+        meta_attr_logic.register_meta_attribute_mapping_for_namespace
+    )
+    return responses_v1.get_meta_attr_mapping_response(
+        'namespace_id', mapping.entity_id, [mapping.meta_attr_schema_id]
+    )
 
 
 @view_config(
@@ -42,17 +55,10 @@ def register_meta_attribute_mapping_for_namespace(request):
 )
 @transform_api_response()
 def delete_meta_attribute_mapping_for_namespace(request):
-    try:
-        namespace_id = int(request.matchdict.get('entity_id'))
-        meta_attr_schema_id = int(
-            request.matchdict.get('meta_attribute_schema_id')
-        )
-        meta_attr_logic.delete_meta_attribute_mapping_for_namespace(
-            meta_attr_schema_id,
-            namespace_id
-        )
-    except EntityNotFoundError as e:
-        raise exceptions_v1.entity_not_found_exception(e.message)
+    return _delete_meta_attribute_mapping_for_entity(
+        request,
+        meta_attr_logic.delete_meta_attribute_mapping_for_namespace
+    )
 
 
 @view_config(
@@ -62,20 +68,13 @@ def delete_meta_attribute_mapping_for_namespace(request):
 )
 @transform_api_response()
 def register_meta_attribute_mapping_for_source(request):
-    try:
-        source_id = int(request.matchdict.get('entity_id'))
-        meta_attr_schema_id = int(
-            request.matchdict.get('meta_attribute_schema_id')
-        )
-        mapping = meta_attr_logic.register_meta_attribute_mapping_for_source(
-            meta_attr_schema_id,
-            source_id
-        )
-        return responses_v1.get_meta_attr_mapping_response(
-            'source_id', mapping.entity_id, [mapping.meta_attr_schema_id]
-        )
-    except EntityNotFoundError as e:
-        raise exceptions_v1.entity_not_found_exception(e.message)
+    mapping = _register_meta_attribute_mapping_for_entity(
+        request,
+        meta_attr_logic.register_meta_attribute_mapping_for_source
+    )
+    return responses_v1.get_meta_attr_mapping_response(
+        'source_id', mapping.entity_id, [mapping.meta_attr_schema_id]
+    )
 
 
 @view_config(
@@ -85,17 +84,10 @@ def register_meta_attribute_mapping_for_source(request):
 )
 @transform_api_response()
 def delete_meta_attribute_mapping_for_source(request):
-    try:
-        source_id = int(request.matchdict.get('entity_id'))
-        meta_attr_schema_id = int(
-            request.matchdict.get('meta_attribute_schema_id')
-        )
-        meta_attr_logic.delete_meta_attribute_mapping_for_source(
-            meta_attr_schema_id,
-            source_id
-        )
-    except EntityNotFoundError as e:
-        raise exceptions_v1.entity_not_found_exception(e.message)
+    return _delete_meta_attribute_mapping_for_entity(
+        request,
+        meta_attr_logic.delete_meta_attribute_mapping_for_source
+    )
 
 
 @view_config(
@@ -105,20 +97,13 @@ def delete_meta_attribute_mapping_for_source(request):
 )
 @transform_api_response()
 def register_meta_attribute_mapping_for_schema(request):
-    try:
-        schema_id = int(request.matchdict.get('entity_id'))
-        meta_attr_schema_id = int(
-            request.matchdict.get('meta_attribute_schema_id')
-        )
-        mapping = meta_attr_logic.register_meta_attribute_mapping_for_schema(
-            meta_attr_schema_id,
-            schema_id
-        )
-        return responses_v1.get_meta_attr_mapping_response(
-            'avroschema_id', mapping.entity_id, [mapping.meta_attr_schema_id]
-        )
-    except EntityNotFoundError as e:
-        raise exceptions_v1.entity_not_found_exception(e.message)
+    mapping = _register_meta_attribute_mapping_for_entity(
+        request,
+        meta_attr_logic.register_meta_attribute_mapping_for_schema
+    )
+    return responses_v1.get_meta_attr_mapping_response(
+        'avroschema_id', mapping.entity_id, [mapping.meta_attr_schema_id]
+    )
 
 
 @view_config(
@@ -128,17 +113,10 @@ def register_meta_attribute_mapping_for_schema(request):
 )
 @transform_api_response()
 def delete_meta_attribute_mapping_for_schema(request):
-    try:
-        schema_id = int(request.matchdict.get('entity_id'))
-        meta_attr_schema_id = int(
-            request.matchdict.get('meta_attribute_schema_id')
-        )
-        meta_attr_logic.delete_meta_attribute_mapping_for_schema(
-            meta_attr_schema_id,
-            schema_id
-        )
-    except EntityNotFoundError as e:
-        raise exceptions_v1.entity_not_found_exception(e.message)
+    return _delete_meta_attribute_mapping_for_entity(
+        request,
+        meta_attr_logic.delete_meta_attribute_mapping_for_schema
+    )
 
 
 @view_config(
