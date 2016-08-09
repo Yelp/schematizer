@@ -14,7 +14,9 @@ from schematizer.api.requests import requests_v1
 from schematizer.api.responses import responses_v1
 from schematizer.config import get_config
 from schematizer.config import log
+from schematizer.logic import registration_repository as reg_repo
 from schematizer.logic import schema_repository
+from schematizer.models.exceptions import EntityNotFoundError
 from schematizer.utils.utils import get_current_func_arg_name_values
 from schematizer.views import view_common
 
@@ -150,6 +152,25 @@ def get_schema_elements_by_schema_id(request):
     elements = schema_repository.get_schema_elements_by_schema_id(schema_id)
     return [responses_v1.get_element_response_from_element(element)
             for element in elements]
+
+
+@view_config(
+    route_name='api.v1.get_data_targets_by_schema_id',
+    request_method='GET',
+    renderer='json'
+)
+@transform_api_response()
+def get_data_targets_by_schema_id(request):
+    try:
+        schema_id = int(request.matchdict.get('schema_id'))
+        data_targets = reg_repo.get_data_targets_by_schema_id(schema_id)
+
+        return [
+            responses_v1.get_data_target_response_from_data_target(data_target)
+            for data_target in data_targets
+        ]
+    except EntityNotFoundError as e:
+        raise exceptions_v1.entity_not_found_exception(e.message)
 
 
 def validate_name(name):

@@ -425,3 +425,29 @@ class TestGetSchemaElements(ApiTestBase):
             )
 
         return response
+
+
+class TestGetDataTaragetsBySchemaID(ApiTestBase):
+
+    def test_get_data_targets_by_schema_id(
+        self,
+        mock_request,
+        biz_schema,
+        dw_data_target,
+        dw_consumer_group_source_data_src
+    ):
+        mock_request.matchdict = {'schema_id': str(biz_schema.id)}
+        actual = schema_views.get_data_targets_by_schema_id(mock_request)
+
+        assert actual == [
+            self.get_expected_data_target_resp(dw_data_target.id)
+        ]
+
+    def test_non_existing_schema(self, mock_request):
+        expected_exception = self.get_http_exception(404)
+        with pytest.raises(expected_exception) as e:
+            mock_request.matchdict = {'schema_id': '0'}
+            schema_views.get_schema_by_id(mock_request)
+
+        assert e.value.code == expected_exception.code
+        assert str(e.value) == 'Schema is not found.'
