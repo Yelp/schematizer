@@ -132,9 +132,13 @@ class ParsedMySQLProcessor(object):
             self._create_real_number_type,
             self._create_string_type,
             self._create_binary_type,
-            self._create_datetime_type,
             self._create_enum_type,
             self._create_set_type,
+            self._create_date_type,
+            self._create_year_type,
+            self._create_time_type,
+            self._create_timestamp_type,
+            self._create_datetime_type
         ]
 
     def _create_bit_type(self, col_type_cls, col_token):
@@ -240,11 +244,53 @@ class ParsedMySQLProcessor(object):
             )
         return col_type_cls()
 
-    def _create_datetime_type(self, col_type_cls, col_token):
-        if not issubclass(col_type_cls, data_types.MySQLDateAndTime):
+    def _create_date_type(self, col_type_cls, col_token):
+        if col_type_cls is not data_types.MySQLDate:
             return None
 
         return col_type_cls()
+
+    def _create_year_type(self, col_type_cls, col_token):
+        if col_type_cls is not data_types.MySQLYear:
+            return None
+
+        return col_type_cls()
+
+    def _create_time_type(self, col_type_cls, col_token):
+        if col_type_cls is not data_types.MySQLTime:
+            return None
+
+        fsp = None
+        len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
+        if len_token:
+            token = len_token.token_next_by_type(0, T.Number.Integer)
+            fsp = token.value if token else fsp
+
+        return col_type_cls(fsp)
+
+    def _create_timestamp_type(self, col_type_cls, col_token):
+        if col_type_cls is not data_types.MySQLTimestamp:
+            return None
+
+        fsp = None
+        len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
+        if len_token:
+            token = len_token.token_next_by_type(0, T.Number.Integer)
+            fsp = token.value if token else fsp
+
+        return col_type_cls(fsp)
+
+    def _create_datetime_type(self, col_type_cls, col_token):
+        if col_type_cls is not data_types.MySQLDateTime:
+            return None
+
+        fsp = None
+        len_token = col_token.token_next_by_instance(0, sql.ColumnTypeLength)
+        if len_token:
+            token = len_token.token_next_by_type(0, T.Number.Integer)
+            fsp = token.value if token else fsp
+
+        return col_type_cls(fsp)
 
     def _create_enum_type(self, col_type_cls, col_token):
         if col_type_cls is not data_types.MySQLEnum:

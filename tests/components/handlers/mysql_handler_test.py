@@ -81,11 +81,72 @@ class TestMySQLHandler(object):
             [col_id, col_name, col_amount, col_age, col_bar, col_bar_one]
         )
 
+    @property
+    def create_table_date_and_time_sql(self):
+        return ('CREATE TABLE `date_and_time` ('
+                '`id` int(11) auto_increment not null, '
+                'dttm datetime default \'1000-01-01 00:00:00\' not null, '
+                'tstmp timestamp default \'1970-01-01 00:00:01\' not null, '
+                'tm time default \'11:12:00\' not null, '
+                'yr year default \'2000\' not null, '
+                'dt date default \'1000-01-01\' not null, '
+                'primary key (id) '
+                ');')
+
+    @property
+    def expected_sql_table_date_and_time(self):
+        col_id = SQLColumn(
+            'id',
+            data_types.MySQLInt(11),
+            primary_key_order=1,
+            is_nullable=False
+        )
+        col_dttm = SQLColumn(
+            'dttm',
+            data_types.MySQLDateTime(),
+            default_value='1000-01-01 00:00:00',
+            is_nullable=False
+        )
+        col_tstmp = SQLColumn(
+            'tstmp',
+            data_types.MySQLTimestamp(),
+            default_value='1970-01-01 00:00:01',
+            is_nullable=False
+        )
+        col_tm = SQLColumn(
+            'tm',
+            data_types.MySQLTime(),
+            default_value='11:12:00',
+            is_nullable=False
+        )
+        col_yr = SQLColumn(
+            'yr',
+            data_types.MySQLYear(),
+            default_value='2000',
+            is_nullable=False
+        )
+        col_dt = SQLColumn(
+            'dt',
+            data_types.MySQLDate(),
+            default_value='1000-01-01',
+            is_nullable=False
+        )
+        return SQLTable(
+            'date_and_time',
+            [col_id, col_dttm, col_tstmp, col_tm, col_yr, col_dt]
+        )
+
     def test_create_sql_table_from_sql_stmts(self, handler):
         sql_table = handler.create_sql_table_from_sql_stmts(
             [self.create_table_foo_sql]
         )
         assert self.expected_sql_table_foo == sql_table
+
+    def test_create_sql_table_from_sql_stmts_date_types(self, handler):
+        sql_table = handler.create_sql_table_from_sql_stmts(
+            [self.create_table_date_and_time_sql]
+        )
+        assert self.expected_sql_table_date_and_time == sql_table
 
     def assert_sql_table_equal_with_create_defs(
         self,
@@ -264,11 +325,121 @@ class TestMySQLHandler(object):
         )
 
     @pytest.mark.parametrize(("create_definition", "expected_column"), [
-        ('bar timestamp default 10 not null',
+        ('bar date default \'1000-01-01\' not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLDate(),
+             default_value='1000-01-01',
+             is_nullable=False
+         )),
+        ('bar date null', SQLColumn('bar', data_types.MySQLDate())),
+    ])
+    def test_create_sql_table_from_sql_stmts_with_date_type(
+        self,
+        handler,
+        create_definition,
+        expected_column
+    ):
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
+
+    @pytest.mark.parametrize(("create_definition", "expected_column"), [
+        ('bar year default \'2000\' not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLYear(),
+             default_value='2000',
+             is_nullable=False
+         )),
+        ('bar year null', SQLColumn('bar', data_types.MySQLYear())),
+    ])
+    def test_create_sql_table_from_sql_stmts_with_year_type(
+        self,
+        handler,
+        create_definition,
+        expected_column
+    ):
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
+
+    @pytest.mark.parametrize(("create_definition", "expected_column"), [
+        ('bar time default \'11:12:00\' not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLTime(),
+             default_value='11:12:00',
+             is_nullable=False
+         )),
+        ('bar time(2) default \'11:12:00\' not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLTime(2),
+             default_value='11:12:00',
+             is_nullable=False
+         )),
+        ('bar time null', SQLColumn('bar', data_types.MySQLTime())),
+    ])
+    def test_create_sql_table_from_sql_stmts_with_time_type(
+        self,
+        handler,
+        create_definition,
+        expected_column
+    ):
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
+
+    @pytest.mark.parametrize(("create_definition", "expected_column"), [
+        ('bar timestamp default \'1970-01-01 00:00:01\' not null',
          SQLColumn(
              'bar',
              data_types.MySQLTimestamp(),
-             default_value='10',
+             default_value='1970-01-01 00:00:01',
+             is_nullable=False
+         )),
+        ('bar timestamp(2) default \'1970-01-01 00:00:01\' not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLTimestamp(2),
+             default_value='1970-01-01 00:00:01',
+             is_nullable=False
+         )),
+        ('bar timestamp null', SQLColumn('bar', data_types.MySQLTimestamp())),
+
+    ])
+    def test_create_sql_table_from_sql_stmts_with_timestamp_type(
+        self,
+        handler,
+        create_definition,
+        expected_column
+    ):
+        self.assert_sql_table_equal_with_create_defs(
+            handler,
+            [create_definition],
+            [expected_column]
+        )
+
+    @pytest.mark.parametrize(("create_definition", "expected_column"), [
+        ('bar datetime default \'1000-01-01 00:00:00\' not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLDateTime(),
+             default_value='1000-01-01 00:00:00',
+             is_nullable=False
+         )),
+        ('bar datetime(2) default \'1000-01-01 00:00:00\' not null',
+         SQLColumn(
+             'bar',
+             data_types.MySQLDateTime(2),
+             default_value='1000-01-01 00:00:00',
              is_nullable=False
          )),
         ('bar datetime null', SQLColumn('bar', data_types.MySQLDateTime())),

@@ -14,12 +14,47 @@ from tests.views.api_test_base import ApiTestBase
 class TestListSources(ApiTestBase):
 
     def test_no_sources(self, mock_request):
+        mock_request.params = {}
         actual = source_views.list_sources(mock_request)
         assert actual == []
 
     def test_happy_case(self, mock_request, biz_source):
+        mock_request.params = {}
         actual = source_views.list_sources(mock_request)
         expected = [self.get_expected_src_resp(biz_source.id)]
+        assert actual == expected
+
+    def test_limit_sources_by_count(
+        self,
+        mock_request,
+        biz_source,
+        another_biz_source
+    ):
+        """ Tests that sources are filtered by count. """
+        mock_request.params = {
+            'count': 1
+        }
+        actual = source_views.list_sources(mock_request)
+
+        # Without the count param, length would be 2
+        assert len(actual) == 1
+
+    def test_limit_sources_by_min_id(
+        self,
+        mock_request,
+        biz_source,
+        another_biz_source
+    ):
+        """ Tests that filtering by min_id returns all the sources which have
+        id equal to or greater than min_id.
+        """
+        min_id = another_biz_source.id
+        expected = [self.get_expected_src_resp(another_biz_source.id)]
+        mock_request.params = {
+            'min_id': min_id
+        }
+        actual = source_views.list_sources(mock_request)
+
         assert actual == expected
 
 

@@ -220,6 +220,15 @@ class SchemaResolution(object):
         return (self.resolve_fixed_schema(writer_schema, reader_schema) and
                 self._resolve_decimal_schema(writer_schema, reader_schema))
 
+    def _resolve_logical_schema(self, writer_schema, reader_schema):
+        if hasattr(reader_schema, 'logical_type'):
+            return writer_schema.logical_type == reader_schema.logical_type
+        return False
+
+    def resolve_date_and_time_schema(self, writer_schema, reader_schema):
+        return (self.resolve_primitive_schema(writer_schema, reader_schema) and
+                self._resolve_logical_schema(writer_schema, reader_schema))
+
     @property
     def resolvers(self):
         return {
@@ -231,7 +240,12 @@ class SchemaResolution(object):
             schema.RecordSchema: self.resolve_record_schema,
             schema.UnionSchema: self.resolve_union_schema,
             schema.BytesDecimalSchema: self.resolve_bytes_decimal_schema,
-            schema.FixedDecimalSchema: self.resolve_fixed_decimal_schema
+            schema.FixedDecimalSchema: self.resolve_fixed_decimal_schema,
+            schema.DateSchema: self.resolve_date_and_time_schema,
+            schema.TimeMillisSchema: self.resolve_date_and_time_schema,
+            schema.TimeMicrosSchema: self.resolve_date_and_time_schema,
+            schema.TimestampMillisSchema: self.resolve_date_and_time_schema,
+            schema.TimestampMicrosSchema: self.resolve_date_and_time_schema,
         }
 
     def resolve_schema(self, writer_schema, reader_schema):
