@@ -222,7 +222,7 @@ def get_data_targets_by_schema_id(schema_id):
     Returns:
         A list of unique data targets
     """
-    avro_schema = models.AvroSchema.get_by_id(session, schema_id)
+    avro_schema = models.AvroSchema.get_by_id(schema_id)
     src_id = avro_schema.topic.source.id
     namespace_id = avro_schema.topic.source.namespace_id
 
