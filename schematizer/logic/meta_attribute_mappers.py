@@ -6,6 +6,7 @@ from sqlalchemy import and_
 from sqlalchemy import exc
 from sqlalchemy import or_
 
+from schematizer.logic.validators import verify_entity_exists
 from schematizer.models import AvroSchema
 from schematizer.models import MetaAttributeMappingStore
 from schematizer.models import Namespace
@@ -18,8 +19,20 @@ def _register_meta_attribute_for_entity(
     entity_model,
     entity_id
 ):
-    entity_model.get_by_id(entity_id)
-    AvroSchema.get_by_id(meta_attr_sch_id)
+    """This is a helper function to register a meta_attribute_schema_id to an
+    entity. Entities can belong to the Namespace, Source or AvroSchema model.
+    First it verifies if all the ids exist within their respective DB models.
+    Then we try adding the new mapping. In the case it violates the unique
+    constraint and raises an IntegrityError, we will return the existing
+    mapping.
+
+    :param meta_attr_sch_id: AvroSchema ID of Meta Attribute
+    :param entity_model: DB Model of the entity
+    :param entity_id: ID of the entity
+    :return: models.MetaAttributeMappingStore object
+    """
+    verify_entity_exists(session, entity_model, entity_id)
+    verify_entity_exists(session, AvroSchema, meta_attr_sch_id)
     try:
         with session.begin_nested():
             new_mapping = MetaAttributeMappingStore(
@@ -45,8 +58,19 @@ def _delete_meta_attribute_mapping_for_entity(
     entity_model,
     entity_id
 ):
-    entity_model.get_by_id(entity_id)
-    AvroSchema.get_by_id(meta_attr_sch_id)
+    """This is a helper function to delete a meta_attribute_schema_id from an
+    entity. Entities can belong to the Namespace, Source or AvroSchema model.
+    First it verifies if all the ids exist within their respective DB models.
+    Then removing the mapping will return a True if there was a mapping to
+    delete and delete was successful. However if there was no mapping to
+    delete or if the delete was not successful, it will return False
+
+    :param meta_attr_sch_id: AvroSchema ID of Meta Attribute
+    :param entity_model: DB Model of the entity
+    :param entity_id: ID of the entity
+    """
+    verify_entity_exists(session, entity_model, entity_id)
+    verify_entity_exists(session, AvroSchema, meta_attr_sch_id)
     return bool(
         session.query(
             MetaAttributeMappingStore

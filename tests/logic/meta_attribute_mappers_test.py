@@ -12,6 +12,7 @@ from schematizer.models import Namespace
 from schematizer.models import Source
 from schematizer.models.database import session
 from schematizer.models.exceptions import EntityNotFoundError
+from testing.asserts import assert_equal_meta_attribute_mapping
 from testing import factories
 from tests.models.testing_db import DBTestCase
 
@@ -22,12 +23,6 @@ class RegisterMetaAttributeBase(DBTestCase):
         assert expected.entity_type == actual.entity_type
         assert expected.entity_id == actual.entity_id
         assert expected.meta_attr_schema_id == actual.meta_attr_schema_id
-
-    def assert_equal_meta_attr(self, expected, actual):
-        assert expected.id == actual.id
-        assert expected.created_at == actual.created_at
-        assert expected.updated_at == actual.updated_at
-        self.assert_equal_meta_attr_partial(expected, actual)
 
     def _setup_meta_attribute_mapping(self, meta_attr_schema, entity_id):
         factories.create_meta_attribute_mapping(
@@ -64,7 +59,7 @@ class RegisterMetaAttributeBase(DBTestCase):
             meta_attr_schema_id=meta_attr_schema.id
         )
         self.assert_equal_meta_attr_partial(expected, first_result)
-        self.assert_equal_meta_attr(first_result, second_result)
+        assert_equal_meta_attribute_mapping(first_result, second_result)
 
     def test_delete_mapping(self, meta_attr_schema):
         self._setup_meta_attribute_mapping(meta_attr_schema, self.entity.id)
