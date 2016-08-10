@@ -196,7 +196,7 @@ class RedshiftSchemaMigration(object):
 
     @classmethod
     def rename_table_sql(cls, old_table_full_name, new_table_name):
-        return 'ALTER TABLE {old_table} RENAME TO {new_table};'.format(
+        return 'ALTER TABLE {old_table} RENAME TO "{new_table}";'.format(
             old_table=old_table_full_name,
             new_table=new_table_name
         )
