@@ -265,3 +265,93 @@ class TestGetTopicsByDataTargetId(DBTestCase):
     def test_non_existing_data_target_id(self):
         with pytest.raises(sch_exc.EntityNotFoundError):
             reg_repo.get_topics_by_data_target_id(data_target_id=0)
+
+
+class TestGetDataTargetBySchemaID(DBTestCase):
+
+    @pytest.fixture
+    def dw_consumer_group_data_source(
+        self,
+        dw_consumer_group,
+        biz_source,
+        yelp_namespace
+    ):
+        factories.create_consumer_group_data_source(
+            dw_consumer_group,
+            data_src_type=models.DataSourceTypeEnum.SOURCE,
+            data_src_id=biz_source.id
+        )
+        factories.create_consumer_group_data_source(
+            dw_consumer_group,
+            data_src_type=models.DataSourceTypeEnum.NAMESPACE,
+            data_src_id=yelp_namespace.id
+        )
+
+    @pytest.fixture
+    def dwv2_consumer_group(self, dwv2_data_target):
+        return factories.create_consumer_group('dw2', dwv2_data_target)
+
+    @pytest.fixture
+    def dwv2_data_target(self):
+        return factories.create_data_target(
+            target_type='redshift',
+            destination='dwv2.redshift.yelpcorp.com'
+        )
+
+    @pytest.fixture
+    def dw_new_consumer_group_data_source(
+        self,
+        dwv2_consumer_group,
+        biz_source
+    ):
+        return factories.create_consumer_group_data_source(
+            dwv2_consumer_group,
+            data_src_type=models.DataSourceTypeEnum.SOURCE,
+            data_src_id=biz_source.id
+        )
+
+    def test_get_data_target_by_schema_id(
+        self,
+        biz_schema,
+        dw_data_target,
+        dw_consumer_group_data_source
+    ):
+        actual = reg_repo.get_data_targets_by_schema_id(
+            biz_schema.id,
+        )
+        expected = [dw_data_target]
+        asserts.assert_equal_entity_list(
+            actual,
+            expected,
+            assert_func=asserts.assert_equal_data_target
+        )
+
+    def test_return_multiple_data_targets(
+        self,
+        biz_schema,
+        dw_data_target,
+        dwv2_data_target,
+        dw_consumer_group_data_source,
+        dw_new_consumer_group_data_source
+    ):
+        actual = reg_repo.get_data_targets_by_schema_id(
+            biz_schema.id
+        )
+        expected = [dw_data_target, dwv2_data_target]
+        asserts.assert_equal_entity_set(
+            actual,
+            expected,
+            assert_func=asserts.assert_equal_data_target,
+            id_attr='id'
+        )
+
+    def test_return_zero_data_targets(self, biz_schema):
+        actual = reg_repo.get_data_targets_by_schema_id(
+            biz_schema.id
+        )
+        expected = []
+        asserts.assert_equal_entity_list(
+            actual,
+            expected,
+            assert_func=asserts.assert_equal_data_target
+        )
