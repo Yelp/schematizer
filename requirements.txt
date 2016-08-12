@@ -68,7 +68,6 @@ yelp-ips==0.1.1
 yelp-kafka==4.5.5
 yelp-lib==9.1.0
 yelp-logging==1.7.3
-yelp-main-internalapi-clientlib==5.9.0
 yelp-markupsafe==0.0.1
 yelp-meteorite==1.0.0
 yelp-profiling==3.0.0
