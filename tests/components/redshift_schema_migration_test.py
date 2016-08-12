@@ -223,11 +223,11 @@ class TestRedshiftSchemaMigration(object):
             self.expected_new_schema_sql,
             create_sql,
             insert_sql,
-            'ALTER TABLE {0} RENAME TO {1};'.format(
+            'ALTER TABLE {0} RENAME TO "{1}";'.format(
                 self.new_table.full_name,
                 old_table_name
             ),
-            'ALTER TABLE {0} RENAME TO {1};'.format(
+            'ALTER TABLE {0} RENAME TO "{1}";'.format(
                 temp_table_full_name,
                 self.new_table.name
             ),
@@ -299,7 +299,7 @@ class TestRedshiftSchemaMigration(object):
         assert '' == actual
 
     def test_rename_table_sql(self, migration):
-        expected = 'ALTER TABLE foo RENAME TO bar;'
+        expected = 'ALTER TABLE foo RENAME TO "bar";'
         actual = migration.rename_table_sql('foo', 'bar')
         assert expected == actual
 
