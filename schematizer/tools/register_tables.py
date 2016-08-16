@@ -197,7 +197,7 @@ def _ensure_schematizer_is_ready(schematizer_host):
     while time.time() < timed_out:
         try:
             response = requests.get(
-                url='http://{}:8888/status'.format(schematizer_host),
+                url='http://{}:8888/v1/namespaces'.format(schematizer_host),
             )
             if response.status_code == 200:
                 return
