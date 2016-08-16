@@ -58,7 +58,6 @@ avro==1.9.0-yelp3
 yelp-avro==0.1.9
 yelp-bytes==0.3.0
 yelp-cgeom==1.3.1
-yelp-cheetah==0.13.1
 yelp-clog==1.4.2
 yelp-conn==6.0.0
 yelp-crypto==1.2.0
