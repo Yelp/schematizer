@@ -39,13 +39,17 @@ def _setup_cli_options():
     parser.add_argument(
         '--config-file',
         type=str,
-        help='Path of the config file containing db information.'
+        required=True,
+        help='Path of the config file containing db topology information. '
+             'Required.'
     )
     parser.add_argument(
         '-c',
         '--cluster-name',
         type=str,
-        help='Name of the cluster to connect to.'
+        required=True,
+        help='Name of the cluster to connect to, such as primary, aux, etc. '
+             'Required.'
     )
     return parser
 
@@ -160,7 +164,7 @@ def _setup_schematizer_container():
         )
 
 
-def _ensure_containers_up(project, service, timeout_in_seconds=5):
+def _ensure_containers_up(project, service):
     docker_client = Client(version='auto')
     service_container = docker_client.containers(
         filters={
@@ -170,6 +174,7 @@ def _ensure_containers_up(project, service, timeout_in_seconds=5):
     )[0]
     container_id = service_container['Id']
 
+    timeout_in_seconds = 5
     timed_out = time.time() + timeout_in_seconds
     while time.time() < timed_out:
         inspect_info = docker_client.inspect_container(container_id)
@@ -186,12 +191,13 @@ def _get_container_ip_address(container_id):
     return inspect_info['NetworkSettings']['IPAddress']
 
 
-def _ensure_schematizer_is_ready(schematizer_host, timeout_in_seconds=60):
+def _ensure_schematizer_is_ready(schematizer_host):
+    timeout_in_seconds = 60
     timed_out = time.time() + timeout_in_seconds
     while time.time() < timed_out:
         try:
             response = requests.get(
-                url='http://{}:8888/v1/namespaces'.format(schematizer_host),
+                url='http://{}:8888/status'.format(schematizer_host),
             )
             if response.status_code == 200:
                 return
