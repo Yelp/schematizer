@@ -59,7 +59,7 @@ def run(parsed_args):
         parsed_args.config_file,
         parsed_args.cluster_name
     )
-    with _setup_connection(conn_param) as conn:
+    with _setup_mysql_connection(conn_param) as conn:
         tables_info = _get_mysql_tables_info(conn)
     with _setup_schematizer_container() as host:
         register_tables_results = _register_tables(host, tables_info)
@@ -77,7 +77,7 @@ def _get_connection_param_from_topology(topology_file, cluster):
 
 
 @contextmanager
-def _setup_connection(connection_param):
+def _setup_mysql_connection(connection_param):
     connection = None
     try:
         connect_params = {
