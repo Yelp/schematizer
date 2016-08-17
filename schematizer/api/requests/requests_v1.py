@@ -7,7 +7,7 @@ from datetime import datetime
 import simplejson
 from cached_property import cached_property
 
-from schematizer.models.tuples import PageInfo
+from schematizer.models.page_info import PageInfo
 
 
 class RequestBase(object):

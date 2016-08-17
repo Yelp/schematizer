@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from datetime import datetime
 
 from schematizer import models
+from schematizer.models.avro_schema import AvroSchema
 from schematizer.models.database import session
 
 
@@ -104,7 +105,7 @@ def get_or_create_topic(
 
 def create_avro_schema(
         schema_json,
-        schema_elements,
+        schema_elements=None,
         topic_name=None,
         namespace=None,
         source=None,
@@ -126,7 +127,10 @@ def create_avro_schema(
         base_schema_id=base_schema_id,
         created_at=created_at
     )
-
+    schema_elements = (
+        schema_elements or
+        AvroSchema.create_schema_elements_from_json(schema_json)
+    )
     for schema_element in schema_elements:
         schema_element.avro_schema_id = avro_schema.id
         session.add(schema_element)
@@ -147,11 +151,11 @@ def create_note(reference_type, reference_id, note_text, last_updated_by):
 
 def create_refresh(
         source_id,
-        offset,
-        batch_size,
-        priority,
-        filter_condition,
-        avg_rows_per_second_cap
+        offset=0,
+        batch_size=100,
+        priority=None,
+        filter_condition=None,
+        avg_rows_per_second_cap=200
 ):
     priority_value = None if not priority else models.Priority[priority].value
     return models.Refresh.create(
