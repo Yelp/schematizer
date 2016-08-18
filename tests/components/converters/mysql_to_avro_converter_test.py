@@ -14,7 +14,7 @@ from schematizer.models import mysql_data_types
 from schematizer.models.sql_entities import MetaDataKey
 from schematizer.models.sql_entities import SQLColumn
 from schematizer.models.sql_entities import SQLTable
-from testing.models.mysql_data_types import MySQLUnsupportedType
+from schematizer_testing.models.mysql_data_types import MySQLUnsupportedType
 
 
 class TestMySQLToAvroConverter(object):

@@ -14,8 +14,8 @@ from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
 from schematizer.models.database import session
 from schematizer.models.tuples import PageInfo
-from testing import asserts
-from testing import factories
+from schematizer_testing import asserts
+from schematizer_testing import factories
 from tests.models.testing_db import DBTestCase
 
 

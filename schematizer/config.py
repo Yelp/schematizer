@@ -18,6 +18,20 @@ class Config(object):
     __metaclass__ = Singleton
 
     @cached_property
+    def schematizer_cluster(self):
+        return staticconf.get(
+            'schematizer_cluster',
+            default='schematizer'
+        )
+
+    @cached_property
+    def topology_path(self):
+        return staticconf.get(
+            'topology_path',
+            default='/nail/srv/configs/topology.yaml'
+        )
+
+    @cached_property
     def namespace_no_doc_required(self):
         return staticconf.read_list_of_string(
             'namespace_no_doc_required',

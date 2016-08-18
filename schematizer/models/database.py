@@ -2,14 +2,15 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from yelp_conn.session import declarative_base
-from yelp_conn.session import scoped_session
-from yelp_conn.session import sessionmaker
+from schematizer.models.connections import get_connection_obj
+
+
+connection_object = get_connection_obj()
 
 
 # The common declarative base used by every data model.
-Base = declarative_base()
+Base = connection_object.get_base_model()
 Base.__cluster__ = 'schematizer'
 
 # The single global session manager used to provide sessions through yelp_conn.
-session = scoped_session(sessionmaker())
+session = connection_object.get_tracker_session()

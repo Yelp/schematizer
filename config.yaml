@@ -41,12 +41,6 @@ module_config:
     -   namespace: smartstack_services
         file: /nail/etc/services/services.yaml
 
-    -   namespace: yelp_conn
-        file: /nail/srv/configs/yelp_conn_generic.yaml
-        initialize: yelp_conn.initialize
-        config:
-            connection_set_file: 'connection_sets.yaml'
-
     -   namespace: services
         file: /nail/srv/configs/services.yaml
 

@@ -1,0 +1,5 @@
+[run]
+omit = 
+	schematizer/healthchecks.py
+	schematizer/schematizer_tweens.py
+	schematizer/webapp.py
