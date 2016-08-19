@@ -104,14 +104,14 @@ def get_or_create_topic(
 
 
 def create_avro_schema(
-        schema_json,
-        schema_elements=None,
-        topic_name=None,
-        namespace=None,
-        source=None,
-        status=models.AvroSchemaStatus.READ_AND_WRITE,
-        base_schema_id=None,
-        created_at=None
+    schema_json,
+    schema_elements=None,
+    topic_name=None,
+    namespace=None,
+    source=None,
+    status=models.AvroSchemaStatus.READ_AND_WRITE,
+    base_schema_id=None,
+    created_at=None
 ):
     topic = get_or_create_topic(
         topic_name,
@@ -150,12 +150,12 @@ def create_note(reference_type, reference_id, note_text, last_updated_by):
 
 
 def create_refresh(
-        source_id,
-        offset=0,
-        batch_size=100,
-        priority=None,
-        filter_condition=None,
-        avg_rows_per_second_cap=200
+    source_id,
+    offset=0,
+    batch_size=100,
+    priority=None,
+    filter_condition=None,
+    avg_rows_per_second_cap=200
 ):
     priority_value = None if not priority else models.Priority[priority].value
     return models.Refresh.create(
