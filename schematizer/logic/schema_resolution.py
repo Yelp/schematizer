@@ -58,8 +58,29 @@ class SchemaResolution(object):
         self._resolved_schemas_map = {}
 
     def _base_resolve(self, writer_schema, reader_schema, target_schema_type):
-        return all(isinstance(sch, target_schema_type)
-                   for sch in (writer_schema, reader_schema))
+        return (
+            isinstance(writer_schema, target_schema_type) and
+            isinstance(reader_schema, target_schema_type) and
+            self._resolve_logical_schema(writer_schema, reader_schema)
+        )
+
+    def _resolve_logical_schema(self, writer_schema, reader_schema):
+        # The Avro spec doesn't explicitly indicate the compatibility rule for
+        # logical types. The https://issues.apache.org/jira/browse/AVRO-1721
+        # seems to think adding/removing the logical type shouldn't be
+        # considered as breaking change because it doesn't affect the ability
+        # of deserialization.
+        # In our case here, we decided to make it as incompatible change, and
+        # although the payload can still be deserialized after adding or
+        # removing the logical type, the downstream consumers may break due to
+        # the in-memory representation has changed.
+        writer_is_logical_sch = isinstance(writer_schema, schema.LogicalSchema)
+        reader_is_logical_sch = isinstance(reader_schema, schema.LogicalSchema)
+        if writer_is_logical_sch and reader_is_logical_sch:
+            return writer_schema.logical_type == reader_schema.logical_type
+        if not writer_is_logical_sch and not reader_is_logical_sch:
+            return True
+        return False
 
     def resolve_primitive_schema(self, writer_schema, reader_schema):
         if not self._base_resolve(
@@ -220,14 +241,8 @@ class SchemaResolution(object):
         return (self.resolve_fixed_schema(writer_schema, reader_schema) and
                 self._resolve_decimal_schema(writer_schema, reader_schema))
 
-    def _resolve_logical_schema(self, writer_schema, reader_schema):
-        if hasattr(reader_schema, 'logical_type'):
-            return writer_schema.logical_type == reader_schema.logical_type
-        return False
-
     def resolve_date_and_time_schema(self, writer_schema, reader_schema):
-        return (self.resolve_primitive_schema(writer_schema, reader_schema) and
-                self._resolve_logical_schema(writer_schema, reader_schema))
+        return self.resolve_primitive_schema(writer_schema, reader_schema)
 
     @property
     def resolvers(self):
