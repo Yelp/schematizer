@@ -78,9 +78,7 @@ class SchemaResolution(object):
         reader_is_logical_sch = isinstance(reader_schema, schema.LogicalSchema)
         if writer_is_logical_sch and reader_is_logical_sch:
             return writer_schema.logical_type == reader_schema.logical_type
-        if not writer_is_logical_sch and not reader_is_logical_sch:
-            return True
-        return False
+        return not writer_is_logical_sch and not reader_is_logical_sch
 
     def resolve_primitive_schema(self, writer_schema, reader_schema):
         if not self._base_resolve(
