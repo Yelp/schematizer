@@ -255,15 +255,11 @@ class MySQLToAvroConverter(BaseConverter):
         timestamp-micros depending on the fsp value.
         """
         metadata = self._get_primary_key_metadata(column.primary_key_order)
-
+        metadata[AvroMetaDataKeys.DATETIME] = True
         fsp = column.type.fsp
-
         metadata.update(self._get_fsp_metadata(fsp))
 
-        if fsp is None or fsp <= 3:
-            return self._builder.begin_timestamp_millis().end(), metadata
-        else:
-            return self._builder.begin_timestamp_micros().end(), metadata
+        return self._builder.create_string(), metadata
 
     def _convert_time_type(self, column):
         """the long type is used instead of Avro time logical type
