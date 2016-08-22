@@ -31,8 +31,8 @@ class GetSourcesRequest(RequestBase):
     def __init__(self, query_params):
         super(GetSourcesRequest, self).__init__()
         self.page_info = PageInfo(
-            query_params.get('count'),
-            query_params.get('min_id')
+            query_params.get('count', 0),
+            query_params.get('min_id', 0)
         )
 
 
