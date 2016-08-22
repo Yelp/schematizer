@@ -32,13 +32,12 @@ class BaseModel(object):
     @classmethod
     def get_all(cls, pagination=None):
         qry = session.query(cls).order_by(cls.id)
-        if pagination:
-            # include `id` as part of `where` clause to avoid table scan
-            # regardless whether the min_id is specified or not.
-            min_id = pagination.min_id or 0
-            qry = qry.filter(cls.id >= min_id)
-            if pagination.count > 0:
-                qry = qry.limit(pagination.count)
+        # include `id` as part of `where` clause to avoid table scan
+        # regardless whether the min_id is specified or not.
+        min_id = pagination.min_id if pagination else 0
+        qry = qry.filter(cls.id >= min_id)
+        if pagination and pagination.count > 0:
+            qry = qry.limit(pagination.count)
         return qry.all()
 
     @classmethod
