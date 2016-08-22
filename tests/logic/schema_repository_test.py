@@ -13,7 +13,7 @@ from schematizer.components import converters
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
 from schematizer.models.database import session
-from schematizer.models.tuples import PageInfo
+from schematizer.models.page_info import PageInfo
 from testing import asserts
 from testing import factories
 from tests.models.testing_db import DBTestCase
@@ -1185,49 +1185,6 @@ class TestSchemaRepository(DBTestCase):
             models.AvroSchema.id == rw_schema.id
         ).one()
         assert models.AvroSchemaStatus.READ_AND_WRITE == actual.status
-
-    def test_get_all_sources(self, sorted_sources):
-        actual = schema_repo.get_sources()
-        asserts.assert_equal_entity_list(
-            actual_list=actual,
-            expected_list=sorted_sources,
-            assert_func=asserts.assert_equal_source
-        )
-
-    def test_get_sources_filter_by_count_with_no_min_id(self, sorted_sources):
-        expected = sorted_sources[:2]
-        actual = schema_repo.get_sources(
-            page_info=PageInfo(count=2, min_id=None)
-        )
-        asserts.assert_equal_entity_list(
-            actual_list=actual,
-            expected_list=expected,
-            assert_func=asserts.assert_equal_source
-        )
-
-    def test_get_sources_filter_by_count_and_min_id(self, sorted_sources):
-        min_id = sorted_sources[1].id
-        expected = [sorted_sources[1]]
-        actual = schema_repo.get_sources(
-            page_info=PageInfo(count=1, min_id=min_id)
-        )
-        asserts.assert_equal_entity_list(
-            actual_list=actual,
-            expected_list=expected,
-            assert_func=asserts.assert_equal_source
-        )
-
-    def test_get_sources_filter_by_min_id_with_no_count(self, sorted_sources):
-        min_id = sorted_sources[1].id
-        expected = sorted_sources[1:]
-        actual = schema_repo.get_sources(
-            page_info=PageInfo(count=None, min_id=min_id)
-        )
-        asserts.assert_equal_entity_list(
-            actual_list=actual,
-            expected_list=expected,
-            assert_func=asserts.assert_equal_source
-        )
 
     def test_get_topics_by_source_id(self, source, topic):
         actual = schema_repo.get_topics_by_source_id(source.id)

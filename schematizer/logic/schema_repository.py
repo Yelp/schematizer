@@ -650,28 +650,6 @@ def _update_schema_status(schema_id, status):
     session.flush()
 
 
-def get_sources(page_info=None):
-    """Get all the Sources that match given filter criteria.
-    Args:
-        page_info(Optional[:class:schematizer.models.tuples.PageInfo]):
-            limits the sources to count and those with id greater than or
-            equal to min_id.
-
-    Returns:
-        (list[:class:schematizer.models.Source]): List of source models sorted
-        by their ids.
-    """
-    qry = session.query(models.Source)
-    if page_info and page_info.min_id:
-        qry = qry.filter(
-            models.Source.id >= page_info.min_id
-        )
-    qry = qry.order_by(models.Source.id)
-    if page_info and page_info.count:
-        qry = qry.limit(page_info.count)
-    return qry.all()
-
-
 def get_topics_by_source_id(source_id):
     return session.query(
         models.Topic
