@@ -161,6 +161,8 @@ def get_schema_elements_by_schema_id(request):
 )
 @transform_api_response()
 def get_data_targets_by_schema_id(request):
+    """Get all the data targets corresponding to one schema
+    """
     try:
         schema_id = int(request.matchdict.get('schema_id'))
         data_targets = reg_repo.get_data_targets_by_schema_id(schema_id)
