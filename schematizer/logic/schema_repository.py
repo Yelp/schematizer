@@ -481,48 +481,6 @@ def get_schema_by_id(schema_id):
     ).first()
 
 
-def get_schemas_created_after(
-    created_after,
-    page_info=None,
-    include_disabled=False
-):
-    """ Get the Avro schemas (excluding disabled schemas) created after the
-    specified created_after timestamp and with id greater than or equal to
-    the min_id. Limits the returned schemas to count. Default it excludes
-    disabled schemas.
-
-    Args:
-        created_after(datetime): get schemas created after given utc
-            datetime (inclusive).
-        page_info(Optional[:class:schematizer.models.tuples.PageInfo]):
-            limits the schemas to count and those with an id greater than or
-            equal to min_id.
-        include_disabled(Optional[bool]): set it to True to include disabled
-            schemas. Default it excludes disabled ones.
-    Returns:
-        (list[:class:schematizer.models.AvroSchema]): List of avro
-            schemas created after (inclusive) the specified creation
-            date.
-    """
-    qry = session.query(
-        models.AvroSchema
-    ).filter(
-        models.AvroSchema.created_at >= created_after,
-    )
-    if not include_disabled:
-        qry = qry.filter(
-            models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
-        )
-    if page_info and page_info.min_id:
-        qry = qry.filter(
-            models.AvroSchema.id >= page_info.min_id
-        )
-    qry = qry.order_by(models.AvroSchema.id)
-    if page_info and page_info.count:
-        qry = qry.limit(page_info.count)
-    return qry.all()
-
-
 def get_latest_schema_by_topic_id(topic_id):
     """Get the latest enabled (Read-Write or Read-Only) schema of given topic.
     It returns None if no such schema can be found.
@@ -600,29 +558,6 @@ def get_schemas_by_topic_id(topic_id, include_disabled=False):
     if not include_disabled:
         qry = qry.filter(
             models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
-        )
-    return qry.order_by(models.AvroSchema.id).all()
-
-
-def get_schemas_by_criteria(namespace_name, source_name=None):
-    """Get all avro schemas of specified namespace, optionally filtering
-    by source name.
-    """
-    qry = session.query(
-        models.AvroSchema
-    ).join(
-        models.Topic,
-        models.Source,
-        models.Namespace
-    ).filter(
-        models.AvroSchema.topic_id == models.Topic.id,
-        models.Topic.source_id == models.Source.id,
-        models.Source.namespace_id == models.Namespace.id,
-        models.Namespace.name == namespace_name
-    )
-    if source_name:
-        qry = qry.filter(
-            models.Source.name == source_name
         )
     return qry.order_by(models.AvroSchema.id).all()
 
@@ -741,7 +676,7 @@ def get_topics_by_criteria(
         source(Optional[str]): get topics of given source name if specified
         created_after(Optional[datetime]): get topics created after given utc
             datetime (inclusive) if specified.
-        page_info(Optional[:class:schematizer.models.tuples.PageInfo]):
+        page_info(Optional[:class:schematizer.models.page_info.PageInfo]):
             limits the topics to count and those with id greater than or
             equal to min_id.
 
@@ -761,11 +696,99 @@ def get_topics_by_criteria(
         )
     if source:
         qry = qry.filter(models.Source.name == source)
-    if created_after:
+    if created_after is not None:
         qry = qry.filter(models.Topic.created_at >= created_after)
-    if page_info and page_info.min_id:
-        qry = qry.filter(models.Topic.id >= page_info.min_id)
+
+    min_id = page_info.min_id if page_info else 0
+    qry = qry.filter(models.Topic.id >= min_id)
+
     qry = qry.order_by(models.Topic.id)
+    if page_info and page_info.count:
+        qry = qry.limit(page_info.count)
+    return qry.all()
+
+
+def get_schemas_by_criteria(
+    namespace_name=None,
+    source_name=None,
+    created_after=None,
+    include_disabled=False,
+    page_info=None
+):
+    """Get all avro schemas of specified namespace, optionally filtering
+    by source name.
+    """
+    qry = session.query(
+        models.AvroSchema
+    ).join(
+        models.Topic,
+        models.Source,
+        models.Namespace
+    ).filter(
+        models.AvroSchema.topic_id == models.Topic.id,
+        models.Topic.source_id == models.Source.id,
+        models.Source.namespace_id == models.Namespace.id,
+        models.Namespace.name == namespace_name
+    )
+    if source_name:
+        qry = qry.filter(models.Source.name == source_name)
+    if created_after is not None:
+        qry = qry.filter(models.AvroSchema.created_at >= created_after)
+
+    if not include_disabled:
+        qry = qry.filter(
+            models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
+        )
+
+    min_id = page_info.min_id if page_info else 0
+    qry = qry.filter(models.Topic.id >= min_id)
+
+    qry = qry.order_by(models.AvroSchema.id)
+    if page_info and page_info.count:
+        qry = qry.limit(page_info.count)
+
+    return qry.all()
+
+
+def get_schemas_created_after(
+    created_after,
+    page_info=None,
+    include_disabled=False
+):
+    # TODO [clin|DATAPIPE-1430] as part of the clean up, merge this function into
+    # `get_schemas_by_criteira`.
+    """ Get the Avro schemas (excluding disabled schemas) created after the
+    specified created_after timestamp and with id greater than or equal to
+    the min_id. Limits the returned schemas to count. Default it excludes
+    disabled schemas.
+
+    Args:
+        created_after(datetime): get schemas created after given utc
+            datetime (inclusive).
+        page_info(Optional[:class:schematizer.models.tuples.PageInfo]):
+            limits the schemas to count and those with an id greater than or
+            equal to min_id.
+        include_disabled(Optional[bool]): set it to True to include disabled
+            schemas. Default it excludes disabled ones.
+    Returns:
+        (list[:class:schematizer.models.AvroSchema]): List of avro
+            schemas created after (inclusive) the specified creation
+            date.
+    """
+    qry = session.query(
+        models.AvroSchema
+    ).filter(
+        models.AvroSchema.created_at >= created_after,
+    )
+    if not include_disabled:
+        qry = qry.filter(
+            models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
+        )
+    if page_info and page_info.min_id:
+        qry = qry.filter(
+            models.AvroSchema.id >= page_info.min_id
+        )
+    qry = qry.order_by(models.AvroSchema.id)
     if page_info and page_info.count:
         qry = qry.limit(page_info.count)
     return qry.all()
