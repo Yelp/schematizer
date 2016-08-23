@@ -11,6 +11,7 @@ from schematizer.api.requests import requests_v1
 from schematizer.api.responses import responses_v1
 from schematizer.logic import doc_tool
 from schematizer.logic import schema_repository
+from schematizer.models.source import Source
 
 
 @view_config(
@@ -22,7 +23,7 @@ from schematizer.logic import schema_repository
 def list_sources(request):
     req = requests_v1.GetSourcesRequest(request.params)
     return [responses_v1.get_source_response_from_source(src)
-            for src in schema_repository.get_sources(req.page_info)]
+            for src in Source.get_all(req.page_info)]
 
 
 @view_config(
