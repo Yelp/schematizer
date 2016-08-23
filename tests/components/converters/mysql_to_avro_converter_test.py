@@ -226,35 +226,32 @@ class TestMySQLToAvroConverter(object):
         )
 
     def test_convert_with_col_datetime(self, converter):
-        timestamp_micros_schema = {
-            'type': 'long',
-            'logicalType': 'timestamp-micros'
-        }
-        timestamp_millis_schema = {
-            'type': 'long',
-            'logicalType': 'timestamp-millis'
-        }
-
         self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_datetime', mysql_data_types.MySQLDateTime()),
             {'name': 'col_datetime',
-             'type': ['null', timestamp_millis_schema],
+             'type': ['null', 'string'],
+             'datetime': True,
              'default': None}
         )
         self._convert_and_assert_with_one_column(
             converter,
-            SQLColumn('col_datetime', mysql_data_types.MySQLDateTime(5)),
+            SQLColumn(
+                'col_datetime',
+                mysql_data_types.MySQLDateTime(5),
+                is_nullable=False
+            ),
             {'name': 'col_datetime',
-             'type': ['null', timestamp_micros_schema],
-             'default': None,
+             'type': 'string',
+             'datetime': True,
              AvroMetaDataKeys.FSP: 5}
         )
         self._convert_and_assert_with_one_column(
             converter,
             SQLColumn('col_datetime', mysql_data_types.MySQLDateTime(2)),
             {'name': 'col_datetime',
-             'type': ['null', timestamp_millis_schema],
+             'type': ['null', 'string'],
+             'datetime': True,
              'default': None,
              AvroMetaDataKeys.FSP: 2}
         )

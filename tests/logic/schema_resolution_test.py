@@ -121,77 +121,6 @@ class TestSchemaResolution(object):
     def schema_factory(self):
         return AvroSchemaFactory()
 
-    def test_resolve_date_schema(self, resolver):
-        assert resolver.resolve_schema(
-            self.schema_factory.create_date_schema(),
-            self.schema_factory.create_date_schema()
-        )
-
-    def test_resolve_time_millis_schema(self, resolver):
-        assert resolver.resolve_schema(
-            self.schema_factory.create_time_millis_schema(),
-            self.schema_factory.create_time_millis_schema()
-        )
-
-    def test_resolve_time_micros_schema(self, resolver):
-        assert resolver.resolve_schema(
-            self.schema_factory.create_time_micros_schema(),
-            self.schema_factory.create_time_micros_schema()
-        )
-
-    def test_resolve_timestamp_millis_schema(self, resolver):
-        assert resolver.resolve_schema(
-            self.schema_factory.create_timestamp_millis_schema(),
-            self.schema_factory.create_timestamp_millis_schema()
-
-        )
-
-    def test_resolve_timestamp_micros_schema(self, resolver):
-        assert resolver.resolve_schema(
-            self.schema_factory.create_timestamp_micros_schema(),
-            self.schema_factory.create_timestamp_micros_schema()
-        )
-
-    def test_fail_resolve_different_between_logical_types(self, resolver):
-        assert not resolver.resolve_schema(
-            self.schema_factory.create_timestamp_micros_schema(),
-            self.schema_factory.create_timestamp_millis_schema()
-        )
-        assert not resolver.resolve_schema(
-            self.schema_factory.create_timestamp_millis_schema(),
-            self.schema_factory.create_timestamp_micros_schema()
-        )
-        assert not resolver.resolve_schema(
-            self.schema_factory.create_time_micros_schema(),
-            self.schema_factory.create_timestamp_millis_schema()
-        )
-        assert not resolver.resolve_schema(
-            self.schema_factory.create_time_millis_schema(),
-            self.schema_factory.create_timestamp_micros_schema()
-        )
-        assert not resolver.resolve_schema(
-            self.schema_factory.create_time_micros_schema(),
-            self.schema_factory.create_time_millis_schema()
-        )
-        assert not resolver.resolve_schema(
-            self.schema_factory.create_time_millis_schema(),
-            self.schema_factory.create_time_micros_schema()
-        )
-
-    def test_fail_resolve_between_primitive_and_logical_types(self, resolver):
-        assert not resolver.resolve_schema(
-            self.schema_factory.create_date_schema(),
-            self.schema_factory.create_primitive_schema('int')
-        )
-        assert not resolver.resolve_schema(
-            self.schema_factory.create_timestamp_millis_schema(),
-            self.schema_factory.create_primitive_schema('long')
-        )
-        assert not resolver.resolve_schema(
-            self.schema_factory.create_time_micros_schema(),
-            self.schema_factory.create_primitive_schema('long')
-        )
-
     def test_is_promotable(self, resolver):
         assert resolver.is_promotable(
             self.schema_factory.create_primitive_schema('int'),
@@ -262,8 +191,10 @@ class TestSchemaResolution(object):
         r_schema = self.schema_factory.create_map_schema(int_schema)
         assert resolver.resolve_schema(w_schema, r_schema)
 
-    def test_resolve_map_schema_with_unresolvable_values(self,
-                                                         resolver):
+    def test_resolve_map_schema_with_unresolvable_values(
+        self,
+        resolver
+    ):
         w_schema = self.schema_factory.create_map_schema(
             self.schema_factory.create_primitive_schema('long')
         )
@@ -278,8 +209,10 @@ class TestSchemaResolution(object):
         r_schema = self.schema_factory.create_array_schema(fixed_schema)
         assert resolver.resolve_schema(w_schema, r_schema)
 
-    def test_resolve_array_schema_with_unresolvable_items(self,
-                                                          resolver):
+    def test_resolve_array_schema_with_unresolvable_items(
+        self,
+        resolver
+    ):
         w_schema = self.schema_factory.create_array_schema(
             self.schema_factory.create_fixed_schema('foo', 16)
         )
@@ -334,8 +267,8 @@ class TestSchemaResolution(object):
         assert resolver.resolve_schema(w_schema, r_schema)
 
     def test_resolve_record_schema_with_extra_reader_field_without_default(
-            self,
-            resolver
+        self,
+        resolver
     ):
         w_schema = self.schema_factory.create_record_schema(
             'foo_table',
@@ -569,6 +502,37 @@ class TestSchemaResolution(object):
             self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 1)
         )
 
+    def test_resolve_date_schema(self, resolver):
+        assert resolver.resolve_schema(
+            self.schema_factory.create_date_schema(),
+            self.schema_factory.create_date_schema()
+        )
+
+    def test_resolve_time_millis_schema(self, resolver):
+        assert resolver.resolve_schema(
+            self.schema_factory.create_time_millis_schema(),
+            self.schema_factory.create_time_millis_schema()
+        )
+
+    def test_resolve_time_micros_schema(self, resolver):
+        assert resolver.resolve_schema(
+            self.schema_factory.create_time_micros_schema(),
+            self.schema_factory.create_time_micros_schema()
+        )
+
+    def test_resolve_timestamp_millis_schema(self, resolver):
+        assert resolver.resolve_schema(
+            self.schema_factory.create_timestamp_millis_schema(),
+            self.schema_factory.create_timestamp_millis_schema()
+
+        )
+
+    def test_resolve_timestamp_micros_schema(self, resolver):
+        assert resolver.resolve_schema(
+            self.schema_factory.create_timestamp_micros_schema(),
+            self.schema_factory.create_timestamp_micros_schema()
+        )
+
     @property
     def primitive_schema(self):
         return self.schema_factory.create_primitive_schema('int')
@@ -658,10 +622,10 @@ class TestSchemaResolution(object):
         )
 
     def resolve_unsupported_schemas(
-            self,
-            target_schema,
-            non_target_schema,
-            resolver_func
+        self,
+        target_schema,
+        non_target_schema,
+        resolver_func
     ):
         assert not resolver_func(target_schema, non_target_schema)
         assert not resolver_func(non_target_schema, target_schema)
@@ -678,9 +642,9 @@ class TestSchemaResolution(object):
         )
         w_schema_copy = copy.deepcopy(w_schema)
         with mock.patch.object(
-                SchemaResolution,
-                'resolve_record_schema',
-                return_value=True
+            SchemaResolution,
+            'resolve_record_schema',
+            return_value=True
         ) as mock_record_resolver:
             assert resolver.resolve_schema(w_schema, r_schema)
             assert 1 == mock_record_resolver.call_count
@@ -707,6 +671,40 @@ class TestSchemaResolution(object):
         frozen_obj2 = resolver.freeze_object(obj2)
         test_dict = {frozen_obj1: 'good'}
         assert 'good' == test_dict[frozen_obj2]
+
+    @property
+    def logical_types(self):
+        return [
+            self.schema_factory.create_bytes_decimal_schema(4, 2),
+            self.schema_factory.create_fixed_decimal_schema(16, 'foo', 4, 2),
+            self.schema_factory.create_date_schema(),
+            self.schema_factory.create_time_micros_schema(),
+            self.schema_factory.create_time_millis_schema(),
+            self.schema_factory.create_timestamp_micros_schema(),
+            self.schema_factory.create_timestamp_millis_schema()
+        ]
+
+    def test_fail_resolve_different_between_logical_types(self, resolver):
+        for i, writer_sch in enumerate(self.logical_types):
+            for j, reader_sch in enumerate(self.logical_types):
+                if i == j:
+                    continue  # same logical type; skip
+                assert not resolver.resolve_schema(writer_sch, reader_sch)
+
+    def test_fail_resolve_logical_type_and_non_logical_type(self, resolver):
+        non_logical_types = [
+            self.primitive_schema,
+            self.enum_schema,
+            self.fixed_schema,
+            self.map_schema,
+            self.array_schema,
+            self.record_schema,
+            self.union_schema
+        ]
+        for logical in self.logical_types:
+            for non_logical in non_logical_types:
+                assert not resolver.resolve_schema(logical, non_logical)
+                assert not resolver.resolve_schema(non_logical, logical)
 
 
 class TestSchemaCompatibilityValidator(object):
