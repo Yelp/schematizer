@@ -1599,7 +1599,7 @@ class TestGetTopicsByCriteria(DBTestCase):
 
     @pytest.fixture
     def topic_foo_baz(self, topic_foo_bar):
-        # referencing topic_1 fixture to make sure it's created first.
+        # referencing topic_foo_bar fixture to make sure it's created first.
         time.sleep(1)
         return factories.create_topic(
             topic_name='topic_2',
