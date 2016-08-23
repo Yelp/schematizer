@@ -1611,7 +1611,7 @@ class TestGetTopicsByCriteria(DBTestCase):
     def topic_abc_bar(self, topic_foo_baz):
         time.sleep(1)
         return factories.create_topic(
-            topic_name='non_biz_src',
+            topic_name='topic_abc_bar',
             namespace_name=self.namespace_abc,
             source_name=self.source_bar
         )
