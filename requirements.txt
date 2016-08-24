@@ -7,7 +7,7 @@ PasteDeploy==1.5.2
 PyMySQL==0.7.3
 PyStaticConfiguration==0.9.0
 PyYAML==3.11
-SQLAlchemy>=1.0.8
+SQLAlchemy==1.0.11
 WebOb==1.4
 argparse==1.4.0
 boto==2.38.0

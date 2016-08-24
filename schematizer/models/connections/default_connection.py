@@ -2,72 +2,41 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from contextlib import contextmanager
-
 import yaml
-from cached_property import cached_property
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.scoping import ScopedSession
 
 from schematizer.config import get_config
-from schematizer.helpers.singleton import Singleton
+from schematizer.models.connections._scoped_session import _ScopedSession
 
 
-class DefaultConnection(object):
+def get_schematizer_session():
+    topology = _read_topology(get_config().topology_path)
+    cluster_config = _get_cluster_config(
+        topology,
+        get_config().schematizer_cluster
+    )
+    engine = _create_engine(cluster_config)
+    return _ScopedSession(sessionmaker(bind=engine))
 
-    __metaclass__ = Singleton
 
-    def __init__(self):
-        with open(str(get_config().topology_path)) as f:
-            topology = f.read()
-        self.db_config = yaml.load(topology)
+def _read_topology(topology_path):
+    with open(str(topology_path)) as f:
+        topology_str = f.read()
+    return yaml.load(topology_str)
 
-    def _get_engine(self, config):
-        return create_engine(
-            'mysql://{db_user}@{db_host}/{db_database}'.format(
-                db_user=config['user'],
-                db_host=config['host'],
-                db_database=config['db']
-            )
+
+def _create_engine(config):
+    return create_engine(
+        'mysql://{db_user}@{db_host}/{db_database}'.format(
+            db_user=config['user'],
+            db_host=config['host'],
+            db_database=config['db']
         )
-
-    def get_base_model(self):
-        return declarative_base()
-
-    def get_tracker_session(self):
-        config = self.schematizer_database_config
-        return _RHScopedSession(sessionmaker(bind=self._get_engine(config)))
-
-    def _get_cluster_config(self, cluster_name):
-        for topo_item in self.db_config.get('topology'):
-            if topo_item.get('cluster') == cluster_name:
-                return topo_item['entries'][0]
-
-    @cached_property
-    def schematizer_database_config(self):
-        return self._get_cluster_config(
-            get_config().schematizer_cluster
-        )
+    )
 
 
-class _RHScopedSession(ScopedSession):
-    """This is a custom subclass of ``sqlalchemy.orm.scoping.ScopedSession``
-    that is returned from ``scoped_session``. Use ``scoped_session`` rather
-    than this.
-
-    This passes through most functions through to the underlying session.
-    """
-    @contextmanager
-    def connect_begin(self, *args, **kwargs):
-        session = self()
-        try:
-            yield session
-            session.commit()
-        except:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-            self.remove()
+def _get_cluster_config(topology, cluster_name):
+    for topo_item in topology.get('topology'):
+        if topo_item.get('cluster') == cluster_name:
+            return topo_item['entries'][0]

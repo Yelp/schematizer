@@ -4,12 +4,12 @@ from __future__ import unicode_literals
 
 import os
 
-import pyramid
 import pyramid_uwsgi_metrics
 import uwsgi_metrics
 import yelp_pyramid
 import yelp_pyramid.healthcheck
 from pyramid.config import Configurator
+from pyramid.tweens import EXCVIEW
 from yelp_lib.decorators import memoized
 from yelp_servlib import config_util
 from yelp_servlib import logging_util
@@ -76,7 +76,7 @@ def _create_application():
     # on the service's configuration.
     config.include(yelp_pyramid)
     config.add_tween("schematizer.schematizer_tweens.db_session_tween_factory",
-                     under=pyramid.tweens.EXCVIEW)
+                     under=EXCVIEW)
 
     # Include pyramid_swagger for REST endpoints (see ../api-docs/)
     config.include('pyramid_swagger')

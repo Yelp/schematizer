@@ -17,14 +17,14 @@ class Config(object):
 
     __metaclass__ = Singleton
 
-    @cached_property
+    @property
     def schematizer_cluster(self):
         return staticconf.get(
             'schematizer_cluster',
             default='schematizer'
         )
 
-    @cached_property
+    @property
     def topology_path(self):
         return staticconf.get(
             'topology_path',
