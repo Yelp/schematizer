@@ -32,4 +32,18 @@
     </createIndex>
     <comment>Add index on topic_id column.</comment>
   </changeSet>
+  <changeSet author="tajinder" id="DATAPIPE-1440-1472162000">
+    <preConditions onFail="WARN" onSqlOutput="TEST">
+      <not>
+        <columnExists tableName="avro_schema" columnName="alias"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="avro_schema">
+        <column name="alias" type="VARCHAR(255)" defaultValue="NULL"/>
+    </addColumn>
+    <comment>[2016-08-25] Add "optional" column to support schema alias </comment>
+    <modifySql>
+      <append value=" AFTER base_schema_id"/>
+    </modifySql>
+  </changeSet>
 </databaseChangeLog>
