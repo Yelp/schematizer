@@ -713,7 +713,11 @@ def get_topics_by_criteria(
     created_after=None,
     page_info=None
 ):
-    """Get all the topics that match given filter criteria.
+    """Get all the topics that match given criteria, including namespace,
+    source, and/or topic created timestamp.
+
+    This function supports pagination, i.e. caller can specify miniumum topic
+    id and page size to get single chunk of topics.
 
     Args:
         namespace(Optional[str]): get topics of given namespace if specified
@@ -725,8 +729,8 @@ def get_topics_by_criteria(
             equal to min_id.
 
     Returns:
-        (list[:class:schematizer.models.Topic]): List of topic models sorted
-        by their ids.
+        (list[:class:schematizer.models.Topic]): List of topics sorted by
+        their ids.
     """
     qry = session.query(models.Topic)
     if namespace or source:
@@ -759,8 +763,25 @@ def get_schemas_by_criteria(
     include_disabled=False,
     page_info=None
 ):
-    """Get all avro schemas of specified namespace, optionally filtering
-    by source name.
+    """Get avro schemas that match the specified criteria, including namespace,
+    source, schema created timestamp, and/or schema status.
+
+    This function supports pagination, i.e. caller can specify minimum schema
+    id and page size to get single chunk of schemas.
+
+    Args:
+        namespace(Optional[str]): get schemas of given namespace if specified
+        source(Optional[str]): get schemas of given source name if specified
+        created_after(Optional[datetime]): get schemas created after given utc
+            datetime (inclusive) if specified
+        included_disabled(Optional[bool]): whether to include disabled schemas
+        page_info(Optional[:class:schematizer.models.page_info.PageInfo]):
+            limits the topics to count and those with id greater than or
+            equal to min_id.
+
+    Returns:
+        (list[:class:schematizer.models.AvroSchema]): List of avro schemas
+        sorted by their ids.
     """
     qry = session.query(
         models.AvroSchema
@@ -785,7 +806,7 @@ def get_schemas_by_criteria(
         )
 
     min_id = page_info.min_id if page_info else 0
-    qry = qry.filter(models.Topic.id >= min_id)
+    qry = qry.filter(models.AvroSchema.id >= min_id)
 
     qry = qry.order_by(models.AvroSchema.id)
     if page_info and page_info.count:
