@@ -72,6 +72,6 @@ yelp-markupsafe==0.0.1
 yelp-meteorite==1.0.0
 yelp-profiling==4.0.1
 yelp-pyramid==0.24.1
-yelp-servlib==4.2.2
+yelp-servlib==4.4.1
 zope.deprecation==4.1.1
 zope.interface==4.1.1
