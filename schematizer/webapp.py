@@ -58,6 +58,7 @@ def _create_application():
     # Create a basic pyramid Configurator.
     config = Configurator(settings={
         'service_name': 'schematizer',
+        'zipkin.tracing_percent': 100,
         'pyramid_swagger.skip_validation': [
             '/(static)\\b',
             '/(api-docs)\\b',
