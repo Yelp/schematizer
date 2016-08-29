@@ -17,6 +17,7 @@ from yelp_servlib import logging_util
 import schematizer.config
 import schematizer.models.database
 from schematizer import healthchecks
+from schematizer.config import get_config
 
 SERVICE_CONFIG_PATH = os.environ.get('SERVICE_CONFIG_PATH')
 SERVICE_ENV_CONFIG_PATH = os.environ.get('SERVICE_ENV_CONFIG_PATH')
@@ -63,7 +64,8 @@ def _create_application():
             '/(static)\\b',
             '/(api-docs)\\b',
             '/(status)\\b'
-        ]
+        ],
+        'pyramid_yelp_conn.reload_clusters': CLUSTERS
     })
 
     initialize_application()
@@ -75,8 +77,17 @@ def _create_application():
     # configuration so that the yelp_pyramid configuration can base decisions
     # on the service's configuration.
     config.include(yelp_pyramid)
-    config.add_tween("schematizer.schematizer_tweens.db_session_tween_factory",
-                     under=EXCVIEW)
+    try:
+        if get_config().force_avoid_yelp_conn:
+            raise ImportError
+        import pyramid_yelp_conn  # noqa: F401
+        config.include('pyramid_yelp_conn')
+        config.set_yelp_conn_session(schematizer.models.database.session)
+    except ImportError:
+        config.add_tween(
+            "schematizer.schematizer_tweens.db_session_tween_factory",
+            under=EXCVIEW
+        )
 
     # Include pyramid_swagger for REST endpoints (see ../api-docs/)
     config.include('pyramid_swagger')
@@ -88,7 +99,12 @@ def _create_application():
     config.include(pyramid_uwsgi_metrics)
 
     # Scan the service package to attach any decorated views.
-    config.scan('schematizer')
+    config.scan(
+        package='schematizer',
+        ignore=[
+            str('schematizer.models.connections')
+        ]
+    )
 
     # Including the yelp profiling tween.
     config.include('yelp_profiling')

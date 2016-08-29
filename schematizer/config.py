@@ -31,6 +31,13 @@ class Config(object):
             default='/nail/srv/configs/topology.yaml'
         )
 
+    @property
+    def force_avoid_yelp_conn(self):
+        return staticconf.get(
+            'force_avoid_yelp_conn',
+            default=False
+        )
+
     @cached_property
     def namespace_no_doc_required(self):
         return staticconf.read_list_of_string(

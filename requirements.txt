@@ -1,5 +1,6 @@
 #sqlparse==0.1.13
 -e git://github.com/Yelp/sqlparse.git@a29c8c1fb827863c6b57d8811ed3b69e982a3877#egg=sqlparse
+-r requirements.d/internal.txt
 MarkupSafe==0.23
 docker-py==1.3.1
 MySQL-python==1.2.5
@@ -7,7 +8,7 @@ PasteDeploy==1.5.2
 PyMySQL==0.7.3
 PyStaticConfiguration==0.9.0
 PyYAML==3.11
-SQLAlchemy==1.0.11
+SQLAlchemy==0.9.8
 WebOb==1.4
 argparse==1.4.0
 boto==2.38.0
@@ -46,7 +47,6 @@ setproctitle==1.1.8
 simplejson==3.6.5
 six==1.9
 subprocess32==3.2.6
-testing.mysqld
 thriftpy==0.1.15
 tornado==2.4.1
 translationstring==1.3
@@ -74,3 +74,4 @@ yelp-pyramid==0.15.1
 yelp-servlib==4.2.2
 zope.deprecation==4.1.1
 zope.interface==4.1.1
+testing.mysqld
