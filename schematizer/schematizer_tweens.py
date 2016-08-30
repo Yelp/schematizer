@@ -24,14 +24,12 @@ class AbortResponse(Exception):
 def db_session_tween_factory(handler, registry):
     """This python tween is used to manage sqlalchamy session
     for every web request made to pyramid. If the request was processed
-    successfully this tween commits the session else if will rollback the
+    successfully this tween commits the session else it will rollback the
     session, finally it removes the session at the end of request.
     It also handles and reports appropriate request exceptions.
     """
-    try:
-        session = schematizer.models.database.session
-    except AttributeError:
-        raise AttributeError("yelp_conn_session not found on registry, use ")
+    
+    session = schematizer.models.database.session
 
     def commit_veto(request, response, exc_info):
         if response is None and IExceptionResponse.providedBy(
