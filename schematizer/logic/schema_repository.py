@@ -8,6 +8,7 @@ import simplejson
 from sqlalchemy import desc
 from sqlalchemy import exc
 from sqlalchemy.orm import exc as orm_exc
+from yelp_conn.mysqldb import IntegrityError
 
 from schematizer import models
 from schematizer.components.converters.converter_base import BaseConverter
@@ -179,6 +180,8 @@ def _create_topic_for_source(namespace_name, source, contains_pii):
     # Note that creating duplicate topic names will throw a sqlalchemy
     # IntegrityError exception. When it occurs, it indicates the uuid
     # is generating the same value (rarely) and we'd like to know it.
+    # Per SEC-5079, sqlalchemy IntegrityError now is replaced with yelp-conn
+    # IntegrityError.
     topic_name = _construct_topic_name(namespace_name, source.name)
     return _create_topic(topic_name, source.id, contains_pii)
 
@@ -238,8 +241,10 @@ def _create_namespace_if_not_exist(namespace_name):
         with session.begin_nested():
             new_namespace = models.Namespace(name=namespace_name)
             session.add(new_namespace)
-    except exc.IntegrityError:
+    except (IntegrityError, exc.IntegrityError):
         # Ignore this error due to trying to create a duplicate namespace
+        # TODO [clin|DATAPIPE-1471] see if there is a way to only handle one
+        # exception or the other.
         new_namespace = get_namespace_by_name(namespace_name)
     return new_namespace
 
@@ -257,8 +262,10 @@ def _create_source_if_not_exist(namespace_id, source_name, owner_email):
                 owner_email=owner_email
             )
             session.add(new_source)
-    except exc.IntegrityError:
+    except (IntegrityError, exc.IntegrityError):
         # Ignore this error due to trying to create a duplicate source
+        # TODO [clin|DATAPIPE-1471] see if there is a way to only handle one
+        # exception or the other.
         new_source = _get_source_by_namespace_id_and_src_name(
             namespace_id,
             source_name
