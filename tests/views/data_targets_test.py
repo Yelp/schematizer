@@ -131,6 +131,26 @@ class TestCreateConsumerGroup(ApiTestBase):
         assert e.value.code == expected_exception.code
         assert str(e.value) == "consumer group name cannot be empty."
 
+    def test_create_duplicate_consumer_group(
+        self,
+        mock_request,
+        dw_data_target,
+        request_json
+    ):
+        mock_request.matchdict = {'data_target_id': str(dw_data_target.id)}
+        mock_request.json_body = request_json
+        data_target_views.create_consumer_group(mock_request)
+
+        expected_exception = self.get_http_exception(400)
+        with pytest.raises(expected_exception) as e:
+            data_target_views.create_consumer_group(mock_request)
+
+        error_message = "Consumer group {group_name} already exists.".format(
+            group_name=request_json['group_name']
+        )
+        assert e.value.code == expected_exception.code
+        assert str(e.value) == error_message
+
 
 class TestGetConsumerGroupsByDataTargetId(ApiTestBase):
 
