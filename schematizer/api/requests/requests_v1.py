@@ -10,6 +10,9 @@ from cached_property import cached_property
 from schematizer.models.page_info import PageInfo
 
 
+# TODO [clin|DATAPIPE-1433] remove these request classes and only keep common
+# helper functions to reduce extra development work. Please do not add more
+# such classes when adding new api endpoints.
 class RequestBase(object):
 
     @classmethod
@@ -234,3 +237,10 @@ class CreateConsumerGroupDataSourceRequest(RequestBase):
         super(CreateConsumerGroupDataSourceRequest, self).__init__()
         self.data_source_type = data_source_type
         self.data_source_id = data_source_id
+
+
+def get_pagination_info(query_params):
+    return PageInfo(
+        query_params.get('count', 0),
+        query_params.get('min_id', 0)
+    )

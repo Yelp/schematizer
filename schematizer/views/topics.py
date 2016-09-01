@@ -70,13 +70,15 @@ def get_latest_schema_by_topic_name(request):
 )
 @transform_api_response()
 def get_topics_by_criteria(request):
+    # TODO [clin|DATAPIPE-1433] remove GetTopicRequest class
     criteria = requests_v1.GetTopicsRequest(request.params)
+    pagination = requests_v1.get_pagination_info(request.params)
 
     topics = schema_repository.get_topics_by_criteria(
         namespace=criteria.namespace,
         source=criteria.source,
         created_after=criteria.created_after_datetime,
-        page_info=criteria.page_info
+        page_info=pagination
     )
     return [responses_v1.get_topic_response_from_topic(topic)
             for topic in topics]

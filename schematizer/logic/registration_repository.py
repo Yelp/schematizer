@@ -9,6 +9,7 @@ from __future__ import unicode_literals
 from sqlalchemy import and_
 from sqlalchemy import exc
 from sqlalchemy import or_
+from yelp_conn.mysqldb import IntegrityError
 
 from schematizer import models
 from schematizer.logic.validators import verify_entity_exists
@@ -69,7 +70,9 @@ def create_consumer_group(group_name, data_target_id):
             group_name=group_name,
             data_target_id=data_target_id
         )
-    except exc.IntegrityError:
+    except (IntegrityError, exc.IntegrityError):
+        # TODO [clin|DATAPIPE-1471] see if there is a way to only handle one
+        # exception or the other.
         raise ValueError(
             "Consumer group {} already exists.".format(group_name)
         )

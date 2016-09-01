@@ -45,6 +45,9 @@ module_config:
         file: /nail/srv/configs/yelp_conn_generic.yaml
         initialize: yelp_conn.initialize
         config:
+            connection_wrappers:
+                - yelp_conn.sqllogger.LoggingConnectionWrapper
+            enable_zipkin: true
             connection_set_file: 'connection_sets.yaml'
 
     -   namespace: services

@@ -8,6 +8,7 @@ import simplejson
 from sqlalchemy import desc
 from sqlalchemy import exc
 from sqlalchemy.orm import exc as orm_exc
+from yelp_conn.mysqldb import IntegrityError
 
 from schematizer import models
 from schematizer.components.converters.converter_base import BaseConverter
@@ -179,6 +180,8 @@ def _create_topic_for_source(namespace_name, source, contains_pii):
     # Note that creating duplicate topic names will throw a sqlalchemy
     # IntegrityError exception. When it occurs, it indicates the uuid
     # is generating the same value (rarely) and we'd like to know it.
+    # Per SEC-5079, sqlalchemy IntegrityError now is replaced with yelp-conn
+    # IntegrityError.
     topic_name = _construct_topic_name(namespace_name, source.name)
     return _create_topic(topic_name, source.id, contains_pii)
 
@@ -238,8 +241,10 @@ def _create_namespace_if_not_exist(namespace_name):
         with session.begin_nested():
             new_namespace = models.Namespace(name=namespace_name)
             session.add(new_namespace)
-    except exc.IntegrityError:
+    except (IntegrityError, exc.IntegrityError):
         # Ignore this error due to trying to create a duplicate namespace
+        # TODO [clin|DATAPIPE-1471] see if there is a way to only handle one
+        # exception or the other.
         new_namespace = get_namespace_by_name(namespace_name)
     return new_namespace
 
@@ -257,8 +262,10 @@ def _create_source_if_not_exist(namespace_id, source_name, owner_email):
                 owner_email=owner_email
             )
             session.add(new_source)
-    except exc.IntegrityError:
+    except (IntegrityError, exc.IntegrityError):
         # Ignore this error due to trying to create a duplicate source
+        # TODO [clin|DATAPIPE-1471] see if there is a way to only handle one
+        # exception or the other.
         new_source = _get_source_by_namespace_id_and_src_name(
             namespace_id,
             source_name
@@ -486,6 +493,8 @@ def get_schemas_created_after(
     page_info=None,
     include_disabled=False
 ):
+    # TODO [clin|DATAPIPE-1430] as part of the clean up, merge this function
+    # into `get_schemas_by_criteira`.
     """ Get the Avro schemas (excluding disabled schemas) created after the
     specified created_after timestamp and with id greater than or equal to
     the min_id. Limits the returned schemas to count. Default it excludes
@@ -604,29 +613,6 @@ def get_schemas_by_topic_id(topic_id, include_disabled=False):
     return qry.order_by(models.AvroSchema.id).all()
 
 
-def get_schemas_by_criteria(namespace_name, source_name=None):
-    """Get all avro schemas of specified namespace, optionally filtering
-    by source name.
-    """
-    qry = session.query(
-        models.AvroSchema
-    ).join(
-        models.Topic,
-        models.Source,
-        models.Namespace
-    ).filter(
-        models.AvroSchema.topic_id == models.Topic.id,
-        models.Topic.source_id == models.Source.id,
-        models.Source.namespace_id == models.Namespace.id,
-        models.Namespace.name == namespace_name
-    )
-    if source_name:
-        qry = qry.filter(
-            models.Source.name == source_name
-        )
-    return qry.order_by(models.AvroSchema.id).all()
-
-
 def mark_schema_disabled(schema_id):
     """Disable the Avro schema of specified id.
     """
@@ -734,20 +720,24 @@ def get_topics_by_criteria(
     created_after=None,
     page_info=None
 ):
-    """Get all the topics that match given filter criteria.
+    """Get all the topics that match given criteria, including namespace,
+    source, and/or topic created timestamp.
+
+    This function supports pagination, i.e. caller can specify miniumum topic
+    id and page size to get single chunk of topics.
 
     Args:
         namespace(Optional[str]): get topics of given namespace if specified
         source(Optional[str]): get topics of given source name if specified
         created_after(Optional[datetime]): get topics created after given utc
             datetime (inclusive) if specified.
-        page_info(Optional[:class:schematizer.models.tuples.PageInfo]):
+        page_info(Optional[:class:schematizer.models.page_info.PageInfo]):
             limits the topics to count and those with id greater than or
             equal to min_id.
 
     Returns:
-        (list[:class:schematizer.models.Topic]): List of topic models sorted
-        by their ids.
+        (list[:class:schematizer.models.Topic]): List of topics sorted by
+        their ids.
     """
     qry = session.query(models.Topic)
     if namespace or source:
@@ -761,13 +751,74 @@ def get_topics_by_criteria(
         )
     if source:
         qry = qry.filter(models.Source.name == source)
-    if created_after:
+    if created_after is not None:
         qry = qry.filter(models.Topic.created_at >= created_after)
-    if page_info and page_info.min_id:
-        qry = qry.filter(models.Topic.id >= page_info.min_id)
+
+    min_id = page_info.min_id if page_info else 0
+    qry = qry.filter(models.Topic.id >= min_id)
+
     qry = qry.order_by(models.Topic.id)
     if page_info and page_info.count:
         qry = qry.limit(page_info.count)
+    return qry.all()
+
+
+def get_schemas_by_criteria(
+    namespace_name=None,
+    source_name=None,
+    created_after=None,
+    include_disabled=False,
+    page_info=None
+):
+    """Get avro schemas that match the specified criteria, including namespace,
+    source, schema created timestamp, and/or schema status.
+
+    This function supports pagination, i.e. caller can specify minimum schema
+    id and page size to get single chunk of schemas.
+
+    Args:
+        namespace(Optional[str]): get schemas of given namespace if specified
+        source(Optional[str]): get schemas of given source name if specified
+        created_after(Optional[datetime]): get schemas created after given utc
+            datetime (inclusive) if specified
+        included_disabled(Optional[bool]): whether to include disabled schemas
+        page_info(Optional[:class:schematizer.models.page_info.PageInfo]):
+            limits the topics to count and those with id greater than or
+            equal to min_id.
+
+    Returns:
+        (list[:class:schematizer.models.AvroSchema]): List of avro schemas
+        sorted by their ids.
+    """
+    qry = session.query(
+        models.AvroSchema
+    ).join(
+        models.Topic,
+        models.Source,
+        models.Namespace
+    ).filter(
+        models.AvroSchema.topic_id == models.Topic.id,
+        models.Topic.source_id == models.Source.id,
+        models.Source.namespace_id == models.Namespace.id,
+        models.Namespace.name == namespace_name
+    )
+    if source_name:
+        qry = qry.filter(models.Source.name == source_name)
+    if created_after is not None:
+        qry = qry.filter(models.AvroSchema.created_at >= created_after)
+
+    if not include_disabled:
+        qry = qry.filter(
+            models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
+        )
+
+    min_id = page_info.min_id if page_info else 0
+    qry = qry.filter(models.AvroSchema.id >= min_id)
+
+    qry = qry.order_by(models.AvroSchema.id)
+    if page_info and page_info.count:
+        qry = qry.limit(page_info.count)
+
     return qry.all()
 
 
