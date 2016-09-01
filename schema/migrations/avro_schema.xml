@@ -47,7 +47,7 @@
     </modifySql>
   </changeSet>
   <changeSet author="tajinder" id="DATAPIPE-1440-1472541000">
-    <createIndex indexName="alias_idx" tableName="avro_schema" unique="false">
+    <createIndex indexName="alias" tableName="avro_schema" unique="false">
       <column name="alias"/>
     </createIndex>
     <comment>[2016-08-30] Add index on alias column.</comment>
