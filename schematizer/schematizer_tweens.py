@@ -28,7 +28,7 @@ def db_session_tween_factory(handler, registry):
     session, finally it removes the session at the end of request.
     It also handles and reports appropriate request exceptions.
     """
-    
+
     session = schematizer.models.database.session
 
     def commit_veto(request, response, exc_info):

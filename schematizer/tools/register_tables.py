@@ -81,8 +81,13 @@ def _get_connection_param_from_topology(topology_file, cluster):
 def _get_cluster_config(db_config, cluster, replica):
     for topo_item in db_config.get('topology'):
         if (topo_item.get('cluster') == cluster and
-                topo_item.get('replica') == 'slave'):
+                topo_item.get('replica') == replica):
             return topo_item['entries'][0]
+    raise ValueError(
+        "Database configuration for {cluster_name} not found.".format(
+            cluster_name=cluster
+        )
+    )
 
 
 @contextmanager
