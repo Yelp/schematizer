@@ -8,10 +8,13 @@ from schematizer import models
 from schematizer.config import get_config
 from schematizer.models.database import session
 
+can_watch_config = False
+
 try:
     if get_config().force_avoid_yelp_conn:
         raise ImportError
     from yelp_conn import load
+    can_watch_config = True
 except ImportError:
     pass
 
@@ -44,7 +47,7 @@ class MysqlHealthCheck(object):
 
     def __call__(self, *args, **kwargs):
 
-        if 'load' in globals():
+        if can_watch_config:
             self.get_watcher().reload_if_changed()
 
         with session.connect_begin(ro=True):
