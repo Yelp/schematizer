@@ -17,10 +17,12 @@ RUN     apt-get install -y libyaml-0-2 libxml2 libpython2.7
 
 # Add the service code
 ADD     requirements.txt /code/requirements.txt
+ADD     requirements.d/ /code/requirements.d/
 RUN     virtualenv --python python2.7 /code/virtualenv_run
 RUN     /code/virtualenv_run/bin/pip install \
             -i https://pypi.yelpcorp.com/simple/ \
-            -r /code/requirements.txt
+            -r /code/requirements.txt \
+            -r /code/requirements.d/internal.txt
 
 # Share the logging directory as a volume
 RUN     mkdir /tmp/logs && chown -R nobody /tmp/logs/

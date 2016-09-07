@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 import os
 
-import pyramid_uwsgi_metrics
 import uwsgi_metrics
 import yelp_pyramid
 import yelp_pyramid.healthcheck
@@ -16,6 +15,7 @@ from yelp_servlib import logging_util
 import schematizer.config
 import schematizer.models.database
 from schematizer import healthchecks
+from schematizer.config import get_config
 
 SERVICE_CONFIG_PATH = os.environ.get('SERVICE_CONFIG_PATH')
 SERVICE_ENV_CONFIG_PATH = os.environ.get('SERVICE_ENV_CONFIG_PATH')
@@ -84,8 +84,14 @@ def _create_application():
     # Include pyramid_mako for template rendering
     config.include('pyramid_mako')
 
-    # Display metrics on the '/status/metrics' endpoint
-    config.include(pyramid_uwsgi_metrics)
+    try:
+        if get_config().force_avoid_internal_package:
+            raise ImportError
+        import pyramid_uwsgi_metrics
+        # Display metrics on the '/status/metrics' endpoint
+        config.include(pyramid_uwsgi_metrics)
+    except ImportError:
+        pass
 
     # Scan the service package to attach any decorated views.
     config.scan('schematizer')

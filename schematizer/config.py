@@ -24,6 +24,13 @@ class Config(object):
             default=[]
         )
 
+    @property
+    def force_avoid_internal_package(self):
+        return staticconf.get(
+            '_force_avoid_internal_package',
+            default=False
+        )
+
 
 def get_config():
     """Returns the global schematizer configuration object"""

@@ -1,0 +1,1 @@
+pyramid-uwsgi-metrics==0.3.1
