@@ -272,6 +272,10 @@
                     "type": "boolean",
                     "description": "Whether the messages in this topic contain PII."
                 },
+                "is_log": {
+                    "type": "boolean",
+                    "description": "Whether the messages in this topic are logs."
+                },
                 "primary_keys": {
                     "type": "array",
                     "items": {

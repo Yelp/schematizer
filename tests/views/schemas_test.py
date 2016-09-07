@@ -153,7 +153,8 @@ class TestRegisterSchema(RegisterSchemaTestBase):
             "namespace": biz_source.namespace.name,
             "source": biz_source.name,
             "source_owner_email": 'biz.user@yelp.com',
-            'contains_pii': False
+            'contains_pii': False,
+            'is_log': False
         }
 
     def test_register_schema(self, mock_request, request_json):
@@ -355,7 +356,8 @@ class TestRegisterSchemaFromMySQL(RegisterSchemaTestBase):
             "namespace": biz_source.namespace.name,
             "source": biz_source.name,
             "source_owner_email": 'biz.test@yelp.com',
-            'contains_pii': False
+            'contains_pii': False,
+            'is_log': False
         }
 
     def test_register_new_table(self, mock_request, request_json):

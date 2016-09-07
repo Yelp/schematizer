@@ -71,6 +71,7 @@ def register_schema(request):
             source=req.source,
             source_email_owner=req.source_owner_email,
             contains_pii=req.contains_pii,
+            is_log=req.is_log,
             base_schema_id=req.base_schema_id,
             docs_required=docs_required
         )
@@ -106,6 +107,7 @@ def register_schema_from_mysql_stmts(request):
         source=req.source,
         source_email_owner=req.source_owner_email,
         contains_pii=req.contains_pii,
+        is_log=False,
         docs_required=False
     )
 
@@ -116,6 +118,7 @@ def _register_avro_schema(
     source,
     source_email_owner,
     contains_pii,
+    is_log,
     base_schema_id=None,
     docs_required=True
 ):
@@ -127,6 +130,7 @@ def _register_avro_schema(
             source_name=source,
             source_email_owner=source_email_owner,
             contains_pii=contains_pii,
+            is_log=is_log,
             base_schema_id=base_schema_id,
             docs_required=docs_required
         )

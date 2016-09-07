@@ -374,6 +374,10 @@
                     "type": "boolean",
                     "description": "Whether the messages in this topic contain PII."
                 },
+                "is_log": {
+                    "type": "boolean",
+                    "description": "Whether the messages in this topic comes from a log kafka cluster."
+                },
                 "primary_keys": {
                     "type": "array",
                     "items": {

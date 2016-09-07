@@ -48,6 +48,7 @@ class RegisterSchemaRequest(RequestBase):
         source,
         source_owner_email,
         contains_pii=False,
+        is_log=False,
         base_schema_id=None
     ):
         super(RegisterSchemaRequest, self).__init__()
@@ -57,6 +58,7 @@ class RegisterSchemaRequest(RequestBase):
         self.source_owner_email = source_owner_email
         self.base_schema_id = base_schema_id
         self.contains_pii = contains_pii
+        self.is_log = is_log
 
     @cached_property
     def schema_json(self):
@@ -72,6 +74,7 @@ class RegisterSchemaFromMySqlRequest(RequestBase):
         source,
         source_owner_email,
         contains_pii=False,
+        is_log=False,
         old_create_table_stmt=None,
         alter_table_stmt=None
     ):
@@ -83,6 +86,7 @@ class RegisterSchemaFromMySqlRequest(RequestBase):
         self.source = source
         self.source_owner_email = source_owner_email
         self.contains_pii = contains_pii
+        self.is_log = is_log
 
 
 class AvroSchemaCompatibilityRequest(RequestBase):

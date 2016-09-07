@@ -46,6 +46,12 @@ class Topic(Base, BaseModel):
     def contains_pii(self):
         return bool(self._contains_pii)
 
+    _is_log = Column('is_log', Integer, nullable=False)
+
+    @property
+    def is_log(self):
+        return bool(self._is_log)
+
     @property
     def primary_keys(self):
         if not self.avro_schemas:
@@ -64,6 +70,15 @@ class Topic(Base, BaseModel):
             )
 
         self._contains_pii = int(value)
+
+    @is_log.setter
+    def is_log(self, value):
+        if not isinstance(value, bool):
+            raise ValueError(
+                "Type of is_log should be bool."
+            )
+
+        self._is_log = int(value)
 
     # Timestamp when the entry is created
     created_at = build_time_column(
@@ -91,6 +106,7 @@ class Topic(Base, BaseModel):
             self.name,
             self.source_id,
             self.contains_pii,
+            self.is_log,
             self.created_at,
             self.updated_at
         )

@@ -76,6 +76,7 @@ def register_avro_schema_from_avro_json(
         source_name,
         source_email_owner,
         contains_pii,
+        is_log,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
         base_schema_id=None,
         docs_required=True
@@ -125,6 +126,7 @@ def register_avro_schema_from_avro_json(
         source_id=source.id,
         base_schema_id=base_schema_id,
         contains_pii=contains_pii,
+        is_log=is_log,
         limit=None if base_schema_id else 1
     )
 
@@ -142,12 +144,14 @@ def register_avro_schema_from_avro_json(
     if not _is_topic_compatible(
         topic=most_recent_topic,
         avro_schema_json=avro_schema_json,
-        contains_pii=contains_pii
+        contains_pii=contains_pii,
+        is_log=is_log
     ):
         most_recent_topic = _create_topic_for_source(
             namespace_name=namespace_name,
             source=source,
-            contains_pii=contains_pii
+            contains_pii=contains_pii,
+            is_log=is_log
         )
     return _create_avro_schema(
         avro_schema_json=avro_schema_json,
@@ -169,28 +173,29 @@ def _is_same_schema(schema, avro_schema_json, base_schema_id):
             schema.base_schema_id == base_schema_id)
 
 
-def _is_topic_compatible(topic, avro_schema_json, contains_pii):
+def _is_topic_compatible(topic, avro_schema_json, contains_pii, is_log):
     return (topic and
             topic.contains_pii == contains_pii and
+            topic.is_log == is_log and
             is_schema_compatible_in_topic(avro_schema_json, topic.name) and
             _is_pkey_identical(avro_schema_json, topic.name))
 
 
-def _create_topic_for_source(namespace_name, source, contains_pii):
+def _create_topic_for_source(namespace_name, source, contains_pii, is_log):
     # Note that creating duplicate topic names will throw a sqlalchemy
     # IntegrityError exception. When it occurs, it indicates the uuid
     # is generating the same value (rarely) and we'd like to know it.
     # Per SEC-5079, sqlalchemy IntegrityError now is replaced with yelp-conn
     # IntegrityError.
     topic_name = _construct_topic_name(namespace_name, source.name)
-    return _create_topic(topic_name, source.id, contains_pii)
+    return _create_topic(topic_name, source.id, contains_pii, is_log)
 
 
 def _construct_topic_name(namespace, source):
     return '.'.join((namespace, source, uuid.uuid4().hex))
 
 
-def _create_topic(topic_name, source_id, contains_pii):
+def _create_topic(topic_name, source_id, contains_pii, is_log):
     """Create a topic named `topic_name` in the given source.
     It returns a newly created topic. If a topic with the same
     name already exists, an exception is thrown
@@ -198,7 +203,8 @@ def _create_topic(topic_name, source_id, contains_pii):
     topic = models.Topic(
         name=topic_name,
         source_id=source_id,
-        contains_pii=contains_pii
+        contains_pii=contains_pii,
+        is_log=is_log
     )
     session.add(topic)
     session.flush()
@@ -351,6 +357,7 @@ def _get_topic_candidates(
         source_id,
         base_schema_id,
         contains_pii,
+        is_log,
         limit=None,
         enabled_schemas_only=True
 ):
@@ -375,6 +382,7 @@ def _get_topic_candidates(
     ).filter(
         models.Topic.source_id == source_id,
         models.Topic._contains_pii == int(contains_pii),
+        models.Topic._is_log == int(is_log),
         models.AvroSchema.base_schema_id == base_schema_id
     )
     if enabled_schemas_only:
