@@ -44,7 +44,7 @@
     </modifySql>
   </changeSet>
 
-  <changeSet author="zjaffee" id="1437411793">
+  <changeSet author="askatti" id="1473343665">
     <preConditions onFail="WARN" onSqlOutput="TEST">
       <not>
         <columnExists tableName="topic" columnName="is_log"/>
@@ -57,7 +57,7 @@
     </addColumn>
     <comment>Add column of log flag</comment>
     <modifySql>
-      <append value=" AFTER source_id"/>
+      <append value=" AFTER contains_pii"/>
     </modifySql>
   </changeSet>
 

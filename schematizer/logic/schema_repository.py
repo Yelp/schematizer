@@ -88,6 +88,7 @@ def register_avro_schema_from_avro_json(
     :param namespace: namespace string
     :param source: source name string
     :param domain_owner_email: email of the schema owner
+    :param is_log: Boolean flag indicating whether this is a log source or not.
     :param status: AvroStatusEnum: RW/R/Disabled
     :param base_schema_id: Id of the Avro schema from which the new schema is
     derived from
@@ -141,11 +142,10 @@ def register_avro_schema_from_avro_json(
             return latest_schema
 
     most_recent_topic = topic_candidates[0] if topic_candidates else None
-    if not _is_topic_compatible(
+    if not _is_candidate_topic_compatible(
         topic=most_recent_topic,
         avro_schema_json=avro_schema_json,
-        contains_pii=contains_pii,
-        is_log=is_log
+        contains_pii=contains_pii
     ):
         most_recent_topic = _create_topic_for_source(
             namespace_name=namespace_name,
@@ -173,10 +173,9 @@ def _is_same_schema(schema, avro_schema_json, base_schema_id):
             schema.base_schema_id == base_schema_id)
 
 
-def _is_topic_compatible(topic, avro_schema_json, contains_pii, is_log):
+def _is_candidate_topic_compatible(topic, avro_schema_json, contains_pii):
     return (topic and
             topic.contains_pii == contains_pii and
-            topic.is_log == is_log and
             is_schema_compatible_in_topic(avro_schema_json, topic.name) and
             _is_pkey_identical(avro_schema_json, topic.name))
 
@@ -370,6 +369,8 @@ def _get_topic_candidates(
         not derived from other schemas.
     :param bool contains_pii: Limit to topics which either do or do not
         contain PII. Defaults to None, which will not apply any filter.
+    :param bool is_log: Limit to topics which are either log sources or not.
+    Defaults to False, i.e. not a log source
     :param int|None limit: Provide a limit to the number of topics returned.
     :param bool enabled_schemas_only: Set to True to limit results to schemas
         which have not been disabled

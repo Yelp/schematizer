@@ -46,11 +46,29 @@ class Topic(Base, BaseModel):
     def contains_pii(self):
         return bool(self._contains_pii)
 
+    @contains_pii.setter
+    def contains_pii(self, value):
+        if not isinstance(value, bool):
+            raise ValueError(
+                "Type of contains_pii should be bool."
+            )
+
+        self._contains_pii = int(value)
+
     _is_log = Column('is_log', Integer, nullable=False)
 
     @property
     def is_log(self):
         return bool(self._is_log)
+
+    @is_log.setter
+    def is_log(self, value):
+        if not isinstance(value, bool):
+            raise ValueError(
+                "Type of is_log should be bool."
+            )
+
+        self._is_log = int(value)
 
     @property
     def primary_keys(self):
@@ -61,24 +79,6 @@ class Topic(Base, BaseModel):
             AvroMetaDataKeys.PRIMARY_KEY,
             []
         )
-
-    @contains_pii.setter
-    def contains_pii(self, value):
-        if not isinstance(value, bool):
-            raise ValueError(
-                "Type of contains_pii should be bool."
-            )
-
-        self._contains_pii = int(value)
-
-    @is_log.setter
-    def is_log(self, value):
-        if not isinstance(value, bool):
-            raise ValueError(
-                "Type of is_log should be bool."
-            )
-
-        self._is_log = int(value)
 
     # Timestamp when the entry is created
     created_at = build_time_column(

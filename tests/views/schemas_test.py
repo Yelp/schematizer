@@ -334,6 +334,12 @@ class TestRegisterSchema(RegisterSchemaTestBase):
         assert e.value.code == expected_exception.code
         assert str(e.value) == "Source owner email must be non-empty."
 
+    def test_register_schema_as_log_source(self, mock_request, request_json):
+        request_json['is_log'] = True
+        mock_request.json_body = request_json
+        actual = schema_views.register_schema(mock_request)
+        self._assert_equal_schema_response(actual, request_json)
+
 
 class TestRegisterSchemaFromMySQL(RegisterSchemaTestBase):
 
