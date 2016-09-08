@@ -134,7 +134,7 @@ class SQLColumnDataType(object):
 
     def __eq__(self, other):
         return (isinstance(other, SQLColumnDataType) and
-                self.attributes == other.attributes  and
+                self.attributes == other.attributes and
                 self.type_name == other.type_name)
 
     def convert_str_to_type_val(self, val_string):
