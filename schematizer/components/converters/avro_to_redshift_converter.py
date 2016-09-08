@@ -226,8 +226,12 @@ class AvroToRedshiftConverter(BaseConverter):
     @property
     def _logical_type_converters(self):
         return {
+            'date': self._convert_date_type,
             'decimal': self._convert_decimal_type
         }
+
+    def _convert_date_type(self, field):
+        return redshift_data_types.RedshiftDate()
 
     def _convert_decimal_type(self, field):
         precision, scale = self._get_precision_metadata(field)
