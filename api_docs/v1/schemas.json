@@ -150,7 +150,6 @@
             ]
         },
         {
-<<<<<<< HEAD
             "path": "/v1/schemas/{schema_id}/meta_attributes",
             "operations": [
                 {
@@ -162,8 +161,35 @@
                         "type": "integer"
                     },
                     "nickname": "get_meta_attributes_by_schema_id",
-=======
-
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "schema_id",
+                            "description": "Schema ID for which Meta Attributes will be fetched",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid schema ID supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Schema not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "path": "/v1/schemas/{schema_id}/data_targets",
             "operations": [
                 {
@@ -175,16 +201,11 @@
                         "$ref": "DataTarget"
                     },
                     "nickname": "get_data_targets_by_schema_id",
->>>>>>> master
                     "authorizations": {},
                     "parameters": [
                         {
                             "name": "schema_id",
-<<<<<<< HEAD
-                            "description": "Schema ID for which Meta Attributes will be fetched",
-=======
                             "description": "ID of schema whose data targets will be fetched",
->>>>>>> master
                             "required": true,
                             "type": "integer",
                             "paramType": "path",

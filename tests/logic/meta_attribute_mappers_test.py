@@ -12,8 +12,8 @@ from schematizer.models import Namespace
 from schematizer.models import Source
 from schematizer.models.database import session
 from schematizer.models.exceptions import EntityNotFoundError
-from testing.asserts import assert_equal_meta_attribute_mapping
 from testing import factories
+from testing.asserts import assert_equal_meta_attribute_mapping
 from tests.models.testing_db import DBTestCase
 
 
