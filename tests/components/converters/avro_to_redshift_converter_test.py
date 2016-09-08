@@ -117,6 +117,19 @@ class TestAvroToRedshiftConverter(object):
             SQLColumn(self.col_name, redshift_types.RedshiftDecimal(8, 0))
         )
 
+    def test_convert_with_field_decimal(self, converter):
+        self._convert_and_assert_with_one_column(
+            converter,
+            {'name': self.col_name,
+             'type': ['null', 'bytes'],
+             'default': None,
+             'logicalType': 'decimal',
+             AvroMetaDataKeys.PRECISION: 10,
+             AvroMetaDataKeys.SCALE: 2},
+            SQLColumn(self.col_name, redshift_types.RedshiftDecimal(10, 2))
+        )
+
+
     def test_convert_with_field_float(self, converter):
         self._convert_and_assert_with_one_column(
             converter,

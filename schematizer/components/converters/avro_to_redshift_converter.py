@@ -207,10 +207,16 @@ class AvroToRedshiftConverter(BaseConverter):
         )
 
     def _convert_bytes_type(self, field):
+        if "logicalType" in field.props and field.props.get("logicalType") == "decimal":
+            return self._convert_decimal_type(field)
         return self._convert_string_type(field, char_bytes=1)
 
     def _convert_boolean_type(self, field):
         return redshift_data_types.RedshiftBoolean()
+
+    def _convert_decimal_type(self, field):
+        precision, scale = self._get_precision_metadata(field)
+        return redshift_data_types.RedshiftDecimal(precision, scale)
 
     def _convert_enum_type(self, field):
         max_symbol_len = max(len(symbol) for symbol in field.type.symbols)
