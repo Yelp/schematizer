@@ -7,9 +7,12 @@ from datetime import datetime
 import simplejson
 from cached_property import cached_property
 
-from schematizer.models.tuples import PageInfo
+from schematizer.models.page_info import PageInfo
 
 
+# TODO [clin|DATAPIPE-1433] remove these request classes and only keep common
+# helper functions to reduce extra development work. Please do not add more
+# such classes when adding new api endpoints.
 class RequestBase(object):
 
     @classmethod
@@ -24,6 +27,16 @@ class RequestBase(object):
 
         long_timestamp = long(request_timestamp)
         return long_timestamp, datetime.utcfromtimestamp(long_timestamp)
+
+
+class GetSourcesRequest(RequestBase):
+
+    def __init__(self, query_params):
+        super(GetSourcesRequest, self).__init__()
+        self.page_info = PageInfo(
+            query_params.get('count', 0),
+            query_params.get('min_id', 0)
+        )
 
 
 class RegisterSchemaRequest(RequestBase):
@@ -236,3 +249,10 @@ class RegisterMetaAttributeRequest(RequestBase):
         super(RegisterMetaAttributeRequest, self).__init__()
         self.entity_id = int(entity_id)
         self.meta_attribute_schema_id = int(meta_attribute_schema_id)
+
+
+def get_pagination_info(query_params):
+    return PageInfo(
+        query_params.get('count', 0),
+        query_params.get('min_id', 0)
+    )

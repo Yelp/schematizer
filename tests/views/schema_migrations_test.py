@@ -35,8 +35,8 @@ class TestGetSchemaMigration(ApiTestBase):
             'CREATE TABLE biz_tmp (id integer not null default 0,'
             'test_1 varchar(44));',
             'INSERT INTO biz_tmp (id) (SELECT id FROM biz);',
-            'ALTER TABLE biz RENAME TO biz_old;',
-            'ALTER TABLE biz_tmp RENAME TO biz;',
+            'ALTER TABLE biz RENAME TO "biz_old";',
+            'ALTER TABLE biz_tmp RENAME TO "biz";',
             'DROP TABLE biz_old;',
             'COMMIT;'
         ]

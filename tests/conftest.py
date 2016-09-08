@@ -25,10 +25,24 @@ def biz_src_name():
 
 
 @pytest.fixture
+def another_biz_src_name():
+    return 'biz_v2'
+
+
+@pytest.fixture
 def biz_source(yelp_namespace, biz_src_name):
     return factories.create_source(
         namespace_name=yelp_namespace.name,
         source_name=biz_src_name,
+        owner_email='test-src@yelp.com'
+    )
+
+
+@pytest.fixture
+def another_biz_source(yelp_namespace, another_biz_src_name):
+    return factories.create_source(
+        namespace_name=yelp_namespace.name,
+        source_name=another_biz_src_name,
         owner_email='test-src@yelp.com'
     )
 

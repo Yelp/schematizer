@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import copy
 import datetime
+import time
 from collections import defaultdict
 
 import mock
@@ -15,7 +16,7 @@ from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
 from schematizer.models import AvroSchema
 from schematizer.models.database import session
-from schematizer.models.tuples import PageInfo
+from schematizer.models.page_info import PageInfo
 from testing import asserts
 from testing import factories
 from tests.logic.meta_attribute_mappers_test import GetMetaAttributeBaseTest
@@ -37,6 +38,14 @@ class TestSchemaRepository(DBTestCase):
         return factories.fake_source
 
     @property
+    def another_source_name(self):
+        return "business_v2"
+
+    @property
+    def user_source_name(self):
+        return "business_v3"
+
+    @property
     def source_owner_email(self):
         return factories.fake_owner_email
 
@@ -51,6 +60,27 @@ class TestSchemaRepository(DBTestCase):
     @pytest.fixture
     def source(self, namespace):
         return factories.create_source(self.namespace_name, self.source_name)
+
+    @pytest.fixture
+    def user_source(self, namespace):
+        return factories.create_source(
+            self.namespace_name,
+            self.user_source_name
+        )
+
+    @pytest.fixture
+    def another_source(self, namespace):
+        return factories.create_source(
+            self.namespace_name,
+            self.another_source_name
+        )
+
+    @pytest.fixture
+    def sorted_sources(self, source, another_source, user_source):
+        return sorted(
+            [source, another_source, user_source],
+            key=lambda source: source.id
+        )
 
     @property
     def some_datetime(self):
@@ -1190,11 +1220,6 @@ class TestSchemaRepository(DBTestCase):
         ).one()
         assert models.AvroSchemaStatus.READ_AND_WRITE == actual.status
 
-    def test_get_sources(self, source):
-        actual = schema_repo.get_sources()
-        assert 1 == len(actual)
-        self.assert_equal_source(source, actual[0])
-
     def test_get_topics_by_source_id(self, source, topic):
         actual = schema_repo.get_topics_by_source_id(source.id)
         assert 1 == len(actual)
@@ -1591,14 +1616,82 @@ class TestByCriteria(DBTestCase):
             )
         )
 
+    def assert_equal_refreshes(self, expected_refreshes, actual_refreshes):
+        assert len(actual_refreshes) == len(expected_refreshes)
+        for i, actual_refresh in enumerate(actual_refreshes):
+            assert actual_refresh == expected_refreshes[i]
+
+    def _sort_refreshes_by_id(self, refreshes):
+        return sorted(refreshes, key=lambda refresh: refresh.id)
+
+
+class TestGetTopicsByCriteria(DBTestCase):
+
+    @property
+    def namespace_foo(self):
+        return 'foo'
+
+    @property
+    def source_bar(self):
+        return 'bar'
+
+    @property
+    def source_baz(self):
+        return 'baz'
+
+    @property
+    def namespace_abc(self):
+        return 'abc'
+
+    @pytest.fixture
+    def topic_foo_bar(self):
+        return factories.create_topic(
+            topic_name='topic_foo_bar',
+            namespace_name=self.namespace_foo,
+            source_name=self.source_bar
+        )
+
+    @pytest.fixture
+    def topic_foo_baz(self, topic_foo_bar):
+        # reference topic_foo_bar fixture to make sure it's created first.
+        time.sleep(1)
+        return factories.create_topic(
+            topic_name='topic_foo_baz',
+            namespace_name=self.namespace_foo,
+            source_name=self.source_baz
+        )
+
+    @pytest.fixture
+    def topic_abc_bar(self, topic_foo_baz):
+        time.sleep(1)
+        return factories.create_topic(
+            topic_name='topic_abc_bar',
+            namespace_name=self.namespace_abc,
+            source_name=self.source_bar
+        )
+
+    @pytest.fixture(autouse=True)
+    def sorted_topics(self, topic_foo_bar, topic_foo_baz, topic_abc_bar):
+        return [topic_foo_bar, topic_foo_baz, topic_abc_bar]
+
+    def test_get_all_topics(self, sorted_topics):
+        actual = schema_repo.get_topics_by_criteria()
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=sorted_topics,
+            assert_func=asserts.assert_equal_topic
+        )
+
     def test_get_topics_after_given_timestamp(self, sorted_topics):
-        expected = sorted_topics[2:]
+        expected = sorted_topics[1:]
         after_dt = expected[0].created_at
 
         actual = schema_repo.get_topics_by_criteria(created_after=after_dt)
-
-        self.assert_equal_topics(actual, expected)
-        assert all(topic.created_at >= after_dt for topic in actual)
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=expected,
+            assert_func=asserts.assert_equal_topic
+        )
 
     def test_no_newer_topic(self, sorted_topics):
         last_topic = sorted_topics[-1]
@@ -1606,80 +1699,60 @@ class TestByCriteria(DBTestCase):
         actual = schema_repo.get_topics_by_criteria(created_after=after_dt)
         assert actual == []
 
-    def test_get_biz_source_only(self, biz_topic, biz_source):
-        actual = schema_repo.get_topics_by_criteria(source=biz_source.name)
-        self.assert_equal_topics(actual, [biz_topic])
-
-    def test_topic_get_yelp_namespace_only(
-        self,
-        biz_topic,
-        user_topic_1,
-        user_topic_2,
-        yelp_namespace
-    ):
-        self.assert_equal_topics(
-            actual_topics=schema_repo.get_topics_by_criteria(
-                namespace=yelp_namespace.name
-            ),
-            expected_topics=self._sort_topics_by_id(
-                [user_topic_1, user_topic_2, biz_topic]
-            )
+    def test_filter_topics_by_source(self, topic_foo_bar, topic_abc_bar):
+        actual = schema_repo.get_topics_by_criteria(source=self.source_bar)
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=[topic_foo_bar, topic_abc_bar],
+            assert_func=asserts.assert_equal_topic
         )
 
-    def test_get_user_topics_only(
-        self,
-        user_topic_1,
-        user_topic_2,
-        user_source,
-        yelp_namespace
-    ):
-        self.assert_equal_topics(
-            actual_topics=schema_repo.get_topics_by_criteria(
-                namespace=yelp_namespace.name,
-                source=user_source.name
-            ),
-            expected_topics=self._sort_topics_by_id(
-                [user_topic_1, user_topic_2]
-            )
-        )
-
-    def test_get_topics(self, sorted_topics):
-        expected = sorted_topics
-        actual = schema_repo.get_topics_by_criteria()
-        assert len(actual) > 1
-        self.assert_equal_topics(actual, expected)
-
-    def test_get_topics_limited_by_count(self, sorted_topics):
-        expected = [sorted_topics[0]]
+    def test_filter_topics_by_namespace(self, topic_foo_bar, topic_foo_baz):
         actual = schema_repo.get_topics_by_criteria(
-            page_info=PageInfo(count=1, min_id=None)
+            namespace=self.namespace_foo
         )
-        assert len(actual) == 1
-        self.assert_equal_topics(actual, expected)
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=[topic_foo_bar, topic_foo_baz],
+            assert_func=asserts.assert_equal_topic
+        )
 
-    def test_get_topics_limited_by_min_topic_id(self, sorted_topics):
-        min_id = sorted_topics[1].id
-        expected = [topic for topic in sorted_topics if topic.id >= min_id]
+    def test_filter_topics_by_namespace_and_source(
+        self,
+        sorted_topics,
+        topic_foo_bar
+    ):
         actual = schema_repo.get_topics_by_criteria(
-            page_info=PageInfo(count=None, min_id=min_id)
+            namespace=self.namespace_foo,
+            source=self.source_bar
         )
-        self.assert_equal_topics(actual, expected)
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=[topic_foo_bar],
+            assert_func=asserts.assert_equal_topic
+        )
 
-    def assert_equal_refreshes(self, expected_refreshes, actual_refreshes):
-        assert len(actual_refreshes) == len(expected_refreshes)
-        for i, actual_refresh in enumerate(actual_refreshes):
-            assert actual_refresh == expected_refreshes[i]
+    def test_get_only_one_topic(self, sorted_topics):
+        actual = schema_repo.get_topics_by_criteria(
+            page_info=PageInfo(count=1)
+        )
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=[sorted_topics[0]],
+            assert_func=asserts.assert_equal_topic
+        )
 
-    def assert_equal_topics(self, expected_topics, actual_topics):
-        assert len(actual_topics) == len(expected_topics)
-        for i, actual_topic in enumerate(actual_topics):
-            assert actual_topic == expected_topics[i]
-
-    def _sort_refreshes_by_id(self, refreshes):
-        return sorted(refreshes, key=lambda refresh: refresh.id)
-
-    def _sort_topics_by_id(self, topics):
-        return sorted(topics, key=lambda topic: topic.id)
+    def test_get_topics_with_id_greater_than_min_id(self, sorted_topics):
+        expected = sorted_topics[1:]
+        min_id = expected[0].id
+        actual = schema_repo.get_topics_by_criteria(
+            page_info=PageInfo(min_id=min_id)
+        )
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=expected,
+            assert_func=asserts.assert_equal_topic
+        )
 
 
 @pytest.mark.usefixtures('setup_meta_attr_mappings')

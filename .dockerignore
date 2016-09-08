@@ -1,6 +1,7 @@
 .git
 .tox
 virtualenv_run
+venv
 build
 dist
 *.pyc
