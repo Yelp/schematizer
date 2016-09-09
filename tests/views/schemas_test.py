@@ -463,11 +463,11 @@ class TestGetSchemaElements(ApiTestBase):
         return response
 
 
-@pytest.mark.usefixtures('setup_mappings')
-class TestGetMetaAttrBySchemaID(ApiTestBase):
+@pytest.mark.usefixtures('create_biz_src_meta_attr_mapping')
+class TestGetMetaAttrBySchemaId(ApiTestBase):
 
     @pytest.fixture
-    def setup_mappings(self, meta_attr_schema, biz_source):
+    def create_biz_src_meta_attr_mapping(self, meta_attr_schema, biz_source):
         factories.create_meta_attribute_mapping(
             meta_attr_schema.id,
             models.Source.__name__,
@@ -509,9 +509,7 @@ class TestGetMetaAttrBySchemaID(ApiTestBase):
             schema_views.get_meta_attributes_by_schema_id(mock_request)
 
         assert e.value.code == expected_exception.code
-        assert str(e.value) == '{0} id 0 not found.'.format(
-            models.AvroSchema.__name__
-        )
+        assert str(e.value) == 'AvroSchema id 0 not found.'
 
     def test_get_meta_attr_by_new_schema_id(
         self,

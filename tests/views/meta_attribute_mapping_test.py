@@ -65,7 +65,7 @@ class GetMetaAttributeBase(ApiTestBase):
 
     def test_non_existing_entity(self, mock_request):
         expected_exception = self.get_http_exception(404)
-        fake_entity_id = 1234
+        fake_entity_id = 0
         with pytest.raises(expected_exception) as e:
             mock_request.matchdict = {self.entity_type_id: fake_entity_id}
             self.getter_logic_method(mock_request)
@@ -124,7 +124,7 @@ class RegisterMetaAttributeBase(ApiTestBase):
         meta_attr_schema
     ):
         expected_exception = self.get_http_exception(404)
-        fake_entity_id = 1234
+        fake_entity_id = 0
         with pytest.raises(expected_exception) as e:
             mock_request.json_body = {
                 'entity_id': fake_entity_id,
@@ -133,12 +133,13 @@ class RegisterMetaAttributeBase(ApiTestBase):
             self.register_logic_method(mock_request)
         assert e.value.code == expected_exception.code
         assert str(e.value) == '{0} id {1} not found.'.format(
-            self.entity_type, fake_entity_id
+            self.entity_type,
+            fake_entity_id
         )
 
     def test_non_existing_meta_attribute(self, mock_request):
         expected_exception = self.get_http_exception(404)
-        fake_meta_attr_id = 1234
+        fake_meta_attr_id = 0
         with pytest.raises(expected_exception) as e:
             mock_request.json_body = {
                 'entity_id': self.entity.id,
@@ -161,7 +162,8 @@ class RegisterMetaAttributeBase(ApiTestBase):
         }
         actual = self.register_logic_method(mock_request)
         expected = self.get_expected_meta_attr_response(
-            self.entity_type, self.entity.id
+            self.entity_type,
+            self.entity.id
         )
         assert actual == expected
 
@@ -181,7 +183,8 @@ class RegisterMetaAttributeBase(ApiTestBase):
         }
         self.delete_logic_method(mock_request)
         assert self.get_expected_meta_attr_response(
-            self.entity_type, self.entity.id
+            self.entity_type,
+            self.entity.id
         ) == {}
 
 
@@ -191,10 +194,10 @@ class TestRegisterMetaAttributeForNamespace(RegisterMetaAttributeBase):
     @pytest.fixture
     def setup_test(self, yelp_namespace):
         self.entity_type = Namespace.__name__
-        self.register_logic_method = meta_attr_views.\
-            register_meta_attribute_mapping_for_namespace
-        self.delete_logic_method = meta_attr_views.\
-            delete_meta_attribute_mapping_for_namespace
+        self.register_logic_method = (
+            meta_attr_views.register_namepsace_meta_attribute_mapping)
+        self.delete_logic_method = (
+            meta_attr_views.delete_namespace_meta_attribute_mapping)
         self.entity = yelp_namespace
 
 
@@ -204,10 +207,10 @@ class TestRegisterMetaAttributeForSource(RegisterMetaAttributeBase):
     @pytest.fixture
     def setup_test(self, biz_source):
         self.entity_type = Source.__name__
-        self.register_logic_method = meta_attr_views.\
-            register_meta_attribute_mapping_for_source
-        self.delete_logic_method = meta_attr_views.\
-            delete_meta_attribute_mapping_for_source
+        self.register_logic_method = (
+            meta_attr_views.register_source_meta_attribute_mapping)
+        self.delete_logic_method = (
+            meta_attr_views.delete_source_meta_attribute_mapping)
         self.entity = biz_source
 
 
@@ -217,8 +220,8 @@ class TestRegisterMetaAttributeForSchema(RegisterMetaAttributeBase):
     @pytest.fixture
     def setup_test(self, biz_schema):
         self.entity_type = AvroSchema.__name__
-        self.register_logic_method = meta_attr_views.\
-            register_meta_attribute_mapping_for_schema
-        self.delete_logic_method = meta_attr_views.\
-            delete_meta_attribute_mapping_for_schema
+        self.register_logic_method = (
+            meta_attr_views.register_schema_meta_attribute_mapping)
+        self.delete_logic_method = (
+            meta_attr_views.delete_schema_meta_attribute_mapping)
         self.entity = biz_schema

@@ -12,6 +12,12 @@ from schematizer.models.types.time import build_time_column
 
 
 class SchemaMetaAttributeMapping(Base, BaseModel):
+    """This table stores a snapshot of the current state of all meta attributes
+    being enforced for each schema. This table is populated when a schema is
+    registered with the schematizer. At that time, it parses through all the
+    entries in MetaAttributeMappingStore and finds out all the candidate meta
+    attributes to be enforced for this schema and adds a row for each mapping.
+    """
 
     __tablename__ = 'schema_meta_attribute_mapping'
 

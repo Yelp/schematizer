@@ -239,25 +239,15 @@ def mock_namespace_whitelist():
 
 
 @pytest.fixture
-def meta_attr_namespace_name():
-    return 'yelp_meta'
+def meta_attr_namespace():
+    return factories.create_namespace('yelp_meta')
 
 
 @pytest.fixture
-def meta_attr_namespace(meta_attr_namespace_name):
-    return factories.create_namespace(meta_attr_namespace_name)
-
-
-@pytest.fixture
-def meta_attr_src_name():
-    return 'dummy_meta_attr'
-
-
-@pytest.fixture
-def meta_attr_source(meta_attr_namespace, meta_attr_src_name):
+def meta_attr_source(meta_attr_namespace):
     return factories.create_source(
         namespace_name=meta_attr_namespace.name,
-        source_name=meta_attr_src_name,
+        source_name='dummy_meta_attr',
         owner_email='test-meta-src@yelp.com'
     )
 

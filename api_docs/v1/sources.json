@@ -323,7 +323,7 @@
                     "summary": "Register the specified meta attribute schema_id to the specified source.",
                     "notes": "The source and the schema_id of Meta attribute schema should exist.",
                     "type": "MetaAttributeMappingsResponse",
-                    "nickname": "register_meta_attribute_mapping_for_source",
+                    "nickname": "register_source_meta_attribute_mapping",
                     "authorizations": {},
                     "parameters": [
                         {
@@ -353,7 +353,7 @@
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified source.",
                     "notes": "The source and the schema_id of Meta attribute schema should exist.",
                     "type": "boolean",
-                    "nickname": "delete_meta_attribute_mapping_for_source",
+                    "nickname": "delete_source_meta_attribute_mapping",
                     "authorizations": {},
                     "parameters": [
                         {
@@ -637,7 +637,6 @@
                 }
             }
         },
-        ,
         "RegisterMetaAttributeRequest": {
             "id": "RegisterMetaAttributeRequest",
             "required": [

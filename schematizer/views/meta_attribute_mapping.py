@@ -34,89 +34,95 @@ def _delete_meta_attribute_mapping_for_entity(request, delete_func):
 
 
 @view_config(
-    route_name='api.v1.register_meta_attribute_mapping_for_namespace',
+    route_name='api.v1.register_namepsace_meta_attribute_mapping',
     request_method='POST',
     renderer='json'
 )
 @transform_api_response()
-def register_meta_attribute_mapping_for_namespace(request):
+def register_namepsace_meta_attribute_mapping(request):
     mapping = _register_meta_attribute_mapping_for_entity(
         request,
-        meta_attr_logic.register_meta_attribute_mapping_for_namespace
+        meta_attr_logic.register_namespace_meta_attribute_mapping
     )
     return responses_v1.get_meta_attr_mapping_response(
-        'namespace_id', mapping.entity_id, [mapping.meta_attr_schema_id]
+        'namespace_id',
+        mapping.entity_id,
+        [mapping.meta_attr_schema_id]
     )
 
 
 @view_config(
-    route_name='api.v1.delete_meta_attribute_mapping_for_namespace',
+    route_name='api.v1.delete_namespace_meta_attribute_mapping',
     request_method='DELETE',
     renderer='json'
 )
 @transform_api_response()
-def delete_meta_attribute_mapping_for_namespace(request):
+def delete_namespace_meta_attribute_mapping(request):
     return _delete_meta_attribute_mapping_for_entity(
         request,
-        meta_attr_logic.delete_meta_attribute_mapping_for_namespace
+        meta_attr_logic.delete_namespace_meta_attribute_mapping
     )
 
 
 @view_config(
-    route_name='api.v1.register_meta_attribute_mapping_for_source',
+    route_name='api.v1.register_source_meta_attribute_mapping',
     request_method='POST',
     renderer='json'
 )
 @transform_api_response()
-def register_meta_attribute_mapping_for_source(request):
+def register_source_meta_attribute_mapping(request):
     mapping = _register_meta_attribute_mapping_for_entity(
         request,
-        meta_attr_logic.register_meta_attribute_mapping_for_source
+        meta_attr_logic.register_source_meta_attribute_mapping
     )
     return responses_v1.get_meta_attr_mapping_response(
-        'source_id', mapping.entity_id, [mapping.meta_attr_schema_id]
+        'source_id',
+        mapping.entity_id,
+        [mapping.meta_attr_schema_id]
     )
 
 
 @view_config(
-    route_name='api.v1.delete_meta_attribute_mapping_for_source',
+    route_name='api.v1.delete_source_meta_attribute_mapping',
     request_method='DELETE',
     renderer='json'
 )
 @transform_api_response()
-def delete_meta_attribute_mapping_for_source(request):
+def delete_source_meta_attribute_mapping(request):
     return _delete_meta_attribute_mapping_for_entity(
         request,
-        meta_attr_logic.delete_meta_attribute_mapping_for_source
+        meta_attr_logic.delete_source_meta_attribute_mapping
     )
 
 
 @view_config(
-    route_name='api.v1.register_meta_attribute_mapping_for_schema',
+    route_name='api.v1.register_schema_meta_attribute_mapping',
     request_method='POST',
     renderer='json'
 )
 @transform_api_response()
-def register_meta_attribute_mapping_for_schema(request):
+def register_schema_meta_attribute_mapping(request):
     mapping = _register_meta_attribute_mapping_for_entity(
         request,
-        meta_attr_logic.register_meta_attribute_mapping_for_schema
+        meta_attr_logic.register_schema_meta_attribute_mapping
     )
     return responses_v1.get_meta_attr_mapping_response(
-        'avroschema_id', mapping.entity_id, [mapping.meta_attr_schema_id]
+        'avroschema_id',
+        mapping.entity_id,
+        [mapping.meta_attr_schema_id]
     )
 
 
 @view_config(
-    route_name='api.v1.delete_meta_attribute_mapping_for_schema',
+    route_name='api.v1.delete_schema_meta_attribute_mapping',
     request_method='DELETE',
     renderer='json'
 )
 @transform_api_response()
-def delete_meta_attribute_mapping_for_schema(request):
+def delete_schema_meta_attribute_mapping(request):
     return _delete_meta_attribute_mapping_for_entity(
         request,
-        meta_attr_logic.delete_meta_attribute_mapping_for_schema
+        meta_attr_logic.delete_schema_meta_attribute_mapping
     )
 
 

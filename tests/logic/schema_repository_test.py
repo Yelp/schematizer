@@ -14,8 +14,9 @@ from schematizer import models
 from schematizer.components import converters
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
-from schematizer.models import AvroSchema
+from schematizer.models import Namespace
 from schematizer.models.database import session
+from schematizer.models.exceptions import EntityNotFoundError
 from schematizer.models.page_info import PageInfo
 from testing import asserts
 from testing import factories
@@ -1353,6 +1354,10 @@ class TestSchemaRepository(DBTestCase):
         expected = []
         assert actual == expected
 
+    def test_get_meta_attr_by_invalid_schema_id(self, setup_meta_attr_mapping):
+        with pytest.raises(EntityNotFoundError):
+            schema_repo.get_meta_attributes_by_schema_id(schema_id=0)
+
     def assert_equal_namespace(self, expected, actual):
         assert expected.id == actual.id
         assert expected.name == actual.name
@@ -1755,53 +1760,102 @@ class TestGetTopicsByCriteria(DBTestCase):
         )
 
 
-@pytest.mark.usefixtures('setup_meta_attr_mappings')
-class TestAddToMetaAttrStore(GetMetaAttributeBaseTest):
+@pytest.mark.usefixtures(
+    'namespace_meta_attr_mapping',
+    'source_meta_attr_mapping',
+    'schema_meta_attr_mapping'
+)
+class TestAddToSchemaMetaAttributeMapping(GetMetaAttributeBaseTest):
 
-    def _get_meta_attr_mappings_as_dict(self, mappings):
+    @pytest.fixture
+    def test_schema_json(self):
+        return {
+            "name": "dummy_schema_for_meta_attr",
+            "type": "record",
+            "fields": [
+                {"name": "id", "type": "int", "doc": "id", "default": 0},
+                {"name": "name", "type": "string", "doc": "name"}
+            ],
+            "doc": "Sample Schema to test MetaAttrMappings"
+        }
+
+    def _get_meta_attr_mappings(self, schema_id):
+        result = session.query(models.SchemaMetaAttributeMapping).filter(
+            models.SchemaMetaAttributeMapping.schema_id == schema_id
+        ).all()
         mappings_dict = defaultdict(set)
-        for m in mappings:
+        for m in result:
             mappings_dict[m.schema_id].add(m.meta_attr_schema_id)
         return mappings_dict
 
     def test_add_unique_mappings(
         self,
-        dummy_schema,
-        meta_attr_1,
-        meta_attr_2,
-        meta_attr_3
+        test_schema_json,
+        dummy_src,
+        namespace_meta_attr,
+        source_meta_attr
     ):
-        actual = schema_repo.add_meta_attribute_mappings(dummy_schema)
+        actual_schema_1 = schema_repo.register_avro_schema_from_avro_json(
+            test_schema_json,
+            dummy_src.namespace.name,
+            dummy_src.name,
+            'dexter@morgan.com',
+            contains_pii=False,
+        )
         expected = {
-            dummy_schema.id: {meta_attr_1.id, meta_attr_2.id, meta_attr_3.id}
+            actual_schema_1.id: {
+                namespace_meta_attr.id,
+                source_meta_attr.id,
+            }
         }
-        assert self._get_meta_attr_mappings_as_dict(actual) == expected
+        assert self._get_meta_attr_mappings(actual_schema_1.id) == expected
 
-        actual_2 = schema_repo.add_meta_attribute_mappings(dummy_schema)
-        assert self._get_meta_attr_mappings_as_dict(actual_2) == expected
+        actual_schema_2 = schema_repo.register_avro_schema_from_avro_json(
+            test_schema_json,
+            dummy_src.namespace.name,
+            dummy_src.name,
+            'dexter@morgan.com',
+            contains_pii=False,
+        )
+        assert expected == self._get_meta_attr_mappings(actual_schema_2.id)
 
     def test_add_duplicate_mappings(
         self,
-        dummy_schema,
-        meta_attr_1,
-        meta_attr_2,
-        meta_attr_3
+        dummy_namespace,
+        test_schema_json,
+        dummy_src,
+        namespace_meta_attr,
+        source_meta_attr,
     ):
         factories.create_meta_attribute_mapping(
-            meta_attr_2.id,
-            AvroSchema.__name__,
-            dummy_schema.id
+            source_meta_attr.id,
+            Namespace.__name__,
+            dummy_namespace.id
         )
-        actual = schema_repo.add_meta_attribute_mappings(dummy_schema)
+        actual_schema = schema_repo.register_avro_schema_from_avro_json(
+            test_schema_json,
+            dummy_src.namespace.name,
+            dummy_src.name,
+            'dexter@morgan.com',
+            contains_pii=False,
+        )
         expected = {
-            dummy_schema.id: {meta_attr_1.id, meta_attr_2.id, meta_attr_3.id}
+            actual_schema.id: {
+                namespace_meta_attr.id,
+                source_meta_attr.id,
+            }
         }
-        assert self._get_meta_attr_mappings_as_dict(actual) == expected
+        assert expected == self._get_meta_attr_mappings(actual_schema.id)
 
     def test_handle_non_existing_mappings(
         self,
-        biz_schema
+        biz_topic, biz_schema_json, biz_schema_elements
     ):
-        actual = schema_repo.add_meta_attribute_mappings(biz_schema)
-        expected = []
-        assert actual == expected
+        actual = factories.create_avro_schema(
+            biz_schema_json,
+            biz_schema_elements,
+            topic_name=biz_topic.name,
+            namespace=biz_topic.source.namespace.name,
+            source=biz_topic.source.name
+        )
+        assert not self._get_meta_attr_mappings(actual.id)

@@ -45,12 +45,12 @@ def routes(config):
         '/v1/namespaces/{namespace}/refreshes'
     )
     config.add_route(
-        'api.v1.register_meta_attribute_mapping_for_namespace',
+        'api.v1.register_namepsace_meta_attribute_mapping',
         '/v1/namespaces/{namespace}/meta_attribute_mapping',
         request_method="POST"
     )
     config.add_route(
-        'api.v1.delete_meta_attribute_mapping_for_namespace',
+        'api.v1.delete_namespace_meta_attribute_mapping',
         '/v1/namespaces/{namespace}/meta_attribute_mapping',
         request_method="DELETE"
     )
@@ -96,12 +96,12 @@ def routes(config):
         request_method="GET"
     )
     config.add_route(
-        'api.v1.register_meta_attribute_mapping_for_source',
+        'api.v1.register_source_meta_attribute_mapping',
         '/v1/sources/{source_id}/meta_attribute_mapping',
         request_method="POST"
     )
     config.add_route(
-        'api.v1.delete_meta_attribute_mapping_for_source',
+        'api.v1.delete_source_meta_attribute_mapping',
         '/v1/sources/{source_id}/meta_attribute_mapping',
         request_method="DELETE"
     )
@@ -149,12 +149,12 @@ def routes(config):
         '/v1/schemas/{schema_id}/data_targets'
     )
     config.add_route(
-        'api.v1.register_meta_attribute_mapping_for_schema',
+        'api.v1.register_schema_meta_attribute_mapping',
         '/v1/schemas/{schema_id}/meta_attribute_mapping',
         request_method="POST"
     )
     config.add_route(
-        'api.v1.delete_meta_attribute_mapping_for_schema',
+        'api.v1.delete_schema_meta_attribute_mapping',
         '/v1/schemas/{schema_id}/meta_attribute_mapping',
         request_method="DELETE"
     )

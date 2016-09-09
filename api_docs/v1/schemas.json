@@ -248,7 +248,7 @@
                     "summary": "Register the specified meta attribute schema_id to the specified schema.",
                     "notes": "The schema_id of both the AvroSchema and Meta attribute should exist.",
                     "type": "MetaAttributeMappingsResponse",
-                    "nickname": "register_meta_attribute_mapping_for_schema",
+                    "nickname": "register_schema_meta_attribute_mapping",
                     "authorizations": {},
                     "parameters": [
                         {
@@ -278,7 +278,7 @@
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified schema.",
                     "notes": "The schema_id of both the AvroSchema and Meta attribute should exist.",
                     "type": "boolean",
-                    "nickname": "delete_meta_attribute_mapping_for_schema",
+                    "nickname": "delete_schema_meta_attribute_mapping",
                     "authorizations": {},
                     "parameters": [
                         {
@@ -707,7 +707,6 @@
                 }
             }
         },
-        ,
         "RegisterMetaAttributeRequest": {
             "id": "RegisterMetaAttributeRequest",
             "required": [

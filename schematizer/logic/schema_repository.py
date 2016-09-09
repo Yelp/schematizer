@@ -156,7 +156,7 @@ def register_avro_schema_from_avro_json(
         status=status,
         base_schema_id=base_schema_id
     )
-    add_meta_attribute_mappings(avro_schema)
+    _add_meta_attribute_mappings(avro_schema.id)
     return avro_schema
 
 
@@ -718,6 +718,9 @@ def get_schema_elements_by_schema_id(schema_id):
 
 
 def get_meta_attributes_by_schema_id(schema_id):
+    """Logic Method to list the schema_ids of all meta attributes registered to
+    the specified schema id. Invalid schema id will raise an
+    EntityNotFoundError exception"""
     models.AvroSchema.get_by_id(schema_id)
     mappings = session.query(
         models.SchemaMetaAttributeMapping
@@ -727,15 +730,15 @@ def get_meta_attributes_by_schema_id(schema_id):
     return [m.meta_attr_schema_id for m in mappings]
 
 
-def add_meta_attribute_mappings(avro_schema):
+def _add_meta_attribute_mappings(schema_id):
     mappings = []
     for meta_attr_schema_id in meta_attr_logic.get_meta_attributes_by_schema(
-        avro_schema.id
+        schema_id
     ):
         try:
             with session.begin_nested():
                 new_mapping = models.SchemaMetaAttributeMapping(
-                    schema_id=avro_schema.id,
+                    schema_id=schema_id,
                     meta_attr_schema_id=meta_attr_schema_id
                 )
                 session.add(new_mapping)
@@ -744,10 +747,10 @@ def add_meta_attribute_mappings(avro_schema):
             new_mapping = session.query(
                 models.SchemaMetaAttributeMapping
             ).filter(
-                models.SchemaMetaAttributeMapping.schema_id == avro_schema.id,
+                models.SchemaMetaAttributeMapping.schema_id == schema_id,
                 models.SchemaMetaAttributeMapping.meta_attr_schema_id ==
                 meta_attr_schema_id
-            ).first()
+            ).one()
         mappings.append(new_mapping)
     return mappings
 

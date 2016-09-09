@@ -17,7 +17,7 @@ from testing.asserts import assert_equal_meta_attribute_mapping
 from tests.models.testing_db import DBTestCase
 
 
-class RegisterMetaAttributeBase(DBTestCase):
+class RegisterAndDeleteMetaAttributeBase(DBTestCase):
 
     def assert_equal_meta_attr_partial(self, expected, actual):
         assert expected.entity_type == actual.entity_type
@@ -30,6 +30,13 @@ class RegisterMetaAttributeBase(DBTestCase):
             self.entity_model.__name__,
             entity_id
         )
+
+    def test_invalid_entity_id_fails(self, meta_attr_schema):
+        fake_id = 0
+        with pytest.raises(EntityNotFoundError):
+            self.register_logic_method(meta_attr_schema.id, fake_id)
+        with pytest.raises(EntityNotFoundError):
+            self.delete_logic_method(meta_attr_schema.id, fake_id)
 
     def test_register_first_time(self, meta_attr_schema):
         actual = self.register_logic_method(
@@ -79,41 +86,47 @@ class RegisterMetaAttributeBase(DBTestCase):
 
 
 @pytest.mark.usefixtures('setup_test')
-class TestRegisterMetaAttributeForNamespace(RegisterMetaAttributeBase):
+class TestRegisterAndDeleteMetaAttributeForNamespace(
+    RegisterAndDeleteMetaAttributeBase
+):
 
     @pytest.fixture
     def setup_test(self, yelp_namespace):
         self.entity_model = Namespace
-        self.register_logic_method = meta_attr_logic.\
-            register_meta_attribute_mapping_for_namespace
-        self.delete_logic_method = meta_attr_logic.\
-            delete_meta_attribute_mapping_for_namespace
+        self.register_logic_method = (
+            meta_attr_logic.register_namespace_meta_attribute_mapping)
+        self.delete_logic_method = (
+            meta_attr_logic.delete_namespace_meta_attribute_mapping)
         self.entity = yelp_namespace
 
 
 @pytest.mark.usefixtures('setup_test')
-class TestRegisterMetaAttributeForSource(RegisterMetaAttributeBase):
+class TestRegisterAndDeleteMetaAttributeForSource(
+    RegisterAndDeleteMetaAttributeBase
+):
 
     @pytest.fixture
     def setup_test(self, biz_source):
         self.entity_model = Source
-        self.register_logic_method = meta_attr_logic.\
-            register_meta_attribute_mapping_for_source
-        self.delete_logic_method = meta_attr_logic.\
-            delete_meta_attribute_mapping_for_source
+        self.register_logic_method = (
+            meta_attr_logic.register_source_meta_attribute_mapping)
+        self.delete_logic_method = (
+            meta_attr_logic.delete_source_meta_attribute_mapping)
         self.entity = biz_source
 
 
 @pytest.mark.usefixtures('setup_test')
-class TestRegisterMetaAttributeForSchema(RegisterMetaAttributeBase):
+class TestRegisterAndDeleteMetaAttributeForSchema(
+    RegisterAndDeleteMetaAttributeBase
+):
 
     @pytest.fixture
     def setup_test(self, biz_schema):
         self.entity_model = AvroSchema
-        self.register_logic_method = meta_attr_logic.\
-            register_meta_attribute_mapping_for_schema
-        self.delete_logic_method = \
-            meta_attr_logic.delete_meta_attribute_mapping_for_schema
+        self.register_logic_method = (
+            meta_attr_logic.register_schema_meta_attribute_mapping)
+        self.delete_logic_method = (
+            meta_attr_logic.delete_schema_meta_attribute_mapping)
         self.entity = biz_schema
 
 
@@ -130,23 +143,23 @@ class GetMetaAttributeBaseTest(DBTestCase):
             - SchemaA1X
         NamespaceB
 
-    +----+-------------+-----------+------------------+
-    | id | entity_type | entity_id | meta_attr_schema |
-    +----+-------------+-----------+------------------+
-    |  1 |   namespace |         A |      meta_attr_1 |
-    |  2 |      source |        A1 |      meta_attr_2 |
-    |  3 |      schema |       A1X |      meta_attr_3 |
-    +----+-------------+-----------+------------------+
+    +----+-------------+-----------+--------------------------+
+    | id | entity_type | entity_id |     meta_attr_schema     |
+    +----+-------------+-----------+--------------------------+
+    |  1 |   namespace |         A |      namespace_meta_attr |
+    |  2 |      source |        A1 |         source_meta_attr |
+    |  3 |      schema |       A1X |         schema_meta_attr |
+    +----+-------------+-----------+--------------------------+
     """
 
     @pytest.fixture
-    def dummy_nsp(self):
+    def dummy_namespace(self):
         return factories.create_namespace('yelp_meta_A')
 
     @pytest.fixture
-    def dummy_src(self, dummy_nsp):
+    def dummy_src(self, dummy_namespace):
         return factories.create_source(
-            namespace_name=dummy_nsp.name,
+            namespace_name=dummy_namespace.name,
             source_name='meta_source_A_1',
             owner_email='test-meta-src@yelp.com'
         )
@@ -154,7 +167,7 @@ class GetMetaAttributeBaseTest(DBTestCase):
     @pytest.fixture
     def dummy_schema(
         self,
-        dummy_nsp,
+        dummy_namespace,
         dummy_src,
         meta_attr_schema_json,
         meta_attr_schema_elements
@@ -162,8 +175,8 @@ class GetMetaAttributeBaseTest(DBTestCase):
         return factories.create_avro_schema(
             meta_attr_schema_json,
             meta_attr_schema_elements,
-            topic_name='.'.join([dummy_nsp.name, dummy_src.name, '1']),
-            namespace=dummy_nsp.name,
+            topic_name='.'.join([dummy_namespace.name, dummy_src.name, '1']),
+            namespace=dummy_namespace.name,
             source=dummy_src.name
         )
 
@@ -182,84 +195,119 @@ class GetMetaAttributeBaseTest(DBTestCase):
         )
 
     @pytest.fixture
-    def meta_attr_1(self, meta_attr_schema_json, meta_attr_schema_elements):
-        return self._create_meta_attribute_schema(
-            'meta_atr_1', meta_attr_schema_json, meta_attr_schema_elements
-        )
-
-    @pytest.fixture
-    def meta_attr_2(self, meta_attr_schema_json, meta_attr_schema_elements):
-        return self._create_meta_attribute_schema(
-            'meta_atr_2', meta_attr_schema_json, meta_attr_schema_elements
-        )
-
-    @pytest.fixture
-    def meta_attr_3(self, meta_attr_schema_json, meta_attr_schema_elements):
-        return self._create_meta_attribute_schema(
-            'meta_atr_3', meta_attr_schema_json, meta_attr_schema_elements
-        )
-
-    @pytest.fixture
-    def setup_meta_attr_mappings(
+    def namespace_meta_attr(
         self,
-        meta_attr_1,
-        meta_attr_2,
-        meta_attr_3,
-        dummy_nsp,
-        dummy_src,
-        dummy_schema
+        meta_attr_schema_json,
+        meta_attr_schema_elements
+    ):
+        return self._create_meta_attribute_schema(
+            'namespace_meta_attr',
+            meta_attr_schema_json,
+            meta_attr_schema_elements
+        )
+
+    @pytest.fixture
+    def source_meta_attr(
+        self,
+        meta_attr_schema_json,
+        meta_attr_schema_elements
+    ):
+        return self._create_meta_attribute_schema(
+            'source_meta_attr',
+            meta_attr_schema_json,
+            meta_attr_schema_elements
+        )
+
+    @pytest.fixture
+    def schema_meta_attr(
+        self,
+        meta_attr_schema_json,
+        meta_attr_schema_elements
+    ):
+        return self._create_meta_attribute_schema(
+            'schema_meta_attr',
+            meta_attr_schema_json,
+            meta_attr_schema_elements
+        )
+
+    @pytest.fixture
+    def namespace_meta_attr_mapping(
+        self,
+        namespace_meta_attr,
+        dummy_namespace
     ):
         factories.create_meta_attribute_mapping(
-            meta_attr_1.id,
+            namespace_meta_attr.id,
             Namespace.__name__,
-            dummy_nsp.id
+            dummy_namespace.id
         )
+
+    @pytest.fixture
+    def source_meta_attr_mapping(self, source_meta_attr, dummy_src):
         factories.create_meta_attribute_mapping(
-            meta_attr_2.id,
+            source_meta_attr.id,
             Source.__name__,
             dummy_src.id
         )
+
+    @pytest.fixture
+    def schema_meta_attr_mapping(self, schema_meta_attr, dummy_schema):
         factories.create_meta_attribute_mapping(
-            meta_attr_3.id,
+            schema_meta_attr.id,
             AvroSchema.__name__,
             dummy_schema.id
         )
 
 
-@pytest.mark.usefixtures('setup_meta_attr_mappings')
+@pytest.mark.usefixtures(
+    'namespace_meta_attr_mapping',
+    'source_meta_attr_mapping',
+    'schema_meta_attr_mapping'
+)
 class TestGetMetaAttributeMappings(GetMetaAttributeBaseTest):
 
     def test_get_mapping_by_namespace(
         self,
-        dummy_nsp,
-        meta_attr_1
+        dummy_namespace,
+        namespace_meta_attr
     ):
-        actual = meta_attr_logic.get_meta_attributes_by_namespace(dummy_nsp.id)
-        expected = [meta_attr_1.id]
+        actual = meta_attr_logic.get_meta_attributes_by_namespace(
+            dummy_namespace.id
+        )
+        expected = [namespace_meta_attr.id]
         assert actual == expected
 
     def test_get_mapping_by_source(
         self,
         dummy_src,
-        meta_attr_1,
-        meta_attr_2
+        namespace_meta_attr,
+        source_meta_attr
     ):
         actual = meta_attr_logic.get_meta_attributes_by_source(dummy_src.id)
-        expected = [meta_attr_1.id, meta_attr_2.id]
+        expected = [namespace_meta_attr.id, source_meta_attr.id]
         assert actual == expected
 
     def test_get_mapping_by_schema(
         self,
         dummy_schema,
-        meta_attr_1,
-        meta_attr_2,
-        meta_attr_3
+        namespace_meta_attr,
+        source_meta_attr,
+        schema_meta_attr
     ):
         actual = meta_attr_logic.get_meta_attributes_by_schema(dummy_schema.id)
-        expected = [meta_attr_1.id, meta_attr_2.id, meta_attr_3.id]
+        expected = [
+            namespace_meta_attr.id,
+            source_meta_attr.id,
+            schema_meta_attr.id
+        ]
         assert actual == expected
 
-    def test_get_non_existing_mapping(self):
-        fake_nsp_id = 1234
+    @pytest.mark.parametrize('getter_method', [
+        meta_attr_logic.get_meta_attributes_by_namespace,
+        meta_attr_logic.get_meta_attributes_by_source,
+        meta_attr_logic.get_meta_attributes_by_schema
+    ])
+    def test_get_non_existing_mapping(self, getter_method):
+        fake_id = 0
         with pytest.raises(EntityNotFoundError):
-            meta_attr_logic.get_meta_attributes_by_namespace(fake_nsp_id)
+            getter_method(fake_id)
