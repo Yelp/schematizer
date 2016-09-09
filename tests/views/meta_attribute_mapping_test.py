@@ -12,6 +12,40 @@ from testing import factories
 from tests.views.api_test_base import ApiTestBase
 
 
+class TestGetMetaAttributesByNamespace(ApiTestBase):
+
+    entity_type = Namespace.__name__
+
+    def _setup_meta_attribute_mapping(self, meta_attr_schema, namespace):
+        factories.create_meta_attribute_mapping(
+            meta_attr_schema.id,
+            self.entity_type,
+            namespace.id
+        )
+
+    def test_non_existing_entity(self, mock_request):
+        expected_exception = self.get_http_exception(404)
+        fake_namespace_name = 'not_a_namepsace'
+        with pytest.raises(expected_exception) as e:
+            mock_request.matchdict = {'namespace': fake_namespace_name}
+            meta_attr_views.get_meta_attr_mappings_by_namespace(mock_request)
+        assert e.value.code == expected_exception.code
+        assert str(e.value) == '{0} name `{1}` not found.'.format(
+            self.entity_type, fake_namespace_name
+        )
+
+    def test_happy_case(self, mock_request, meta_attr_schema, yelp_namespace):
+        self._setup_meta_attribute_mapping(meta_attr_schema, yelp_namespace)
+        mock_request.matchdict = {'namespace': yelp_namespace.name}
+        actual = meta_attr_views.get_meta_attr_mappings_by_namespace(
+            mock_request
+        )
+        expected = self.get_expected_meta_attr_response(
+            self.entity_type, yelp_namespace.id
+        )
+        assert actual == expected
+
+
 class GetMetaAttributeBase(ApiTestBase):
     """Entities here can be Namespaces, Sources or Schemas. You need to
     implement the following to use this Base class:
@@ -48,18 +82,6 @@ class GetMetaAttributeBase(ApiTestBase):
             self.entity_type, self.entity.id
         )
         assert actual == expected
-
-
-@pytest.mark.usefixtures('setup_test')
-class TestGetMetaAttributesByNamespace(GetMetaAttributeBase):
-
-    @pytest.fixture
-    def setup_test(self, yelp_namespace):
-        self.entity_type = Namespace.__name__
-        self.entity_type_id = 'namespace_id'
-        self.getter_logic_method = meta_attr_views.\
-            get_meta_attr_mappings_by_namespace_id
-        self.entity = yelp_namespace
 
 
 @pytest.mark.usefixtures('setup_test')

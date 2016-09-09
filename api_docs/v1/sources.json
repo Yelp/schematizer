@@ -314,6 +314,107 @@
                     ]
                 }
             ]
+        },
+        {
+            "path": "/v1/sources/{source_id}/meta_attribute_mapping",
+            "operations": [
+                {
+                    "method": "POST",
+                    "summary": "Register the specified meta attribute schema_id to the specified source.",
+                    "notes": "The source and the schema_id of Meta attribute schema should exist.",
+                    "type": "MetaAttributeMappingsResponse",
+                    "nickname": "register_meta_attribute_mapping_for_source",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "body",
+                            "required": true,
+                            "type": "RegisterMetaAttributeRequest",
+                            "paramType": "body"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 404,
+                            "message": "Entity not found"
+                        },
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                },
+                {
+                    "method": "DELETE",
+                    "summary": "Remove the specified meta attribute schema_id mapping from the specified source.",
+                    "notes": "The source and the schema_id of Meta attribute schema should exist.",
+                    "type": "boolean",
+                    "nickname": "delete_meta_attribute_mapping_for_source",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "body",
+                            "required": true,
+                            "type": "RegisterMetaAttributeRequest",
+                            "paramType": "body"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 204,
+                            "message": "Deletion sccessful"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Entity not found"
+                        },
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                },
+                {
+                    "method": "GET",
+                    "summary": "Get a list of all meta attribute schema_ids mapped to specified source_id.",
+                    "notes": "",
+                    "type": "MetaAttributeMappingsResponse",
+                    "nickname": "get_meta_attr_mappings_by_source_id",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "source_id",
+                            "description": "ID of source for which meta attributes will be fetched",
+                            "required": true,
+                            "type": "integer",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid Source ID supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Source not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "models": {
@@ -533,6 +634,39 @@
                     "type": "integer",
                     "description": "This field throttles the throughput of the refresh runner once the refresh is actually run. It will sleep in between batch row gets to limit it to this cap",
                     "required": false
+                }
+            }
+        },
+        ,
+        "RegisterMetaAttributeRequest": {
+            "id": "RegisterMetaAttributeRequest",
+            "required": [
+                "entity_id",
+                "meta_attribute_schema_id"
+            ],
+            "properties": {
+                "entity_id": {
+                    "type": "integer",
+                    "description": "ID of the entity (Namespace/Source/AvroSchema)to be mapped for."
+                },
+                "meta_attribute_schema_id": {
+                    "type": "integer",
+                    "description": "AvroSchema ID of Meta Attribute schema to be mapped."
+                }
+            }
+        },
+        "MetaAttributeMappingsResponse": {
+            "id": "MetaAttributeMappingsResponse",
+            "required": [
+                "meta_attribute_schema_ids"
+            ],
+            "properties": {
+                "meta_attribute_schema_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "description": "List of meta attribute schema IDs."
                 }
             }
         }

@@ -9,6 +9,7 @@ from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.requests import requests_v1
 from schematizer.api.responses import responses_v1
 from schematizer.logic import meta_attribute_mappers as meta_attr_logic
+from schematizer.models import Namespace
 from schematizer.models.exceptions import EntityNotFoundError
 
 
@@ -120,18 +121,19 @@ def delete_meta_attribute_mapping_for_schema(request):
 
 
 @view_config(
-    route_name='api.v1.get_meta_attr_mappings_by_namespace_id',
+    route_name='api.v1.get_meta_attr_mappings_by_namespace',
     request_method='GET',
 )
 @transform_api_response()
-def get_meta_attr_mappings_by_namespace_id(request):
+def get_meta_attr_mappings_by_namespace(request):
     try:
-        namespace_id = int(request.matchdict.get('namespace_id'))
+        namespace_name = str(request.matchdict.get('namespace'))
+        namespace = Namespace.get_by_name(namespace_name)
         meta_attr_ids = meta_attr_logic.get_meta_attributes_by_namespace(
-            namespace_id
+            namespace.id
         )
         return responses_v1.get_meta_attr_mapping_response(
-            'namespace_id', namespace_id, meta_attr_ids
+            'namespace_id', namespace.id, meta_attr_ids
         )
     except EntityNotFoundError as e:
         raise exceptions_v1.entity_not_found_exception(e.message)

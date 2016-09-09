@@ -45,6 +45,21 @@ def routes(config):
         '/v1/namespaces/{namespace}/refreshes'
     )
     config.add_route(
+        'api.v1.register_meta_attribute_mapping_for_namespace',
+        '/v1/namespaces/{namespace}/meta_attribute_mapping',
+        request_method="POST"
+    )
+    config.add_route(
+        'api.v1.delete_meta_attribute_mapping_for_namespace',
+        '/v1/namespaces/{namespace}/meta_attribute_mapping',
+        request_method="DELETE"
+    )
+    config.add_route(
+        'api.v1.get_meta_attr_mappings_by_namespace',
+        '/v1/namespaces/{namespace}/meta_attribute_mapping',
+        request_method="GET"
+    )
+    config.add_route(
         'api.v1.list_sources',
         '/v1/sources'
     )
@@ -78,6 +93,21 @@ def routes(config):
     config.add_route(
         'api.v1.list_refreshes_by_source_id',
         '/v1/sources/{source_id}/refreshes',
+        request_method="GET"
+    )
+    config.add_route(
+        'api.v1.register_meta_attribute_mapping_for_source',
+        '/v1/sources/{source_id}/meta_attribute_mapping',
+        request_method="POST"
+    )
+    config.add_route(
+        'api.v1.delete_meta_attribute_mapping_for_source',
+        '/v1/sources/{source_id}/meta_attribute_mapping',
+        request_method="DELETE"
+    )
+    config.add_route(
+        'api.v1.get_meta_attr_mappings_by_source_id',
+        '/v1/sources/{source_id}/meta_attribute_mapping',
         request_method="GET"
     )
     config.add_route(
@@ -115,12 +145,27 @@ def routes(config):
         '/v1/schemas/{schema_id}/elements'
     )
     config.add_route(
-        'api.v1.get_meta_attributes_by_schema_id',
-        '/v1/schemas/{schema_id}/meta_attributes'
-    )
-    config.add_route(
         'api.v1.get_data_targets_by_schema_id',
         '/v1/schemas/{schema_id}/data_targets'
+    )
+    config.add_route(
+        'api.v1.register_meta_attribute_mapping_for_schema',
+        '/v1/schemas/{schema_id}/meta_attribute_mapping',
+        request_method="POST"
+    )
+    config.add_route(
+        'api.v1.delete_meta_attribute_mapping_for_schema',
+        '/v1/schemas/{schema_id}/meta_attribute_mapping',
+        request_method="DELETE"
+    )
+    config.add_route(
+        'api.v1.get_meta_attr_mappings_by_schema_id',
+        '/v1/schemas/{schema_id}/meta_attribute_mapping',
+        request_method="GET"
+    )
+    config.add_route(
+        'api.v1.get_meta_attributes_by_schema_id',
+        '/v1/schemas/{schema_id}/meta_attributes'
     )
     config.add_route(
         'api.v1.is_avro_schema_compatible',
@@ -216,51 +261,5 @@ def routes(config):
     config.add_route(
         'api.v1.get_schemas_created_after',
         '/v1/schemas',
-        request_method="GET"
-    )
-
-    config.add_route(
-        'api.v1.register_meta_attribute_mapping_for_namespace',
-        '/v1/meta_attribute_mapping/namespace',
-        request_method="POST"
-    )
-    config.add_route(
-        'api.v1.delete_meta_attribute_mapping_for_namespace',
-        '/v1/meta_attribute_mapping/namespace',
-        request_method="DELETE"
-    )
-    config.add_route(
-        'api.v1.register_meta_attribute_mapping_for_source',
-        '/v1/meta_attribute_mapping/source',
-        request_method="POST"
-    )
-    config.add_route(
-        'api.v1.delete_meta_attribute_mapping_for_source',
-        '/v1/meta_attribute_mapping/source',
-        request_method="DELETE"
-    )
-    config.add_route(
-        'api.v1.register_meta_attribute_mapping_for_schema',
-        '/v1/meta_attribute_mapping/schema',
-        request_method="POST"
-    )
-    config.add_route(
-        'api.v1.delete_meta_attribute_mapping_for_schema',
-        '/v1/meta_attribute_mapping/schema',
-        request_method="DELETE"
-    )
-    config.add_route(
-        'api.v1.get_meta_attr_mappings_by_namespace_id',
-        '/v1/meta_attribute_mapping/namespace/{namespace_id}',
-        request_method="GET"
-    )
-    config.add_route(
-        'api.v1.get_meta_attr_mappings_by_source_id',
-        '/v1/meta_attribute_mapping/source/{source_id}',
-        request_method="GET"
-    )
-    config.add_route(
-        'api.v1.get_meta_attr_mappings_by_schema_id',
-        '/v1/meta_attribute_mapping/schema/{schema_id}',
         request_method="GET"
     )

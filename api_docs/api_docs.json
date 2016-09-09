@@ -45,10 +45,6 @@
         {
             "path": "/v1/schema_migrations",
             "description": "Operations to generate schema migrations."
-        },
-        {
-            "path": "/v1/meta_attribute_mapping",
-            "description": "Operations about meta_attribute mappings."
         }
     ],
     "info": {
