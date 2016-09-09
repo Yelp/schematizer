@@ -22,6 +22,8 @@
     <modifySql dbms="mysql">
       <append value=" ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci"/>
     </modifySql>
+  </changeSet>
+  <changeSet author="askatti" id="1473453530">
     <createIndex indexName="schema_id_index" tableName="schema_meta_attribute_mapping" unique="false">
       <column name="schema_id" type="INT(11)"/>
     </createIndex>
