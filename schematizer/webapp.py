@@ -9,13 +9,13 @@ import uwsgi_metrics
 import yelp_pyramid
 import yelp_pyramid.healthcheck
 from pyramid.config import Configurator
-from yelp_lib.decorators import memoized
 from yelp_servlib import config_util
 from yelp_servlib import logging_util
 
 import schematizer.config
 import schematizer.models.database
 from schematizer import healthchecks
+from schematizer.helpers.decorators import memoized
 
 SERVICE_CONFIG_PATH = os.environ.get('SERVICE_CONFIG_PATH')
 SERVICE_ENV_CONFIG_PATH = os.environ.get('SERVICE_ENV_CONFIG_PATH')

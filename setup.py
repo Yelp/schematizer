@@ -20,7 +20,6 @@ setup(
         'yelp_pyramid',
         'yelp_servlib',
         'yelp_conn',
-        'yelp_lib',
         'yelp-profiling',
     ]
 )

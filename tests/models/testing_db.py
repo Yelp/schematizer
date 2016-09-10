@@ -11,10 +11,10 @@ from glob import glob
 import pytest
 import staticconf.testing
 import yelp_conn
+from cached_property import cached_property
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker as sessionmaker_sa
 from yelp_conn.testing import sandbox
-from yelp_lib.classutil import cached_property
 
 from schematizer.models import database
 

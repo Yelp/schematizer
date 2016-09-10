@@ -66,7 +66,6 @@ yelp-email==1.2.1
 yelp-encodings==0.1.3
 yelp-ips==0.1.1
 yelp-kafka==4.5.5
-yelp-lib==9.1.0
 yelp-logging==1.7.3
 yelp-markupsafe==0.0.1
 yelp-meteorite==1.0.0
