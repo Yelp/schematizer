@@ -5,9 +5,14 @@ from __future__ import unicode_literals
 from schematizer.config import get_config
 
 
-def _get_schematizer_session():
+def _get_schematizer_session(topology_path, cluster_name):
     try:
-        if get_config().force_avoid_yelp_conn:
+        if get_config().force_avoid_internal_packages:
+            # TODO(DATAPIPE-1506|abrar): Currently we have
+            # force_avoid_internal_packages as a means of simulating an absence
+            # of a yelp's internal package. And all references
+            # of force_avoid_internal_packages have to be removed from
+            # schematizer after we have completely ready for open source.
             raise ImportError
         from schematizer.models.connections.yelp_connection \
             import get_schematizer_session
@@ -15,12 +20,19 @@ def _get_schematizer_session():
         from schematizer.models.connections.default_connection \
             import get_schematizer_session
 
-    return get_schematizer_session()
+    return get_schematizer_session(
+        topology_path=topology_path,
+        cluster_name=cluster_name)
 
 
 def _get_base_model():
     try:
-        if get_config().force_avoid_yelp_conn:
+        if get_config().force_avoid_internal_packages:
+            # TODO(DATAPIPE-1506|abrar): Currently we have
+            # force_avoid_internal_packages as a means of simulating an absence
+            # of a yelp's internal package. And all references
+            # of force_avoid_internal_packages have to be removed from
+            # schematizer after we have completely ready for open source.
             raise ImportError
         from yelp_conn.session import declarative_base
     except ImportError:
@@ -34,4 +46,7 @@ Base = _get_base_model()
 Base.__cluster__ = 'schematizer'
 
 # The single global session manager used to provide sessions through yelp_conn.
-session = _get_schematizer_session()
+session = _get_schematizer_session(
+    topology_path=get_config().topology_path,
+    cluster_name=get_config().schematizer_cluster
+)

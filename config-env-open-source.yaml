@@ -1,1 +1,1 @@
-force_avoid_yelp_conn: True
+force_avoid_internal_packages: True

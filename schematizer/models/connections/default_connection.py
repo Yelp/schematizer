@@ -2,19 +2,19 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from contextlib import contextmanager
+
 import yaml
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-from schematizer.config import get_config
-from schematizer.models.connections._scoped_session import _ScopedSession
+from sqlalchemy.orm.scoping import ScopedSession
 
 
-def get_schematizer_session():
-    topology = _read_topology(get_config().topology_path)
+def get_schematizer_session(**kwargs):
+    topology = _read_topology(kwargs['topology_path'])
     cluster_config = _get_cluster_config(
         topology,
-        get_config().schematizer_cluster
+        kwargs['cluster_name']
     )
     engine = _create_engine(cluster_config)
     return _ScopedSession(sessionmaker(bind=engine))
@@ -40,3 +40,24 @@ def _get_cluster_config(topology, cluster_name):
     for topo_item in topology.get('topology'):
         if topo_item.get('cluster') == cluster_name:
             return topo_item['entries'][0]
+
+
+class _ScopedSession(ScopedSession):
+    """ This is a wrapper over sqlalchamy ScopedSession that
+    that does sql operations in a context manager. Commits
+    happens on exit of context manager, rollback if there
+    is an exception inside the context manager. Safely close the
+    session in the end.
+    """
+    @contextmanager
+    def connect_begin(self, *args, **kwargs):
+        session = self()
+        try:
+            yield session
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+            self.remove()

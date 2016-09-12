@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-# This is shamelessly copied from
-# checkout_fulfillment servicve with some minor changes.
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
@@ -8,11 +6,11 @@ import atexit
 from glob import glob
 
 import pytest
-import testing.mysqld
 from cached_property import cached_property
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker as sessionmaker_sa
 
+import testing.mysqld
 from schematizer.models import database
 
 
@@ -39,6 +37,7 @@ class PerProcessMySQLDaemon(object):
             for fixture in fixtures:
                 with open(fixture, 'r') as fh:
                     conn.execute(fh.read())
+        conn.close()
 
     def truncate_all_tables(self):
         self._session.execute('begin')

@@ -32,9 +32,15 @@ class Config(object):
         )
 
     @property
-    def force_avoid_yelp_conn(self):
+    def force_avoid_internal_packages(self):
+        """ TODO(DATAPIPE-1506|abrar): Currently we have
+        force_avoid_internal_packages as a means of simulating an absence
+        of a yelp's internal package. And all references
+        of force_avoid_internal_packages have to be removed from schematizer
+        after we have completely ready for open source.
+        """
         return staticconf.get(
-            'force_avoid_yelp_conn',
+            'force_avoid_internal_packages',
             default=False
         )
 

@@ -8,10 +8,17 @@ from schematizer import models
 from schematizer.config import get_config
 from schematizer.models.database import session
 
+
 can_watch_config = False
 
+
 try:
-    if get_config().force_avoid_yelp_conn:
+    if get_config().force_avoid_internal_packages:
+        # TODO(DATAPIPE-1506|abrar): Currently we have
+        # force_avoid_internal_packages as a means of simulating an absence
+        # of a yelp's internal package. And all references
+        # of force_avoid_internal_packages have to be removed from schematizer
+        # after we have completely ready for open source.
         raise ImportError
     from yelp_conn import load
     can_watch_config = True
@@ -46,7 +53,6 @@ class MysqlHealthCheck(object):
         return self.watcher
 
     def __call__(self, *args, **kwargs):
-
         if can_watch_config:
             self.get_watcher().reload_if_changed()
 
