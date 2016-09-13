@@ -23,6 +23,13 @@
     -   id: check-merge-conflict
     -   id: name-tests-test
         exclude: (tests/helpers/(.+).py|tests/models/testing_db.py|tests/views/api_test_base.py)
+    -   id: pretty-format-json
+        language_version: python2.7
+        args:
+        - --autofix
+        - --indent
+        - '4'
+        files: ^api_docs.*\.json$
 -   repo: git@git.yelpcorp.com:yelp_pre_commit_hooks
     sha: cff7fc91c367ea75e2a38e34a4aafb025cf02781
     hooks:

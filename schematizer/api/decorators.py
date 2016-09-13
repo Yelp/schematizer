@@ -49,7 +49,7 @@ def _transform_datetime_field(response):
     if isinstance(response, dict):
         for key, value in response.iteritems():
             if isinstance(value, datetime):
-                response[key] = value.isoformat()
+                response[key] = value.isoformat() + 'Z'
             elif isinstance(value, dict):
                 _transform_datetime_field(value)
 

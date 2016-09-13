@@ -454,8 +454,8 @@ class TestGetSchemaElements(ApiTestBase):
                     'element_type': element.element_type,
                     'key': element.key,
                     'doc': element.doc,
-                    'created_at': element.created_at.isoformat(),
-                    'updated_at': element.updated_at.isoformat()
+                    'created_at': self._format_time(element.created_at),
+                    'updated_at': self._format_time(element.updated_at)
                 }
             )
 

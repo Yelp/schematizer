@@ -34,8 +34,8 @@ class NotesViewTestBase(ApiTestBase):
             'reference_type': ref_type,
             'note': note_text,
             'last_updated_by': updated_by,
-            'created_at': note.created_at.isoformat(),
-            'updated_at': note.updated_at.isoformat()
+            'created_at': self._format_time(note.created_at),
+            'updated_at': self._format_time(note.updated_at)
         }
 
 

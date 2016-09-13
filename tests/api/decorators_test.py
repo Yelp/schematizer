@@ -52,6 +52,9 @@ class TestHandleViewExceptionDecorator(DBTestCase):
 
 class TestTransformResponseDecorator(DBTestCase):
 
+    def _format_time(self, time):
+        return time.isoformat() + 'Z'
+
     @pytest.fixture
     def source_response(self, biz_source):
         return {
@@ -59,16 +62,16 @@ class TestTransformResponseDecorator(DBTestCase):
             'namespace': self._get_namespace_resp(biz_source.namespace),
             'name': biz_source.name,
             'owner_email': biz_source.owner_email,
-            'created_at': biz_source.created_at.isoformat(),
-            'updated_at': biz_source.updated_at.isoformat()
+            'created_at': self._format_time(biz_source.created_at),
+            'updated_at': self._format_time(biz_source.updated_at)
         }
 
     def _get_namespace_resp(self, namespace):
         return {
             'namespace_id': namespace.id,
             'name': namespace.name,
-            'created_at': namespace.created_at.isoformat(),
-            'updated_at': namespace.updated_at.isoformat()
+            'created_at': self._format_time(namespace.created_at),
+            'updated_at': self._format_time(namespace.updated_at)
         }
 
     @pytest.fixture

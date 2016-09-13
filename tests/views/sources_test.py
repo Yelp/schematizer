@@ -167,8 +167,8 @@ class TestUpdateCategory(ApiTestBase):
         return {
             'source_id': source_id,
             'category': expected_category,
-            'created_at': src_category.created_at.isoformat(),
-            'updated_at': src_category.updated_at.isoformat()
+            'created_at': self._format_time(src_category.created_at),
+            'updated_at': self._format_time(src_category.updated_at)
         }
 
 
@@ -198,8 +198,8 @@ class TestDeleteCategory(ApiTestBase):
         expected = {
             'source_id': src_category.source_id,
             'category': 'Biz',
-            'created_at': src_category.created_at.isoformat(),
-            'updated_at': src_category.updated_at.isoformat()
+            'created_at': self._format_time(src_category.created_at),
+            'updated_at': self._format_time(src_category.updated_at)
         }
 
         mock_request.matchdict = {'source_id': str(biz_source.id)}

@@ -14,7 +14,7 @@ from schematizer.models.refresh import RefreshStatus
 
 
 def _format_datetime(datetime_value):
-    return datetime_value.isoformat()
+    return datetime_value.isoformat() + 'Z'
 
 
 def get_namespace_response_from_namespace(namespace):

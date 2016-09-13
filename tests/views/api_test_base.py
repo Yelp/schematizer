@@ -13,6 +13,9 @@ from tests.models.testing_db import DBTestCase
 
 class ApiTestBase(DBTestCase):
 
+    def _format_time(self, time):
+        return time.isoformat() + 'Z'
+
     @pytest.yield_fixture
     def mock_request(self):
         with mock.patch('pyramid.request.Request', autospec=True) as mock_req:
@@ -23,8 +26,8 @@ class ApiTestBase(DBTestCase):
         return {
             'namespace_id': namespace.id,
             'name': namespace.name,
-            'created_at': namespace.created_at.isoformat(),
-            'updated_at': namespace.updated_at.isoformat()
+            'created_at': self._format_time(namespace.created_at),
+            'updated_at': self._format_time(namespace.updated_at)
         }
 
     def get_expected_src_resp(self, source_id):
@@ -34,8 +37,8 @@ class ApiTestBase(DBTestCase):
             'namespace': self.get_expected_namespace_resp(src.namespace.id),
             'name': src.name,
             'owner_email': src.owner_email,
-            'created_at': src.created_at.isoformat(),
-            'updated_at': src.updated_at.isoformat()
+            'created_at': self._format_time(src.created_at),
+            'updated_at': self._format_time(src.updated_at)
         }
 
     def get_expected_topic_resp(self, topic_id):
@@ -46,8 +49,8 @@ class ApiTestBase(DBTestCase):
             'source': self.get_expected_src_resp(topic.source_id),
             'contains_pii': False,
             'primary_keys': topic.primary_keys,
-            'created_at': topic.created_at.isoformat(),
-            'updated_at': topic.updated_at.isoformat(),
+            'created_at': self._format_time(topic.created_at),
+            'updated_at': self._format_time(topic.updated_at),
         }
 
     def get_expected_schema_resp(self, schema_id, **overrides):
@@ -58,8 +61,8 @@ class ApiTestBase(DBTestCase):
             'topic': self.get_expected_topic_resp(avro_schema.topic_id),
             'status': models.AvroSchemaStatus.READ_AND_WRITE,
             'primary_keys': [],
-            'created_at': avro_schema.created_at.isoformat(),
-            'updated_at': avro_schema.updated_at.isoformat()
+            'created_at': self._format_time(avro_schema.created_at),
+            'updated_at': self._format_time(avro_schema.updated_at)
         }
         if overrides:
             expected.update(overrides)
@@ -74,8 +77,8 @@ class ApiTestBase(DBTestCase):
             'offset': src_refresh.offset,
             'batch_size': src_refresh.batch_size,
             'priority': models.Priority(src_refresh.priority).name,
-            'created_at': src_refresh.created_at.isoformat(),
-            'updated_at': src_refresh.updated_at.isoformat()
+            'created_at': self._format_time(src_refresh.created_at),
+            'updated_at': self._format_time(src_refresh.updated_at)
         }
         if src_refresh.avg_rows_per_second_cap is not None:
             expected[
@@ -91,8 +94,8 @@ class ApiTestBase(DBTestCase):
             'data_target_id': data_target.id,
             'target_type': data_target.target_type,
             'destination': data_target.destination,
-            'created_at': data_target.created_at.isoformat(),
-            'updated_at': data_target.updated_at.isoformat()
+            'created_at': self._format_time(data_target.created_at),
+            'updated_at': self._format_time(data_target.updated_at)
         }
         if overrides:
             expected.update(overrides)
@@ -106,8 +109,8 @@ class ApiTestBase(DBTestCase):
             'data_target': self.get_expected_data_target_resp(
                 group.data_target.id
             ),
-            'created_at': group.created_at.isoformat(),
-            'updated_at': group.updated_at.isoformat()
+            'created_at': self._format_time(group.created_at),
+            'updated_at': self._format_time(group.updated_at)
         }
         if overrides:
             expected.update(overrides)
@@ -127,8 +130,8 @@ class ApiTestBase(DBTestCase):
             'consumer_group_id': data_source.consumer_group.id,
             'data_source_type': data_source.data_source_type,
             'data_source_id': data_source.data_source_id,
-            'created_at': data_source.created_at.isoformat(),
-            'updated_at': data_source.updated_at.isoformat()
+            'created_at': self._format_time(data_source.created_at),
+            'updated_at': self._format_time(data_source.updated_at)
         }
         if overrides:
             expected.update(overrides)
