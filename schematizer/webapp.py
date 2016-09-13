@@ -78,14 +78,13 @@ def _create_application():
     # on the service's configuration.
     config.include(yelp_pyramid)
     try:
+        # TODO(DATAPIPE-1506|abrar): Currently we have
+        # force_avoid_internal_packages as a means of simulating an absence
+        # of a yelp's internal package. And all references
+        # of force_avoid_internal_packages have to be removed from
+        # schematizer after we have completely ready for open source.
         if get_config().force_avoid_internal_packages:
-            # TODO(DATAPIPE-1506|abrar): Currently we have
-            # force_avoid_internal_packages as a means of simulating an absence
-            # of a yelp's internal package. And all references
-            # of force_avoid_internal_packages have to be removed from
-            # schematizer after we have completely ready for open source.
             raise ImportError
-        import pyramid_yelp_conn  # noqa: F401
         config.include('pyramid_yelp_conn')
         config.set_yelp_conn_session(schematizer.models.database.session)
     except ImportError:
@@ -107,7 +106,7 @@ def _create_application():
     config.scan(
         package='schematizer',
         ignore=[
-            str('schematizer.models.connections')
+            str('schematizer.views')
         ]
     )
 

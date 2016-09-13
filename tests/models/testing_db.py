@@ -14,16 +14,14 @@ import testing.mysqld
 from schematizer.models import database
 
 
-# Generate Mysqld class which shares the generated database
-Mysqld = testing.mysqld.MysqldFactory(cache_initialized_db=True)
-
-
 class PerProcessMySQLDaemon(object):
 
     _db_name = 'schematizer'
+    # Generate Mysqld class which shares the generated database
+    Mysqld = testing.mysqld.MysqldFactory(cache_initialized_db=True)
 
     def __init__(self):
-        self._mysql_daemon = Mysqld()
+        self._mysql_daemon = self.Mysqld()
         self._create_database()
         self._create_tables()
 
@@ -31,13 +29,11 @@ class PerProcessMySQLDaemon(object):
 
     def _create_tables(self):
         fixtures = glob('schema/tables/*.sql')
-        conn = self.engine.connect()
-        with conn.begin():
+        with self.engine.connect() as conn:
             conn.execute('use %s' % self._db_name)
             for fixture in fixtures:
                 with open(fixture, 'r') as fh:
                     conn.execute(fh.read())
-        conn.close()
 
     def truncate_all_tables(self):
         self._session.execute('begin')
