@@ -17,9 +17,12 @@ RUN     apt-get install -y libyaml-0-2 libxml2 libpython2.7
 
 # Add the service code
 ADD     requirements.txt /code/requirements.txt
+ADD     requirements.d/ /code/requirements.d/
 RUN     virtualenv --python python2.7 /code/virtualenv_run
 RUN     /code/virtualenv_run/bin/pip install \
             -i https://pypi.yelpcorp.com/simple/ \
+            --extra-index-url https://pypi.python.org/simple \
+            --extra-index-url https://pypi.python.org/pypi \
             -r /code/requirements.txt
 
 # Share the logging directory as a volume

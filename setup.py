@@ -16,10 +16,8 @@ setup(
         'uwsgi',
         'pyramid',
         'pyramid_uwsgi_metrics',
-        'pyramid_yelp_conn',
         'yelp_pyramid',
         'yelp_servlib',
-        'yelp_conn',
         'yelp_lib',
         'yelp-profiling',
     ]

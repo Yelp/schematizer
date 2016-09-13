@@ -1,0 +1,2 @@
+yelp-conn==10.2.2
+pyramid-yelp-conn==0.4.0

@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import pytest
 
 from schematizer.views import categories as categories
-from testing import factories
+from schematizer_testing import factories
 from tests.views.api_test_base import ApiTestBase
 
 
