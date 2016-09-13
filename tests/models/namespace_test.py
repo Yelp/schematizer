@@ -8,27 +8,18 @@ from schematizer.models.exceptions import EntityNotFoundError
 from schematizer.models.namespace import Namespace
 from schematizer_testing import asserts
 from schematizer_testing import factories
+from tests.models.base_model_test import GetAllModelTestBase
 from tests.models.testing_db import DBTestCase
 
 
-class TestGetAll(DBTestCase):
+class TestGetAllNamespaces(GetAllModelTestBase):
 
-    @pytest.fixture
-    def namespace_foo(self):
-        return factories.create_namespace('foo')
+    def create_namespace(self, namespace_no):
+        return factories.create_namespace('namespace_{}'.format(namespace_no))
 
-    def test_get_all_namespaces(self, namespace_foo):
-        actual = Namespace.get_all()
-        asserts.assert_equal_entity_set(
-            actual_set=set(actual),
-            expected_set={namespace_foo},
-            assert_func=asserts.assert_equal_namespace,
-            id_attr='id'
-        )
-
-    def test_when_no_namespace_exists(self):
-        actual = Namespace.get_all()
-        assert actual == []
+    entity_model = Namespace
+    create_entity_func = create_namespace
+    assert_func_name = 'assert_equal_namespace'
 
 
 class TestGetNamespaceById(DBTestCase):

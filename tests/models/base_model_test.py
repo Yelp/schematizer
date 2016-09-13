@@ -7,9 +7,76 @@ import pytest
 from schematizer import models
 from schematizer.models import exceptions as sch_exc
 from schematizer.models.database import session
+from schematizer.models.page_info import PageInfo
 from schematizer_testing import asserts
 from schematizer_testing import factories
 from tests.models.testing_db import DBTestCase
+
+
+class GetAllModelTestBase(DBTestCase):
+
+    entity_model = None
+    create_entity_func = None
+    assert_func_name = None
+
+    @property
+    def assert_func(self):
+        return getattr(asserts, self.assert_func_name)
+
+    @pytest.fixture
+    def entity_1(self):
+        return self.create_entity_func(1)
+
+    @pytest.fixture
+    def entity_2(self, entity_1):
+        return self.create_entity_func(2)
+
+    @pytest.fixture
+    def entity_3(self, entity_2):
+        return self.create_entity_func(3)
+
+    def test_get_all_entities(self, entity_1, entity_2, entity_3):
+        actual = self.entity_model.get_all()
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=[entity_1, entity_2, entity_3],
+            assert_func=self.assert_func
+        )
+
+    def test_when_no_entity_exists(self):
+        actual = self.entity_model.get_all()
+        assert actual == []
+
+    def test_get_only_one_entity(self, entity_1, entity_2, entity_3):
+        actual = self.entity_model.get_all(PageInfo(count=1))
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=[entity_1],
+            assert_func=self.assert_func
+        )
+
+    def test_filter_by_min_entity_id(self, entity_1, entity_2, entity_3):
+        actual = self.entity_model.get_all(PageInfo(min_id=entity_1.id + 1))
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=[entity_2, entity_3],
+            assert_func=self.assert_func
+        )
+
+    def test_get_only_one_entity_with_id_greater_than_min_id(
+        self,
+        entity_1,
+        entity_2,
+        entity_3
+    ):
+        actual = self.entity_model.get_all(
+            PageInfo(count=1, min_id=entity_1.id + 1)
+        )
+        asserts.assert_equal_entity_list(
+            actual_list=actual,
+            expected_list=[entity_2],
+            assert_func=self.assert_func
+        )
 
 
 class TestGetModelById(DBTestCase):
