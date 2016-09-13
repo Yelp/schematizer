@@ -85,7 +85,12 @@ def _create_application():
     config.include('pyramid_mako')
 
     try:
-        if get_config().force_avoid_internal_package:
+        # TODO(DATAPIPE-1506|abrar): Currently we have
+        # force_avoid_internal_packages as a means of simulating an absence
+        # of a yelp's internal package. And all references
+        # of force_avoid_internal_packages have to be removed from schematizer
+        # after we have completely ready for open source.
+        if get_config().force_avoid_internal_packages:
             raise ImportError
         import pyramid_uwsgi_metrics
         # Display metrics on the '/status/metrics' endpoint
