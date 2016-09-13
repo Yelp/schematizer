@@ -103,12 +103,7 @@ def _create_application():
     config.include(pyramid_uwsgi_metrics)
 
     # Scan the service package to attach any decorated views.
-    config.scan(
-        package='schematizer',
-        ignore=[
-            str('schematizer.views')
-        ]
-    )
+    config.scan(package='schematizer.views')
 
     # Including the yelp profiling tween.
     config.include('yelp_profiling')
