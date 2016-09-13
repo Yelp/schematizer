@@ -49,7 +49,7 @@ setproctitle==1.1.8
 simplejson==3.6.5
 six==1.9
 subprocess32==3.2.6
-testing.mysqld
+testing.mysqld==1.4.0
 thriftpy==0.1.15
 tornado==2.4.1
 translationstring==1.3

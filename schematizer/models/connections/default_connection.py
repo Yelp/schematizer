@@ -10,11 +10,11 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.scoping import ScopedSession
 
 
-def get_schematizer_session(**kwargs):
-    topology = _read_topology(kwargs['topology_path'])
+def get_schematizer_session(topology_path, cluster_name):
+    topology = _read_topology(topology_path)
     cluster_config = _get_cluster_config(
         topology,
-        kwargs['cluster_name']
+        cluster_name
     )
     engine = _create_engine(cluster_config)
     return _ScopedSession(sessionmaker(bind=engine))

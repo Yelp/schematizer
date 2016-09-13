@@ -10,8 +10,6 @@ from schematizer.models.database import session
 
 
 can_watch_config = False
-
-
 try:
     if get_config().force_avoid_internal_packages:
         # TODO(DATAPIPE-1506|abrar): Currently we have

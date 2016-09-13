@@ -30,7 +30,7 @@ class PerProcessMySQLDaemon(object):
     def _create_tables(self):
         fixtures = glob('schema/tables/*.sql')
         with self.engine.connect() as conn:
-            conn.execute('use %s' % self._db_name)
+            conn.execute('use {0}'.format(self._db_name))
             for fixture in fixtures:
                 with open(fixture, 'r') as fh:
                     conn.execute(fh.read())

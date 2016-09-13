@@ -6,5 +6,5 @@ from yelp_conn.session import scoped_session
 from yelp_conn.session import sessionmaker
 
 
-def get_schematizer_session(**kwargs):
+def get_schematizer_session():
     return scoped_session(sessionmaker())
