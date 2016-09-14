@@ -43,6 +43,7 @@ def initialize_application():
 
 
 try:
+    # TODO(DATAPIPE-1506|abrar): Currently we have
     # force_avoid_internal_packages as a means of simulating an absence
     # of a yelp's internal package. And all references
     # of force_avoid_internal_packages have to be removed from
