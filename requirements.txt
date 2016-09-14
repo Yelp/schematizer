@@ -1,3 +1,5 @@
+--extra-index-url https://pypi.python.org/simple
+--extra-index-url https://pypi.python.org/pypi
 #sqlparse==0.1.13
 -e git://github.com/Yelp/sqlparse.git@a29c8c1fb827863c6b57d8811ed3b69e982a3877#egg=sqlparse
 # TODO(DATAPIPE-1507|abrar) : internal.txt has to be unlinked from requirements.txt
