@@ -7,7 +7,7 @@ import pytest
 from schematizer.api.exceptions import exceptions_v1 as exc_v1
 from schematizer.logic import doc_tool
 from schematizer.views import sources as source_views
-from testing import factories
+from schematizer_testing import factories
 from tests.views.api_test_base import ApiTestBase
 
 

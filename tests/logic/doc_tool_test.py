@@ -9,7 +9,7 @@ import pytest
 
 from schematizer import models
 from schematizer.logic import doc_tool
-from testing import factories
+from schematizer_testing import factories
 from tests.models.testing_db import DBTestCase
 
 

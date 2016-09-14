@@ -8,6 +8,7 @@ import uwsgi_metrics
 import yelp_pyramid
 import yelp_pyramid.healthcheck
 from pyramid.config import Configurator
+from pyramid.tweens import EXCVIEW
 from yelp_lib.decorators import memoized
 from yelp_servlib import config_util
 from yelp_servlib import logging_util
@@ -58,12 +59,13 @@ def _create_application():
     # Create a basic pyramid Configurator.
     config = Configurator(settings={
         'service_name': 'schematizer',
+        'zipkin.tracing_percent': 100,
         'pyramid_swagger.skip_validation': [
             '/(static)\\b',
             '/(api-docs)\\b',
             '/(status)\\b'
         ],
-        'pyramid_yelp_conn.reload_clusters': CLUSTERS,
+        'pyramid_yelp_conn.reload_clusters': CLUSTERS
     })
 
     initialize_application()
@@ -75,8 +77,21 @@ def _create_application():
     # configuration so that the yelp_pyramid configuration can base decisions
     # on the service's configuration.
     config.include(yelp_pyramid)
-    config.include('pyramid_yelp_conn')
-    config.set_yelp_conn_session(schematizer.models.database.session)
+    try:
+        # TODO(DATAPIPE-1506|abrar): Currently we have
+        # force_avoid_internal_packages as a means of simulating an absence
+        # of a yelp's internal package. And all references
+        # of force_avoid_internal_packages have to be removed from
+        # schematizer after we have completely ready for open source.
+        if get_config().force_avoid_internal_packages:
+            raise ImportError
+        config.include('pyramid_yelp_conn')
+        config.set_yelp_conn_session(schematizer.models.database.session)
+    except ImportError:
+        config.add_tween(
+            "schematizer.schematizer_tweens.db_session_tween_factory",
+            under=EXCVIEW
+        )
 
     # Include pyramid_swagger for REST endpoints (see ../api-docs/)
     config.include('pyramid_swagger')
@@ -99,7 +114,7 @@ def _create_application():
         pass
 
     # Scan the service package to attach any decorated views.
-    config.scan('schematizer')
+    config.scan(package='schematizer.views')
 
     # Including the yelp profiling tween.
     config.include('yelp_profiling')

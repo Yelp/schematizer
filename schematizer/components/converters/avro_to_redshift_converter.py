@@ -126,6 +126,11 @@ class AvroToRedshiftConverter(BaseConverter):
             typ = field_type
 
         converter_func = self._type_converters.get(typ)
+        if 'logicalType' in field.props:
+            converter_func = self._logical_type_converters.get(
+                field.props.get("logicalType")
+            ) or converter_func
+
         if converter_func:
             return converter_func(field)
 
@@ -217,6 +222,20 @@ class AvroToRedshiftConverter(BaseConverter):
         return redshift_data_types.RedshiftVarChar(
             min(max_symbol_len, self.MAX_VARCHAR_BYTES)
         )
+
+    @property
+    def _logical_type_converters(self):
+        return {
+            'date': self._convert_date_type,
+            'decimal': self._convert_decimal_type
+        }
+
+    def _convert_date_type(self, field):
+        return redshift_data_types.RedshiftDate()
+
+    def _convert_decimal_type(self, field):
+        precision, scale = self._get_precision_metadata(field)
+        return redshift_data_types.RedshiftDecimal(precision, scale)
 
     def _get_table_metadata(self, record_schema):
         table_metadata = ({MetaDataKey.NAMESPACE: record_schema.namespace}

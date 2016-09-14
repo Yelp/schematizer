@@ -7,7 +7,7 @@ import simplejson
 
 from schematizer import models
 from schematizer.models.avro_schema import AvroSchema
-from testing import factories
+from schematizer_testing import factories
 from tests.models.base_model_test import GetAllModelTestBase
 from tests.models.testing_db import DBTestCase
 

@@ -13,6 +13,7 @@ schematizerservice:
     ports:
         - "49257:8888"
 
+# TODO(DATAPIPE-1507|abrar): may be move tis into a different file.
 schematizerserviceopensource:
     build: .
     links:

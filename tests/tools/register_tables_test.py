@@ -28,18 +28,19 @@ class TestRegisterTables(DBTestCase):
               replica: 'slave'
               entries:
                 - charset: utf8
+                  host: '{host}'
                   db: '{db}'
                   user: '{user}'
                   passwd: '{passwd}'
-                  port: 3306
+                  port: {port}
                   use_unicode: true
-                  unix_socket: {unix_socket}
         '''.format(
             cluster=self.schematizer_cluster,
+            host=mysql_url.host or 'localhost',
             db=mysql_url.database,
             user=mysql_url.username or '',
-            passwd=mysql_url.password or '',
-            unix_socket=mysql_url.query['unix_socket']
+            port=int(mysql_url.port) or 3306,
+            passwd=mysql_url.password or ''
         ))
         return local.strpath
 

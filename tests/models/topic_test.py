@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from schematizer.models.source import Topic
-from testing import factories
+from schematizer_testing import factories
 from tests.models.base_model_test import GetAllModelTestBase
 
 
