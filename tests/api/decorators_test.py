@@ -13,6 +13,7 @@ from pyramid.request import Request
 from pyramid.response import Response
 from sqlalchemy.orm.exc import NoResultFound
 
+from schematizer.api.decorators import format_datetime
 from schematizer.api.decorators import handle_view_exception
 from schematizer.api.decorators import log_api
 from schematizer.api.decorators import transform_api_response
@@ -52,9 +53,6 @@ class TestHandleViewExceptionDecorator(DBTestCase):
 
 class TestTransformResponseDecorator(DBTestCase):
 
-    def _format_time(self, time):
-        return time.isoformat() + 'Z'
-
     @pytest.fixture
     def source_response(self, biz_source):
         return {
@@ -62,16 +60,16 @@ class TestTransformResponseDecorator(DBTestCase):
             'namespace': self._get_namespace_resp(biz_source.namespace),
             'name': biz_source.name,
             'owner_email': biz_source.owner_email,
-            'created_at': self._format_time(biz_source.created_at),
-            'updated_at': self._format_time(biz_source.updated_at)
+            'created_at': format_datetime(biz_source.created_at),
+            'updated_at': format_datetime(biz_source.updated_at)
         }
 
     def _get_namespace_resp(self, namespace):
         return {
             'namespace_id': namespace.id,
             'name': namespace.name,
-            'created_at': self._format_time(namespace.created_at),
-            'updated_at': self._format_time(namespace.updated_at)
+            'created_at': format_datetime(namespace.created_at),
+            'updated_at': format_datetime(namespace.updated_at)
         }
 
     @pytest.fixture
