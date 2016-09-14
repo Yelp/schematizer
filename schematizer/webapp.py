@@ -5,8 +5,6 @@ from __future__ import unicode_literals
 import os
 
 import uwsgi_metrics
-import yelp_pyramid
-import yelp_pyramid.healthcheck
 from pyramid.config import Configurator
 from pyramid.tweens import EXCVIEW
 from yelp_lib.decorators import memoized
@@ -44,13 +42,23 @@ def initialize_application():
     )
 
 
-yelp_pyramid.healthcheck.install_healthcheck(
-    'mysql',
-    healthchecks.MysqlHealthCheck(CLUSTERS),
-    unhealthy_threshold=5,
-    healthy_threshold=2,
-    init=initialize_application
-)
+try:
+    # force_avoid_internal_packages as a means of simulating an absence
+    # of a yelp's internal package. And all references
+    # of force_avoid_internal_packages have to be removed from
+    # schematizer after we have completely ready for open source.
+    if get_config().force_avoid_internal_packages:
+        raise ImportError
+    import yelp_pyramid.healthcheck
+    yelp_pyramid.healthcheck.install_healthcheck(
+        'mysql',
+        healthchecks.MysqlHealthCheck(CLUSTERS),
+        unhealthy_threshold=5,
+        healthy_threshold=2,
+        init=initialize_application
+    )
+except ImportError:
+    pass
 
 
 def _create_application():
@@ -73,10 +81,22 @@ def _create_application():
     # Add the service's custom configuration, routes, etc.
     config.include(schematizer.config.routes)
 
-    # Include the yelp_pyramid library default configuration after our
-    # configuration so that the yelp_pyramid configuration can base decisions
-    # on the service's configuration.
-    config.include(yelp_pyramid)
+    try:
+        # TODO(DATAPIPE-1506|abrar): Currently we have
+        # force_avoid_internal_packages as a means of simulating an absence
+        # of a yelp's internal package. And all references
+        # of force_avoid_internal_packages have to be removed from
+        # schematizer after we have completely ready for open source.
+        if get_config().force_avoid_internal_packages:
+            raise ImportError
+        import yelp_pyramid
+        # Include the yelp_pyramid library default configuration after our
+        # configuration so that the yelp_pyramid configuration can base
+        # decisions on the service's configuration.
+        config.include(yelp_pyramid)
+    except ImportError:
+        pass
+
     try:
         # TODO(DATAPIPE-1506|abrar): Currently we have
         # force_avoid_internal_packages as a means of simulating an absence
