@@ -153,8 +153,7 @@ class TestRegisterSchema(RegisterSchemaTestBase):
             "namespace": biz_source.namespace.name,
             "source": biz_source.name,
             "source_owner_email": 'biz.user@yelp.com',
-            'contains_pii': False,
-            'is_log': False
+            'contains_pii': False
         }
 
     def test_register_schema(self, mock_request, request_json):
@@ -334,8 +333,14 @@ class TestRegisterSchema(RegisterSchemaTestBase):
         assert e.value.code == expected_exception.code
         assert str(e.value) == "Source owner email must be non-empty."
 
-    def test_register_schema_as_log_source(self, mock_request, request_json):
-        request_json['is_log'] = True
+    @pytest.mark.parametrize("is_log", [True, False])
+    def test_register_schema_with_is_log(
+        self,
+        mock_request,
+        request_json,
+        is_log
+    ):
+        request_json['is_log'] = is_log
         mock_request.json_body = request_json
         actual = schema_views.register_schema(mock_request)
         self._assert_equal_schema_response(actual, request_json)
@@ -361,12 +366,17 @@ class TestRegisterSchemaFromMySQL(RegisterSchemaTestBase):
             "new_create_table_stmt": self.new_create_table_stmt,
             "namespace": biz_source.namespace.name,
             "source": biz_source.name,
-            "source_owner_email": 'biz.test@yelp.com',
-            'contains_pii': False,
-            'is_log': False
+            "source_owner_email": "biz.test@yelp.com",
+            "contains_pii": False
         }
 
     def test_register_new_table(self, mock_request, request_json):
+        mock_request.json_body = request_json
+        actual = schema_views.register_schema_from_mysql_stmts(mock_request)
+        self._assert_equal_schema_response(actual, request_json)
+
+    def test_register_new_table_with_is_log(self, mock_request, request_json):
+        request_json['is_log'] = False
         mock_request.json_body = request_json
         actual = schema_views.register_schema_from_mysql_stmts(mock_request)
         self._assert_equal_schema_response(actual, request_json)
