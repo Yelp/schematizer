@@ -89,24 +89,19 @@ def _create_application():
         # schematizer after we have completely ready for open source.
         if get_config().force_avoid_internal_packages:
             raise ImportError
+
         import yelp_pyramid
         # Include the yelp_pyramid library default configuration after our
         # configuration so that the yelp_pyramid configuration can base
         # decisions on the service's configuration.
         config.include(yelp_pyramid)
-    except ImportError:
-        pass
 
-    try:
-        # TODO(DATAPIPE-1506|abrar): Currently we have
-        # force_avoid_internal_packages as a means of simulating an absence
-        # of a yelp's internal package. And all references
-        # of force_avoid_internal_packages have to be removed from
-        # schematizer after we have completely ready for open source.
-        if get_config().force_avoid_internal_packages:
-            raise ImportError
         config.include('pyramid_yelp_conn')
         config.set_yelp_conn_session(schematizer.models.database.session)
+
+        import pyramid_uwsgi_metrics
+        # Display metrics on the '/status/metrics' endpoint
+        config.include(pyramid_uwsgi_metrics)
     except ImportError:
         config.add_tween(
             "schematizer.schematizer_tweens.db_session_tween_factory",
@@ -118,20 +113,6 @@ def _create_application():
 
     # Include pyramid_mako for template rendering
     config.include('pyramid_mako')
-
-    try:
-        # TODO(DATAPIPE-1506|abrar): Currently we have
-        # force_avoid_internal_packages as a means of simulating an absence
-        # of a yelp's internal package. And all references
-        # of force_avoid_internal_packages have to be removed from schematizer
-        # after we have completely ready for open source.
-        if get_config().force_avoid_internal_packages:
-            raise ImportError
-        import pyramid_uwsgi_metrics
-        # Display metrics on the '/status/metrics' endpoint
-        config.include(pyramid_uwsgi_metrics)
-    except ImportError:
-        pass
 
     # Scan the service package to attach any decorated views.
     config.scan(package='schematizer.views')
