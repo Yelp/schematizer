@@ -8,8 +8,8 @@ from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.models.note import ReferenceTypeEnum
 from schematizer.views import notes as note_views
-from testing import factories
-from testing import utils
+from schematizer_testing import factories
+from schematizer_testing import utils
 from tests.views.api_test_base import ApiTestBase
 
 

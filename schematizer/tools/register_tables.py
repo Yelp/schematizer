@@ -20,8 +20,8 @@ from contextlib import contextmanager
 import pymysql
 import requests
 import simplejson
+import yaml
 from docker import Client
-from yelp_conn.topology import TopologyFile
 
 
 TableInfo = namedtuple('TableInfo', 'table_name, create_table_stmt columns')
@@ -72,8 +72,22 @@ def _get_connection_param_from_topology(topology_file, cluster):
     connection params for the given cluster replica ('slave') pair. Throws
     exception if the given cluster, replica pair is not part of this
     toplogy file """
-    topology = TopologyFile.new_from_file(topology_file)
-    return topology.get_first_connection_param(cluster, 'slave')
+    with open(topology_file) as f:
+        topology = f.read()
+    db_config = yaml.load(topology)
+    return _get_cluster_config(db_config, cluster, 'slave')
+
+
+def _get_cluster_config(db_config, cluster, replica):
+    for topo_item in db_config.get('topology'):
+        if (topo_item.get('cluster') == cluster and
+                topo_item.get('replica') == replica):
+            return topo_item['entries'][0]
+    raise ValueError(
+        "Database configuration for {cluster_name} not found.".format(
+            cluster_name=cluster
+        )
+    )
 
 
 @contextmanager

@@ -7,7 +7,7 @@ import pytest
 from pyramid import httpexceptions
 
 from schematizer import models
-from testing import utils
+from schematizer_testing import utils
 from tests.models.testing_db import DBTestCase
 
 

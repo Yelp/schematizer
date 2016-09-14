@@ -6,8 +6,8 @@ import pytest
 
 from schematizer.models.exceptions import EntityNotFoundError
 from schematizer.models.namespace import Namespace
-from testing import asserts
-from testing import factories
+from schematizer_testing import asserts
+from schematizer_testing import factories
 from tests.models.base_model_test import GetAllModelTestBase
 from tests.models.testing_db import DBTestCase
 
