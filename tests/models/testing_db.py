@@ -6,11 +6,11 @@ import atexit
 from glob import glob
 
 import pytest
-import testing.mysqld
 from cached_property import cached_property
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker as sessionmaker_sa
 
+import testing.mysqld
 from schematizer.models import database
 
 

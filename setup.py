@@ -15,7 +15,6 @@ setup(
     install_requires=[
         'uwsgi',
         'pyramid',
-        'yelp_pyramid',
         'yelp_servlib',
         'yelp_lib',
         'yelp-profiling',
@@ -24,7 +23,8 @@ setup(
         'internal': [
             'pyramid-yelp-conn',
             'pyramid-uwsgi-metrics',
-            'yelp-conn'
+            'yelp-conn',
+            'yelp_pyramid'
         ]
     }
 )
