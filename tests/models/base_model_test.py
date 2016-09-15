@@ -8,8 +8,8 @@ from schematizer import models
 from schematizer.models import exceptions as sch_exc
 from schematizer.models.database import session
 from schematizer.models.page_info import PageInfo
-from testing import asserts
-from testing import factories
+from schematizer_testing import asserts
+from schematizer_testing import factories
 from tests.models.testing_db import DBTestCase
 
 

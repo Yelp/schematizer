@@ -10,9 +10,9 @@ from schematizer import models
 from schematizer.logic import registration_repository as reg_repo
 from schematizer.models import exceptions as sch_exc
 from schematizer.models.database import session
-from testing import asserts
-from testing import factories
-from testing import utils
+from schematizer_testing import asserts
+from schematizer_testing import factories
+from schematizer_testing import utils
 from tests.models.testing_db import DBTestCase
 
 
