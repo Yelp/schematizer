@@ -16,8 +16,7 @@ setup(
         'uwsgi',
         'pyramid',
         'yelp_servlib',
-        'yelp_lib',
-        'yelp-profiling',
+        'yelp-profiling'
     ],
     extras_require={
         'internal': [
