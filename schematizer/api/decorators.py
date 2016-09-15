@@ -8,6 +8,7 @@ from pyramid.httpexceptions import exception_response
 from pyramid.httpexceptions import HTTPException
 
 from schematizer.config import log
+from schematizer.helpers.formatting import datetime_to_local_ISO_8601
 
 
 def log_api(logger=None):
@@ -45,18 +46,11 @@ def handle_view_exception(exception, status_code, error_message=None):
     return handle_view_exception_decorator
 
 
-def format_datetime(datetime):
-    # To make our datetimes ISO-8601, we use the default
-    # datetime isoformat, and give it the "local" timezone designation
-    # by adding the Z to the end
-    return datetime.isoformat() + 'Z'
-
-
 def _transform_datetime_field(response):
     if isinstance(response, dict):
         for key, value in response.iteritems():
             if isinstance(value, datetime):
-                response[key] = format_datetime(value)
+                response[key] = datetime_to_local_ISO_8601(value)
             elif isinstance(value, dict):
                 _transform_datetime_field(value)
 
