@@ -5,8 +5,6 @@ from __future__ import unicode_literals
 import os
 
 import uwsgi_metrics
-import yelp_pyramid
-import yelp_pyramid.healthcheck
 from pyramid.config import Configurator
 from pyramid.tweens import EXCVIEW
 from yelp_lib.decorators import memoized
@@ -44,13 +42,24 @@ def initialize_application():
     )
 
 
-yelp_pyramid.healthcheck.install_healthcheck(
-    'mysql',
-    healthchecks.MysqlHealthCheck(CLUSTERS),
-    unhealthy_threshold=5,
-    healthy_threshold=2,
-    init=initialize_application
-)
+try:
+    # TODO(DATAPIPE-1506|abrar): Currently we have
+    # force_avoid_internal_packages as a means of simulating an absence
+    # of a yelp's internal package. And all references
+    # of force_avoid_internal_packages have to be removed from
+    # schematizer after we have completely ready for open source.
+    if get_config().force_avoid_internal_packages:
+        raise ImportError
+    import yelp_pyramid.healthcheck
+    yelp_pyramid.healthcheck.install_healthcheck(
+        'mysql',
+        healthchecks.MysqlHealthCheck(CLUSTERS),
+        unhealthy_threshold=5,
+        healthy_threshold=2,
+        init=initialize_application
+    )
+except ImportError:
+    pass
 
 
 def _create_application():
@@ -75,10 +84,6 @@ def _create_application():
     # Add the service's custom configuration, routes, etc.
     config.include(schematizer.config.routes)
 
-    # Include the yelp_pyramid library default configuration after our
-    # configuration so that the yelp_pyramid configuration can base decisions
-    # on the service's configuration.
-    config.include(yelp_pyramid)
     try:
         # TODO(DATAPIPE-1506|abrar): Currently we have
         # force_avoid_internal_packages as a means of simulating an absence
@@ -87,8 +92,19 @@ def _create_application():
         # schematizer after we have completely ready for open source.
         if get_config().force_avoid_internal_packages:
             raise ImportError
+
+        import yelp_pyramid
+        # Include the yelp_pyramid library default configuration after our
+        # configuration so that the yelp_pyramid configuration can base
+        # decisions on the service's configuration.
+        config.include(yelp_pyramid)
+
         config.include('pyramid_yelp_conn')
         config.set_yelp_conn_session(schematizer.models.database.session)
+
+        import pyramid_uwsgi_metrics
+        # Display metrics on the '/status/metrics' endpoint
+        config.include(pyramid_uwsgi_metrics)
     except ImportError:
         config.add_tween(
             "schematizer.schematizer_tweens.db_session_tween_factory",
@@ -100,20 +116,6 @@ def _create_application():
 
     # Include pyramid_mako for template rendering
     config.include('pyramid_mako')
-
-    try:
-        # TODO(DATAPIPE-1506|abrar): Currently we have
-        # force_avoid_internal_packages as a means of simulating an absence
-        # of a yelp's internal package. And all references
-        # of force_avoid_internal_packages have to be removed from schematizer
-        # after we have completely ready for open source.
-        if get_config().force_avoid_internal_packages:
-            raise ImportError
-        import pyramid_uwsgi_metrics
-        # Display metrics on the '/status/metrics' endpoint
-        config.include(pyramid_uwsgi_metrics)
-    except ImportError:
-        pass
 
     # Scan the service package to attach any decorated views.
     config.scan(package='schematizer.views')
