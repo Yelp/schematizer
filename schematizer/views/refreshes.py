@@ -58,7 +58,8 @@ def get_refreshes_by_criteria(request):
     refreshes = schema_repository.get_refreshes_by_criteria(
         namespace=criteria.namespace,
         status=criteria.status,
-        created_after=criteria.created_after_datetime
+        created_after=criteria.created_after_datetime,
+        updated_after=criteria.updated_after_datetime
     )
     return [responses_v1.get_refresh_response_from_refresh(refresh)
             for refresh in refreshes]
