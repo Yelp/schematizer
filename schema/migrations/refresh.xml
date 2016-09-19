@@ -50,4 +50,11 @@
             <append value=" AFTER filter_condition"/>
         </modifySql>
     </changeSet>
+    <changeSet author="keegan" id="1474058806">
+        <comment>[2016-09-16] Modify status column to be an enum</comment>
+        <modifyDataType 
+            columnName="status"
+            newDataType="ENUM('NOT_STARTED', 'IN_PROGRESS', 'PAUSED', 'SUCCESS', 'FAILED')" 
+            tableName="refresh" />
+    </changeSet>
 </databaseChangeLog>

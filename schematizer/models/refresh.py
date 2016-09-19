@@ -2,8 +2,9 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from enum import Enum
+import enum
 from sqlalchemy import Column
+from sqlalchemy import Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
@@ -13,7 +14,7 @@ from schematizer.models.database import Base
 from schematizer.models.types.time import build_time_column
 
 
-class Priority(Enum):
+class Priority(enum.Enum):
 
     LOW = 25
     MEDIUM = 50
@@ -21,13 +22,13 @@ class Priority(Enum):
     MAX = 100
 
 
-class RefreshStatus(Enum):
+class RefreshStatus(enum.Enum):
 
-    NOT_STARTED = 0
-    IN_PROGRESS = 1
-    PAUSED = 2
-    SUCCESS = 3
-    FAILED = 4
+    NOT_STARTED = "NOT_STARTED"
+    IN_PROGRESS = "IN_PROGRESS"
+    PAUSED = "PAUSED"
+    SUCCESS = "SUCCESS"
+    FAILED = "FAILED"
 
 
 class Refresh(Base, BaseModel):
@@ -43,7 +44,9 @@ class Refresh(Base, BaseModel):
     )
 
     status = Column(
-        Integer,
+        # Building from enum.Enum is in sqlalchemy 1.1,
+        # so we build with the list of strings from the enum
+        Enum(list(RefreshStatus.__members__)),
         default=RefreshStatus.NOT_STARTED.value,
         nullable=False
     )

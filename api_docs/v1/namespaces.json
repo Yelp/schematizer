@@ -175,9 +175,13 @@
                     "type": "integer",
                     "description": "Refresh ID"
                 },
-                "source": {
-                    "$ref": "Source",
-                    "description": "Source that this refresh is running on."
+                "namespace_name": {
+                    "type": "string",
+                    "description": "Name of the namespace the refresh is running on."
+                },
+                "source_name": {
+                    "type": "string",
+                    "description": "Name of the source the refresh is running on."
                 },
                 "status": {
                     "type": "string",
@@ -199,18 +203,16 @@
                     "description": "Number of rows to refresh per batch."
                 },
                 "priority": {
-                    "type": "string",
-                    "enum": [
-                        "LOW",
-                        "MEDIUM",
-                        "HIGH",
-                        "MAX"
-                    ],
-                    "description": "Priority of this refresh."
+                    "type": "integer",
+                    "description": "Priority of this refresh. LOW=20, MAX=100"
                 },
                 "filter_condition": {
                     "type": "string",
                     "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table."
+                },
+                "avg_rows_per_second_cap": {
+                    "type": "integer",
+                    "description": "This field throttles the throughput of the refresh runner once the refresh is actually run. We will sleep in between batch row gets to limit it to this cap (default: null)"
                 },
                 "created_at": {
                     "type": "string",

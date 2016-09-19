@@ -69,11 +69,12 @@ class ApiTestBase(DBTestCase):
         src_refresh = utils.get_entity_by_id(models.Refresh, src_refresh_id)
         expected = {
             'refresh_id': src_refresh.id,
-            'source': self.get_expected_src_resp(src_refresh.source_id),
+            'source_name': src_refresh.source.name,
+            'namespace_name': src_refresh.source.namespace.name,
             'status': models.RefreshStatus(src_refresh.status).name,
             'offset': src_refresh.offset,
             'batch_size': src_refresh.batch_size,
-            'priority': models.Priority(src_refresh.priority).name,
+            'priority': src_refresh.priority,
             'created_at': src_refresh.created_at.isoformat(),
             'updated_at': src_refresh.updated_at.isoformat()
         }

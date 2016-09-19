@@ -214,7 +214,7 @@ class TestCreateRefresh(ApiTestBase):
         return {
             'offset': 100,
             'batch_size': 500,
-            'priority': 'HIGH',
+            'priority': 80,
             'avg_rows_per_second_cap': 1000
         }
 
@@ -237,11 +237,12 @@ class TestCreateRefresh(ApiTestBase):
             actual['refresh_id'],
             offset=100,
             batch_size=500,
-            priority='HIGH',
+            priority=80,
             avg_rows_per_second_cap=1000
         )
         assert actual == expected
-        assert actual['source']['source_id'] == biz_source.id
+        assert actual['source_name'] == biz_source.name
+        assert actual['namespace_name'] == biz_source.namespace.name
 
     def test_happy_case_no_cap(self, mock_request, biz_source, request_json):
         mock_request.matchdict = {'source_id': str(biz_source.id)}
@@ -253,10 +254,11 @@ class TestCreateRefresh(ApiTestBase):
             actual['refresh_id'],
             offset=100,
             batch_size=500,
-            priority='HIGH',
+            priority=80,
         )
         assert actual == expected
-        assert actual['source']['source_id'] == biz_source.id
+        assert actual['source_name'] == biz_source.name
+        assert actual['namespace_name'] == biz_source.namespace.name
 
 
 class TestListRefreshes(ApiTestBase):

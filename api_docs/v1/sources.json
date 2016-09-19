@@ -455,9 +455,13 @@
                     "type": "integer",
                     "description": "Refresh ID"
                 },
-                "source": {
-                    "$ref": "Source",
-                    "description": "Source that this refresh is running on."
+                "namespace_name": {
+                    "type": "string",
+                    "description": "Name of the namespace the refresh is running on."
+                },
+                "source_name": {
+                    "type": "string",
+                    "description": "Name of the source the refresh is running on."
                 },
                 "status": {
                     "type": "string",
@@ -479,14 +483,8 @@
                     "description": "Number of rows to refresh per batch."
                 },
                 "priority": {
-                    "type": "string",
-                    "enum": [
-                        "LOW",
-                        "MEDIUM",
-                        "HIGH",
-                        "MAX"
-                    ],
-                    "description": "Priority of this refresh."
+                    "type": "integer",
+                    "description": "Priority of this refresh. LOW=20, MAX=100"
                 },
                 "filter_condition": {
                     "type": "string",
