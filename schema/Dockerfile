@@ -1,5 +1,5 @@
 FROM    centos:latest
-RUN     rpm -Uhv https://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm
+RUN     rpm -Uhv https://www.percona.com/redir/downloads/percona-release/redhat/0.0-1/percona-release-0.0-1.x86_64.rpm
 
 RUN     yum install -y Percona-Server-server-56 Percona-Server-client-56 Percona-Server-shared-56
 
