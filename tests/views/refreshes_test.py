@@ -2,6 +2,9 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import time
+from datetime import datetime
+
 import pytest
 
 from schematizer.api.exceptions import exceptions_v1
@@ -61,6 +64,13 @@ class TestUpdateRefresh(ApiTestBase):
 
 class TestGetRefreshesByCriteria(ApiTestBase):
 
+    @property
+    def update_request(self):
+        return {
+            'status': 'FAILED',
+            'offset': 200
+        }
+
     def test_non_existing_namespace(self, mock_request):
         mock_request.params = {'namespace': 'missing'}
         actual = refresh_views.get_refreshes_by_criteria(mock_request)
@@ -83,6 +93,27 @@ class TestGetRefreshesByCriteria(ApiTestBase):
         mock_request.params = {
             'namespace': yelp_namespace.name,
             'status': 'NOT_STARTED'
+        }
+        actual = refresh_views.get_refreshes_by_criteria(mock_request)
+        expected = [self.get_expected_src_refresh_resp(biz_src_refresh.id)]
+        assert actual == expected
+
+    def test_filter_by_updated_after(
+        self,
+        mock_request,
+        yelp_namespace,
+        biz_src_refresh
+    ):
+        updated_timestamp = (biz_src_refresh.created_at -
+                             datetime.utcfromtimestamp(0)).total_seconds() + 1
+        time.sleep(2)
+        mock_request.json_body = self.update_request
+        mock_request.matchdict = {'refresh_id': str(biz_src_refresh.id)}
+        refresh_views.update_refresh(mock_request)
+        mock_request.params = {
+            'namespace': yelp_namespace.name,
+            'updated_after': updated_timestamp,
+            'status': 'FAILED'
         }
         actual = refresh_views.get_refreshes_by_criteria(mock_request)
         expected = [self.get_expected_src_refresh_resp(biz_src_refresh.id)]
