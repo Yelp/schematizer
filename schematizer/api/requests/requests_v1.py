@@ -179,6 +179,9 @@ class GetRefreshesRequest(RequestBase):
         self.created_after, self.created_after_datetime = self._get_datetime(
             query_params.get('created_after')
         )
+        self.updated_after, self.updated_after_datetime = self._get_datetime(
+            query_params.get('updated_after')
+        )
 
 
 class CreateRefreshRequest(RequestBase):
