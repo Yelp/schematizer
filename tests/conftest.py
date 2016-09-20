@@ -6,7 +6,7 @@ import pytest
 import staticconf.testing
 
 from schematizer import models
-from testing import factories
+from schematizer_testing import factories
 
 
 @pytest.fixture

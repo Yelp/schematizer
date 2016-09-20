@@ -12,3 +12,15 @@ schematizerservice:
         - schematizerconfigs
     ports:
         - "49257:8888"
+
+# TODO(DATAPIPE-1507|abrar): may be move tis into a different file.
+schematizerserviceopensource:
+    build: .
+    links:
+        - schematizerdatabase
+    volumes_from:
+        - schematizerconfigs
+    ports:
+        - "49257:8888"
+    environment:
+      - SERVICE_ENV_CONFIG_PATH=config-env-open-source.yaml

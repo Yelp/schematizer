@@ -18,8 +18,8 @@ from schematizer.models import Namespace
 from schematizer.models.database import session
 from schematizer.models.exceptions import EntityNotFoundError
 from schematizer.models.page_info import PageInfo
-from testing import asserts
-from testing import factories
+from schematizer_testing import asserts
+from schematizer_testing import factories
 from tests.logic.meta_attribute_mappers_test import GetMetaAttributeBaseTest
 from tests.models.testing_db import DBTestCase
 

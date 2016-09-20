@@ -6,9 +6,11 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import datetime
+import sys
+import time
 
 import sqlalchemy
-from yelp_lib import dates
+from six import integer_types
 
 
 def build_time_column(
@@ -36,13 +38,13 @@ def build_time_column(
         default_now_value=default_now_value,
         bind_value_functions={
             datetime.datetime: lambda value: int(
-                dates.to_timestamp(
-                    dates.get_datetime(value)
+                to_timestamp(
+                    get_datetime(value)
                 )
             ),
-            datetime.date: lambda value: int(dates.to_timestamp(value)),
+            datetime.date: lambda value: int(to_timestamp(value)),
         },
-        db_value_to_front_end_value_func=lambda value, _: dates.from_timestamp(
+        db_value_to_front_end_value_func=lambda value, _: from_timestamp(
             int(value)
         ),
         raw_column=raw_column,
@@ -275,3 +277,50 @@ class TimeComparatorNoneMax(TimeComparator):
         if other == self._max_time:
             return super(TimeComparatorNoneMax, self).__eq__(None)
         return super(TimeComparatorNoneMax, self).__eq__(other)
+
+
+def to_timestamp(datetime_val):
+    if datetime_val is None:
+        return None
+
+    # If we don't have full datetime granularity, translate
+    if isinstance(datetime_val, datetime.datetime):
+        datetime_val_date = datetime_val.date()
+    else:
+        datetime_val_date = datetime_val
+
+    if datetime_val_date >= datetime.date.max:
+        return sys.maxsize
+
+    return int(time.mktime(datetime_val.timetuple()))
+
+
+def from_timestamp(timestamp_val):
+    if timestamp_val is None:
+        return None
+    return datetime.datetime.fromtimestamp(timestamp_val)
+
+
+def get_datetime(t, preserve_max=False):
+    try:
+        return to_datetime(t, preserve_max=preserve_max)
+    except ValueError:
+        return None
+
+
+def to_datetime(value, preserve_max=False):
+    if value is None:
+        return None
+    if isinstance(value, datetime.datetime):
+        return value
+    elif isinstance(value, datetime.date):
+        return date_to_datetime(value, preserve_max=preserve_max)
+    elif isinstance(value, float) or isinstance(value, integer_types):
+        return from_timestamp(value)
+    raise ValueError("Can't convert %r to a datetime" % (value,))
+
+
+def date_to_datetime(dt, preserve_max=False):
+    if preserve_max and datetime.date.max == dt:
+        return datetime.datetime.max
+    return datetime.datetime(*dt.timetuple()[:3])
