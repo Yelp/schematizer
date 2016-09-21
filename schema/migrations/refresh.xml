@@ -57,4 +57,11 @@
             newDataType="ENUM('NOT_STARTED', 'IN_PROGRESS', 'PAUSED', 'SUCCESS', 'FAILED')" 
             tableName="refresh" />
     </changeSet>
+    <changeSet author="keegan" id="1474327872">
+        <comment>[2016-09-19] Modify status column to be a string</comment>
+        <modifyDataType
+            columnName="status"
+            newDataType="varchar(255) COLLATE utf8_unicode_ci"
+            tableName="refresh" />
+    </changeSet>
 </databaseChangeLog>
