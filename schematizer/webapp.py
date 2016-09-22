@@ -12,8 +12,8 @@ from yelp_servlib import logging_util
 
 import schematizer.config
 import schematizer.models.database
-from schematizer import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer import healthchecks
+from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.helpers.decorators import memoized
 
 SERVICE_CONFIG_PATH = os.environ.get('SERVICE_CONFIG_PATH')

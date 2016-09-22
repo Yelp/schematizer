@@ -2,8 +2,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from schematizer import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.config import get_config
+from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 
 
 def _get_schematizer_session(topology_path, cluster_name):

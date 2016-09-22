@@ -10,8 +10,8 @@ from sqlalchemy import and_
 from sqlalchemy import exc
 from sqlalchemy import or_
 
-from schematizer import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer import models
+from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.logic.validators import verify_entity_exists
 from schematizer.logic.validators import verify_truthy_value
 from schematizer.models.consumer_group_data_source \

@@ -9,9 +9,9 @@ from sqlalchemy import desc
 from sqlalchemy import exc
 from sqlalchemy.orm import exc as orm_exc
 
-from schematizer import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer import models
 from schematizer.components.converters.converter_base import BaseConverter
+from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.models.database import session

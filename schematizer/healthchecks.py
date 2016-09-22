@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 
 import random
 
-from schematizer import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer import models
+from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.models.database import session
 
 
