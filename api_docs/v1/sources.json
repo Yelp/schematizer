@@ -320,8 +320,8 @@
             "operations": [
                 {
                     "method": "POST",
-                    "summary": "Register the specified meta attribute schema_id to the specified source.",
-                    "notes": "The source and the schema_id of Meta attribute schema should exist.",
+                    "summary": "Register the specified meta attribute schema_id to the specified source_id.",
+                    "notes": "The source_id and the schema_id of Meta attribute schema should exist.",
                     "type": "MetaAttributeMappingsResponse",
                     "nickname": "register_source_meta_attribute_mapping",
                     "authorizations": {},
@@ -350,8 +350,8 @@
                 },
                 {
                     "method": "DELETE",
-                    "summary": "Remove the specified meta attribute schema_id mapping from the specified source.",
-                    "notes": "The source and the schema_id of Meta attribute schema should exist.",
+                    "summary": "Remove the specified meta attribute schema_id mapping from the specified source_id.",
+                    "notes": "The source_id and the schema_id of Meta attribute schema should exist.",
                     "type": "boolean",
                     "nickname": "delete_source_meta_attribute_mapping",
                     "authorizations": {},
@@ -385,9 +385,9 @@
                 {
                     "method": "GET",
                     "summary": "Get a list of all meta attribute schema_ids mapped to specified source_id.",
-                    "notes": "",
+                    "notes": "The source_id should exist.",
                     "type": "MetaAttributeMappingsResponse",
-                    "nickname": "get_meta_attr_mappings_by_source_id",
+                    "nickname": "get_source_meta_attribute_mappings",
                     "authorizations": {},
                     "parameters": [
                         {
@@ -640,13 +640,13 @@
         "RegisterMetaAttributeRequest": {
             "id": "RegisterMetaAttributeRequest",
             "required": [
-                "entity_id",
+                "source_id",
                 "meta_attribute_schema_id"
             ],
             "properties": {
-                "entity_id": {
+                "source_id": {
                     "type": "integer",
-                    "description": "ID of the entity (Namespace/Source/AvroSchema)to be mapped for."
+                    "description": "Source ID to be mapped for."
                 },
                 "meta_attribute_schema_id": {
                     "type": "integer",

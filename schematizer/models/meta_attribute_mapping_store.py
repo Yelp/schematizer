@@ -5,10 +5,13 @@ from __future__ import unicode_literals
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
+from sqlalchemy.orm import exc as orm_exc
 from sqlalchemy.types import Enum
 
 from schematizer.models.base_model import BaseModel
 from schematizer.models.database import Base
+from schematizer.models.database import session
+from schematizer.models.exceptions import EntityNotFoundError
 from schematizer.models.types.time import build_time_column
 
 
@@ -55,3 +58,22 @@ class MetaAttributeMappingStore(Base, BaseModel):
         onupdate_now=True,
         nullable=False
     )
+
+    @classmethod
+    def get_by_mapping(cls, entity_type, entity_id, meta_attr_schema_id):
+        try:
+            return session.query(
+                MetaAttributeMappingStore
+            ).filter(
+                cls.entity_type == entity_type,
+                cls.entity_id == entity_id,
+                cls.meta_attr_schema_id == meta_attr_schema_id
+            ).one()
+        except orm_exc.NoResultFound:
+            err_mapping = {
+                entity_type: entity_id,
+                'meta_attribute_schema_id': meta_attr_schema_id
+            }
+            raise EntityNotFoundError(
+                entity_desc='{} mapping `{}`'.format(cls.__name__, err_mapping)
+            )

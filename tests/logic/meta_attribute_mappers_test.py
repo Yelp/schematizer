@@ -12,8 +12,8 @@ from schematizer.models import Namespace
 from schematizer.models import Source
 from schematizer.models.database import session
 from schematizer.models.exceptions import EntityNotFoundError
-from testing import factories
-from testing.asserts import assert_equal_meta_attribute_mapping
+from schematizer_testing import factories
+from schematizer_testing.asserts import assert_equal_meta_attribute_mapping
 from tests.models.testing_db import DBTestCase
 
 
@@ -74,7 +74,12 @@ class RegisterAndDeleteMetaAttributeBase(DBTestCase):
             meta_attr_schema.id,
             self.entity.id
         )
-        assert actual is True
+        expected = meta_attr_model(
+            entity_type=self.entity_model.__name__,
+            entity_id=self.entity.id,
+            meta_attr_schema_id=meta_attr_schema.id
+        )
+        self.assert_equal_meta_attr_partial(expected, actual)
         with pytest.raises(orm_exc.NoResultFound):
             session.query(
                 meta_attr_model
@@ -83,6 +88,13 @@ class RegisterAndDeleteMetaAttributeBase(DBTestCase):
                 meta_attr_model.entity_id == self.entity.id,
                 meta_attr_model.meta_attr_schema_id == meta_attr_schema.id
             ).one()
+
+    def test_delete_non_existent_mapping(self, meta_attr_schema):
+        with pytest.raises(EntityNotFoundError):
+            self.delete_logic_method(
+                meta_attr_schema.id,
+                self.entity.id
+            )
 
 
 @pytest.mark.usefixtures('setup_test')

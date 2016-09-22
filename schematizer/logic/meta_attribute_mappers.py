@@ -15,48 +15,52 @@ from schematizer.models.database import session
 
 
 def _register_meta_attribute_for_entity(
-    meta_attr_sch_id,
     entity_model,
-    entity_id
+    entity_id,
+    meta_attr_schema_id
 ):
     verify_entity_exists(session, entity_model, entity_id)
-    verify_entity_exists(session, AvroSchema, meta_attr_sch_id)
+    verify_entity_exists(session, AvroSchema, meta_attr_schema_id)
     try:
         with session.begin_nested():
             new_mapping = MetaAttributeMappingStore(
                 entity_type=entity_model.__name__,
                 entity_id=entity_id,
-                meta_attr_schema_id=meta_attr_sch_id
+                meta_attr_schema_id=meta_attr_schema_id
             )
             session.add(new_mapping)
     except exc.IntegrityError:
         # Ignore this error due to trying to create a duplicate mapping
-        new_mapping = session.query(
-            MetaAttributeMappingStore
-        ).filter(
-            MetaAttributeMappingStore.entity_type == entity_model.__name__,
-            MetaAttributeMappingStore.entity_id == entity_id,
-            MetaAttributeMappingStore.meta_attr_schema_id == meta_attr_sch_id
-        ).one()
+        new_mapping = MetaAttributeMappingStore.get_by_mapping(
+            entity_type=entity_model.__name__,
+            entity_id=entity_id,
+            meta_attr_schema_id=meta_attr_schema_id
+        )
     return new_mapping
 
 
 def _delete_meta_attribute_mapping_for_entity(
-    meta_attr_sch_id,
     entity_model,
-    entity_id
+    entity_id,
+    meta_attr_schema_id
 ):
     verify_entity_exists(session, entity_model, entity_id)
-    verify_entity_exists(session, AvroSchema, meta_attr_sch_id)
-    return bool(
-        session.query(
-            MetaAttributeMappingStore
-        ).filter(
-            MetaAttributeMappingStore.entity_type == entity_model.__name__,
-            MetaAttributeMappingStore.entity_id == entity_id,
-            MetaAttributeMappingStore.meta_attr_schema_id == meta_attr_sch_id
-        ).delete()
+    verify_entity_exists(session, AvroSchema, meta_attr_schema_id)
+    mapping_to_delete = MetaAttributeMappingStore.get_by_mapping(
+        entity_type=entity_model.__name__,
+        entity_id=entity_id,
+        meta_attr_schema_id=meta_attr_schema_id
     )
+
+    session.query(
+        MetaAttributeMappingStore
+    ).filter(
+        MetaAttributeMappingStore.entity_type == entity_model.__name__,
+        MetaAttributeMappingStore.entity_id == entity_id,
+        MetaAttributeMappingStore.meta_attr_schema_id == meta_attr_schema_id
+    ).delete()
+
+    return mapping_to_delete
 
 
 def register_namespace_meta_attribute_mapping(
@@ -64,9 +68,9 @@ def register_namespace_meta_attribute_mapping(
     namespace_id
 ):
     return _register_meta_attribute_for_entity(
-        meta_attr_sch_id=meta_attr_schema_id,
         entity_model=Namespace,
-        entity_id=namespace_id
+        entity_id=namespace_id,
+        meta_attr_schema_id=meta_attr_schema_id
     )
 
 
@@ -75,9 +79,9 @@ def register_source_meta_attribute_mapping(
     source_id
 ):
     return _register_meta_attribute_for_entity(
-        meta_attr_sch_id=meta_attr_schema_id,
         entity_model=Source,
-        entity_id=source_id
+        entity_id=source_id,
+        meta_attr_schema_id=meta_attr_schema_id
     )
 
 
@@ -86,9 +90,9 @@ def register_schema_meta_attribute_mapping(
     schema_id
 ):
     return _register_meta_attribute_for_entity(
-        meta_attr_sch_id=meta_attr_schema_id,
         entity_model=AvroSchema,
-        entity_id=schema_id
+        entity_id=schema_id,
+        meta_attr_schema_id=meta_attr_schema_id
     )
 
 
@@ -97,9 +101,9 @@ def delete_namespace_meta_attribute_mapping(
     namespace_id
 ):
     return _delete_meta_attribute_mapping_for_entity(
-        meta_attr_sch_id=meta_attr_schema_id,
         entity_model=Namespace,
-        entity_id=namespace_id
+        entity_id=namespace_id,
+        meta_attr_schema_id=meta_attr_schema_id
     )
 
 
@@ -108,9 +112,9 @@ def delete_source_meta_attribute_mapping(
     source_id
 ):
     return _delete_meta_attribute_mapping_for_entity(
-        meta_attr_sch_id=meta_attr_schema_id,
         entity_model=Source,
-        entity_id=source_id
+        entity_id=source_id,
+        meta_attr_schema_id=meta_attr_schema_id
     )
 
 
@@ -119,9 +123,9 @@ def delete_schema_meta_attribute_mapping(
     schema_id
 ):
     return _delete_meta_attribute_mapping_for_entity(
-        meta_attr_sch_id=meta_attr_schema_id,
         entity_model=AvroSchema,
-        entity_id=schema_id
+        entity_id=schema_id,
+        meta_attr_schema_id=meta_attr_schema_id
     )
 
 

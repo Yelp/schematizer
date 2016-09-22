@@ -113,8 +113,8 @@
             "operations": [
                 {
                     "method": "POST",
-                    "summary": "Register the specified meta attribute schema_id to the specified namespace.",
-                    "notes": "The namespace and the schema_id of Meta attribute schema should exist.",
+                    "summary": "Register the specified meta attribute schema_id to the specified namespace name.",
+                    "notes": "The namespace name and the schema_id of Meta attribute schema should exist.",
                     "type": "MetaAttributeMappingsResponse",
                     "nickname": "register_namespace_meta_attribute_mapping",
                     "authorizations": {},
@@ -143,10 +143,10 @@
                 },
                 {
                     "method": "DELETE",
-                    "summary": "Remove the specified meta attribute schema_id mapping from the specified namespace.",
-                    "notes": "The namespace and the schema_id of Meta attribute schema should exist.",
+                    "summary": "Remove the specified meta attribute schema_id mapping from the specified namespace name.",
+                    "notes": "The namespace name and the schema_id of Meta attribute schema should exist.",
                     "type": "boolean",
-                    "nickname": "delete_namespace_meta_attribute_mapping_for",
+                    "nickname": "delete_namespace_meta_attribute_mapping",
                     "authorizations": {},
                     "parameters": [
                         {
@@ -177,10 +177,10 @@
                 },
                 {
                     "method": "GET",
-                    "summary": "Get a list of all meta attribute schema_ids mapped to specified namespace.",
-                    "notes": "",
+                    "summary": "Get a list of all meta attribute schema_ids mapped to specified namespace name.",
+                    "notes": "The namespace name should exist.",
                     "type": "MetaAttributeMappingsResponse",
-                    "nickname": "get_meta_attr_mappings_by_namespace_id",
+                    "nickname": "get_namespace_meta_attribute_mappings",
                     "authorizations": {},
                     "parameters": [
                         {
@@ -195,7 +195,7 @@
                     "responseMessages": [
                         {
                             "code": 400,
-                            "message": "Invalid Namespace ID supplied"
+                            "message": "Invalid Namespace name supplied"
                         },
                         {
                             "code": 404,
@@ -328,13 +328,13 @@
         "RegisterMetaAttributeRequest": {
             "id": "RegisterMetaAttributeRequest",
             "required": [
-                "entity_id",
+                "namespace",
                 "meta_attribute_schema_id"
             ],
             "properties": {
-                "entity_id": {
-                    "type": "integer",
-                    "description": "ID of the entity (Namespace/Source/AvroSchema)to be mapped for."
+                "entity": {
+                    "type": "namespace",
+                    "description": "Namespace name to be mapped for."
                 },
                 "meta_attribute_schema_id": {
                     "type": "integer",

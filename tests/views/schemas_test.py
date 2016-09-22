@@ -12,7 +12,7 @@ import simplejson
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.views import schemas as schema_views
-from testing import factories
+from schematizer_testing import factories
 from tests.views.api_test_base import ApiTestBase
 
 

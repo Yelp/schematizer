@@ -82,7 +82,7 @@ def routes(config):
         request_method="DELETE"
     )
     config.add_route(
-        'api.v1.get_meta_attr_mappings_by_namespace',
+        'api.v1.get_namespace_meta_attribute_mappings',
         '/v1/namespaces/{namespace}/meta_attribute_mapping',
         request_method="GET"
     )
@@ -133,7 +133,7 @@ def routes(config):
         request_method="DELETE"
     )
     config.add_route(
-        'api.v1.get_meta_attr_mappings_by_source_id',
+        'api.v1.get_source_meta_attribute_mappings',
         '/v1/sources/{source_id}/meta_attribute_mapping',
         request_method="GET"
     )
@@ -186,7 +186,7 @@ def routes(config):
         request_method="DELETE"
     )
     config.add_route(
-        'api.v1.get_meta_attr_mappings_by_schema_id',
+        'api.v1.get_schema_meta_attribute_mappings',
         '/v1/schemas/{schema_id}/meta_attribute_mapping',
         request_method="GET"
     )
