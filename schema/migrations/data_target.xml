@@ -33,7 +33,7 @@
         <constraints nullable="false"/>
       </column>
     </addColumn>
-    <comment>[2016-09-21] Add a non nullable column to uniquely identify data targets.</comment>
+    <comment>[2016-09-21] Add a non nullable column 'name' to identify data targets.</comment>
     <modifySql>
       <append value=" AFTER id"/>
     </modifySql>
