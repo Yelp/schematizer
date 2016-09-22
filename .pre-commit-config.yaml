@@ -4,19 +4,12 @@
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
     -   id: autopep8-wrapper
-        args:
-        - -i
-        - --ignore=E265,E309,E501
-        # E265 deals with spacing inside of comments - breaks human formatting
-        # E309 puts a blank line after class declarations - doesn't work well with docstrings
-        # E501 reformats lines to fit in --max-line-length poorly
     -   id: check-yaml
     -   id: debug-statements
         language_version: python2.7
     -   id: flake8
         language_version: python2.7
-        exclude: docs/conf.py.svn,CVS,.bzr,.hg,.git,__pycache__,.tox,docs,virtualenv_run,setup.py,yelpsoa-configs
-        filename: (.+).py,(.+).wsgi
+        exclude: docs,setup.py
         max-line-length: 80
     -   id: check-yaml
     -   id: check-json
