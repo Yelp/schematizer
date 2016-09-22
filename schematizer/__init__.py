@@ -6,5 +6,5 @@ import os
 
 
 FORCE_AVOID_INTERNAL_PACKAGES = bool(os.environ.get(
-    'FORCE_AVOID_INTERNAL_PACKAGES')
-)
+    'FORCE_AVOID_INTERNAL_PACKAGES'
+))
