@@ -11,7 +11,7 @@ import simplejson
 
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
-from schematizer.helpers.formatting import datetime_to_local_ISO_8601
+from schematizer.helpers.formatting import _format_datetime
 from schematizer.views import schemas as schema_views
 from tests.views.api_test_base import ApiTestBase
 
@@ -455,10 +455,10 @@ class TestGetSchemaElements(ApiTestBase):
                     'element_type': element.element_type,
                     'key': element.key,
                     'doc': element.doc,
-                    'created_at': datetime_to_local_ISO_8601(
+                    'created_at': _format_datetime(
                         element.created_at
                     ),
-                    'updated_at': datetime_to_local_ISO_8601(
+                    'updated_at': _format_datetime(
                         element.updated_at
                     )
                 }

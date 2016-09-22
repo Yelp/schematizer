@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
-from schematizer.helpers.formatting import datetime_to_local_ISO_8601
+from schematizer.helpers.formatting import _format_datetime
 from schematizer.models.refresh import Priority
 from schematizer.models.refresh import RefreshStatus
 
@@ -18,8 +18,8 @@ def get_namespace_response_from_namespace(namespace):
     return {
         'namespace_id': namespace.id,
         'name': namespace.name,
-        'created_at': datetime_to_local_ISO_8601(namespace.created_at),
-        'updated_at': datetime_to_local_ISO_8601(namespace.updated_at)
+        'created_at': _format_datetime(namespace.created_at),
+        'updated_at': _format_datetime(namespace.updated_at)
     }
 
 
@@ -32,8 +32,8 @@ def get_source_response_from_source(source):
         'category': (
             None if source.category is None else source.category.category
         ),
-        'created_at': datetime_to_local_ISO_8601(source.created_at),
-        'updated_at': datetime_to_local_ISO_8601(source.updated_at)
+        'created_at': _format_datetime(source.created_at),
+        'updated_at': _format_datetime(source.updated_at)
     }
 
 
@@ -44,8 +44,8 @@ def get_topic_response_from_topic(topic):
         'source': get_source_response_from_source(topic.source),
         'contains_pii': topic.contains_pii,
         'primary_keys': topic.primary_keys,
-        'created_at': datetime_to_local_ISO_8601(topic.created_at),
-        'updated_at': datetime_to_local_ISO_8601(topic.updated_at)
+        'created_at': _format_datetime(topic.created_at),
+        'updated_at': _format_datetime(topic.updated_at)
     }
 
 
@@ -60,8 +60,8 @@ def get_schema_response_from_avro_schema(avro_schema):
             []
         ),
         'note': get_note_response_from_note(avro_schema.note),
-        'created_at': datetime_to_local_ISO_8601(avro_schema.created_at),
-        'updated_at': datetime_to_local_ISO_8601(avro_schema.updated_at)
+        'created_at': _format_datetime(avro_schema.created_at),
+        'updated_at': _format_datetime(avro_schema.updated_at)
     }
     # Since swagger cannot take null or None value for integer type,
     # here we just simply strip out this field.
@@ -78,8 +78,8 @@ def get_note_response_from_note(note):
             'reference_id': note.reference_id,
             'note': note.note,
             'last_updated_by': note.last_updated_by,
-            'created_at': datetime_to_local_ISO_8601(note.created_at),
-            'updated_at': datetime_to_local_ISO_8601(note.updated_at)
+            'created_at': _format_datetime(note.created_at),
+            'updated_at': _format_datetime(note.updated_at)
         }
         return response
     return None
@@ -89,8 +89,8 @@ def get_category_response_from_source_category(source_category):
     return {
         'source_id': source_category.source_id,
         'category': source_category.category,
-        'created_at': datetime_to_local_ISO_8601(source_category.created_at),
-        'updated_at': datetime_to_local_ISO_8601(source_category.updated_at)
+        'created_at': _format_datetime(source_category.created_at),
+        'updated_at': _format_datetime(source_category.updated_at)
     }
 
 
@@ -104,8 +104,8 @@ def get_refresh_response_from_refresh(refresh):
         'priority': Priority(refresh.priority).name,
         'filter_condition': refresh.filter_condition,
         'avg_rows_per_second_cap': refresh.avg_rows_per_second_cap,
-        'created_at': datetime_to_local_ISO_8601(refresh.created_at),
-        'updated_at': datetime_to_local_ISO_8601(refresh.updated_at)
+        'created_at': _format_datetime(refresh.created_at),
+        'updated_at': _format_datetime(refresh.updated_at)
     }
 
 
@@ -114,8 +114,8 @@ def get_data_target_response_from_data_target(data_target):
         'data_target_id': data_target.id,
         'target_type': data_target.target_type,
         'destination': data_target.destination,
-        'created_at': datetime_to_local_ISO_8601(data_target.created_at),
-        'updated_at': datetime_to_local_ISO_8601(data_target.updated_at)
+        'created_at': _format_datetime(data_target.created_at),
+        'updated_at': _format_datetime(data_target.updated_at)
     }
 
 
@@ -126,8 +126,8 @@ def get_consumer_group_response_from_consumer_group(consumer_group):
         'data_target': get_data_target_response_from_data_target(
             consumer_group.data_target
         ),
-        'created_at': datetime_to_local_ISO_8601(consumer_group.created_at),
-        'updated_at': datetime_to_local_ISO_8601(consumer_group.updated_at)
+        'created_at': _format_datetime(consumer_group.created_at),
+        'updated_at': _format_datetime(consumer_group.updated_at)
     }
 
 
@@ -137,10 +137,10 @@ def get_response_from_consumer_group_data_source(consumer_group_data_source):
         'data_source_type': consumer_group_data_source.data_source_type,
         'data_source_id': consumer_group_data_source.data_source_id,
         'consumer_group_id': consumer_group_data_source.consumer_group_id,
-        'created_at': datetime_to_local_ISO_8601(
+        'created_at': _format_datetime(
             consumer_group_data_source.created_at
         ),
-        'updated_at': datetime_to_local_ISO_8601(
+        'updated_at': _format_datetime(
             consumer_group_data_source.updated_at
         )
     }
@@ -154,6 +154,6 @@ def get_element_response_from_element(element):
         'key': element.key,
         'doc': element.doc,
         'note': get_note_response_from_note(element.note),
-        'created_at': datetime_to_local_ISO_8601(element.created_at),
-        'updated_at': datetime_to_local_ISO_8601(element.updated_at),
+        'created_at': _format_datetime(element.created_at),
+        'updated_at': _format_datetime(element.updated_at),
     }

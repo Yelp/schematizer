@@ -6,7 +6,7 @@ import pytest
 
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
-from schematizer.helpers.formatting import datetime_to_local_ISO_8601
+from schematizer.helpers.formatting import _format_datetime
 from schematizer.models.note import ReferenceTypeEnum
 from schematizer.views import notes as note_views
 from schematizer_testing import factories
@@ -35,8 +35,8 @@ class NotesViewTestBase(ApiTestBase):
             'reference_type': ref_type,
             'note': note_text,
             'last_updated_by': updated_by,
-            'created_at': datetime_to_local_ISO_8601(note.created_at),
-            'updated_at': datetime_to_local_ISO_8601(note.updated_at)
+            'created_at': _format_datetime(note.created_at),
+            'updated_at': _format_datetime(note.updated_at)
         }
 
 

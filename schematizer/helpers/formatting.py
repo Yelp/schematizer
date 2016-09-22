@@ -2,5 +2,6 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-def datetime_to_local_ISO_8601(datetime):
+
+def _format_datetime(datetime):
     return datetime.isoformat() + 'Z'

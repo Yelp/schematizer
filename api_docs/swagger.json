@@ -286,7 +286,7 @@
             "type": "object"
         },
         "Namespace": {
-            "description": "Namespace of the source",
+            "description": "Namespace an avro schema belongs to",
             "properties": {
                 "created_at": {
                     "description": "When this namespace is created",
@@ -759,7 +759,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "type": "string"
@@ -799,7 +799,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "type": "boolean"
                         }
@@ -842,7 +842,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "type": "boolean"
                         }
@@ -875,7 +875,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/ConsumerGroup"
@@ -913,7 +913,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/ConsumerGroup"
                         }
@@ -954,7 +954,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/ConsumerGroupDataSource"
@@ -1004,7 +1004,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/ConsumerGroupDataSource"
                         }
@@ -1037,7 +1037,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/DataTarget"
@@ -1075,7 +1075,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/DataTarget"
                         }
@@ -1113,7 +1113,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/DataTarget"
                         }
@@ -1154,7 +1154,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/ConsumerGroup"
@@ -1204,7 +1204,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/ConsumerGroup"
                         }
@@ -1252,7 +1252,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/Topic"
@@ -1288,7 +1288,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/Namespace"
@@ -1326,7 +1326,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/Refresh"
@@ -1370,7 +1370,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/Source"
@@ -1416,7 +1416,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/NoteResponse"
                         }
@@ -1466,7 +1466,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/NoteResponse"
                         }
@@ -1529,7 +1529,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/Refresh"
@@ -1570,7 +1570,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/Refresh"
                         }
@@ -1620,7 +1620,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/Refresh"
                         }
@@ -1663,7 +1663,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "type": "string"
@@ -1729,7 +1729,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/Schema"
@@ -1766,7 +1766,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/Schema"
                         }
@@ -1806,7 +1806,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/Schema"
                         }
@@ -1845,7 +1845,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/Schema"
                         }
@@ -1887,7 +1887,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/DataTarget"
@@ -1932,7 +1932,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/SchemaElement"
@@ -1984,7 +1984,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/Source"
@@ -2022,7 +2022,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/Source"
                         }
@@ -2064,7 +2064,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/CategoryResponse"
                         }
@@ -2112,7 +2112,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/CategoryResponse"
                         }
@@ -2153,7 +2153,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/Refresh"
@@ -2203,7 +2203,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/Refresh"
                         }
@@ -2244,7 +2244,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/Topic"
@@ -2288,7 +2288,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/Topic"
                         }
@@ -2358,7 +2358,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/Topic"
@@ -2400,7 +2400,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/Topic"
                         }
@@ -2442,7 +2442,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "items": {
                                 "$ref": "#/definitions/Schema"
@@ -2487,7 +2487,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response was specified",
+                        "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/Schema"
                         }
