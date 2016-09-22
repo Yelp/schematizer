@@ -31,4 +31,7 @@ module_config:
         config:
             log_stream_name: schematizer
         file:
+            # TODO(DATAPIPE-1507|abrar) : create a local clog.yaml file
+            # by default lets set scribe to disabled in this config,
+            # this file should be configured by external users.
             /nail/srv/configs/clog.yaml
