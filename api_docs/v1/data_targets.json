@@ -271,10 +271,15 @@
         "CreateDataTargetRequest": {
             "id": "CreateDataTargetRequest",
             "required": [
+                "name",
                 "target_type",
                 "destination"
             ],
             "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "A name to uniquely identify the data target"
+                },
                 "target_type": {
                     "type": "string",
                     "description": "Short description of the data target type, such as Redshift."

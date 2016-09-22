@@ -46,6 +46,7 @@ class TestCreateDataTarget(ApiTestBase):
     @pytest.fixture
     def request_json(self):
         return {
+            'name': 'yelp_redshift',
             'target_type': 'redshift',
             'destination': 'prod.yelpcorp'
         }

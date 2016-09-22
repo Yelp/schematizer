@@ -212,8 +212,9 @@ class UpdateRefreshStatusRequest(RequestBase):
 
 class CreateDataTargetRequest(RequestBase):
 
-    def __init__(self, target_type, destination):
+    def __init__(self, name, target_type, destination):
         super(CreateDataTargetRequest, self).__init__()
+        self.name = name
         self.target_type = target_type
         self.destination = destination
 

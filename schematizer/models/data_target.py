@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from schematizer.models.base_model import BaseModel
@@ -16,8 +17,18 @@ from schematizer.models.types.time import build_time_column
 class DataTarget(Base, BaseModel):
 
     __tablename__ = 'data_target'
+    __table_args__ = (
+        UniqueConstraint(
+            'name',
+            name='name_unique_constraint'
+        ),
+    )
 
     id = Column(Integer, primary_key=True)
+
+    # Data target name.
+    name = Column(String, nullable=False)
+
     target_type = Column(String, nullable=False)
     destination = Column(String, nullable=False)
 

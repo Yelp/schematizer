@@ -115,6 +115,7 @@ def get_refresh_response_from_refresh(refresh):
 def get_data_target_response_from_data_target(data_target):
     return {
         'data_target_id': data_target.id,
+        'name': data_target.name,
         'target_type': data_target.target_type,
         'destination': data_target.destination,
         'created_at': _format_datetime(data_target.created_at),

@@ -19,10 +19,11 @@ from schematizer.models.consumer_group_data_source \
 from schematizer.models.database import session
 
 
-def create_data_target(target_type, destination):
+def create_data_target(name, target_type, destination):
     """Create a new data target of specified target type and destination.
 
     Args:
+        name (string): name to uniquely identify a data target
         target_type (string): string describing the type of the data target
         destination (string): the actual location of the data target, such as
             the url of the cluster.
@@ -33,11 +34,13 @@ def create_data_target(target_type, destination):
     Raises:
         ValueError: if given target type or destination is empty.
     """
+    verify_truthy_value(name, "data target name")
     verify_truthy_value(target_type, "data target type")
     verify_truthy_value(destination, "destination of data target")
 
     return models.DataTarget.create(
         session,
+        name=name,
         target_type=target_type,
         destination=destination
     )
