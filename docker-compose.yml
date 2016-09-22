@@ -6,6 +6,7 @@ schematizerconfigs:
 
 schematizerservice:
     build: .
+    dockerfile: Dockerfile
     links:
         - schematizerdatabase
     volumes_from:
@@ -16,6 +17,7 @@ schematizerservice:
 # TODO(DATAPIPE-1507|abrar): may be move tis into a different file.
 schematizerserviceopensource:
     build: .
+    dockerfile: Dockerfile-opensource
     links:
         - schematizerdatabase
     volumes_from:
