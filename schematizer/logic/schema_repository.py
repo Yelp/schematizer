@@ -826,7 +826,8 @@ def get_refreshes_by_criteria(
     namespace=None,
     source_name=None,
     status=None,
-    created_after=None
+    created_after=None,
+    updated_after=None
 ):
     """Get all the refreshes that match the given filter criteria.
 
@@ -838,6 +839,8 @@ def get_refreshes_by_criteria(
         status(Optional[int]): get refreshes of given status
             if specified.
         created_after(Optional[datetime]): get refreshes created
+            after given utc datetime (inclusive) if specified.
+        updated_after(Optional[datetime]): get refreshes updated
             after given utc datetime (inclusive) if specified.
     """
     qry = session.query(models.Refresh)
@@ -859,6 +862,8 @@ def get_refreshes_by_criteria(
         qry = qry.filter(models.Refresh.status == status)
     if created_after:
         qry = qry.filter(models.Refresh.created_at >= created_after)
+    if updated_after:
+        qry = qry.filter(models.Refresh.updated_at >= updated_after)
     return qry.order_by(
         desc(models.Refresh.priority)
     ).order_by(

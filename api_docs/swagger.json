@@ -1515,6 +1515,13 @@
                         "name": "created_after",
                         "required": false,
                         "type": "integer"
+                    },
+                    {
+                        "description": "Unix timestamp that the refresh was updated after. Refreshes updated at the same timestamp will be included.",
+                        "in": "query",
+                        "name": "updated_after",
+                        "required": false,
+                        "type": "integer"
                     }
                 ],
                 "produces": [
