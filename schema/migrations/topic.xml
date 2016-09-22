@@ -47,15 +47,15 @@
   <changeSet author="askatti" id="1473343665">
     <preConditions onFail="WARN" onSqlOutput="TEST">
       <not>
-        <columnExists tableName="topic" columnName="is_log"/>
+        <columnExists tableName="topic" columnName="cluster_type"/>
       </not>
     </preConditions>
     <addColumn tableName="topic">
-      <column name="is_log" type="TINYINT(1)">
+      <column name="cluster_type" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
     </addColumn>
-    <comment>Add column of log flag</comment>
+    <comment>Add cluster_type column</comment>
     <modifySql>
       <append value=" AFTER contains_pii"/>
     </modifySql>

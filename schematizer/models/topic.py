@@ -9,10 +9,13 @@ from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
+from yelp_kafka import discovery
+from yelp_kafka.error import ConfigurationError
 
 from schematizer.models.avro_schema import AvroSchema
 from schematizer.models.base_model import BaseModel
 from schematizer.models.database import Base
+from schematizer.models.exceptions import InvalidTopicClusterTypeError
 from schematizer.models.types.time import build_time_column
 
 
@@ -55,20 +58,24 @@ class Topic(Base, BaseModel):
 
         self._contains_pii = int(value)
 
-    _is_log = Column('is_log', Integer, nullable=False)
+    _cluster_type = Column(
+        'cluster_type',
+        String,
+        nullable=False,
+        default='datapipe'
+    )
 
     @property
-    def is_log(self):
-        return bool(self._is_log)
+    def cluster_type(self):
+        return self._cluster_type
 
-    @is_log.setter
-    def is_log(self, value):
-        if not isinstance(value, bool):
-            raise ValueError(
-                "Type of is_log should be bool."
-            )
-
-        self._is_log = int(value)
+    @cluster_type.setter
+    def cluster_type(self, value):
+        try:
+            discovery.get_all_clusters(value)
+        except ConfigurationError:
+            raise InvalidTopicClusterTypeError(value)
+        self._cluster_type = value
 
     @property
     def primary_keys(self):
@@ -106,7 +113,7 @@ class Topic(Base, BaseModel):
             self.name,
             self.source_id,
             self.contains_pii,
-            self.is_log,
+            self.cluster_type,
             self.created_at,
             self.updated_at
         )

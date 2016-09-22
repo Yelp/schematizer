@@ -374,9 +374,9 @@
                     "type": "boolean",
                     "description": "Whether the messages in this topic contain PII."
                 },
-                "is_log": {
-                    "type": "boolean",
-                    "description": "Whether the messages in this topic comes from a log kafka cluster."
+                "cluster_type": {
+                    "type": "string",
+                    "description": "Type of kafka cluster this topic belongs to."
                 },
                 "primary_keys": {
                     "type": "array",

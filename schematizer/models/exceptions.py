@@ -14,3 +14,10 @@ class EntityNotFoundError(Exception):
                 ', '.join('{}={}'.format(k, v) for k, v in extra_info.items())
             )
         super(EntityNotFoundError, self).__init__(err_message)
+
+
+class InvalidTopicClusterTypeError(Exception):
+
+    def __init__(self, cluster_type):
+        err_message = '`{}` kafka cluster type does not exist.'.format(cluster_type)
+        super(InvalidTopicClusterTypeError, self).__init__(err_message)
