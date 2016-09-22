@@ -9,8 +9,6 @@
         language_version: python2.7
     -   id: flake8
         language_version: python2.7
-        exclude: docs,setup.py
-        max-line-length: 80
     -   id: check-yaml
     -   id: check-json
     -   id: check-merge-conflict
