@@ -277,7 +277,7 @@
                     "method": "DELETE",
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified schema_id.",
                     "notes": "The schema_id of both the AvroSchema and Meta attribute should exist.",
-                    "type": "boolean",
+                    "type": "MetaAttributeMappingsResponse",
                     "nickname": "delete_schema_meta_attribute_mapping",
                     "authorizations": {},
                     "parameters": [
@@ -289,10 +289,6 @@
                         }
                     ],
                     "responseMessages": [
-                        {
-                            "code": 204,
-                            "message": "Deletion sccessful"
-                        },
                         {
                             "code": 404,
                             "message": "Entity not found"

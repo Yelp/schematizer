@@ -352,7 +352,7 @@
                     "method": "DELETE",
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified source_id.",
                     "notes": "The source_id and the schema_id of Meta attribute schema should exist.",
-                    "type": "boolean",
+                    "type": "MetaAttributeMappingsResponse",
                     "nickname": "delete_source_meta_attribute_mapping",
                     "authorizations": {},
                     "parameters": [
@@ -364,10 +364,6 @@
                         }
                     ],
                     "responseMessages": [
-                        {
-                            "code": 204,
-                            "message": "Deletion sccessful"
-                        },
                         {
                             "code": 404,
                             "message": "Entity not found"

@@ -145,7 +145,7 @@
                     "method": "DELETE",
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified namespace name.",
                     "notes": "The namespace name and the schema_id of Meta attribute schema should exist.",
-                    "type": "boolean",
+                    "type": "MetaAttributeMappingsResponse",
                     "nickname": "delete_namespace_meta_attribute_mapping",
                     "authorizations": {},
                     "parameters": [
@@ -157,10 +157,6 @@
                         }
                     ],
                     "responseMessages": [
-                        {
-                            "code": 204,
-                            "message": "Deletion sccessful"
-                        },
                         {
                             "code": 404,
                             "message": "Entity not found"
