@@ -133,8 +133,11 @@ class SQLColumnDataType(object):
         return self._attributes_lookup.get(name)
 
     def __eq__(self, other):
-        return (isinstance(other, SQLColumnDataType) and
-                self.attributes == other.attributes)
+        return all([
+            isinstance(other, SQLColumnDataType),
+            self.attributes == other.attributes,
+            self.type_name == other.type_name
+        ])
 
     def convert_str_to_type_val(self, val_string):
         """Convert the given string representation of the value to the value

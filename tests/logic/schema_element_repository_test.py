@@ -7,7 +7,7 @@ import pytest
 from schematizer import models
 from schematizer.logic import schema_element_repository as repo
 from schematizer.models import exceptions as sch_exc
-from testing import factories
+from schematizer_testing import factories
 from tests.models.testing_db import DBTestCase
 
 

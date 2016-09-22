@@ -88,6 +88,14 @@
                             "type": "integer",
                             "paramType": "query",
                             "allowMultiple": false
+                        },
+                        {
+                            "name": "updated_after",
+                            "description": "Unix timestamp that the refresh was updated after. Refreshes updated at the same timestamp will be included.",
+                            "required": false,
+                            "type": "integer",
+                            "paramType": "query",
+                            "allowMultiple": false
                         }
                     ],
                     "responseMessages": [
