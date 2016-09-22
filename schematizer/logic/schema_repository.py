@@ -8,13 +8,25 @@ import simplejson
 from sqlalchemy import desc
 from sqlalchemy import exc
 from sqlalchemy.orm import exc as orm_exc
-from yelp_conn.mysqldb import IntegrityError
 
+from schematizer import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer import models
 from schematizer.components.converters.converter_base import BaseConverter
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.models.database import session
+
+try:
+    # TODO(DATAPIPE-1506|abrar): Currently we have
+    # force_avoid_internal_packages as a means of simulating an absence
+    # of a yelp's internal package. And all references
+    # of force_avoid_internal_packages have to be removed from
+    # schematizer after we have completely ready for open source.
+    if FORCE_AVOID_INTERNAL_PACKAGES:
+        raise ImportError
+    from yelp_conn.mysqldb import IntegrityError
+except ImportError:
+    from sqlalchemy.exc import IntegrityError
 
 
 def is_backward_compatible(old_schema_json, new_schema_json):

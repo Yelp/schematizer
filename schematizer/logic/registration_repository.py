@@ -9,14 +9,26 @@ from __future__ import unicode_literals
 from sqlalchemy import and_
 from sqlalchemy import exc
 from sqlalchemy import or_
-from yelp_conn.mysqldb import IntegrityError
 
+from schematizer import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer import models
 from schematizer.logic.validators import verify_entity_exists
 from schematizer.logic.validators import verify_truthy_value
 from schematizer.models.consumer_group_data_source \
     import DataSourceTypeEnum as SrcType
 from schematizer.models.database import session
+
+try:
+    # TODO(DATAPIPE-1506|abrar): Currently we have
+    # force_avoid_internal_packages as a means of simulating an absence
+    # of a yelp's internal package. And all references
+    # of force_avoid_internal_packages have to be removed from
+    # schematizer after we have completely ready for open source.
+    if FORCE_AVOID_INTERNAL_PACKAGES:
+        raise ImportError
+    from yelp_conn.mysqldb import IntegrityError
+except ImportError:
+    from sqlalchemy.exc import IntegrityError
 
 
 def create_data_target(target_type, destination):
