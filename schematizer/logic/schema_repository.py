@@ -156,7 +156,6 @@ def register_avro_schema_from_avro_json(
         status=status,
         base_schema_id=base_schema_id
     )
-    _add_meta_attribute_mappings(avro_schema.id)
     return avro_schema
 
 
@@ -173,6 +172,7 @@ def _is_same_schema(schema, avro_schema_json, base_schema_id):
 
 
 def _is_topic_compatible(topic, avro_schema_json, contains_pii):
+    #TODO [askatti|DATAPIPE-1758] Check for meta attribute mapping changes too
     return (topic and
             topic.contains_pii == contains_pii and
             is_schema_compatible_in_topic(avro_schema_json, topic.name) and
@@ -478,6 +478,7 @@ def _create_avro_schema(
         session.add(avro_schema_element)
 
     session.flush()
+    _add_meta_attribute_mappings(avro_schema.id)
     return avro_schema
 
 
