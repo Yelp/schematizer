@@ -13,7 +13,7 @@ from yelp_servlib import logging_util
 import schematizer.config
 import schematizer.models.database
 from schematizer import healthchecks
-from schematizer.config import get_config
+from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.helpers.decorators import memoized
 
 SERVICE_CONFIG_PATH = os.environ.get('SERVICE_CONFIG_PATH')
@@ -48,7 +48,7 @@ try:
     # of a yelp's internal package. And all references
     # of force_avoid_internal_packages have to be removed from
     # schematizer after we have completely ready for open source.
-    if get_config().force_avoid_internal_packages:
+    if FORCE_AVOID_INTERNAL_PACKAGES:
         raise ImportError
     import yelp_pyramid.healthcheck
     yelp_pyramid.healthcheck.install_healthcheck(
@@ -65,8 +65,7 @@ except ImportError:
 def _create_application():
     """Create the WSGI application, post-fork."""
 
-    # Create a basic pyramid Configurator.
-    config = Configurator(settings={
+    settings = {
         'service_name': 'schematizer',
         'zipkin.tracing_percent': 100,
         'pyramid_swagger.skip_validation': [
@@ -75,7 +74,22 @@ def _create_application():
             '/(status)\\b'
         ],
         'pyramid_yelp_conn.reload_clusters': CLUSTERS
-    })
+    }
+
+    # Create a basic pyramid Configurator.
+    try:
+        # TODO(DATAPIPE-1506|abrar): Currently we have
+        # force_avoid_internal_packages as a means of simulating an absence
+        # of a yelp's internal package. And all references
+        # of force_avoid_internal_packages have to be removed from
+        # schematizer after we have completely ready for open source.
+        if FORCE_AVOID_INTERNAL_PACKAGES:
+            raise ImportError
+        import pyramid_yelp_conn    # NOQA
+        settings['pyramid_yelp_conn.reload_clusters'] = CLUSTERS
+    except ImportError:
+        pass
+    config = Configurator(settings=settings)
 
     initialize_application()
 
@@ -88,7 +102,7 @@ def _create_application():
         # of a yelp's internal package. And all references
         # of force_avoid_internal_packages have to be removed from
         # schematizer after we have completely ready for open source.
-        if get_config().force_avoid_internal_packages:
+        if FORCE_AVOID_INTERNAL_PACKAGES:
             raise ImportError
 
         import yelp_pyramid
@@ -103,6 +117,9 @@ def _create_application():
         import pyramid_uwsgi_metrics
         # Display metrics on the '/status/metrics' endpoint
         config.include(pyramid_uwsgi_metrics)
+
+        # Including the yelp profiling tween.
+        config.include('yelp_profiling')
     except ImportError:
         config.add_tween(
             "schematizer.schematizer_tweens.db_session_tween_factory",
@@ -117,9 +134,6 @@ def _create_application():
 
     # Scan the service package to attach any decorated views.
     config.scan(package='schematizer.views')
-
-    # Including the yelp profiling tween.
-    config.include('yelp_profiling')
 
     return config.make_wsgi_app()
 
