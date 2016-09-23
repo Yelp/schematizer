@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 
 import pytest
 
-from schematizer.models.source import Topic
 from schematizer.models.exceptions import InvalidTopicClusterTypeError
+from schematizer.models.source import Topic
 from schematizer_testing import factories
 from tests.models.base_model_test import GetAllModelTestBase
 from tests.models.testing_db import DBTestCase
@@ -59,5 +59,5 @@ class TestTopicModel(DBTestCase):
                 source_name=biz_source.name,
                 cluster_type='not_a_kafka_cluster_type'
             )
-            assert e.value == (
-                '`not_a_kafka_cluster_type`  kafka cluster type does not exist.')
+            assert e.value == ('`not_a_kafka_cluster_type` kafka cluster type '
+                               'does not exist.')

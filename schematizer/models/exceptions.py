@@ -19,5 +19,7 @@ class EntityNotFoundError(Exception):
 class InvalidTopicClusterTypeError(Exception):
 
     def __init__(self, cluster_type):
-        err_message = '`{}` kafka cluster type does not exist.'.format(cluster_type)
+        err_message = '`{}` kafka cluster type does not exist.'.format(
+            cluster_type
+        )
         super(InvalidTopicClusterTypeError, self).__init__(err_message)
