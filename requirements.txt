@@ -1,5 +1,10 @@
+--extra-index-url https://pypi.python.org/simple
+--extra-index-url https://pypi.python.org/pypi
 #sqlparse==0.1.13
 -e git://github.com/Yelp/sqlparse.git@a29c8c1fb827863c6b57d8811ed3b69e982a3877#egg=sqlparse
+# TODO(DATAPIPE-1507|abrar) : internal.txt has to be unlinked from requirements.txt
+# internal.txt should be built only for internal users
+-r requirements.d/internal.txt
 MarkupSafe==0.23
 docker-py==1.3.1
 MySQL-python==1.2.5
@@ -34,8 +39,6 @@ pycrypto==2.6.1
 pyramid-exclog==0.7
 pyramid-mako==1.0.2
 pyramid-swagger==1.1.0
-pyramid-uwsgi-metrics==0.3.1
-pyramid-yelp-conn==0.4.0
 pyramid-zipkin==0.12.3
 pyramid==1.5.2
 pysubnettree==0.23
@@ -47,11 +50,12 @@ setproctitle==1.1.8
 simplejson==3.6.5
 six==1.9
 subprocess32==3.2.6
+testing.mysqld==1.4.0
 thriftpy==0.1.15
 tornado==2.4.1
 translationstring==1.3
 treap==1.23.1
-uWSGI==2.0.8
+uWSGI==2.0.13.1
 uwsgi-metrics==1.1.4
 venusian==1.0
 avro==1.9.0-yelp3
@@ -60,18 +64,15 @@ yelp-bytes==0.3.0
 yelp-cgeom==1.3.1
 yelp-cheetah==0.18.0
 yelp-clog==1.4.2
-yelp-conn==10.2.2
 yelp-crypto==1.2.0
 yelp-email==1.2.1
 yelp-encodings==0.1.3
 yelp-ips==0.1.1
 yelp-kafka==4.5.5
-yelp-lib==9.1.0
 yelp-logging==1.7.3
 yelp-markupsafe==0.0.1
 yelp-meteorite==1.0.0
 yelp-profiling==4.0.1
-yelp-pyramid==0.24.1
 yelp-servlib==4.9.0
 zope.deprecation==4.1.1
 zope.interface==4.1.1

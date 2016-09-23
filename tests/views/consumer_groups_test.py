@@ -7,7 +7,7 @@ import copy
 import pytest
 
 from schematizer.views import consumer_groups as con_group_views
-from testing.factories import create_consumer_group
+from schematizer_testing.factories import create_consumer_group
 from tests.views.api_test_base import ApiTestBase
 
 

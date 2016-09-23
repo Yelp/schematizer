@@ -8,7 +8,7 @@ here. If you need to pass something through, pass it through
 create_application.
 """
 
-from yelp_lib.decorators import memoized
+from schematizer.helpers.decorators import memoized
 
 from schematizer.webapp import create_application
 
