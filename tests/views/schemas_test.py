@@ -333,14 +333,14 @@ class TestRegisterSchema(RegisterSchemaTestBase):
         assert e.value.code == expected_exception.code
         assert str(e.value) == "Source owner email must be non-empty."
 
-    @pytest.mark.parametrize("is_log", [True, False])
-    def test_register_schema_with_is_log(
+    @pytest.mark.parametrize("cluster_type", [None, 'datapipe', 'scribe'])
+    def test_register_schema_with_cluster_type(
         self,
         mock_request,
         request_json,
-        is_log
+        cluster_type
     ):
-        request_json['is_log'] = is_log
+        request_json['cluster_type'] = cluster_type
         mock_request.json_body = request_json
         actual = schema_views.register_schema(mock_request)
         self._assert_equal_schema_response(actual, request_json)
@@ -371,12 +371,6 @@ class TestRegisterSchemaFromMySQL(RegisterSchemaTestBase):
         }
 
     def test_register_new_table(self, mock_request, request_json):
-        mock_request.json_body = request_json
-        actual = schema_views.register_schema_from_mysql_stmts(mock_request)
-        self._assert_equal_schema_response(actual, request_json)
-
-    def test_register_new_table_with_is_log(self, mock_request, request_json):
-        request_json['is_log'] = False
         mock_request.json_body = request_json
         actual = schema_views.register_schema_from_mysql_stmts(mock_request)
         self._assert_equal_schema_response(actual, request_json)

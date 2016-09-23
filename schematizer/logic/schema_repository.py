@@ -76,7 +76,7 @@ def register_avro_schema_from_avro_json(
         source_name,
         source_email_owner,
         contains_pii,
-        cluster_type='datapipe',
+        cluster_type=None,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
         base_schema_id=None,
         docs_required=True
@@ -89,12 +89,12 @@ def register_avro_schema_from_avro_json(
     :param source: source name string
     :param domain_owner_email: email of the schema owner
     :param cluster_type: Type of kafka cluster Ex: datapipe, scribe, etc.
-    Defaults to datapipe
+        Defaults to None which translates to datapipe
     :param status: AvroStatusEnum: RW/R/Disabled
     :param base_schema_id: Id of the Avro schema from which the new schema is
-    derived from
+        derived from
     :param docs_required: whether to-be-registered schema must contain doc
-    strings
+        strings
     :return: New created AvroSchema object.
     """
 
@@ -124,6 +124,8 @@ def register_avro_schema_from_avro_json(
     )
     _lock_source(source)
 
+    if cluster_type is None:
+        cluster_type = 'datapipe'
     topic_candidates = _get_topic_candidates(
         source_id=source.id,
         base_schema_id=base_schema_id,

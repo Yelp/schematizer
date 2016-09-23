@@ -452,12 +452,7 @@ class TestSchemaRepository(DBTestCase):
         ) as mock_func:
             yield mock_func
 
-    @pytest.mark.parametrize("cluster_type", ['datapipe', 'scribe'])
-    def test_registering_from_avro_json_with_new_schema(
-        self,
-        namespace,
-        cluster_type
-    ):
+    def test_registering_from_avro_json_with_new_schema(self, namespace):
         expected_base_schema_id = 100
         actual_schema = schema_repo.register_avro_schema_from_avro_json(
             self.rw_schema_json,
@@ -465,7 +460,6 @@ class TestSchemaRepository(DBTestCase):
             self.source_name,
             self.source_owner_email,
             contains_pii=False,
-            cluster_type=cluster_type,
             base_schema_id=expected_base_schema_id
         )
 
@@ -487,14 +481,27 @@ class TestSchemaRepository(DBTestCase):
         )
         self.assert_equal_source_partial(expected_source, actual_source)
 
+    @pytest.mark.parametrize("cluster_type", [None, 'datapipe', 'scribe'])
+    def test_registering_from_avro_json_with_cluster_types(self, cluster_type):
+        expected_base_schema_id = 100
+        actual_schema = schema_repo.register_avro_schema_from_avro_json(
+            self.rw_schema_json,
+            self.namespace_name,
+            self.source_name,
+            self.source_owner_email,
+            contains_pii=False,
+            cluster_type=cluster_type,
+            base_schema_id=expected_base_schema_id
+        )
         actual_topic = session.query(models.Topic).filter(
             models.Topic.id == actual_schema.topic.id
         ).one()
+        expected_cluster_type = cluster_type if cluster_type else 'datapipe'
         expected_topic = models.Topic(
             name=actual_schema.topic.name,
             source_id=actual_schema.topic.source_id,
             contains_pii=actual_schema.topic.contains_pii,
-            cluster_type=cluster_type
+            cluster_type=expected_cluster_type
         )
         self.assert_equal_topic_partial(expected_topic, actual_topic)
 
