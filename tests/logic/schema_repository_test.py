@@ -452,11 +452,11 @@ class TestSchemaRepository(DBTestCase):
         ) as mock_func:
             yield mock_func
 
-    @pytest.mark.parametrize("is_log", [True, False])
+    @pytest.mark.parametrize("cluster_type", ['datapipe', 'scribe'])
     def test_registering_from_avro_json_with_new_schema(
         self,
         namespace,
-        is_log
+        cluster_type
     ):
         expected_base_schema_id = 100
         actual_schema = schema_repo.register_avro_schema_from_avro_json(
@@ -465,7 +465,7 @@ class TestSchemaRepository(DBTestCase):
             self.source_name,
             self.source_owner_email,
             contains_pii=False,
-            is_log=is_log,
+            cluster_type=cluster_type,
             base_schema_id=expected_base_schema_id
         )
 
@@ -494,7 +494,7 @@ class TestSchemaRepository(DBTestCase):
             name=actual_schema.topic.name,
             source_id=actual_schema.topic.source_id,
             contains_pii=actual_schema.topic.contains_pii,
-            is_log=is_log
+            cluster_type=cluster_type
         )
         self.assert_equal_topic_partial(expected_topic, actual_topic)
 
@@ -504,8 +504,7 @@ class TestSchemaRepository(DBTestCase):
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
-            contains_pii=False,
-            is_log=False
+            contains_pii=False
         )
 
         actual_schema2 = schema_repo.register_avro_schema_from_avro_json(
@@ -513,8 +512,7 @@ class TestSchemaRepository(DBTestCase):
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
-            contains_pii=False,
-            is_log=False
+            contains_pii=False
         )
         assert actual_schema1.topic.id != actual_schema2.topic.id
 
@@ -524,8 +522,7 @@ class TestSchemaRepository(DBTestCase):
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
-            contains_pii=False,
-            is_log=False
+            contains_pii=False
         )
 
         actual_schema2 = schema_repo.register_avro_schema_from_avro_json(
@@ -533,8 +530,7 @@ class TestSchemaRepository(DBTestCase):
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
-            contains_pii=False,
-            is_log=False
+            contains_pii=False
         )
         assert actual_schema1.topic.id != actual_schema2.topic.id
 
@@ -544,8 +540,7 @@ class TestSchemaRepository(DBTestCase):
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
-            contains_pii=False,
-            is_log=False
+            contains_pii=False
         )
 
         actual_schema2 = schema_repo.register_avro_schema_from_avro_json(
@@ -553,8 +548,7 @@ class TestSchemaRepository(DBTestCase):
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
-            contains_pii=False,
-            is_log=False
+            contains_pii=False
         )
         assert actual_schema1.topic.id == actual_schema2.topic.id
 
@@ -571,8 +565,7 @@ class TestSchemaRepository(DBTestCase):
             topic.source.namespace.name,
             topic.source.name,
             topic.source.owner_email,
-            contains_pii=False,
-            is_log=False
+            contains_pii=False
         )
 
         expected_schema = models.AvroSchema(
@@ -597,7 +590,6 @@ class TestSchemaRepository(DBTestCase):
                 avro_schema.topic.source.name,
                 email,
                 contains_pii=False,
-                is_log=False,
                 base_schema_id=avro_schema.base_schema_id
             )
         assert str(e.value) == "Source owner email must be non-empty."
@@ -616,7 +608,6 @@ class TestSchemaRepository(DBTestCase):
                 src_name,
                 avro_schema.topic.source.owner_email,
                 contains_pii=False,
-                is_log=False,
                 base_schema_id=avro_schema.base_schema_id
             )
         assert str(e.value) == "Source name must be non-empty."
@@ -625,7 +616,7 @@ class TestSchemaRepository(DBTestCase):
         self,
         topic,
         contains_pii,
-        is_log
+        cluster_type
     ):
         actual_schema = schema_repo.register_avro_schema_from_avro_json(
             self.another_rw_schema_json,
@@ -633,7 +624,7 @@ class TestSchemaRepository(DBTestCase):
             topic.source.name,
             topic.source.owner_email,
             contains_pii,
-            is_log
+            cluster_type
         )
 
         expected_schema = models.AvroSchema(
@@ -674,7 +665,6 @@ class TestSchemaRepository(DBTestCase):
             topic.source.name,
             topic.source.owner_email,
             contains_pii=False,
-            is_log=False,
             docs_required=True
         )
         assert actual_schema.avro_schema_json == avro_schema_with_docs
@@ -690,7 +680,6 @@ class TestSchemaRepository(DBTestCase):
             topic.source.name,
             topic.source.owner_email,
             contains_pii=False,
-            is_log=False,
             docs_required=False
         )
         assert actual_schema.avro_schema_json == avro_schema_with_docs
@@ -720,7 +709,6 @@ class TestSchemaRepository(DBTestCase):
                 topic.source.name,
                 topic.source.owner_email,
                 contains_pii=False,
-                is_log=False
             )
 
     def test_register_avro_schema_without_docs_dont_require_doc(
@@ -734,7 +722,6 @@ class TestSchemaRepository(DBTestCase):
             topic.source.name,
             topic.source.owner_email,
             contains_pii=False,
-            is_log=False,
             docs_required=False
         )
         assert actual_schema.avro_schema_json == avro_schema_without_docs
@@ -747,9 +734,9 @@ class TestSchemaRepository(DBTestCase):
     ):
         mock_compatible_func.return_value = False
         self.assert_new_topic_created_after_schema_register(
-            topic,
-            contains_pii=False,
-            is_log=False,
+            topic=topic,
+            contains_pii=topic.contains_pii,
+            cluster_type=topic.cluster_type
         )
 
     @pytest.mark.usefixtures('rw_schema')
@@ -760,22 +747,23 @@ class TestSchemaRepository(DBTestCase):
     ):
         mock_compatible_func.return_value = True
         self.assert_new_topic_created_after_schema_register(
-            topic,
-            not topic.contains_pii,
-            topic.is_log
+            topic=topic,
+            contains_pii=not topic.contains_pii,
+            cluster_type=topic.cluster_type
         )
 
     @pytest.mark.usefixtures('rw_schema')
-    def test_create_schema_from_avro_json_with_different_is_log(
+    def test_create_schema_from_avro_json_with_different_cluster_type(
         self,
         topic,
         mock_compatible_func
     ):
         mock_compatible_func.return_value = True
+        assert topic.cluster_type is not 'scribe'
         self.assert_new_topic_created_after_schema_register(
-            topic,
-            topic.contains_pii,
-            not topic.is_log
+            topic=topic,
+            contains_pii=topic.contains_pii,
+            cluster_type='scribe'
         )
 
     def _register_avro_schema(self, avro_schema):
@@ -785,7 +773,7 @@ class TestSchemaRepository(DBTestCase):
             avro_schema.topic.source.name,
             avro_schema.topic.source.owner_email,
             contains_pii=avro_schema.topic.contains_pii,
-            is_log=avro_schema.topic.is_log,
+            cluster_type=avro_schema.topic.cluster_type,
             base_schema_id=avro_schema.base_schema_id
         )
 
@@ -878,7 +866,6 @@ class TestSchemaRepository(DBTestCase):
             rw_schema.topic.source.name,
             rw_schema.topic.source.owner_email,
             contains_pii=False,
-            is_log=False,
             base_schema_id=expected_base_schema_id
         )
 
@@ -1363,7 +1350,7 @@ class TestSchemaRepository(DBTestCase):
 
     def assert_equal_topic_partial(self, expected, actual):
         assert expected.name == actual.name
-        assert expected.is_log == actual.is_log
+        assert expected.cluster_type == actual.cluster_type
 
     def assert_equal_topic(self, expected, actual):
         assert expected.id == actual.id

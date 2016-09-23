@@ -56,7 +56,7 @@ class TestTopicModel(DBTestCase):
                 topic_name='yelp.biz_test.1',
                 namespace_name=biz_source.namespace.name,
                 source_name=biz_source.name,
-                cluster_type='not_a_kakfka_cluster_type'
+                cluster_type='not_a_kafka_cluster_type'
             )
             assert e.value == (
-                '`not_a_kakfka_cluster_type`  kafka cluster type does not exist.')
+                '`not_a_kafka_cluster_type`  kafka cluster type does not exist.')
