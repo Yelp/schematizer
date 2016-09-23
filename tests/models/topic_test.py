@@ -34,6 +34,7 @@ class TestTopicModel(DBTestCase):
 
     @pytest.mark.parametrize("overrides, expected_cluster_type", [
         ({}, 'datapipe'),
+        ({'cluster_type': 'datapipe'}, 'datapipe'),
         ({'cluster_type': 'scribe'}, 'scribe')
     ])
     def test_valid_cluster_type(
