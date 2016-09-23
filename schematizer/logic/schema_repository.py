@@ -199,6 +199,7 @@ def _create_topic_for_source(
 
 
 def _construct_topic_name(namespace, source):
+    #TODO [askatti|DATAPIPE-1319] How to store scribe kafka topics
     return '.'.join((namespace, source, uuid.uuid4().hex))
 
 
