@@ -1,31 +1,19 @@
 {
     "apiVersion": "1.0.0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://169.254.255.254:20912",
-    "resourcePath": "/v1/notes",
-    "produces": [
-        "application/json"
-    ],
-    "consumes": [
-        "application/json"
-    ],
     "apis": [
         {
-            "path": "/v1/notes",
             "operations": [
                 {
-                    "method": "POST",
-                    "summary": "Create given note for the specified schema or schema element.",
-                    "notes": "",
-                    "type": "NoteResponse",
-                    "nickname": "create_note",
                     "authorizations": {},
+                    "method": "POST",
+                    "nickname": "create_note",
+                    "notes": "",
                     "parameters": [
                         {
                             "name": "body",
+                            "paramType": "body",
                             "required": true,
-                            "type": "CreateNoteRequest",
-                            "paramType": "body"
+                            "type": "CreateNoteRequest"
                         }
                     ],
                     "responseMessages": [
@@ -41,34 +29,34 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Create given note for the specified schema or schema element.",
+                    "type": "NoteResponse"
                 }
-            ]
+            ],
+            "path": "/v1/notes"
         },
         {
-            "path": "/v1/notes/{note_id}",
             "operations": [
                 {
-                    "method": "POST",
-                    "summary": "Update given note for the specified schema or schema element.",
-                    "notes": "",
-                    "type": "NoteResponse",
-                    "nickname": "update_note",
                     "authorizations": {},
+                    "method": "POST",
+                    "nickname": "update_note",
+                    "notes": "",
                     "parameters": [
                         {
                             "name": "body",
+                            "paramType": "body",
                             "required": true,
-                            "type": "UpdateNoteRequest",
-                            "paramType": "body"
+                            "type": "UpdateNoteRequest"
                         },
                         {
-                            "name": "note_id",
+                            "allowMultiple": false,
                             "description": "ID of note that will be fetched",
-                            "required": true,
-                            "type": "integer",
+                            "name": "note_id",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -84,90 +72,102 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Update given note for the specified schema or schema element.",
+                    "type": "NoteResponse"
                 }
-            ]
+            ],
+            "path": "/v1/notes/{note_id}"
         }
+    ],
+    "basePath": "http://169.254.255.254:20912",
+    "consumes": [
+        "application/json"
     ],
     "models": {
         "CreateNoteRequest": {
             "id": "CreateNoteRequest",
+            "properties": {
+                "last_updated_by": {
+                    "description": "The email of the user who edited the note",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "The text of the note itself",
+                    "type": "string"
+                },
+                "reference_id": {
+                    "description": "The id of the item that this note is for",
+                    "type": "integer"
+                },
+                "reference_type": {
+                    "description": "The type of item that this note is for ('schema', or 'schema_element')",
+                    "type": "string"
+                }
+            },
             "required": [
                 "reference_id",
                 "reference_type",
                 "note",
                 "last_updated_by"
-            ],
+            ]
+        },
+        "NoteResponse": {
+            "id": "NoteResponse",
             "properties": {
-                "reference_id": {
-                    "type": "integer",
-                    "description": "The id of the item that this note is for"
+                "created_at": {
+                    "description": "When this note is created",
+                    "format": "date-time",
+                    "type": "string"
                 },
-                "reference_type": {
-                    "type": "string",
-                    "description": "The type of item that this note is for ('schema', or 'schema_element')"
-                },
-                "note": {
-                    "type": "string",
-                    "description": "The text of the note itself"
+                "id": {
+                    "description": "The id of the note",
+                    "type": "integer"
                 },
                 "last_updated_by": {
-                    "type": "string",
-                    "description": "The email of the user who edited the note"
+                    "description": "The email of the user who edited the note",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "The text of the note itself",
+                    "type": "string"
+                },
+                "reference_id": {
+                    "description": "The id of the item that this note is for",
+                    "type": "integer"
+                },
+                "reference_type": {
+                    "description": "The type of item that this note is for ('schema', or 'schema_element')",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "When this note is last updated",
+                    "format": "date-time",
+                    "type": "string"
                 }
             }
         },
         "UpdateNoteRequest": {
             "id": "UpdateNoteRequest",
+            "properties": {
+                "last_updated_by": {
+                    "description": "The email of the user who edited the note",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "The text of the note itself",
+                    "type": "string"
+                }
+            },
             "required": [
                 "note",
                 "last_updated_by"
-            ],
-            "properties": {
-                "note": {
-                    "type": "string",
-                    "description": "The text of the note itself"
-                },
-                "last_updated_by": {
-                    "type": "string",
-                    "description": "The email of the user who edited the note"
-                }
-            }
-        },
-        "NoteResponse": {
-            "id": "NoteResponse",
-            "properties": {
-                "id": {
-                    "type": "integer",
-                    "description": "The id of the note"
-                },
-                "reference_id": {
-                    "type": "integer",
-                    "description": "The id of the item that this note is for"
-                },
-                "reference_type": {
-                    "type": "string",
-                    "description": "The type of item that this note is for ('schema', or 'schema_element')"
-                },
-                "note": {
-                    "type": "string",
-                    "description": "The text of the note itself"
-                },
-                "last_updated_by": {
-                    "type": "string",
-                    "description": "The email of the user who edited the note"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this note is created"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this note is last updated"
-                }
-            }
+            ]
         }
-    }
+    },
+    "produces": [
+        "application/json"
+    ],
+    "resourcePath": "/v1/notes",
+    "swaggerVersion": "1.2"
 }

@@ -1,32 +1,20 @@
 {
     "apiVersion": "1.0.0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://169.254.255.254:20912",
-    "resourcePath": "/v1/topics",
-    "produces": [
-        "application/json"
-    ],
-    "consumes": [
-        "application/json"
-    ],
     "apis": [
         {
-            "path": "/v1/topics/{topic_name}",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "Get the topic of specified topic name",
-                    "type": "Topic",
-                    "nickname": "get_topic_by_topic_name",
                     "authorizations": {},
+                    "method": "GET",
+                    "nickname": "get_topic_by_topic_name",
                     "parameters": [
                         {
-                            "name": "topic_name",
+                            "allowMultiple": false,
                             "description": "Kafka topic name of the topic to be fetched",
-                            "required": true,
-                            "type": "string",
+                            "name": "topic_name",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "string"
                         }
                     ],
                     "responseMessages": [
@@ -42,30 +30,30 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Get the topic of specified topic name",
+                    "type": "Topic"
                 }
-            ]
+            ],
+            "path": "/v1/topics/{topic_name}"
         },
         {
-            "path": "/v1/topics/{topic_name}/schemas",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "List all the schemas of specified topic. These schemas are full compatible to each other.",
-                    "type": "array",
+                    "authorizations": {},
                     "items": {
                         "$ref": "Schema"
                     },
+                    "method": "GET",
                     "nickname": "list_schemas_by_topic_name",
-                    "authorizations": {},
                     "parameters": [
                         {
-                            "name": "topic_name",
+                            "allowMultiple": false,
                             "description": "Kafka topic name of the requested topic",
-                            "required": true,
-                            "type": "string",
+                            "name": "topic_name",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "string"
                         }
                     ],
                     "responseMessages": [
@@ -81,27 +69,27 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "List all the schemas of specified topic. These schemas are full compatible to each other.",
+                    "type": "array"
                 }
-            ]
+            ],
+            "path": "/v1/topics/{topic_name}/schemas"
         },
         {
-            "path": "/v1/topics/{topic_name}/schemas/latest",
             "operations": [
                 {
+                    "authorizations": {},
                     "method": "GET",
-                    "summary": "Get the latest schema of specified topic",
-                    "type": "Schema",
                     "nickname": "get_latest_schema_by_topic_name",
-                    "authorizations": {},
                     "parameters": [
                         {
-                            "name": "topic_name",
+                            "allowMultiple": false,
                             "description": "Kafka topic name of the requested topic",
-                            "required": true,
-                            "type": "string",
+                            "name": "topic_name",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "string"
                         }
                     ],
                     "responseMessages": [
@@ -111,73 +99,69 @@
                         },
                         {
                             "code": 404,
-                            "message": "Topic not found"
-                        },
-                        {
-                            "code": 404,
-                            "message": "Latest schema is not found"
+                            "message": "Topic is not found., Latest schema is not found."
                         },
                         {
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Get the latest schema of specified topic",
+                    "type": "Schema"
                 }
-            ]
+            ],
+            "path": "/v1/topics/{topic_name}/schemas/latest"
         },
         {
-            "path": "/v1/topics",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "Get the topics that match specified criteria. If no criterion is specified, it returns all the topics.",
-                    "notes": "It is recommended to use this api with criteria since it doesn't support pagination at the moment, and querying all the topics may cause time-out.",
-                    "type": "array",
+                    "authorizations": {},
                     "items": {
                         "$ref": "Topic"
                     },
+                    "method": "GET",
                     "nickname": "get_topics_by_criteria",
-                    "authorizations": {},
+                    "notes": "It is recommended to use this api with criteria since it doesn't support pagination at the moment, and querying all the topics may cause time-out.",
                     "parameters": [
                         {
-                            "name": "namespace",
+                            "allowMultiple": false,
                             "description": "Name of the namespace the topics belong to",
-                            "required": false,
-                            "type": "string",
+                            "name": "namespace",
                             "paramType": "query",
-                            "allowMultiple": false
+                            "required": false,
+                            "type": "string"
                         },
                         {
-                            "name": "source",
+                            "allowMultiple": false,
                             "description": "Name of the source the topics belong to.",
-                            "required": false,
-                            "type": "string",
+                            "name": "source",
                             "paramType": "query",
-                            "allowMultiple": false
+                            "required": false,
+                            "type": "string"
                         },
                         {
-                            "name": "created_after",
+                            "allowMultiple": false,
                             "description": "Unix timestamp the topics must be created after. The topics created at the same timestamp will be included.",
-                            "required": false,
-                            "type": "integer",
+                            "name": "created_after",
                             "paramType": "query",
-                            "allowMultiple": false
+                            "required": false,
+                            "type": "integer"
                         },
                         {
-                            "name": "count",
+                            "allowMultiple": false,
                             "description": "Maximum number of topics to retrieve.",
-                            "required": false,
-                            "type": "integer",
+                            "name": "count",
                             "paramType": "query",
-                            "allowMultiple": false
+                            "required": false,
+                            "type": "integer"
                         },
                         {
-                            "name": "min_id",
+                            "allowMultiple": false,
                             "description": "Limits results to those topics with an id greater than or equal to given min_id.",
-                            "required": false,
-                            "type": "integer",
+                            "name": "min_id",
                             "paramType": "query",
-                            "allowMultiple": false
+                            "required": false,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -189,193 +173,205 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Get the topics that match specified criteria. If no criterion is specified, it returns all the topics.",
+                    "type": "array"
                 }
-            ]
+            ],
+            "path": "/v1/topics"
         }
+    ],
+    "basePath": "http://169.254.255.254:20912",
+    "consumes": [
+        "application/json"
     ],
     "models": {
         "Namespace": {
             "id": "Namespace",
             "properties": {
+                "created_at": {
+                    "description": "When this namespace is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Namespace, such as yelpmain.db, etc",
+                    "type": "string"
+                },
                 "namespace_id": {
-                    "type": "integer",
-                    "description": "Namespace ID"
-                },
-                "name": {
-                    "type": "string",
-                    "description": "Namespace, such as yelpmain.db, etc"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this namespace is created"
+                    "description": "Namespace ID",
+                    "type": "integer"
                 },
                 "updated_at": {
-                    "type": "string",
+                    "description": "When this namespace is last updated",
                     "format": "date-time",
-                    "description": "When this namespace is last updated"
-                }
-            }
-        },
-        "Source": {
-            "id": "Source",
-            "properties": {
-                "source_id": {
-                    "type": "integer",
-                    "description": "Source ID"
-                },
-                "namespace": {
-                    "$ref": "Namespace",
-                    "description": "Namespace of the source"
-                },
-                "name": {
-                    "type": "string",
-                    "description": "Name of the source, such as 'User' for table User."
-                },
-                "owner_email": {
-                    "type": "string",
-                    "description": "Email address of the source owner"
-                },
-                "category": {
-                    "type": "string",
-                    "description": "Category that this source belongs to"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this source is created"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this source is last updated"
-                }
-            }
-        },
-        "Topic": {
-            "id": "Topic",
-            "properties": {
-                "topic_id": {
-                    "type": "integer",
-                    "description": "Topic ID"
-                },
-                "name": {
-                    "type": "string",
-                    "description": "The Kafka topic name."
-                },
-                "source": {
-                    "$ref": "Source",
-                    "description": "Source of the Avro schema."
-                },
-                "contains_pii": {
-                    "type": "boolean",
-                    "description": "Whether the messages in this topic contain PII."
-                },
-                "primary_keys": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "description": "List of primary key names."
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this topic is created"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this topic is last updated"
-                }
-            }
-        },
-        "Schema": {
-            "id": "Schema",
-            "properties": {
-                "schema_id": {
-                    "type": "integer",
-                    "description": "Avro schema ID"
-                },
-                "schema": {
-                    "type": "string",
-                    "description": "Json formatted avro schema string."
-                },
-                "topic": {
-                    "$ref": "Topic",
-                    "description": "Topic that this schema is associated to"
-                },
-                "base_schema_id": {
-                    "type": "integer",
-                    "description": "The original Avro schema that this schema is transformed from"
-                },
-                "status": {
-                    "type": "string",
-                    "enum": [
-                        "RW",
-                        "R",
-                        "Disabled"
-                    ],
-                    "description": "Schema status: RW (read/write), R (read-only), Disabled. `Read` status means this schema can be used to deserialize messages, and `Write` status means this schema can be used to serialize messages. Disabled schemas cannot be used for either."
-                },
-                "primary_keys": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "description": "List of primary key names."
-                },
-                "note": {
-                    "$ref": "Note",
-                    "description": "A user defined note for the schema element that is used in the documentation tool. Used to store any relevant information about the schema element that can be useful to reference."
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this schema is created"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this schema is last updated"
+                    "type": "string"
                 }
             }
         },
         "Note": {
             "id": "Note",
             "properties": {
+                "created_at": {
+                    "description": "When this note is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
                 "id": {
-                    "type": "integer",
-                    "description": "The id of the note"
-                },
-                "reference_id": {
-                    "type": "integer",
-                    "description": "The id of the item that this note is for"
-                },
-                "reference_type": {
-                    "type": "string",
-                    "description": "The type of item that this note is for ('schema', or 'schema_element')"
-                },
-                "note": {
-                    "type": "string",
-                    "description": "The text of the note itself"
+                    "description": "The id of the note",
+                    "type": "integer"
                 },
                 "last_updated_by": {
-                    "type": "string",
-                    "description": "The email of the user who edited the note"
+                    "description": "The email of the user who edited the note",
+                    "type": "string"
                 },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this note is created"
+                "note": {
+                    "description": "The text of the note itself",
+                    "type": "string"
+                },
+                "reference_id": {
+                    "description": "The id of the item that this note is for",
+                    "type": "integer"
+                },
+                "reference_type": {
+                    "description": "The type of item that this note is for ('schema', or 'schema_element')",
+                    "type": "string"
                 },
                 "updated_at": {
-                    "type": "string",
+                    "description": "When this note is last updated",
                     "format": "date-time",
-                    "description": "When this note is last updated"
+                    "type": "string"
+                }
+            }
+        },
+        "Schema": {
+            "id": "Schema",
+            "properties": {
+                "base_schema_id": {
+                    "description": "The original Avro schema that this schema is transformed from",
+                    "type": "integer"
+                },
+                "created_at": {
+                    "description": "When this schema is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "note": {
+                    "$ref": "Note",
+                    "description": "A user defined note for the schema element that is used in the documentation tool. Used to store any relevant information about the schema element that can be useful to reference."
+                },
+                "primary_keys": {
+                    "description": "List of primary key names.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "schema": {
+                    "description": "Json formatted avro schema string.",
+                    "type": "string"
+                },
+                "schema_id": {
+                    "description": "Avro schema ID",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "Schema status: RW (read/write), R (read-only), Disabled. `Read` status means this schema can be used to deserialize messages, and `Write` status means this schema can be used to serialize messages. Disabled schemas cannot be used for either.",
+                    "enum": [
+                        "RW",
+                        "R",
+                        "Disabled"
+                    ],
+                    "type": "string"
+                },
+                "topic": {
+                    "$ref": "Topic",
+                    "description": "Topic that this schema is associated to"
+                },
+                "updated_at": {
+                    "description": "When this schema is last updated",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            }
+        },
+        "Source": {
+            "id": "Source",
+            "properties": {
+                "category": {
+                    "description": "Category that this source belongs to",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "When this source is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name of the source, such as 'User' for table User.",
+                    "type": "string"
+                },
+                "namespace": {
+                    "$ref": "Namespace",
+                    "description": "Namespace of the source"
+                },
+                "owner_email": {
+                    "description": "Email address of the source owner",
+                    "type": "string"
+                },
+                "source_id": {
+                    "description": "Source ID",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "When this source is last updated",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            }
+        },
+        "Topic": {
+            "id": "Topic",
+            "properties": {
+                "contains_pii": {
+                    "description": "Whether the messages in this topic contain PII.",
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "description": "When this topic is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "The Kafka topic name.",
+                    "type": "string"
+                },
+                "primary_keys": {
+                    "description": "List of primary key names.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "source": {
+                    "$ref": "Source",
+                    "description": "Source of the Avro schema."
+                },
+                "topic_id": {
+                    "description": "Topic ID",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "When this topic is last updated",
+                    "format": "date-time",
+                    "type": "string"
                 }
             }
         }
-    }
+    },
+    "produces": [
+        "application/json"
+    ],
+    "resourcePath": "/v1/topics",
+    "swaggerVersion": "1.2"
 }
