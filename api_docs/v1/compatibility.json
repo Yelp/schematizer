@@ -1,138 +1,138 @@
 {
     "apiVersion": "1.0.0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://169.254.255.254:20912",
-    "resourcePath": "/v1/compatibility",
-    "produces": [
-        "application/json"
+    "apis": [
+        {
+            "operations": [
+                {
+                    "authorizations": {},
+                    "method": "POST",
+                    "nickname": "is_avro_schema_compatible",
+                    "notes": "Compatibility means the input schema should be able to deserialize data serialized by existing schemas within the same topic and vice versa.",
+                    "parameters": [
+                        {
+                            "name": "body",
+                            "paramType": "body",
+                            "required": true,
+                            "type": "AvroSchemaCompatibilityRequest"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid input supplied"
+                        },
+                        {
+                            "code": 422,
+                            "message": "Invalid schema"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ],
+                    "summary": "Check if given Avro schema is both backward and forward compatible with all the enabled schemas of the same topic.",
+                    "type": "boolean"
+                }
+            ],
+            "path": "/v1/compatibility/schemas/avro"
+        },
+        {
+            "operations": [
+                {
+                    "authorizations": {},
+                    "method": "POST",
+                    "nickname": "is_mysql_schema_compatible",
+                    "notes": "Compatibility means the input schema should be able to deserialize data serialized by existing schemas within the same topic and vice versa.",
+                    "parameters": [
+                        {
+                            "name": "body",
+                            "paramType": "body",
+                            "required": true,
+                            "type": "MysqlSchemaCompatibilityRequest"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid input supplied"
+                        },
+                        {
+                            "code": 422,
+                            "message": "Invalid schema"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ],
+                    "summary": "Check if the Avro schema derived from the MySQL statements is compatible with all the enabled schemas of the same topic.",
+                    "type": "boolean"
+                }
+            ],
+            "path": "/v1/compatibility/schemas/mysql"
+        }
     ],
+    "basePath": "http://169.254.255.254:20912",
     "consumes": [
         "application/json"
     ],
-    "apis": [
-        {
-            "path": "/v1/compatibility/schemas/avro",
-            "operations": [
-                {
-                    "method": "POST",
-                    "summary": "Check if given Avro schema is both backward and forward compatible with all the enabled schemas of the same topic.",
-                    "notes": "Compatibility means the input schema should be able to deserialize data serialized by existing schemas within the same topic and vice versa.",
-                    "type": "boolean",
-                    "nickname": "is_avro_schema_compatible",
-                    "authorizations": {},
-                    "parameters": [
-                        {
-                            "name": "body",
-                            "required": true,
-                            "type": "AvroSchemaCompatibilityRequest",
-                            "paramType": "body"
-                        }
-                    ],
-                    "responseMessages": [
-                        {
-                            "code": 400,
-                            "message": "Invalid input supplied"
-                        },
-                        {
-                            "code": 422,
-                            "message": "Invalid schema"
-                        },
-                        {
-                            "code": 500,
-                            "message": "Server side error"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/v1/compatibility/schemas/mysql",
-            "operations": [
-                {
-                    "method": "POST",
-                    "summary": "Check if the Avro schema derived from the MySQL statements is compatible with all the enabled schemas of the same topic.",
-                    "notes": "Compatibility means the input schema should be able to deserialize data serialized by existing schemas within the same topic and vice versa.",
-                    "type": "boolean",
-                    "nickname": "is_mysql_schema_compatible",
-                    "authorizations": {},
-                    "parameters": [
-                        {
-                            "name": "body",
-                            "required": true,
-                            "type": "MysqlSchemaCompatibilityRequest",
-                            "paramType": "body"
-                        }
-                    ],
-                    "responseMessages": [
-                        {
-                            "code": 400,
-                            "message": "Invalid input supplied"
-                        },
-                        {
-                            "code": 422,
-                            "message": "Invalid schema"
-                        },
-                        {
-                            "code": 500,
-                            "message": "Server side error"
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
     "models": {
-        "MysqlSchemaCompatibilityRequest": {
-            "id": "MysqlSchemaCompatibilityRequest",
-            "required": [
-                "new_create_table_stmt",
-                "namespace",
-                "source"
-            ],
-            "properties": {
-                "new_create_table_stmt": {
-                    "type": "string",
-                    "description": "The CREATE TABLE statement of a new table or the updated table."
-                },
-                "old_create_table_stmt": {
-                    "type": "string",
-                    "description": "The CREATE TABLE statement of the old table. For the change in the existing table, both old_create_table_stmt and alter_table_stmt must be provided."
-                },
-                "alter_table_stmt": {
-                    "type": "string",
-                    "description": "The ALTER TABLE statement from the table schema change. For the change in the existing table, both old_create_table_stmt and alter_table_stmt must be provided."
-                },
-                "namespace": {
-                    "type": "string",
-                    "description": "Namespace of the source, such as yelpmain.db, etc"
-                },
-                "source": {
-                    "type": "string",
-                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
-                }
-            }
-        },
         "AvroSchemaCompatibilityRequest": {
             "id": "AvroSchemaCompatibilityRequest",
+            "properties": {
+                "namespace": {
+                    "description": "Namespace of the source, such as yelpmain.db, etc",
+                    "type": "string"
+                },
+                "schema": {
+                    "description": "The json formatted string of the Avro schema",
+                    "type": "string"
+                },
+                "source": {
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc",
+                    "type": "string"
+                }
+            },
             "required": [
                 "schema",
                 "namespace",
                 "source"
-            ],
+            ]
+        },
+        "MysqlSchemaCompatibilityRequest": {
+            "id": "MysqlSchemaCompatibilityRequest",
             "properties": {
-                "schema": {
-                    "type": "string",
-                    "description": "The json formatted string of the Avro schema"
+                "alter_table_stmt": {
+                    "description": "The ALTER TABLE statement from the table schema change. For the change in the existing table, both old_create_table_stmt and alter_table_stmt must be provided.",
+                    "type": "string"
                 },
                 "namespace": {
-                    "type": "string",
-                    "description": "Namespace of the source, such as yelpmain.db, etc"
+                    "description": "Namespace of the source, such as yelpmain.db, etc",
+                    "type": "string"
+                },
+                "new_create_table_stmt": {
+                    "description": "The CREATE TABLE statement of a new table or the updated table.",
+                    "type": "string"
+                },
+                "old_create_table_stmt": {
+                    "description": "The CREATE TABLE statement of the old table. For the change in the existing table, both old_create_table_stmt and alter_table_stmt must be provided.",
+                    "type": "string"
                 },
                 "source": {
-                    "type": "string",
-                    "description": "Source of the Avro schema, such as table User, or log service.foo etc"
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc",
+                    "type": "string"
                 }
-            }
+            },
+            "required": [
+                "new_create_table_stmt",
+                "namespace",
+                "source"
+            ]
         }
-    }
+    },
+    "produces": [
+        "application/json"
+    ],
+    "resourcePath": "/v1/compatibility",
+    "swaggerVersion": "1.2"
 }

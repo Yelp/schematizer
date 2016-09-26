@@ -9,9 +9,7 @@ from __future__ import unicode_literals
 
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
-
-def _format_datetime(datetime_value):
-    return datetime_value.isoformat()
+from schematizer.helpers.formatting import _format_datetime
 
 
 def get_namespace_response_from_namespace(namespace):
@@ -138,8 +136,12 @@ def get_response_from_consumer_group_data_source(consumer_group_data_source):
         'data_source_type': consumer_group_data_source.data_source_type,
         'data_source_id': consumer_group_data_source.data_source_id,
         'consumer_group_id': consumer_group_data_source.consumer_group_id,
-        'created_at': _format_datetime(consumer_group_data_source.created_at),
-        'updated_at': _format_datetime(consumer_group_data_source.updated_at)
+        'created_at': _format_datetime(
+            consumer_group_data_source.created_at
+        ),
+        'updated_at': _format_datetime(
+            consumer_group_data_source.updated_at
+        )
     }
 
 

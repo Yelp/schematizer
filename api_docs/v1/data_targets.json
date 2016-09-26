@@ -1,47 +1,35 @@
 {
     "apiVersion": "1.0.0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://169.254.255.254:20912",
-    "resourcePath": "/v1/data_targets",
-    "produces": [
-        "application/json"
-    ],
-    "consumes": [
-        "application/json"
-    ],
     "apis": [
         {
-            "path": "/v1/data_targets",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "List all the data targets.",
-                    "type": "array",
+                    "authorizations": {},
                     "items": {
                         "$ref": "DataTarget"
                     },
+                    "method": "GET",
                     "nickname": "get_data_targets",
-                    "authorizations": {},
                     "parameters": [],
                     "responseMessages": [
                         {
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "List all the data targets.",
+                    "type": "array"
                 },
                 {
-                    "method": "POST",
-                    "summary": "Create a data target.",
-                    "type": "DataTarget",
-                    "nickname": "create_data_target",
                     "authorizations": {},
+                    "method": "POST",
+                    "nickname": "create_data_target",
                     "parameters": [
                         {
                             "name": "body",
+                            "paramType": "body",
                             "required": true,
-                            "type": "CreateDataTargetRequest",
-                            "paramType": "body"
+                            "type": "CreateDataTargetRequest"
                         }
                     ],
                     "responseMessages": [
@@ -53,26 +41,26 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Create a data target.",
+                    "type": "DataTarget"
                 }
-            ]
+            ],
+            "path": "/v1/data_targets"
         },
         {
-            "path": "/v1/data_targets/{data_target_id}",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "Get the data target of specified ID",
-                    "type": "DataTarget",
-                    "nickname": "get_data_target_by_id",
                     "authorizations": {},
+                    "method": "GET",
+                    "nickname": "get_data_target_by_id",
                     "parameters": [
                         {
+                            "allowMultiple": false,
                             "name": "data_target_id",
-                            "required": true,
-                            "type": "integer",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -88,33 +76,33 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Get the data target of specified ID",
+                    "type": "DataTarget"
                 }
-            ]
+            ],
+            "path": "/v1/data_targets/{data_target_id}"
         },
         {
-            "path": "/v1/data_targets/{data_target_id}/consumer_groups",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "List the consumer groups associated to this data target.",
-                    "type": "array",
+                    "authorizations": {},
                     "items": {
                         "$ref": "ConsumerGroup"
                     },
+                    "method": "GET",
                     "nickname": "get_consumer_groups_by_data_target_id",
-                    "authorizations": {},
                     "parameters": [
                         {
+                            "allowMultiple": false,
                             "name": "data_target_id",
-                            "required": true,
-                            "type": "integer",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
-                       {
+                        {
                             "code": 400,
                             "message": "Invalid request supplied."
                         },
@@ -126,27 +114,27 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                     ]
+                    ],
+                    "summary": "List the consumer groups associated to this data target.",
+                    "type": "array"
                 },
                 {
-                    "method": "POST",
-                    "summary": "Create a consumer group that is associated to this data target.",
-                    "type": "ConsumerGroup",
-                    "nickname": "create_consumer_group",
                     "authorizations": {},
+                    "method": "POST",
+                    "nickname": "create_consumer_group",
                     "parameters": [
                         {
+                            "allowMultiple": false,
                             "name": "data_target_id",
-                            "required": true,
-                            "type": "integer",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         },
                         {
                             "name": "body",
+                            "paramType": "body",
                             "required": true,
-                            "type": "CreateConsumerGroupRequest",
-                            "paramType": "body"
+                            "type": "CreateConsumerGroupRequest"
                         }
                     ],
                     "responseMessages": [
@@ -162,41 +150,41 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Create a consumer group that is associated to this data target.",
+                    "type": "ConsumerGroup"
                 }
-            ]
+            ],
+            "path": "/v1/data_targets/{data_target_id}/consumer_groups"
         },
         {
-            "path": "/v1/data_targets/{data_target_id}/topics",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "Get all the topics associated to this data target, and optionally filtered by topic creation time.",
-                    "type": "array",
+                    "authorizations": {},
                     "items": {
                         "$ref": "Topic"
                     },
+                    "method": "GET",
                     "nickname": "get_topics_by_data_target_id",
-                    "authorizations": {},
                     "parameters": [
                         {
+                            "allowMultiple": false,
                             "name": "data_target_id",
-                            "required": true,
-                            "type": "integer",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         },
                         {
-                            "name": "created_after",
+                            "allowMultiple": false,
                             "description": "Unix timestamp the topics must be created after. The topics created at the same timestamp will be included.",
-                            "required": false,
-                            "type": "integer",
+                            "name": "created_after",
                             "paramType": "query",
-                            "allowMultiple": false
+                            "required": false,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
-                       {
+                        {
                             "code": 400,
                             "message": "Invalid request supplied."
                         },
@@ -208,190 +196,202 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                     ]
+                    ],
+                    "summary": "Get all the topics associated to this data target, and optionally filtered by topic creation time.",
+                    "type": "array"
                 }
-            ]
+            ],
+            "path": "/v1/data_targets/{data_target_id}/topics"
         }
     ],
+    "basePath": "http://169.254.255.254:20912",
+    "consumes": [
+        "application/json"
+    ],
     "models": {
-        "DataTarget": {
-            "id": "DataTarget",
-            "properties": {
-                "data_target_id": {
-                    "type": "integer",
-                    "description": "Data target ID"
-                },
-                "target_type": {
-                    "type": "string",
-                    "description": "Short description of the data target type, such as Redshift."
-                },
-                "destination": {
-                    "type": "string",
-                    "description": "Url that connects to the data target, such as Redshift cluster connection url."
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this data target is created. This should be a datetime string in UTC."
-                },
-                "updated_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this data target is last updated"
-                }
-            }
-        },
         "ConsumerGroup": {
             "id": "ConsumerGroup",
             "properties": {
                 "consumer_group_id": {
-                    "type": "integer",
-                    "description": "Consumer group ID"
+                    "description": "Consumer group ID",
+                    "type": "integer"
                 },
-                "group_name": {
-                    "type": "string",
-                    "description": "Name of the consumer group."
+                "created_at": {
+                    "description": "When this consumer group is created",
+                    "format": "date-time",
+                    "type": "string"
                 },
                 "data_target": {
                     "$ref": "DataTarget",
                     "description": "The data target this consumer group associates to."
                 },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this consumer group is created"
+                "group_name": {
+                    "description": "Name of the consumer group.",
+                    "type": "string"
                 },
                 "updated_at": {
-                    "type": "string",
+                    "description": "When this consumer group is last updated",
                     "format": "date-time",
-                    "description": "When this consumer group is last updated"
-                }
-            }
-        },
-        "CreateDataTargetRequest": {
-            "id": "CreateDataTargetRequest",
-            "required": [
-                "target_type",
-                "destination"
-            ],
-            "properties": {
-                "target_type": {
-                    "type": "string",
-                    "description": "Short description of the data target type, such as Redshift."
-                },
-                "destination": {
-                    "type": "string",
-                    "description": "Url that connects to the data target, such as the connection url to a Redshift cluster."
+                    "type": "string"
                 }
             }
         },
         "CreateConsumerGroupRequest": {
             "id": "CreateConsumerGroupRequest",
-            "required": [
-                "group_name"
-            ],
             "properties": {
                 "group_name": {
-                    "type": "string",
-                    "description": "Name of the consumer group."
+                    "description": "Name of the consumer group.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "group_name"
+            ]
+        },
+        "CreateDataTargetRequest": {
+            "id": "CreateDataTargetRequest",
+            "properties": {
+                "destination": {
+                    "description": "Url that connects to the data target, such as the connection url to a Redshift cluster.",
+                    "type": "string"
+                },
+                "target_type": {
+                    "description": "Short description of the data target type, such as Redshift.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "target_type",
+                "destination"
+            ]
+        },
+        "DataTarget": {
+            "id": "DataTarget",
+            "properties": {
+                "created_at": {
+                    "description": "When this data target is created. This should be a datetime string in UTC.",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "data_target_id": {
+                    "description": "Data target ID",
+                    "type": "integer"
+                },
+                "destination": {
+                    "description": "Url that connects to the data target, such as Redshift cluster connection url.",
+                    "type": "string"
+                },
+                "target_type": {
+                    "description": "Short description of the data target type, such as Redshift.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "When this data target is last updated",
+                    "format": "date-time",
+                    "type": "string"
                 }
             }
         },
         "Namespace": {
             "id": "Namespace",
             "properties": {
-                "namespace_id": {
-                    "type": "integer",
-                    "description": "Namespace ID"
+                "created_at": {
+                    "description": "When this namespace is created",
+                    "format": "date-time",
+                    "type": "string"
                 },
                 "name": {
-                    "type": "string",
-                    "description": "Namespace, such as yelpmain.db, etc"
+                    "description": "Namespace, such as yelpmain.db, etc",
+                    "type": "string"
                 },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this namespace is created"
+                "namespace_id": {
+                    "description": "Namespace ID",
+                    "type": "integer"
                 },
                 "updated_at": {
-                    "type": "string",
+                    "description": "When this namespace is last updated",
                     "format": "date-time",
-                    "description": "When this namespace is last updated"
+                    "type": "string"
                 }
             }
         },
         "Source": {
             "id": "Source",
             "properties": {
-                "source_id": {
-                    "type": "integer",
-                    "description": "Source ID"
+                "category": {
+                    "description": "Category that this source belongs to",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "When this source is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name of the source, such as 'User' for table User.",
+                    "type": "string"
                 },
                 "namespace": {
                     "$ref": "Namespace",
                     "description": "Namespace of the source"
                 },
-                "name": {
-                    "type": "string",
-                    "description": "Name of the source, such as 'User' for table User."
-                },
                 "owner_email": {
-                    "type": "string",
-                    "description": "Email address of the source owner"
+                    "description": "Email address of the source owner",
+                    "type": "string"
                 },
-                "category": {
-                    "type": "string",
-                    "description": "Category that this source belongs to"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this source is created"
+                "source_id": {
+                    "description": "Source ID",
+                    "type": "integer"
                 },
                 "updated_at": {
-                    "type": "string",
+                    "description": "When this source is last updated",
                     "format": "date-time",
-                    "description": "When this source is last updated"
+                    "type": "string"
                 }
             }
         },
         "Topic": {
             "id": "Topic",
             "properties": {
-                "topic_id": {
-                    "type": "integer",
-                    "description": "Topic ID"
+                "contains_pii": {
+                    "description": "Whether the messages in this topic contain PII.",
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "description": "When this topic is created",
+                    "format": "date-time",
+                    "type": "string"
                 },
                 "name": {
-                    "type": "string",
-                    "description": "The Kafka topic name."
+                    "description": "The Kafka topic name.",
+                    "type": "string"
+                },
+                "primary_keys": {
+                    "description": "List of primary key names.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
                 },
                 "source": {
                     "$ref": "Source",
                     "description": "Source of the Avro schema."
                 },
-                "contains_pii": {
-                    "type": "boolean",
-                    "description": "Whether the messages in this topic contain PII."
-                },
-                "primary_keys": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "description": "List of primary key names."
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this topic is created"
+                "topic_id": {
+                    "description": "Topic ID",
+                    "type": "integer"
                 },
                 "updated_at": {
-                    "type": "string",
+                    "description": "When this topic is last updated",
                     "format": "date-time",
-                    "description": "When this topic is last updated"
+                    "type": "string"
                 }
             }
         }
-    }
+    },
+    "produces": [
+        "application/json"
+    ],
+    "resourcePath": "/v1/data_targets",
+    "swaggerVersion": "1.2"
 }
