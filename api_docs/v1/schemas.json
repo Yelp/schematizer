@@ -234,48 +234,16 @@
         {
             "operations": [
                 {
+                    "authorizations": {},
                     "method": "POST",
-                    "summary": "Register the specified meta attribute schema_id to the specified schema_id.",
-                    "notes": "The schema_id of both the AvroSchema and Meta attribute should exist.",
-                    "type": "MetaAttributeMappingsResponse",
                     "nickname": "register_schema_meta_attribute_mapping",
-                    "authorizations": {},
-                    "parameters": [
-                        {
-                            "name": "body",
-                            "required": true,
-                            "type": "RegisterMetaAttributeRequest",
-                            "paramType": "body"
-                        }
-                    ],
-                    "responseMessages": [
-                        {
-                            "code": 404,
-                            "message": "Entity not found"
-                        },
-                        {
-                            "code": 400,
-                            "message": "Invalid request"
-                        },
-                        {
-                            "code": 500,
-                            "message": "Server side error"
-                        }
-                    ]
-                },
-                {
-                    "method": "DELETE",
-                    "summary": "Remove the specified meta attribute schema_id mapping from the specified schema_id.",
                     "notes": "The schema_id of both the AvroSchema and Meta attribute should exist.",
-                    "type": "MetaAttributeMappingsResponse",
-                    "nickname": "delete_schema_meta_attribute_mapping",
-                    "authorizations": {},
                     "parameters": [
                         {
                             "name": "body",
+                            "paramType": "body",
                             "required": true,
-                            "type": "RegisterMetaAttributeRequest",
-                            "paramType": "body"
+                            "type": "RegisterMetaAttributeRequest"
                         }
                     ],
                     "responseMessages": [
@@ -291,23 +259,53 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Register the specified meta attribute schema_id to the specified schema_id.",
+                    "type": "MetaAttributeMappingsResponse"
                 },
                 {
-                    "method": "GET",
-                    "summary": "Get a list of all meta attribute schema_ids mapped to specified schema_id.",
-                    "notes": "The schema_id of AvroSchema should exist.",
-                    "type": "MetaAttributeMappingsResponse",
-                    "nickname": "get_schema_meta_attribute_mappings",
                     "authorizations": {},
+                    "method": "DELETE",
+                    "nickname": "delete_schema_meta_attribute_mapping",
+                    "notes": "The schema_id of both the AvroSchema and Meta attribute should exist.",
                     "parameters": [
                         {
-                            "name": "schema_id",
-                            "description": "ID of AvroSchema for which meta attributes will be fetched",
+                            "name": "body",
+                            "paramType": "body",
                             "required": true,
-                            "type": "integer",
+                            "type": "RegisterMetaAttributeRequest"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 404,
+                            "message": "Entity not found"
+                        },
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ],
+                    "summary": "Remove the specified meta attribute schema_id mapping from the specified schema_id.",
+                    "type": "MetaAttributeMappingsResponse"
+                },
+                {
+                    "authorizations": {},
+                    "method": "GET",
+                    "nickname": "get_schema_meta_attribute_mappings",
+                    "notes": "The schema_id of AvroSchema should exist.",
+                    "parameters": [
+                        {
+                            "allowMultiple": false,
+                            "description": "ID of AvroSchema for which meta attributes will be fetched",
+                            "name": "schema_id",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -323,7 +321,9 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Get a list of all meta attribute schema_ids mapped to specified schema_id.",
+                    "type": "MetaAttributeMappingsResponse"
                 }
             ],
             "path": "/v1/schemas/{schema_id}/meta_attribute_mapping"
@@ -331,23 +331,21 @@
         {
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "Get the meta_attribute schema_ids for specified schema id.",
-                    "notes": "",
-                    "type": "array",
+                    "authorizations": {},
                     "items": {
                         "type": "integer"
                     },
+                    "method": "GET",
                     "nickname": "get_meta_attributes_by_schema_id",
-                    "authorizations": {},
+                    "notes": "",
                     "parameters": [
                         {
-                            "name": "schema_id",
+                            "allowMultiple": false,
                             "description": "Schema ID for which Meta Attributes will be fetched",
-                            "required": true,
-                            "type": "integer",
+                            "name": "schema_id",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -363,7 +361,9 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Get the meta_attribute schema_ids for specified schema id.",
+                    "type": "array"
                 }
             ],
             "path": "/v1/schemas/{schema_id}/meta_attributes"
@@ -400,6 +400,21 @@
                     "type": "string"
                 }
             }
+        },
+        "MetaAttributeMappingsResponse": {
+            "id": "MetaAttributeMappingsResponse",
+            "properties": {
+                "meta_attribute_schema_ids": {
+                    "description": "List of meta attribute schema IDs.",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "meta_attribute_schema_ids"
+            ]
         },
         "Namespace": {
             "id": "Namespace",
@@ -458,6 +473,23 @@
                     "type": "string"
                 }
             }
+        },
+        "RegisterMetaAttributeRequest": {
+            "id": "RegisterMetaAttributeRequest",
+            "properties": {
+                "meta_attribute_schema_id": {
+                    "description": "AvroSchema ID of Meta Attribute schema to be mapped.",
+                    "type": "integer"
+                },
+                "schema_id": {
+                    "description": "AvroSchema ID to be mapped for.",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "schema_id",
+                "meta_attribute_schema_id"
+            ]
         },
         "RegisterSchemaFromMySqlRequest": {
             "id": "RegisterSchemaFromMySqlRequest",
@@ -695,38 +727,6 @@
                     "description": "When this topic is last updated",
                     "format": "date-time",
                     "type": "string"
-                }
-            }
-        },
-        "RegisterMetaAttributeRequest": {
-            "id": "RegisterMetaAttributeRequest",
-            "required": [
-                "schema_id",
-                "meta_attribute_schema_id"
-            ],
-            "properties": {
-                "schema_id": {
-                    "type": "integer",
-                    "description": "AvroSchema ID to be mapped for."
-                },
-                "meta_attribute_schema_id": {
-                    "type": "integer",
-                    "description": "AvroSchema ID of Meta Attribute schema to be mapped."
-                }
-            }
-        },
-        "MetaAttributeMappingsResponse": {
-            "id": "MetaAttributeMappingsResponse",
-            "required": [
-                "meta_attribute_schema_ids"
-            ],
-            "properties": {
-                "meta_attribute_schema_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    },
-                    "description": "List of meta attribute schema IDs."
                 }
             }
         }

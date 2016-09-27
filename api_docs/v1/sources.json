@@ -300,48 +300,16 @@
         {
             "operations": [
                 {
+                    "authorizations": {},
                     "method": "POST",
-                    "summary": "Register the specified meta attribute schema_id to the specified source_id.",
-                    "notes": "The source_id and the schema_id of Meta attribute schema should exist.",
-                    "type": "MetaAttributeMappingsResponse",
                     "nickname": "register_source_meta_attribute_mapping",
-                    "authorizations": {},
-                    "parameters": [
-                        {
-                            "name": "body",
-                            "required": true,
-                            "type": "RegisterMetaAttributeRequest",
-                            "paramType": "body"
-                        }
-                    ],
-                    "responseMessages": [
-                        {
-                            "code": 404,
-                            "message": "Entity not found"
-                        },
-                        {
-                            "code": 400,
-                            "message": "Invalid request"
-                        },
-                        {
-                            "code": 500,
-                            "message": "Server side error"
-                        }
-                    ]
-                },
-                {
-                    "method": "DELETE",
-                    "summary": "Remove the specified meta attribute schema_id mapping from the specified source_id.",
                     "notes": "The source_id and the schema_id of Meta attribute schema should exist.",
-                    "type": "MetaAttributeMappingsResponse",
-                    "nickname": "delete_source_meta_attribute_mapping",
-                    "authorizations": {},
                     "parameters": [
                         {
                             "name": "body",
+                            "paramType": "body",
                             "required": true,
-                            "type": "RegisterMetaAttributeRequest",
-                            "paramType": "body"
+                            "type": "RegisterMetaAttributeRequest"
                         }
                     ],
                     "responseMessages": [
@@ -357,23 +325,53 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Register the specified meta attribute schema_id to the specified source_id.",
+                    "type": "MetaAttributeMappingsResponse"
                 },
                 {
-                    "method": "GET",
-                    "summary": "Get a list of all meta attribute schema_ids mapped to specified source_id.",
-                    "notes": "The source_id should exist.",
-                    "type": "MetaAttributeMappingsResponse",
-                    "nickname": "get_source_meta_attribute_mappings",
                     "authorizations": {},
+                    "method": "DELETE",
+                    "nickname": "delete_source_meta_attribute_mapping",
+                    "notes": "The source_id and the schema_id of Meta attribute schema should exist.",
                     "parameters": [
                         {
-                            "name": "source_id",
-                            "description": "ID of source for which meta attributes will be fetched",
+                            "name": "body",
+                            "paramType": "body",
                             "required": true,
-                            "type": "integer",
+                            "type": "RegisterMetaAttributeRequest"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 404,
+                            "message": "Entity not found"
+                        },
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ],
+                    "summary": "Remove the specified meta attribute schema_id mapping from the specified source_id.",
+                    "type": "MetaAttributeMappingsResponse"
+                },
+                {
+                    "authorizations": {},
+                    "method": "GET",
+                    "nickname": "get_source_meta_attribute_mappings",
+                    "notes": "The source_id should exist.",
+                    "parameters": [
+                        {
+                            "allowMultiple": false,
+                            "description": "ID of source for which meta attributes will be fetched",
+                            "name": "source_id",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -389,7 +387,9 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Get a list of all meta attribute schema_ids mapped to specified source_id.",
+                    "type": "MetaAttributeMappingsResponse"
                 }
             ],
             "path": "/v1/sources/{source_id}/meta_attribute_mapping"
@@ -465,6 +465,21 @@
                     "type": "string"
                 }
             }
+        },
+        "MetaAttributeMappingsResponse": {
+            "id": "MetaAttributeMappingsResponse",
+            "properties": {
+                "meta_attribute_schema_ids": {
+                    "description": "List of meta attribute schema IDs.",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "meta_attribute_schema_ids"
+            ]
         },
         "Namespace": {
             "id": "Namespace",
@@ -545,6 +560,23 @@
                 }
             }
         },
+        "RegisterMetaAttributeRequest": {
+            "id": "RegisterMetaAttributeRequest",
+            "properties": {
+                "meta_attribute_schema_id": {
+                    "description": "AvroSchema ID of Meta Attribute schema to be mapped.",
+                    "type": "integer"
+                },
+                "source_id": {
+                    "description": "Source ID to be mapped for.",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "source_id",
+                "meta_attribute_schema_id"
+            ]
+        },
         "Source": {
             "id": "Source",
             "properties": {
@@ -615,38 +647,6 @@
                     "description": "When this topic is last updated",
                     "format": "date-time",
                     "type": "string"
-                }
-            }
-        },
-        "RegisterMetaAttributeRequest": {
-            "id": "RegisterMetaAttributeRequest",
-            "required": [
-                "source_id",
-                "meta_attribute_schema_id"
-            ],
-            "properties": {
-                "source_id": {
-                    "type": "integer",
-                    "description": "Source ID to be mapped for."
-                },
-                "meta_attribute_schema_id": {
-                    "type": "integer",
-                    "description": "AvroSchema ID of Meta Attribute schema to be mapped."
-                }
-            }
-        },
-        "MetaAttributeMappingsResponse": {
-            "id": "MetaAttributeMappingsResponse",
-            "required": [
-                "meta_attribute_schema_ids"
-            ],
-            "properties": {
-                "meta_attribute_schema_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    },
-                    "description": "List of meta attribute schema IDs."
                 }
             }
         }
