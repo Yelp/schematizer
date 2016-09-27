@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import pytest
 
 from schematizer.api.exceptions import exceptions_v1 as exc_v1
+from schematizer.helpers.formatting import _format_datetime
 from schematizer.logic import doc_tool
 from schematizer.views import sources as source_views
 from schematizer_testing import factories
@@ -167,8 +168,8 @@ class TestUpdateCategory(ApiTestBase):
         return {
             'source_id': source_id,
             'category': expected_category,
-            'created_at': src_category.created_at.isoformat(),
-            'updated_at': src_category.updated_at.isoformat()
+            'created_at': _format_datetime(src_category.created_at),
+            'updated_at': _format_datetime(src_category.updated_at)
         }
 
 
@@ -198,8 +199,8 @@ class TestDeleteCategory(ApiTestBase):
         expected = {
             'source_id': src_category.source_id,
             'category': 'Biz',
-            'created_at': src_category.created_at.isoformat(),
-            'updated_at': src_category.updated_at.isoformat()
+            'created_at': _format_datetime(src_category.created_at),
+            'updated_at': _format_datetime(src_category.updated_at)
         }
 
         mock_request.matchdict = {'source_id': str(biz_source.id)}

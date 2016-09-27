@@ -8,6 +8,7 @@ from pyramid.httpexceptions import exception_response
 from pyramid.httpexceptions import HTTPException
 
 from schematizer.config import log
+from schematizer.helpers.formatting import _format_datetime
 
 
 def log_api(logger=None):
@@ -49,7 +50,7 @@ def _transform_datetime_field(response):
     if isinstance(response, dict):
         for key, value in response.iteritems():
             if isinstance(value, datetime):
-                response[key] = value.isoformat()
+                response[key] = _format_datetime(value)
             elif isinstance(value, dict):
                 _transform_datetime_field(value)
 

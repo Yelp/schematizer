@@ -23,4 +23,5 @@ schematizerserviceopensource:
     ports:
         - "49257:8888"
     environment:
-      - SERVICE_ENV_CONFIG_PATH=config-env-open-source.yaml
+      - SERVICE_CONFIG_PATH=config-open-source.yaml
+      - FORCE_AVOID_INTERNAL_PACKAGES=True
