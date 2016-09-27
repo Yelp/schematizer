@@ -251,6 +251,10 @@
                     "description": "The original Avro schema that this schema is transformed from",
                     "type": "integer"
                 },
+                "cluster_type": {
+                    "description": "Type of kafka cluster this topic belongs to.",
+                    "type": "string"
+                },
                 "created_at": {
                     "description": "When this schema is created",
                     "format": "date-time",
@@ -259,10 +263,6 @@
                 "note": {
                     "$ref": "Note",
                     "description": "A user defined note for the schema element that is used in the documentation tool. Used to store any relevant information about the schema element that can be useful to reference."
-                },
-                "cluster_type": {
-                    "type": "string",
-                    "description": "Type of kafka cluster this topic belongs to."
                 },
                 "primary_keys": {
                     "description": "List of primary key names.",

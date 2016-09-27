@@ -492,7 +492,7 @@ class TestSchemaRepository(DBTestCase):
             expected_cluster_type = cluster_type
         else:
             cluster_override = {}
-            expected_cluster_type = get_config().default_cluster_type
+            expected_cluster_type = get_config().default_kafka_cluster_type
 
         actual_schema = schema_repo.register_avro_schema_from_avro_json(
             self.rw_schema_json,

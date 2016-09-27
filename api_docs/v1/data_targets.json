@@ -353,6 +353,10 @@
         "Topic": {
             "id": "Topic",
             "properties": {
+                "cluster_type": {
+                    "description": "Type of kafka cluster this topic belongs to.",
+                    "type": "string"
+                },
                 "contains_pii": {
                     "description": "Whether the messages in this topic contain PII.",
                     "type": "boolean"
@@ -365,10 +369,6 @@
                 "name": {
                     "description": "The Kafka topic name.",
                     "type": "string"
-                },
-                "cluster_type": {
-                    "type": "string",
-                    "description": "Type of kafka cluster this topic belongs to."
                 },
                 "primary_keys": {
                     "description": "List of primary key names.",

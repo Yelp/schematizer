@@ -30,9 +30,6 @@ except ImportError:
     from sqlalchemy.exc import IntegrityError
 
 
-DEFAULT_CLUSTER_TYPE = get_config().default_cluster_type
-
-
 def is_backward_compatible(old_schema_json, new_schema_json):
     """Whether the data serialized using specified old_schema_json can be
     deserialized using specified new_schema_json.
@@ -92,7 +89,7 @@ def register_avro_schema_from_avro_json(
         source_name,
         source_email_owner,
         contains_pii,
-        cluster_type=DEFAULT_CLUSTER_TYPE,
+        cluster_type=get_config().default_kafka_cluster_type,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
         base_schema_id=None,
         docs_required=True

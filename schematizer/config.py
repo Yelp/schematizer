@@ -39,7 +39,7 @@ class Config(object):
         )
 
     @cached_property
-    def default_cluster_type(self):
+    def default_kafka_cluster_type(self):
         return staticconf.get(
             'default_kafka_cluster_type',
             default='datapipe'
