@@ -93,6 +93,41 @@
             ]
         },
         {
+            "path": "/v1/data_targets/name/{data_target_name}",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get the data target of specified name",
+                    "type": "DataTarget",
+                    "nickname": "get_data_target_by_name",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "data_target_name",
+                            "required": true,
+                            "type": "string",
+                            "paramType": "path",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid data target name supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Data target name not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "path": "/v1/data_targets/{data_target_id}/consumer_groups",
             "operations": [
                 {

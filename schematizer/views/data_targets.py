@@ -61,6 +61,21 @@ def get_data_target_by_id(request):
 
 
 @view_config(
+    route_name='api.v1.get_data_target_by_name',
+    request_method='GET',
+    renderer='json'
+)
+@transform_api_response()
+def get_data_target_by_name(request):
+    data_target_name = request.matchdict.get('data_target_name')
+    try:
+        data_target = models.DataTarget.get_by_name(data_target_name)
+        return resp_v1.get_data_target_response_from_data_target(data_target)
+    except sch_exc.EntityNotFoundError as e:
+        raise exc_v1.entity_not_found_exception(e.message)
+
+
+@view_config(
     route_name='api.v1.get_consumer_groups_by_data_target_id',
     request_method='GET',
     renderer='json'

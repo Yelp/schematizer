@@ -41,6 +41,24 @@ class TestGetDataTargetByID(ApiTestBase):
         assert str(e.value) == 'DataTarget id 0 not found.'
 
 
+class TestGetDataTargetByName(ApiTestBase):
+
+    def test_happy_case(self, mock_request, dw_data_target):
+        mock_request.matchdict = {'data_target_name': str(dw_data_target.name)}
+        actual = data_target_views.get_data_target_by_name(mock_request)
+        expected = self.get_expected_data_target_resp(dw_data_target.id)
+        assert actual == expected
+
+    def test_non_existing_data_target_name(self, mock_request):
+        expected_exception = self.get_http_exception(404)
+        with pytest.raises(expected_exception) as e:
+            mock_request.matchdict = {'data_target_name': 'foo'}
+            data_target_views.get_data_target_by_name(mock_request)
+
+        assert e.value.code == expected_exception.code
+        assert str(e.value) == 'DataTarget name `foo` not found.'
+
+
 class TestCreateDataTarget(ApiTestBase):
 
     @pytest.fixture
