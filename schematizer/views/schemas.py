@@ -71,6 +71,7 @@ def register_schema(request):
             source=req.source,
             source_email_owner=req.source_owner_email,
             contains_pii=req.contains_pii,
+            cluster_type=req.cluster_type,
             base_schema_id=req.base_schema_id,
             docs_required=docs_required
         )
@@ -116,6 +117,7 @@ def _register_avro_schema(
     source,
     source_email_owner,
     contains_pii,
+    cluster_type=get_config().default_kafka_cluster_type,
     base_schema_id=None,
     docs_required=True
 ):
@@ -127,6 +129,7 @@ def _register_avro_schema(
             source_name=source,
             source_email_owner=source_email_owner,
             contains_pii=contains_pii,
+            cluster_type=cluster_type,
             base_schema_id=base_schema_id,
             docs_required=docs_required
         )

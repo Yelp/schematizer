@@ -251,6 +251,10 @@
                     "description": "The original Avro schema that this schema is transformed from",
                     "type": "integer"
                 },
+                "cluster_type": {
+                    "description": "Type of kafka cluster this topic belongs to. See http://y/datapipe_cluster_types for more info on cluster_types.",
+                    "type": "string"
+                },
                 "created_at": {
                     "description": "When this schema is created",
                     "format": "date-time",

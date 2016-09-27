@@ -43,4 +43,22 @@
       <append value=" AFTER source_id"/>
     </modifySql>
   </changeSet>
+
+  <changeSet author="askatti" id="1473343665">
+    <preConditions onFail="WARN" onSqlOutput="TEST">
+      <not>
+        <columnExists tableName="topic" columnName="cluster_type"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="topic">
+      <column name="cluster_type" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+    <comment>Add cluster_type column</comment>
+    <modifySql>
+      <append value=" AFTER contains_pii"/>
+    </modifySql>
+  </changeSet>
+
 </databaseChangeLog>

@@ -27,6 +27,8 @@
     <createIndex indexName="schema_id_index" tableName="schema_meta_attribute_mapping" unique="false">
       <column name="schema_id" type="INT(11)"/>
     </createIndex>
+  </changeSet>
+  <changeSet author="askatti" id="1475011265">
     <createIndex indexName="unique_schema_mapping_constraint" tableName="schema_meta_attribute_mapping" unique="true">
       <column name="schema_id" type="INT(11)"/>
       <column name="meta_attr_schema_id" type="INT(11)"/>

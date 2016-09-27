@@ -31,6 +31,8 @@
       <column name="entity_type" type="VARCHAR(20)"/>
       <column name="entity_id" type="INT(11)"/>
     </createIndex>
+  </changeSet>
+  <changeSet author="askatti" id="1475011265">
     <createIndex indexName="unique_entity_mapping_constraint" tableName="meta_attribute_mapping_store" unique="true">
       <column name="entity_type" type="VARCHAR(20)"/>
       <column name="entity_id" type="INT(11)"/>
