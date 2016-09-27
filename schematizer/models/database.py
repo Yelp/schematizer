@@ -3,11 +3,12 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from schematizer.config import get_config
+from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 
 
 def _get_schematizer_session(topology_path, cluster_name):
     try:
-        if get_config().force_avoid_internal_packages:
+        if FORCE_AVOID_INTERNAL_PACKAGES:
             # TODO(DATAPIPE-1506|abrar): Currently we have
             # force_avoid_internal_packages as a means of simulating an absence
             # of a yelp's internal package. And all references
@@ -28,7 +29,7 @@ def _get_schematizer_session(topology_path, cluster_name):
 
 def _get_declarative_base():
     try:
-        if get_config().force_avoid_internal_packages:
+        if FORCE_AVOID_INTERNAL_PACKAGES:
             # TODO(DATAPIPE-1506|abrar): Currently we have
             # force_avoid_internal_packages as a means of simulating an absence
             # of a yelp's internal package. And all references

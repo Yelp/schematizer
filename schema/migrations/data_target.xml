@@ -29,11 +29,9 @@
       </not>
     </preConditions>
     <addColumn tableName="data_target">
-      <column name="name" type="VARCHAR(255)">
-        <constraints nullable="false"/>
-      </column>
+      <column name="name" type="VARCHAR(255)"/>
     </addColumn>
-    <comment>[2016-09-21] Add a non nullable column 'name' to identify data targets.</comment>
+    <comment>[2016-09-21] Add a nullable column 'name' to identify data targets.</comment>
     <modifySql>
       <append value=" AFTER id"/>
     </modifySql>
@@ -41,7 +39,12 @@
   <changeSet author="tajinder" id="DATAPIPE-1774-1474490100">
     <comment>Adding unique constraint on name</comment>
     <addUniqueConstraint columnNames="name"
-       constraintName="name_unique_constraint"
-       tableName="data_target"/>
+      constraintName="name_unique_constraint"
+      tableName="data_target"/>
+  </changeSet>
+  <changeSet author="tajinder" id="DATAPIPE-1774-1474675600">
+    <addNotNullConstraint columnDataType="VARCHAR(255)"
+      columnName="name"
+      tableName="data_target"/>
   </changeSet>
 </databaseChangeLog>

@@ -26,7 +26,6 @@ class DataTarget(Base, BaseModel):
 
     id = Column(Integer, primary_key=True)
 
-    # Data target name.
     name = Column(String, nullable=False)
 
     target_type = Column(String, nullable=False)
