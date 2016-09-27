@@ -779,7 +779,7 @@ class TestSchemaRepository(DBTestCase):
         mock_compatible_func
     ):
         mock_compatible_func.return_value = True
-        assert topic.cluster_type is not 'scribe'
+        assert topic.cluster_type != 'scribe'
         self.assert_new_topic_created_after_schema_register(
             topic=topic,
             contains_pii=topic.contains_pii,
@@ -1380,7 +1380,7 @@ class TestSchemaRepository(DBTestCase):
         self.assert_equal_topic_partial(expected, actual)
 
     def assert_topic_name_by_cluster_type(self, topic_name, cluster_type):
-        joining_char = '_' if cluster_type is 'scribe' else '.'
+        joining_char = '_' if cluster_type == 'scribe' else '.'
         assert joining_char.join(
             [self.namespace_name, self.source_name]
         ) in topic_name

@@ -206,7 +206,7 @@ def _create_topic_for_source(
     # is generating the same value (rarely) and we'd like to know it.
     # Per SEC-5079, sqlalchemy IntegrityError now is replaced with yelp-conn
     # IntegrityError.
-    if cluster_type is 'scribe':
+    if cluster_type == 'scribe':
         topic_name = _construct_scribe_topic_name(namespace_name, source.name)
     else:
         topic_name = _construct_topic_name(namespace_name, source.name)
