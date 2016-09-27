@@ -91,6 +91,7 @@ class ApiTestBase(DBTestCase):
         data_target = utils.get_entity_by_id(models.DataTarget, data_target_id)
         expected = {
             'data_target_id': data_target.id,
+            'name': data_target.name,
             'target_type': data_target.target_type,
             'destination': data_target.destination,
             'created_at': _format_datetime(data_target.created_at),

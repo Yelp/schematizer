@@ -36,6 +36,7 @@ def create_data_target(request):
     try:
         req = requests_v1.CreateDataTargetRequest(**request.json_body)
         data_target = reg_repo.create_data_target(
+            req.name,
             req.target_type,
             req.destination
         )

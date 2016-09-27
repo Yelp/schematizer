@@ -255,12 +255,17 @@
                     "description": "Url that connects to the data target, such as the connection url to a Redshift cluster.",
                     "type": "string"
                 },
+                "name": {
+                    "description": "A user defined name to uniquely identify the data target, such as my_data_target.",
+                    "type": "string"
+                },
                 "target_type": {
                     "description": "Short description of the data target type, such as Redshift.",
                     "type": "string"
                 }
             },
             "required": [
+                "name",
                 "target_type",
                 "destination"
             ]
@@ -279,6 +284,10 @@
                 },
                 "destination": {
                     "description": "Url that connects to the data target, such as Redshift cluster connection url.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Data target name",
                     "type": "string"
                 },
                 "target_type": {

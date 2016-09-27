@@ -11,6 +11,7 @@ class TestGetAllDataTargets(GetAllModelTestBase):
 
     def create_data_target(self, data_target_no):
         return factories.create_data_target(
+            name='data_target_{}'.format(data_target_no),
             target_type='my_target_type',
             destination='destination_{}'.format(data_target_no)
         )

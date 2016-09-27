@@ -20,19 +20,36 @@ class TestCreateDataTarget(DBTestCase):
 
     def test_happy_case(self):
         actual = reg_repo.create_data_target(
+            name='yelp_redshift',
             target_type='redshift',
             destination='dwv1.redshift.yelpcorp.com'
         )
         expected = utils.get_entity_by_id(models.DataTarget, actual.id)
         asserts.assert_equal_data_target(actual, expected)
 
+    def test_add_invalid_empty_target_name(self):
+        with pytest.raises(ValueError):
+            reg_repo.create_data_target(
+                name='',
+                target_type='foo',
+                destination='bar'
+            )
+
     def test_add_invalid_empty_target_type(self):
         with pytest.raises(ValueError):
-            reg_repo.create_data_target(target_type='', destination='foo')
+            reg_repo.create_data_target(
+                name='yelp_redshift',
+                target_type='',
+                destination='foo'
+            )
 
     def test_add_invalid_empty_destination(self):
         with pytest.raises(ValueError):
-            reg_repo.create_data_target(target_type='foo', destination='')
+            reg_repo.create_data_target(
+                name='yelp_redshift',
+                target_type='foo',
+                destination=''
+            )
 
 
 class TestCreateConsumerGroup(DBTestCase):
@@ -40,6 +57,7 @@ class TestCreateConsumerGroup(DBTestCase):
     @pytest.fixture
     def dw_data_target(self):
         return factories.create_data_target(
+            name='yelp_redshift',
             target_type='dw_redshift',
             destination='dwv1.redshift.yelpcorp.com'
         )
@@ -294,6 +312,7 @@ class TestGetDataTargetBySchemaID(DBTestCase):
     @pytest.fixture
     def dwv2_data_target(self):
         return factories.create_data_target(
+            name='yelp_redshift_v2',
             target_type='redshift',
             destination='dwv2.redshift.yelpcorp.com'
         )
