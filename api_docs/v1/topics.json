@@ -252,7 +252,7 @@
                     "type": "integer"
                 },
                 "cluster_type": {
-                    "description": "Type of kafka cluster this topic belongs to.",
+                    "description": "Type of kafka cluster this topic belongs to. See http://y/datapipe_cluster_types for more info on cluster_types.",
                     "type": "string"
                 },
                 "created_at": {

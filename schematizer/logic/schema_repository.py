@@ -102,7 +102,8 @@ def register_avro_schema_from_avro_json(
     :param source: source name string
     :param domain_owner_email: email of the schema owner
     :param cluster_type: Type of kafka cluster Ex: datapipe, scribe, etc.
-        Defaults to datapipe
+        Defaults to datapipe. See http://y/datapipe_cluster_types for more info
+        on cluster_types.
     :param status: AvroStatusEnum: RW/R/Disabled
     :param base_schema_id: Id of the Avro schema from which the new schema is
         derived from
