@@ -48,7 +48,7 @@ class RegisterSchemaRequest(RequestBase):
         source,
         source_owner_email,
         contains_pii=False,
-        cluster_type=None,
+        cluster_type='datapipe',
         base_schema_id=None
     ):
         super(RegisterSchemaRequest, self).__init__()

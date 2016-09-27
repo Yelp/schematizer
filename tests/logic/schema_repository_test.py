@@ -11,6 +11,7 @@ import pytest
 
 from schematizer import models
 from schematizer.components import converters
+from schematizer.config import get_config
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
 from schematizer.models.database import session
@@ -484,19 +485,27 @@ class TestSchemaRepository(DBTestCase):
     @pytest.mark.parametrize("cluster_type", [None, 'datapipe', 'scribe'])
     def test_registering_from_avro_json_with_cluster_types(self, cluster_type):
         expected_base_schema_id = 100
+        if cluster_type:
+            cluster_override = {
+                'cluster_type': cluster_type
+            }
+            expected_cluster_type = cluster_type
+        else:
+            cluster_override = {}
+            expected_cluster_type = get_config().default_cluster_type
+
         actual_schema = schema_repo.register_avro_schema_from_avro_json(
             self.rw_schema_json,
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
             contains_pii=False,
-            cluster_type=cluster_type,
-            base_schema_id=expected_base_schema_id
+            base_schema_id=expected_base_schema_id,
+            **cluster_override
         )
         actual_topic = session.query(models.Topic).filter(
             models.Topic.id == actual_schema.topic.id
         ).one()
-        expected_cluster_type = cluster_type if cluster_type else 'datapipe'
         expected_topic = models.Topic(
             name=actual_schema.topic.name,
             source_id=actual_schema.topic.source_id,
@@ -504,6 +513,10 @@ class TestSchemaRepository(DBTestCase):
             cluster_type=expected_cluster_type
         )
         self.assert_equal_topic_partial(expected_topic, actual_topic)
+        self.assert_topic_name_by_cluster_type(
+            actual_schema.topic.name,
+            cluster_type
+        )
 
     def test_registering_from_avro_json_with_pkey_added(self):
         actual_schema1 = schema_repo.register_avro_schema_from_avro_json(
@@ -1365,6 +1378,12 @@ class TestSchemaRepository(DBTestCase):
         assert expected.created_at == actual.created_at
         assert expected.updated_at == actual.updated_at
         self.assert_equal_topic_partial(expected, actual)
+
+    def assert_topic_name_by_cluster_type(self, topic_name, cluster_type):
+        joining_char = '_' if cluster_type is 'scribe' else '.'
+        assert joining_char.join(
+            [self.namespace_name, self.source_name]
+        ) in topic_name
 
     def assert_equal_avro_schema_partial(self, expected, actual):
         assert expected.avro_schema == actual.avro_schema

@@ -9,13 +9,10 @@ from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
-from yelp_kafka import discovery
-from yelp_kafka.error import ConfigurationError
 
 from schematizer.models.avro_schema import AvroSchema
 from schematizer.models.base_model import BaseModel
 from schematizer.models.database import Base
-from schematizer.models.exceptions import InvalidTopicClusterTypeError
 from schematizer.models.types.time import build_time_column
 
 
@@ -71,10 +68,6 @@ class Topic(Base, BaseModel):
 
     @cluster_type.setter
     def cluster_type(self, value):
-        try:
-            discovery.get_all_clusters(value)
-        except ConfigurationError:
-            raise InvalidTopicClusterTypeError(value)
         self._cluster_type = value
 
     @property

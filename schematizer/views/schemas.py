@@ -18,6 +18,8 @@ from schematizer.models.exceptions import EntityNotFoundError
 from schematizer.utils.utils import get_current_func_arg_name_values
 from schematizer.views import view_common
 
+DEFAULT_CLUSTER_TYPE = get_config().default_cluster_type
+
 
 @view_config(
     route_name='api.v1.get_schema_by_id',
@@ -117,7 +119,7 @@ def _register_avro_schema(
     source,
     source_email_owner,
     contains_pii,
-    cluster_type=None,
+    cluster_type=DEFAULT_CLUSTER_TYPE,
     base_schema_id=None,
     docs_required=True
 ):

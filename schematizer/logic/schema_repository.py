@@ -12,9 +12,12 @@ from yelp_conn.mysqldb import IntegrityError
 
 from schematizer import models
 from schematizer.components.converters.converter_base import BaseConverter
+from schematizer.config import get_config
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.models.database import session
+
+DEFAULT_CLUSTER_TYPE = get_config().default_cluster_type
 
 
 def is_backward_compatible(old_schema_json, new_schema_json):
@@ -76,7 +79,7 @@ def register_avro_schema_from_avro_json(
         source_name,
         source_email_owner,
         contains_pii,
-        cluster_type=None,
+        cluster_type=DEFAULT_CLUSTER_TYPE,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
         base_schema_id=None,
         docs_required=True
@@ -89,7 +92,7 @@ def register_avro_schema_from_avro_json(
     :param source: source name string
     :param domain_owner_email: email of the schema owner
     :param cluster_type: Type of kafka cluster Ex: datapipe, scribe, etc.
-        Defaults to None which translates to datapipe
+        Defaults to datapipe
     :param status: AvroStatusEnum: RW/R/Disabled
     :param base_schema_id: Id of the Avro schema from which the new schema is
         derived from
@@ -124,8 +127,6 @@ def register_avro_schema_from_avro_json(
     )
     _lock_source(source)
 
-    if cluster_type is None:
-        cluster_type = 'datapipe'
     topic_candidates = _get_topic_candidates(
         source_id=source.id,
         base_schema_id=base_schema_id,
@@ -194,12 +195,19 @@ def _create_topic_for_source(
     # is generating the same value (rarely) and we'd like to know it.
     # Per SEC-5079, sqlalchemy IntegrityError now is replaced with yelp-conn
     # IntegrityError.
-    topic_name = _construct_topic_name(namespace_name, source.name)
+    if cluster_type is 'scribe':
+        topic_name = _construct_scribe_topic_name(namespace_name, source.name)
+    else:
+        topic_name = _construct_topic_name(namespace_name, source.name)
     return _create_topic(topic_name, source.id, contains_pii, cluster_type)
 
 
+def _construct_scribe_topic_name(namespace, source):
+    """Scribe topics must only consist of [a-z0-9_] only"""
+    return '_'.join((namespace, source, uuid.uuid4().hex))
+
+
 def _construct_topic_name(namespace, source):
-    #TODO [askatti|DATAPIPE-1319] How to store scribe kafka topics
     return '.'.join((namespace, source, uuid.uuid4().hex))
 
 

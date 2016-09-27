@@ -11,6 +11,7 @@ import simplejson
 
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
+from schematizer.config import get_config
 from schematizer.views import schemas as schema_views
 from tests.views.api_test_base import ApiTestBase
 
@@ -340,10 +341,15 @@ class TestRegisterSchema(RegisterSchemaTestBase):
         request_json,
         cluster_type
     ):
-        request_json['cluster_type'] = cluster_type
+        if cluster_type:
+            request_json['cluster_type'] = cluster_type
+            expected_cluster_type = cluster_type
+        else:
+            expected_cluster_type = get_config().default_cluster_type
         mock_request.json_body = request_json
         actual = schema_views.register_schema(mock_request)
         self._assert_equal_schema_response(actual, request_json)
+        assert expected_cluster_type == actual['topic']['cluster_type']
 
 
 class TestRegisterSchemaFromMySQL(RegisterSchemaTestBase):
