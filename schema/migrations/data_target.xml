@@ -22,4 +22,29 @@
       <append value=" ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci"/>
     </modifySql>
   </changeSet>
+  <changeSet author="tajinder" id="DATAPIPE-1774-1474490000">
+    <preConditions onFail="MARK_RAN" onSqlOutput="TEST">
+      <not>
+        <columnExists tableName="data_target" columnName="name"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="data_target">
+      <column name="name" type="VARCHAR(255)"/>
+    </addColumn>
+    <comment>[2016-09-21] Add a nullable column 'name' to identify data targets.</comment>
+    <modifySql>
+      <append value=" AFTER id"/>
+    </modifySql>
+  </changeSet>
+  <changeSet author="tajinder" id="DATAPIPE-1774-1474490100">
+    <comment>Adding unique constraint on name</comment>
+    <addUniqueConstraint columnNames="name"
+      constraintName="name_unique_constraint"
+      tableName="data_target"/>
+  </changeSet>
+  <changeSet author="tajinder" id="DATAPIPE-1774-1474675600">
+    <addNotNullConstraint columnDataType="VARCHAR(255)"
+      columnName="name"
+      tableName="data_target"/>
+  </changeSet>
 </databaseChangeLog>
