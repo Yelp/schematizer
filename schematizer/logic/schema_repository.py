@@ -8,14 +8,26 @@ import simplejson
 from sqlalchemy import desc
 from sqlalchemy import exc
 from sqlalchemy.orm import exc as orm_exc
-from yelp_conn.mysqldb import IntegrityError
 
 from schematizer import models
 from schematizer.components.converters.converter_base import BaseConverter
+from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import meta_attribute_mappers as meta_attr_logic
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.models.database import session
+
+try:
+    # TODO(DATAPIPE-1506|abrar): Currently we have
+    # force_avoid_internal_packages as a means of simulating an absence
+    # of a yelp's internal package. And all references
+    # of force_avoid_internal_packages have to be removed from
+    # schematizer after we have completely ready for open source.
+    if FORCE_AVOID_INTERNAL_PACKAGES:
+        raise ImportError
+    from yelp_conn.mysqldb import IntegrityError
+except ImportError:
+    from sqlalchemy.exc import IntegrityError
 
 
 def is_backward_compatible(old_schema_json, new_schema_json):
@@ -868,7 +880,8 @@ def get_refreshes_by_criteria(
     namespace=None,
     source_name=None,
     status=None,
-    created_after=None
+    created_after=None,
+    updated_after=None
 ):
     """Get all the refreshes that match the given filter criteria.
 
@@ -880,6 +893,8 @@ def get_refreshes_by_criteria(
         status(Optional[int]): get refreshes of given status
             if specified.
         created_after(Optional[datetime]): get refreshes created
+            after given utc datetime (inclusive) if specified.
+        updated_after(Optional[datetime]): get refreshes updated
             after given utc datetime (inclusive) if specified.
     """
     qry = session.query(models.Refresh)
@@ -901,6 +916,8 @@ def get_refreshes_by_criteria(
         qry = qry.filter(models.Refresh.status == status)
     if created_after:
         qry = qry.filter(models.Refresh.created_at >= created_after)
+    if updated_after:
+        qry = qry.filter(models.Refresh.updated_at >= updated_after)
     return qry.order_by(
         desc(models.Refresh.priority)
     ).order_by(
