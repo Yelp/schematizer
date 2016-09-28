@@ -6,10 +6,12 @@
   <include file="consumer_group.xml"/>
   <include file="consumer_group_data_source.xml"/>
   <include file="data_target.xml"/>
+  <include file="meta_attribute_mapping_store.xml"/>
   <include file="namespace.xml"/>
   <include file="note.xml"/>
   <include file="producer.xml"/>
   <include file="refresh.xml"/>
+  <include file="schema_meta_attribute_mapping.xml"/>
   <include file="source.xml"/>
   <include file="source_category.xml"/>
   <include file="topic.xml"/>
