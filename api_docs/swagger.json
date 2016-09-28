@@ -243,6 +243,10 @@
                     "description": "Url that connects to the data target, such as Redshift cluster connection url.",
                     "type": "string"
                 },
+                "name": {
+                    "description": "Data target name",
+                    "type": "string"
+                },
                 "target_type": {
                     "description": "Short description of the data target type, such as Redshift.",
                     "type": "string"
@@ -1129,6 +1133,47 @@
                     }
                 },
                 "summary": "Get the data target of specified ID",
+                "tags": [
+                    "data_targets"
+                ]
+            }
+        },
+        "/v1/data_targets/name/{data_target_name}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_data_target_by_name",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "data_target_name",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/DataTarget"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data target name supplied"
+                    },
+                    "404": {
+                        "description": "Data target name not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get the data target of specified name",
                 "tags": [
                     "data_targets"
                 ]
