@@ -240,6 +240,14 @@
                     "notes": "The schema_id of both the AvroSchema and Meta attribute should exist.",
                     "parameters": [
                         {
+                            "allowMultiple": false,
+                            "description": "ID of AvroSchema for which meta attribute mappings will be registered",
+                            "name": "schema_id",
+                            "paramType": "path",
+                            "required": true,
+                            "type": "integer"
+                        },
+                        {
                             "name": "body",
                             "paramType": "body",
                             "required": true,
@@ -261,7 +269,7 @@
                         }
                     ],
                     "summary": "Register the specified meta attribute schema_id to the specified schema_id.",
-                    "type": "MetaAttributeMappingsResponse"
+                    "type": "MetaAttributeMapping"
                 },
                 {
                     "authorizations": {},
@@ -269,6 +277,14 @@
                     "nickname": "delete_schema_meta_attribute_mapping",
                     "notes": "The schema_id of both the AvroSchema and Meta attribute should exist.",
                     "parameters": [
+                        {
+                            "allowMultiple": false,
+                            "description": "ID of AvroSchema for which meta attribute mappings will be deleted",
+                            "name": "schema_id",
+                            "paramType": "path",
+                            "required": true,
+                            "type": "integer"
+                        },
                         {
                             "name": "body",
                             "paramType": "body",
@@ -291,10 +307,13 @@
                         }
                     ],
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified schema_id.",
-                    "type": "MetaAttributeMappingsResponse"
+                    "type": "MetaAttributeMapping"
                 },
                 {
                     "authorizations": {},
+                    "items": {
+                        "$ref": "MetaAttributeMapping"
+                    },
                     "method": "GET",
                     "nickname": "get_schema_meta_attribute_mappings",
                     "notes": "The schema_id of AvroSchema should exist.",
@@ -323,10 +342,10 @@
                         }
                     ],
                     "summary": "Get a list of all meta attribute schema_ids mapped to specified schema_id.",
-                    "type": "MetaAttributeMappingsResponse"
+                    "type": "array"
                 }
             ],
-            "path": "/v1/schemas/{schema_id}/meta_attribute_mapping"
+            "path": "/v1/schemas/{schema_id}/meta_attr_mappings"
         },
         {
             "operations": [
@@ -401,19 +420,16 @@
                 }
             }
         },
-        "MetaAttributeMappingsResponse": {
-            "id": "MetaAttributeMappingsResponse",
+        "MetaAttributeMapping": {
+            "id": "MetaAttributeMapping",
             "properties": {
-                "meta_attribute_schema_ids": {
-                    "description": "List of meta attribute schema IDs.",
-                    "items": {
-                        "type": "integer"
-                    },
-                    "type": "array"
+                "meta_attribute_schema_id": {
+                    "description": "Avro Schema ID of meta attribute.",
+                    "type": "integer"
                 }
             },
             "required": [
-                "meta_attribute_schema_ids"
+                "meta_attribute_schema_id"
             ]
         },
         "Namespace": {
@@ -480,14 +496,9 @@
                 "meta_attribute_schema_id": {
                     "description": "AvroSchema ID of Meta Attribute schema to be mapped.",
                     "type": "integer"
-                },
-                "schema_id": {
-                    "description": "AvroSchema ID to be mapped for.",
-                    "type": "integer"
                 }
             },
             "required": [
-                "schema_id",
                 "meta_attribute_schema_id"
             ]
         },

@@ -15,6 +15,13 @@ from schematizer.models.exceptions import EntityNotFoundError
 from schematizer.models.types.time import build_time_column
 
 
+class MetaAttributeEntity(object):
+
+    NAMESPACE = 'Namespace'
+    SOURCE = 'Source'
+    AVRO_SCHEMA = 'AvroSchema'
+
+
 class MetaAttributeMappingStore(Base, BaseModel):
     """This table stores all the mappings of meta attribute registered for
     each entity. The entities can be Namespace, Source or AvroSchema. This
@@ -32,9 +39,9 @@ class MetaAttributeMappingStore(Base, BaseModel):
     # The name of the entity type, can be namespace, source or schema.
     entity_type = Column(
         Enum(
-            'Namespace',
-            'Source',
-            'AvroSchema',
+            MetaAttributeEntity.NAMESPACE,
+            MetaAttributeEntity.SOURCE,
+            MetaAttributeEntity.AVRO_SCHEMA,
             name='entity_type'
         ),
         nullable=False
