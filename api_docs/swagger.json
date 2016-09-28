@@ -1097,47 +1097,6 @@
                 ]
             }
         },
-        "/v1/data_targets/{data_target_id}": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "description": "",
-                "operationId": "get_data_target_by_id",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "data_target_id",
-                        "required": true,
-                        "type": "integer"
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/DataTarget"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid data target ID supplied"
-                    },
-                    "404": {
-                        "description": "Data target ID not found"
-                    },
-                    "500": {
-                        "description": "Server side error"
-                    }
-                },
-                "summary": "Get the data target of specified ID",
-                "tags": [
-                    "data_targets"
-                ]
-            }
-        },
         "/v1/data_targets/name/{data_target_name}": {
             "get": {
                 "consumes": [
@@ -1174,6 +1133,47 @@
                     }
                 },
                 "summary": "Get the data target of specified name",
+                "tags": [
+                    "data_targets"
+                ]
+            }
+        },
+        "/v1/data_targets/{data_target_id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_data_target_by_id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "data_target_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/DataTarget"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data target ID supplied"
+                    },
+                    "404": {
+                        "description": "Data target ID not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get the data target of specified ID",
                 "tags": [
                     "data_targets"
                 ]
