@@ -410,7 +410,7 @@ def _get_topic_candidates(
     ).filter(
         models.Topic.source_id == source_id,
         models.Topic._contains_pii == int(contains_pii),
-        models.Topic._cluster_type == cluster_type,
+        models.Topic.cluster_type == cluster_type,
         models.AvroSchema.base_schema_id == base_schema_id
     )
     if enabled_schemas_only:
