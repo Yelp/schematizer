@@ -7,6 +7,7 @@ from datetime import datetime
 import simplejson
 from cached_property import cached_property
 
+from schematizer.config import get_config
 from schematizer.models.page_info import PageInfo
 
 
@@ -48,6 +49,7 @@ class RegisterSchemaRequest(RequestBase):
         source,
         source_owner_email,
         contains_pii=False,
+        cluster_type=get_config().default_kafka_cluster_type,
         base_schema_id=None
     ):
         super(RegisterSchemaRequest, self).__init__()
@@ -57,6 +59,7 @@ class RegisterSchemaRequest(RequestBase):
         self.source_owner_email = source_owner_email
         self.base_schema_id = base_schema_id
         self.contains_pii = contains_pii
+        self.cluster_type = cluster_type
 
     @cached_property
     def schema_json(self):

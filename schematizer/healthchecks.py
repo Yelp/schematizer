@@ -5,13 +5,13 @@ from __future__ import unicode_literals
 import random
 
 from schematizer import models
-from schematizer.config import get_config
+from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.models.database import session
 
 
 can_watch_config = False
 try:
-    if get_config().force_avoid_internal_packages:
+    if FORCE_AVOID_INTERNAL_PACKAGES:
         # TODO(DATAPIPE-1506|abrar): Currently we have
         # force_avoid_internal_packages as a means of simulating an absence
         # of a yelp's internal package. And all references

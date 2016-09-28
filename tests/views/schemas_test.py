@@ -11,6 +11,8 @@ import simplejson
 
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
+from schematizer.config import get_config
+from schematizer.helpers.formatting import _format_datetime
 from schematizer.views import schemas as schema_views
 from tests.views.api_test_base import ApiTestBase
 
@@ -333,6 +335,23 @@ class TestRegisterSchema(RegisterSchemaTestBase):
         assert e.value.code == expected_exception.code
         assert str(e.value) == "Source owner email must be non-empty."
 
+    @pytest.mark.parametrize("cluster_type", [None, 'datapipe', 'scribe'])
+    def test_register_schema_with_cluster_type(
+        self,
+        mock_request,
+        request_json,
+        cluster_type
+    ):
+        if cluster_type:
+            request_json['cluster_type'] = cluster_type
+            expected_cluster_type = cluster_type
+        else:
+            expected_cluster_type = get_config().default_kafka_cluster_type
+        mock_request.json_body = request_json
+        actual = schema_views.register_schema(mock_request)
+        self._assert_equal_schema_response(actual, request_json)
+        assert expected_cluster_type == actual['topic']['cluster_type']
+
 
 class TestRegisterSchemaFromMySQL(RegisterSchemaTestBase):
 
@@ -354,8 +373,8 @@ class TestRegisterSchemaFromMySQL(RegisterSchemaTestBase):
             "new_create_table_stmt": self.new_create_table_stmt,
             "namespace": biz_source.namespace.name,
             "source": biz_source.name,
-            "source_owner_email": 'biz.test@yelp.com',
-            'contains_pii': False
+            "source_owner_email": "biz.test@yelp.com",
+            "contains_pii": False
         }
 
     def test_register_new_table(self, mock_request, request_json):
@@ -454,8 +473,12 @@ class TestGetSchemaElements(ApiTestBase):
                     'element_type': element.element_type,
                     'key': element.key,
                     'doc': element.doc,
-                    'created_at': element.created_at.isoformat(),
-                    'updated_at': element.updated_at.isoformat()
+                    'created_at': _format_datetime(
+                        element.created_at
+                    ),
+                    'updated_at': _format_datetime(
+                        element.updated_at
+                    )
                 }
             )
 

@@ -1,55 +1,55 @@
 {
     "apiVersion": "1.0.0",
-    "swaggerVersion": "1.2",
     "apis": [
         {
-            "path": "/v1/namespaces",
-            "description": "Operations about namespaces."
+            "description": "Operations about namespaces.",
+            "path": "/v1/namespaces"
         },
         {
-            "path": "/v1/sources",
-            "description": "Operations about sources."
+            "description": "Operations about sources.",
+            "path": "/v1/sources"
         },
         {
-            "path": "/v1/topics",
-            "description": "Operations about topics."
+            "description": "Operations about topics.",
+            "path": "/v1/topics"
         },
         {
-            "path": "/v1/schemas",
-            "description": "Operations about Avro schemas."
+            "description": "Operations about Avro schemas.",
+            "path": "/v1/schemas"
         },
         {
-            "path": "/v1/compatibility",
-            "description": "Operations about schema compatibility check."
+            "description": "Operations about schema compatibility check.",
+            "path": "/v1/compatibility"
         },
         {
-            "path": "/v1/notes",
-            "description": "Operations about notes."
+            "description": "Operations about notes.",
+            "path": "/v1/notes"
         },
         {
-            "path": "/v1/categories",
-            "description": "Operations about categories."
+            "description": "Operations about categories.",
+            "path": "/v1/categories"
         },
         {
-            "path": "/v1/refreshes",
-            "description": "Operations about full refreshes."
+            "description": "Operations about full refreshes.",
+            "path": "/v1/refreshes"
         },
         {
-            "path": "/v1/data_targets",
-            "description": "Operations about data targets."
+            "description": "Operations about data targets.",
+            "path": "/v1/data_targets"
         },
         {
-            "path": "/v1/consumer_groups",
-            "description": "Operations about the consumer groups."
+            "description": "Operations about the consumer groups.",
+            "path": "/v1/consumer_groups"
         },
         {
-            "path": "/v1/schema_migrations",
-            "description": "Operations to generate schema migrations."
+            "description": "Operations to generate schema migrations.",
+            "path": "/v1/schema_migrations"
         }
     ],
     "info": {
-    "title": "Data Pipeline Schematizer",
-    "description": "Schematizer is REST service to register and retrieve Avro schemas, maintain Avro schema backward compatibilities, register producer and consumer of Avro schemas, and generate redshift push plans.",
-    "contact": "bam@yelp.com"
-    }
+        "contact": "bam@yelp.com",
+        "description": "Schematizer is REST service to register and retrieve Avro schemas, maintain Avro schema backward compatibilities, register producer and consumer of Avro schemas, and generate redshift push plans.",
+        "title": "Data Pipeline Schematizer"
+    },
+    "swaggerVersion": "1.2"
 }
