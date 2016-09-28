@@ -84,21 +84,18 @@
             "path": "/v1/data_targets/{data_target_id}"
         },
         {
-            "path": "/v1/data_targets/name/{data_target_name}",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "Get the data target of specified name",
-                    "type": "DataTarget",
-                    "nickname": "get_data_target_by_name",
                     "authorizations": {},
+                    "method": "GET",
+                    "nickname": "get_data_target_by_name",
                     "parameters": [
                         {
+                            "allowMultiple": false,
                             "name": "data_target_name",
-                            "required": true,
-                            "type": "string",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "string"
                         }
                     ],
                     "responseMessages": [
@@ -114,12 +111,14 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Get the data target of specified name",
+                    "type": "DataTarget"
                 }
-            ]
+            ],
+            "path": "/v1/data_targets/name/{data_target_name}"
         },
         {
-            "path": "/v1/data_targets/{data_target_id}/consumer_groups",
             "operations": [
                 {
                     "authorizations": {},
