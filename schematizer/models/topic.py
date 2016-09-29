@@ -46,6 +46,30 @@ class Topic(Base, BaseModel):
     def contains_pii(self):
         return bool(self._contains_pii)
 
+    @contains_pii.setter
+    def contains_pii(self, value):
+        if not isinstance(value, bool):
+            raise ValueError(
+                "Type of contains_pii should be bool."
+            )
+
+        self._contains_pii = int(value)
+
+    _cluster_type = Column(
+        'cluster_type',
+        String,
+        nullable=False,
+        default='datapipe'
+    )
+
+    @property
+    def cluster_type(self):
+        return self._cluster_type
+
+    @cluster_type.setter
+    def cluster_type(self, value):
+        self._cluster_type = value
+
     @property
     def primary_keys(self):
         if not self.avro_schemas:
@@ -55,15 +79,6 @@ class Topic(Base, BaseModel):
             AvroMetaDataKeys.PRIMARY_KEY,
             []
         )
-
-    @contains_pii.setter
-    def contains_pii(self, value):
-        if not isinstance(value, bool):
-            raise ValueError(
-                "Type of contains_pii should be bool."
-            )
-
-        self._contains_pii = int(value)
 
     # Timestamp when the entry is created
     created_at = build_time_column(
@@ -91,6 +106,7 @@ class Topic(Base, BaseModel):
             self.name,
             self.source_id,
             self.contains_pii,
+            self.cluster_type,
             self.created_at,
             self.updated_at
         )

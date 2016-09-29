@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <changeSet author="askatti" id="1468599816">
+    <comment>Adding meta_attribute_mapping_store table as per DATAPIPE-1200</comment>
+    <createTable tableName="meta_attribute_mapping_store">
+      <column autoIncrement="true" name="id" type="INT(11)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="entity_type" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="entity_id" type="INT(11)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="meta_attr_schema_id" type="INT(11)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="INT(11)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="INT(11)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci"/>
+    </modifySql>
+  </changeSet>
+  <changeSet author="askatti" id="1473453530">
+    <createIndex indexName="entity_index" tableName="meta_attribute_mapping_store" unique="false">
+      <column name="entity_type" type="VARCHAR(20)"/>
+      <column name="entity_id" type="INT(11)"/>
+    </createIndex>
+  </changeSet>
+  <changeSet author="askatti" id="1475011265">
+    <createIndex indexName="unique_entity_mapping_constraint" tableName="meta_attribute_mapping_store" unique="true">
+      <column name="entity_type" type="VARCHAR(20)"/>
+      <column name="entity_id" type="INT(11)"/>
+      <column name="meta_attr_schema_id" type="INT(11)"/>
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>

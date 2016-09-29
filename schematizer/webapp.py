@@ -68,10 +68,12 @@ def _create_application():
     settings = {
         'service_name': 'schematizer',
         'zipkin.tracing_percent': 100,
+        'pyramid_swagger.swagger_versions': ['1.2', '2.0'],
         'pyramid_swagger.skip_validation': [
             '/(static)\\b',
             '/(api-docs)\\b',
-            '/(status)\\b'
+            '/(status)\\b',
+            '/(swagger.json)\\b'
         ],
         'pyramid_yelp_conn.reload_clusters': CLUSTERS
     }

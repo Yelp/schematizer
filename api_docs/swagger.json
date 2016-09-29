@@ -1,0 +1,2607 @@
+{
+    "basePath": "/",
+    "definitions": {
+        "AvroSchemaCompatibilityRequest": {
+            "properties": {
+                "namespace": {
+                    "description": "Namespace of the source, such as yelpmain.db, etc",
+                    "type": "string"
+                },
+                "schema": {
+                    "description": "The json formatted string of the Avro schema",
+                    "type": "string"
+                },
+                "source": {
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "schema",
+                "namespace",
+                "source"
+            ],
+            "type": "object"
+        },
+        "CategoryRequest": {
+            "properties": {
+                "category": {
+                    "description": "The updated category of a source",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "category"
+            ],
+            "type": "object"
+        },
+        "CategoryResponse": {
+            "properties": {
+                "category": {
+                    "description": "The category that the specified source belongs to",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "When this category is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "source_id": {
+                    "description": "The id of the source this category specifies",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "When this category is last updated",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ConsumerGroup": {
+            "properties": {
+                "consumer_group_id": {
+                    "description": "Consumer group ID",
+                    "type": "integer"
+                },
+                "created_at": {
+                    "description": "When this consumer group is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "data_target": {
+                    "$ref": "#/definitions/DataTarget"
+                },
+                "group_name": {
+                    "description": "Name of the consumer group.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "When this consumer group is last updated",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ConsumerGroupDataSource": {
+            "properties": {
+                "consumer_group_data_source_id": {
+                    "description": "Consumer group data source ID",
+                    "type": "integer"
+                },
+                "consumer_group_id": {
+                    "description": "The id of the consumer group the data source is consumed by.",
+                    "type": "integer"
+                },
+                "created_at": {
+                    "description": "When this data source is initially added to the consumer group.",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "data_source_id": {
+                    "description": "Id of the data source object, such as namespace id or source id.",
+                    "type": "integer"
+                },
+                "data_source_type": {
+                    "description": "Type of the data source.",
+                    "enum": [
+                        "Namespace",
+                        "Source"
+                    ],
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "When this consumer group - data source mapping is last updated.",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "CreateConsumerGroupDataSourceRequest": {
+            "properties": {
+                "data_source_id": {
+                    "description": "Id of the data source object, such as namespace id or source id.",
+                    "type": "integer"
+                },
+                "data_source_type": {
+                    "description": "Type of the data source. Must be one of the following values: Namespace, Source.",
+                    "enum": [
+                        "Namespace",
+                        "Source"
+                    ],
+                    "type": "string"
+                }
+            },
+            "required": [
+                "data_source_type",
+                "data_source_id"
+            ],
+            "type": "object"
+        },
+        "CreateConsumerGroupRequest": {
+            "properties": {
+                "group_name": {
+                    "description": "Name of the consumer group.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "group_name"
+            ],
+            "type": "object"
+        },
+        "CreateDataTargetRequest": {
+            "properties": {
+                "destination": {
+                    "description": "Url that connects to the data target, such as the connection url to a Redshift cluster.",
+                    "type": "string"
+                },
+                "target_type": {
+                    "description": "Short description of the data target type, such as Redshift.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "target_type",
+                "destination"
+            ],
+            "type": "object"
+        },
+        "CreateNoteRequest": {
+            "properties": {
+                "last_updated_by": {
+                    "description": "The email of the user who edited the note",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "The text of the note itself",
+                    "type": "string"
+                },
+                "reference_id": {
+                    "description": "The id of the item that this note is for",
+                    "type": "integer"
+                },
+                "reference_type": {
+                    "description": "The type of item that this note is for ('schema', or 'schema_element')",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "reference_id",
+                "reference_type",
+                "note",
+                "last_updated_by"
+            ],
+            "type": "object"
+        },
+        "CreateRefreshRequest": {
+            "properties": {
+                "avg_rows_per_second_cap": {
+                    "description": "This field throttles the throughput of the refresh runner once the refresh is actually run. It will sleep in between batch row gets to limit it to this cap (default: null)",
+                    "type": "integer"
+                },
+                "batch_size": {
+                    "description": "Number of rows to refresh per batch.",
+                    "type": "integer"
+                },
+                "filter_condition": {
+                    "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table.",
+                    "type": "string"
+                },
+                "offset": {
+                    "description": "Represents the last known position that has been refreshed.",
+                    "type": "integer"
+                },
+                "priority": {
+                    "description": "Priority of this refresh.",
+                    "enum": [
+                        "LOW",
+                        "MEDIUM",
+                        "HIGH",
+                        "MAX"
+                    ],
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "DataTarget": {
+            "description": "The data target is where the messages consumed by this consumer group will be sent to.",
+            "properties": {
+                "created_at": {
+                    "description": "When this data target is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "data_target_id": {
+                    "description": "Data target ID",
+                    "type": "integer"
+                },
+                "destination": {
+                    "description": "Url that connects to the data target, such as Redshift cluster connection url.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Data target name",
+                    "type": "string"
+                },
+                "target_type": {
+                    "description": "Short description of the data target type, such as Redshift.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "When this data target is last updated",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "MysqlSchemaCompatibilityRequest": {
+            "properties": {
+                "alter_table_stmt": {
+                    "description": "The ALTER TABLE statement from the table schema change. For the change in the existing table, both old_create_table_stmt and alter_table_stmt must be provided.",
+                    "type": "string"
+                },
+                "namespace": {
+                    "description": "Namespace of the source, such as yelpmain.db, etc",
+                    "type": "string"
+                },
+                "new_create_table_stmt": {
+                    "description": "The CREATE TABLE statement of a new table or the updated table.",
+                    "type": "string"
+                },
+                "old_create_table_stmt": {
+                    "description": "The CREATE TABLE statement of the old table. For the change in the existing table, both old_create_table_stmt and alter_table_stmt must be provided.",
+                    "type": "string"
+                },
+                "source": {
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "new_create_table_stmt",
+                "namespace",
+                "source"
+            ],
+            "type": "object"
+        },
+        "Namespace": {
+            "description": "Namespace an avro schema belongs to",
+            "properties": {
+                "created_at": {
+                    "description": "When this namespace is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Namespace, such as yelpmain.db, etc",
+                    "type": "string"
+                },
+                "namespace_id": {
+                    "description": "Namespace ID",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "When this namespace is last updated",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Note": {
+            "description": "A user defined note for the schema element that is used in the documentation tool. Used to store any relevant information about the schema element that can be useful to reference.",
+            "properties": {
+                "created_at": {
+                    "description": "When this note is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "The id of the note",
+                    "type": "integer"
+                },
+                "last_updated_by": {
+                    "description": "The email of the user who edited the note",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "The text of the note itself",
+                    "type": "string"
+                },
+                "reference_id": {
+                    "description": "The id of the item that this note is for",
+                    "type": "integer"
+                },
+                "reference_type": {
+                    "description": "The type of item that this note is for ('schema', or 'schema_element')",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "When this note is last updated",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "NoteResponse": {
+            "properties": {
+                "created_at": {
+                    "description": "When this note is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "The id of the note",
+                    "type": "integer"
+                },
+                "last_updated_by": {
+                    "description": "The email of the user who edited the note",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "The text of the note itself",
+                    "type": "string"
+                },
+                "reference_id": {
+                    "description": "The id of the item that this note is for",
+                    "type": "integer"
+                },
+                "reference_type": {
+                    "description": "The type of item that this note is for ('schema', or 'schema_element')",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "When this note is last updated",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Refresh": {
+            "properties": {
+                "avg_rows_per_second_cap": {
+                    "description": "This field throttles the throughput of the refresh runner once the refresh is actually run. We will sleep in between batch row gets to limit it to this cap (default: null)",
+                    "type": "integer"
+                },
+                "batch_size": {
+                    "description": "Number of rows to refresh per batch.",
+                    "type": "integer"
+                },
+                "created_at": {
+                    "description": "When this refresh is created.",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "filter_condition": {
+                    "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table.",
+                    "type": "string"
+                },
+                "offset": {
+                    "description": "Represents the last known position that has been refreshed.",
+                    "type": "integer"
+                },
+                "priority": {
+                    "description": "Priority of this refresh.",
+                    "enum": [
+                        "LOW",
+                        "MEDIUM",
+                        "HIGH",
+                        "MAX"
+                    ],
+                    "type": "string"
+                },
+                "refresh_id": {
+                    "description": "Refresh ID",
+                    "type": "integer"
+                },
+                "source": {
+                    "$ref": "#/definitions/Source"
+                },
+                "status": {
+                    "description": "Current status of refresh.",
+                    "enum": [
+                        "NOT_STARTED",
+                        "IN_PROGRESS",
+                        "PAUSED",
+                        "SUCCESS",
+                        "FAILED"
+                    ],
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "When this refresh is last updated.",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "RegisterSchemaFromMySqlRequest": {
+            "properties": {
+                "alter_table_stmt": {
+                    "description": "The ALTER TABLE statement from the table schema change. For the change in the existing table, both old_create_table_stmt and alter_table_stmt must be provided.",
+                    "type": "string"
+                },
+                "contains_pii": {
+                    "description": "Whether the schema contains PII field.",
+                    "type": "boolean"
+                },
+                "namespace": {
+                    "description": "Namespace this Avro schema belongs to, such as yelpmain.db, etc",
+                    "type": "string"
+                },
+                "new_create_table_stmt": {
+                    "description": "The CREATE TABLE statement of a new table or the updated table.",
+                    "type": "string"
+                },
+                "old_create_table_stmt": {
+                    "description": "The CREATE TABLE statement of the old table. For the change in the existing table, both old_create_table_stmt and alter_table_stmt must be provided.",
+                    "type": "string"
+                },
+                "source": {
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc",
+                    "type": "string"
+                },
+                "source_owner_email": {
+                    "description": "Email address of the source owner",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "new_create_table_stmt",
+                "namespace",
+                "source",
+                "source_owner_email",
+                "contains_pii"
+            ],
+            "type": "object"
+        },
+        "RegisterSchemaRequest": {
+            "properties": {
+                "base_schema_id": {
+                    "description": "The original Avro schema that this schema is transformed from",
+                    "type": "integer"
+                },
+                "contains_pii": {
+                    "description": "Whether the schema contains PII field.",
+                    "type": "boolean"
+                },
+                "namespace": {
+                    "description": "Namespace this Avro schema belongs to, such as yelpmain.db, etc",
+                    "type": "string"
+                },
+                "schema": {
+                    "description": "The json formatted string of the avro schema to be registered",
+                    "type": "string"
+                },
+                "source": {
+                    "description": "Source of the Avro schema, such as table User, or log service.foo etc",
+                    "type": "string"
+                },
+                "source_owner_email": {
+                    "description": "Email address of the source owner",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "schema",
+                "namespace",
+                "source",
+                "source_owner_email",
+                "contains_pii"
+            ],
+            "type": "object"
+        },
+        "Schema": {
+            "properties": {
+                "base_schema_id": {
+                    "description": "The original Avro schema that this schema is transformed from",
+                    "type": "integer"
+                },
+                "created_at": {
+                    "description": "When this schema is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "note": {
+                    "$ref": "#/definitions/Note"
+                },
+                "primary_keys": {
+                    "description": "List of primary key names.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "schema": {
+                    "description": "Json formatted avro schema string.",
+                    "type": "string"
+                },
+                "schema_id": {
+                    "description": "Avro schema ID",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "Schema status: RW (read/write), R (read-only), Disabled. `Read` status means this schema can be used to deserialize messages, and `Write` status means this schema can be used to serialize messages. Disabled schemas cannot be used for either.",
+                    "enum": [
+                        "RW",
+                        "R",
+                        "Disabled"
+                    ],
+                    "type": "string"
+                },
+                "topic": {
+                    "$ref": "#/definitions/Topic"
+                },
+                "updated_at": {
+                    "description": "When this schema is last updated",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "SchemaElement": {
+            "properties": {
+                "created_at": {
+                    "description": "When this schema element is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "doc": {
+                    "description": "Documentation of this element",
+                    "type": "string"
+                },
+                "element_type": {
+                    "description": "Avro type of the element, such as record, field, etc.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "Avro schema element ID",
+                    "type": "integer"
+                },
+                "key": {
+                    "description": "Unique key to avro schema element of the enclosing avro schema",
+                    "type": "string"
+                },
+                "note": {
+                    "$ref": "#/definitions/Note"
+                },
+                "schema_id": {
+                    "description": "Avro schema ID this element belongs to",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "When this schema element is last updated",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "SchemaMigrationRequest": {
+            "properties": {
+                "new_schema": {
+                    "description": "The JSON formatted string of the avro schema to which we want to migrate",
+                    "type": "string"
+                },
+                "old_schema": {
+                    "description": "The JSON formatted string of the avro schema from which we want to migrate",
+                    "type": "string"
+                },
+                "target_schema_type": {
+                    "description": "The type of schema migration desired (e.g. redshift, mysql, etc.)",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "new_schema",
+                "target_schema_type"
+            ],
+            "type": "object"
+        },
+        "Source": {
+            "description": "Source of the Avro schema.",
+            "properties": {
+                "category": {
+                    "description": "Category that this source belongs to",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "When this source is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name of the source, such as 'User' for table User.",
+                    "type": "string"
+                },
+                "namespace": {
+                    "$ref": "#/definitions/Namespace"
+                },
+                "owner_email": {
+                    "description": "Email address of the source owner",
+                    "type": "string"
+                },
+                "source_id": {
+                    "description": "Source ID",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "When this source is last updated",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Topic": {
+            "description": "Topic that this schema is associated to",
+            "properties": {
+                "contains_pii": {
+                    "description": "Whether the messages in this topic contain PII.",
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "description": "When this topic is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "The Kafka topic name.",
+                    "type": "string"
+                },
+                "primary_keys": {
+                    "description": "List of primary key names.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "source": {
+                    "$ref": "#/definitions/Source"
+                },
+                "topic_id": {
+                    "description": "Topic ID",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "When this topic is last updated",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "UpdateNoteRequest": {
+            "properties": {
+                "last_updated_by": {
+                    "description": "The email of the user who edited the note",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "The text of the note itself",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "note",
+                "last_updated_by"
+            ],
+            "type": "object"
+        },
+        "UpdateRefreshStatusRequest": {
+            "properties": {
+                "offset": {
+                    "description": "Represents the last known position that has been refreshed.",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "Refresh status to be set.",
+                    "enum": [
+                        "NOT_STARTED",
+                        "IN_PROGRESS",
+                        "PAUSED",
+                        "SUCCESS",
+                        "FAILED"
+                    ],
+                    "type": "string"
+                }
+            },
+            "required": [
+                "status",
+                "offset"
+            ],
+            "type": "object"
+        }
+    },
+    "info": {
+        "contact": {
+            "email": "bam@yelp.com"
+        },
+        "description": "Schematizer is REST service to register and retrieve Avro schemas, maintain Avro schema backward compatibilities, register producer and consumer of Avro schemas, and generate redshift push plans.",
+        "title": "Data Pipeline Schematizer",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/v1/categories": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "list_categories",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "List all the categories",
+                "tags": [
+                    "categories"
+                ]
+            }
+        },
+        "/v1/compatibility/schemas/avro": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "is_avro_schema_compatible",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AvroSchemaCompatibilityRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input supplied"
+                    },
+                    "422": {
+                        "description": "Invalid schema"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Check if given Avro schema is both backward and forward compatible with all the enabled schemas of the same topic.",
+                "tags": [
+                    "compatibility"
+                ]
+            }
+        },
+        "/v1/compatibility/schemas/mysql": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "is_mysql_schema_compatible",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/MysqlSchemaCompatibilityRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input supplied"
+                    },
+                    "422": {
+                        "description": "Invalid schema"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Check if the Avro schema derived from the MySQL statements is compatible with all the enabled schemas of the same topic.",
+                "tags": [
+                    "compatibility"
+                ]
+            }
+        },
+        "/v1/consumer_groups": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_consumer_groups",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/ConsumerGroup"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "List all the consumer groups.",
+                "tags": [
+                    "consumer_groups"
+                ]
+            }
+        },
+        "/v1/consumer_groups/{consumer_group_id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_consumer_group_by_id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "consumer_group_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ConsumerGroup"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid consumer group ID supplied"
+                    },
+                    "404": {
+                        "description": "Consumer group ID not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get the consumer group of specified ID",
+                "tags": [
+                    "consumer_groups"
+                ]
+            }
+        },
+        "/v1/consumer_groups/{consumer_group_id}/data_sources": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_data_sources_by_consumer_group_id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "consumer_group_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/ConsumerGroupDataSource"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request supplied."
+                    },
+                    "404": {
+                        "description": "Consumer group ID not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "List the data sources associated to this consumer group.",
+                "tags": [
+                    "consumer_groups"
+                ]
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "create_consumer_group_data_source",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "consumer_group_id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateConsumerGroupDataSourceRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ConsumerGroupDataSource"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Consumer group ID not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Add a data source to this consumer group.",
+                "tags": [
+                    "consumer_groups"
+                ]
+            }
+        },
+        "/v1/data_targets": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_data_targets",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/DataTarget"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "List all the data targets.",
+                "tags": [
+                    "data_targets"
+                ]
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "create_data_target",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateDataTargetRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/DataTarget"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Create a data target.",
+                "tags": [
+                    "data_targets"
+                ]
+            }
+        },
+        "/v1/data_targets/name/{data_target_name}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_data_target_by_name",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "data_target_name",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/DataTarget"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data target name supplied"
+                    },
+                    "404": {
+                        "description": "Data target name not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get the data target of specified name",
+                "tags": [
+                    "data_targets"
+                ]
+            }
+        },
+        "/v1/data_targets/{data_target_id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_data_target_by_id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "data_target_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/DataTarget"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data target ID supplied"
+                    },
+                    "404": {
+                        "description": "Data target ID not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get the data target of specified ID",
+                "tags": [
+                    "data_targets"
+                ]
+            }
+        },
+        "/v1/data_targets/{data_target_id}/consumer_groups": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_consumer_groups_by_data_target_id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "data_target_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/ConsumerGroup"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request supplied."
+                    },
+                    "404": {
+                        "description": "Data target ID not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "List the consumer groups associated to this data target.",
+                "tags": [
+                    "data_targets"
+                ]
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "create_consumer_group",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "data_target_id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateConsumerGroupRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ConsumerGroup"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Data target ID not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Create a consumer group that is associated to this data target.",
+                "tags": [
+                    "data_targets"
+                ]
+            }
+        },
+        "/v1/data_targets/{data_target_id}/topics": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_topics_by_data_target_id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "data_target_id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "description": "Unix timestamp the topics must be created after. The topics created at the same timestamp will be included.",
+                        "in": "query",
+                        "name": "created_after",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Topic"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request supplied."
+                    },
+                    "404": {
+                        "description": "Data target ID not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get all the topics associated to this data target, and optionally filtered by topic creation time.",
+                "tags": [
+                    "data_targets"
+                ]
+            }
+        },
+        "/v1/namespaces": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "list_namespaces",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Namespace"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "List all the namespaces",
+                "tags": [
+                    "namespaces"
+                ]
+            }
+        },
+        "/v1/namespaces/{namespace}/refreshes": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "list_refreshes_by_namespace",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "namespace",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Refresh"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Namespace is not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "List all refreshes of specified namespace",
+                "tags": [
+                    "namespaces"
+                ]
+            }
+        },
+        "/v1/namespaces/{namespace}/sources": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "list_sources_by_namespace",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "namespace",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Source"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Namespace is not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "List all the sources of specified namespace",
+                "tags": [
+                    "namespaces"
+                ]
+            }
+        },
+        "/v1/notes": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "create_note",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateNoteRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/NoteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Reference object not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Create given note for the specified schema or schema element.",
+                "tags": [
+                    "notes"
+                ]
+            }
+        },
+        "/v1/notes/{note_id}": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "update_note",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdateNoteRequest"
+                        }
+                    },
+                    {
+                        "description": "ID of note that will be fetched",
+                        "in": "path",
+                        "name": "note_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/NoteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Note not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Update given note for the specified schema or schema element.",
+                "tags": [
+                    "notes"
+                ]
+            }
+        },
+        "/v1/refreshes": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_refreshes_by_criteria",
+                "parameters": [
+                    {
+                        "description": "Current status of the refresh.",
+                        "in": "query",
+                        "name": "status",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "description": "Namespace name of the source of the refresh.",
+                        "in": "query",
+                        "name": "namespace",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "description": "Unix timestamp that the refresh was created after. Refreshes created at the same timestamp will be included.",
+                        "in": "query",
+                        "name": "created_after",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "description": "Unix timestamp that the refresh was updated after. Refreshes updated at the same timestamp will be included.",
+                        "in": "query",
+                        "name": "updated_after",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Refresh"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameter(s) supplied"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get the refreshes that match the specified criteria. If no criteria is specified, returns all refreshes.",
+                "tags": [
+                    "refreshes"
+                ]
+            }
+        },
+        "/v1/refreshes/{refresh_id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_refresh_by_id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "refresh_id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/Refresh"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid refresh id supplied"
+                    },
+                    "404": {
+                        "description": "Specified refresh cannot be found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get refresh for the specified refresh id.",
+                "tags": [
+                    "refreshes"
+                ]
+            }
+        },
+        "/v1/refreshes/{refresh_id}/status": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "update_refresh",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdateRefreshStatusRequest"
+                        }
+                    },
+                    {
+                        "description": "ID of refresh that will have its status updated",
+                        "in": "path",
+                        "name": "refresh_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/Refresh"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Reference object not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Update status of refresh.",
+                "tags": [
+                    "refreshes"
+                ]
+            }
+        },
+        "/v1/schema_migrations": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_schema_migration",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SchemaMigrationRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid schema"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    },
+                    "501": {
+                        "description": "Not Implemented"
+                    }
+                },
+                "summary": "Generate a schema migration pushplan between two avro schemas",
+                "tags": [
+                    "schema_migrations"
+                ]
+            }
+        },
+        "/v1/schemas": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_schemas_created_after",
+                "parameters": [
+                    {
+                        "description": "It's the epoch timestamp and limits schemas to those created at or after this timestamp.",
+                        "in": "query",
+                        "name": "created_after",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "description": "Maximum number of schemas to retrieve.",
+                        "in": "query",
+                        "name": "count",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "description": "Limits results to those schemas with an id greater than or equal to given min_id.",
+                        "in": "query",
+                        "name": "min_id",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "description": "Set to True to include disabled schemas. Default it excludes disabled ones.",
+                        "in": "query",
+                        "name": "include_disabled",
+                        "required": false,
+                        "type": "boolean"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Schema"
+                            },
+                            "type": "array"
+                        }
+                    }
+                },
+                "summary": "Get the Avro schemas created after the specified created_after timestamp. Default it excludes disabled schemas.",
+                "tags": [
+                    "schemas"
+                ]
+            }
+        },
+        "/v1/schemas/avro": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "register_schema",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RegisterSchemaRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/Schema"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Register given Avro schema to the latest topic of specified namespace and source.",
+                "tags": [
+                    "schemas"
+                ]
+            }
+        },
+        "/v1/schemas/mysql": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "register_schema_from_mysql_stmts",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RegisterSchemaFromMySqlRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/Schema"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Register an Avro Schema derived from Mysql statements to the latest topic of specified namespace and source.",
+                "tags": [
+                    "schemas"
+                ]
+            }
+        },
+        "/v1/schemas/{schema_id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_schema_by_id",
+                "parameters": [
+                    {
+                        "description": "ID of schema that will be fetched",
+                        "in": "path",
+                        "name": "schema_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/Schema"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid schema ID supplied"
+                    },
+                    "404": {
+                        "description": "Schema not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get the schema of specified schema id.",
+                "tags": [
+                    "schemas"
+                ]
+            }
+        },
+        "/v1/schemas/{schema_id}/data_targets": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_data_targets_by_schema_id",
+                "parameters": [
+                    {
+                        "description": "ID of schema whose data targets will be fetched",
+                        "in": "path",
+                        "name": "schema_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/DataTarget"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid schema ID supplied"
+                    },
+                    "404": {
+                        "description": "Schema not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get the data targets of specified schema id.",
+                "tags": [
+                    "schemas"
+                ]
+            }
+        },
+        "/v1/schemas/{schema_id}/elements": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_schema_elements_by_schema_id",
+                "parameters": [
+                    {
+                        "description": "ID of schema that will be fetched",
+                        "in": "path",
+                        "name": "schema_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/SchemaElement"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid schema ID supplied"
+                    },
+                    "404": {
+                        "description": "Schema not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get the schema elements of specified schema id.",
+                "tags": [
+                    "schemas"
+                ]
+            }
+        },
+        "/v1/sources": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "list_sources",
+                "parameters": [
+                    {
+                        "description": "Maximum number of sources to retrieve.",
+                        "in": "query",
+                        "name": "count",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "description": "Limits results to those sources with an id greater than or equal to given min_id.",
+                        "in": "query",
+                        "name": "min_id",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Source"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "List all the sources",
+                "tags": [
+                    "sources"
+                ]
+            }
+        },
+        "/v1/sources/{source_id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_source_by_id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "source_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/Source"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid source ID supplied"
+                    },
+                    "404": {
+                        "description": "Source ID not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get the source of specified ID",
+                "tags": [
+                    "sources"
+                ]
+            }
+        },
+        "/v1/sources/{source_id}/category": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "delete_category",
+                "parameters": [
+                    {
+                        "description": "ID of source that will have its category deleted",
+                        "in": "path",
+                        "name": "source_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/CategoryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Source is not found., Category not found for the given source"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Remove the source from current category.",
+                "tags": [
+                    "sources"
+                ]
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "update_category",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CategoryRequest"
+                        }
+                    },
+                    {
+                        "description": "ID of source that will have its category updated",
+                        "in": "path",
+                        "name": "source_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/CategoryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Source ID not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Update the category of given source.",
+                "tags": [
+                    "sources"
+                ]
+            }
+        },
+        "/v1/sources/{source_id}/refreshes": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "list_refreshes_by_source_id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "source_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Refresh"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Namespace is not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "List the history of refreshes on the specified source id.",
+                "tags": [
+                    "sources"
+                ]
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "create_refresh",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "source_id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateRefreshRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/Refresh"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Source is not found."
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Create a refresh associated with specified source id.",
+                "tags": [
+                    "sources"
+                ]
+            }
+        },
+        "/v1/sources/{source_id}/topics": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "list_topics_by_source_id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "source_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Topic"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid source ID supplied"
+                    },
+                    "404": {
+                        "description": "Source ID not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "List all the topics of specified source",
+                "tags": [
+                    "sources"
+                ]
+            }
+        },
+        "/v1/sources/{source_id}/topics/latest": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_latest_topic_by_source_id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "source_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/Topic"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid source ID supplied."
+                    },
+                    "404": {
+                        "description": "Latest topic is not found., Source is not found."
+                    },
+                    "500": {
+                        "description": "Server side error."
+                    }
+                },
+                "summary": "Get the latest topic of specified source",
+                "tags": [
+                    "sources"
+                ]
+            }
+        },
+        "/v1/topics": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_topics_by_criteria",
+                "parameters": [
+                    {
+                        "description": "Name of the namespace the topics belong to",
+                        "in": "query",
+                        "name": "namespace",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "description": "Name of the source the topics belong to.",
+                        "in": "query",
+                        "name": "source",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "description": "Unix timestamp the topics must be created after. The topics created at the same timestamp will be included.",
+                        "in": "query",
+                        "name": "created_after",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "description": "Maximum number of topics to retrieve.",
+                        "in": "query",
+                        "name": "count",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "description": "Limits results to those topics with an id greater than or equal to given min_id.",
+                        "in": "query",
+                        "name": "min_id",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Topic"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameter(s) supplied"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get the topics that match specified criteria. If no criterion is specified, it returns all the topics.",
+                "tags": [
+                    "topics"
+                ]
+            }
+        },
+        "/v1/topics/{topic_name}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_topic_by_topic_name",
+                "parameters": [
+                    {
+                        "description": "Kafka topic name of the topic to be fetched",
+                        "in": "path",
+                        "name": "topic_name",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/Topic"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid topic_name supplied"
+                    },
+                    "404": {
+                        "description": "Topic not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get the topic of specified topic name",
+                "tags": [
+                    "topics"
+                ]
+            }
+        },
+        "/v1/topics/{topic_name}/schemas": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "list_schemas_by_topic_name",
+                "parameters": [
+                    {
+                        "description": "Kafka topic name of the requested topic",
+                        "in": "path",
+                        "name": "topic_name",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/Schema"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid topic_name supplied"
+                    },
+                    "404": {
+                        "description": "Topic not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "List all the schemas of specified topic. These schemas are full compatible to each other.",
+                "tags": [
+                    "topics"
+                ]
+            }
+        },
+        "/v1/topics/{topic_name}/schemas/latest": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "",
+                "operationId": "get_latest_schema_by_topic_name",
+                "parameters": [
+                    {
+                        "description": "Kafka topic name of the requested topic",
+                        "in": "path",
+                        "name": "topic_name",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/Schema"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid topic_name supplied"
+                    },
+                    "404": {
+                        "description": "Topic is not found., Latest schema is not found."
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get the latest schema of specified topic",
+                "tags": [
+                    "topics"
+                ]
+            }
+        }
+    },
+    "schemes": [
+        "http"
+    ],
+    "swagger": "2.0",
+    "tags": [
+        {
+            "description": "Operations about namespaces.",
+            "name": "namespaces"
+        },
+        {
+            "description": "Operations about sources.",
+            "name": "sources"
+        },
+        {
+            "description": "Operations about topics.",
+            "name": "topics"
+        },
+        {
+            "description": "Operations about Avro schemas.",
+            "name": "schemas"
+        },
+        {
+            "description": "Operations about schema compatibility check.",
+            "name": "compatibility"
+        },
+        {
+            "description": "Operations about notes.",
+            "name": "notes"
+        },
+        {
+            "description": "Operations about categories.",
+            "name": "categories"
+        },
+        {
+            "description": "Operations about full refreshes.",
+            "name": "refreshes"
+        },
+        {
+            "description": "Operations about data targets.",
+            "name": "data_targets"
+        },
+        {
+            "description": "Operations about the consumer groups.",
+            "name": "consumer_groups"
+        },
+        {
+            "description": "Operations to generate schema migrations.",
+            "name": "schema_migrations"
+        }
+    ]
+}

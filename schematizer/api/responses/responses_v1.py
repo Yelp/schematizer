@@ -9,12 +9,9 @@ from __future__ import unicode_literals
 
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
+from schematizer.helpers.formatting import _format_datetime
 from schematizer.models.refresh import Priority
 from schematizer.models.refresh import RefreshStatus
-
-
-def _format_datetime(datetime_value):
-    return datetime_value.isoformat()
 
 
 def get_namespace_response_from_namespace(namespace):
@@ -46,6 +43,7 @@ def get_topic_response_from_topic(topic):
         'name': topic.name,
         'source': get_source_response_from_source(topic.source),
         'contains_pii': topic.contains_pii,
+        'cluster_type': topic.cluster_type,
         'primary_keys': topic.primary_keys,
         'created_at': _format_datetime(topic.created_at),
         'updated_at': _format_datetime(topic.updated_at)
@@ -115,6 +113,7 @@ def get_refresh_response_from_refresh(refresh):
 def get_data_target_response_from_data_target(data_target):
     return {
         'data_target_id': data_target.id,
+        'name': data_target.name,
         'target_type': data_target.target_type,
         'destination': data_target.destination,
         'created_at': _format_datetime(data_target.created_at),
@@ -140,8 +139,12 @@ def get_response_from_consumer_group_data_source(consumer_group_data_source):
         'data_source_type': consumer_group_data_source.data_source_type,
         'data_source_id': consumer_group_data_source.data_source_id,
         'consumer_group_id': consumer_group_data_source.consumer_group_id,
-        'created_at': _format_datetime(consumer_group_data_source.created_at),
-        'updated_at': _format_datetime(consumer_group_data_source.updated_at)
+        'created_at': _format_datetime(
+            consumer_group_data_source.created_at
+        ),
+        'updated_at': _format_datetime(
+            consumer_group_data_source.updated_at
+        )
     }
 
 

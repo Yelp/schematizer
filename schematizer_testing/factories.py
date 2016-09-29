@@ -177,9 +177,10 @@ def create_source_category(source_id, category):
     )
 
 
-def create_data_target(target_type, destination):
+def create_data_target(name, target_type, destination):
     return models.DataTarget.create(
         session,
+        name=name,
         target_type=target_type,
         destination=destination
     )

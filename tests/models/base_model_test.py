@@ -84,6 +84,7 @@ class TestGetModelById(DBTestCase):
     @pytest.fixture
     def dw_data_target(self):
         return factories.create_data_target(
+            name='yelp_redshift',
             target_type='redshift',
             destination='dwv1.redshift.yelpcorp.com'
         )
@@ -158,6 +159,7 @@ class TestCreateModel(DBTestCase):
     def test_create_data_target(self):
         actual = models.DataTarget.create(
             session,
+            name='yelp_redshift',
             target_type='foo',
             destination='bar'
         )

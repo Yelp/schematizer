@@ -38,6 +38,13 @@ class Config(object):
             default=[]
         )
 
+    @cached_property
+    def default_kafka_cluster_type(self):
+        return staticconf.get(
+            'default_kafka_cluster_type',
+            default='datapipe'
+        )
+
 
 def get_config():
     """Returns the global schematizer configuration object"""
@@ -178,6 +185,11 @@ def routes(config):
     config.add_route(
         'api.v1.get_data_target_by_id',
         '/v1/data_targets/{data_target_id}',
+        request_method="GET"
+    )
+    config.add_route(
+        'api.v1.get_data_target_by_name',
+        '/v1/data_targets/name/{data_target_name}',
         request_method="GET"
     )
     config.add_route(

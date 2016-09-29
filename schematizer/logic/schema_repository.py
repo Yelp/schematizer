@@ -11,6 +11,7 @@ from sqlalchemy.orm import exc as orm_exc
 
 from schematizer import models
 from schematizer.components.converters.converter_base import BaseConverter
+from schematizer.config import get_config
 from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
@@ -88,6 +89,7 @@ def register_avro_schema_from_avro_json(
         source_name,
         source_email_owner,
         contains_pii,
+        cluster_type=get_config().default_kafka_cluster_type,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
         base_schema_id=None,
         docs_required=True
@@ -99,11 +101,14 @@ def register_avro_schema_from_avro_json(
     :param namespace: namespace string
     :param source: source name string
     :param domain_owner_email: email of the schema owner
+    :param cluster_type: Type of kafka cluster Ex: datapipe, scribe, etc.
+        Defaults to datapipe. See http://y/datapipe_cluster_types for more info
+        on cluster_types.
     :param status: AvroStatusEnum: RW/R/Disabled
     :param base_schema_id: Id of the Avro schema from which the new schema is
-    derived from
+        derived from
     :param docs_required: whether to-be-registered schema must contain doc
-    strings
+        strings
     :return: New created AvroSchema object.
     """
 
@@ -137,6 +142,7 @@ def register_avro_schema_from_avro_json(
         source_id=source.id,
         base_schema_id=base_schema_id,
         contains_pii=contains_pii,
+        cluster_type=cluster_type,
         limit=None if base_schema_id else 1
     )
 
@@ -151,7 +157,7 @@ def register_avro_schema_from_avro_json(
             return latest_schema
 
     most_recent_topic = topic_candidates[0] if topic_candidates else None
-    if not _is_topic_compatible(
+    if not _is_candidate_topic_compatible(
         topic=most_recent_topic,
         avro_schema_json=avro_schema_json,
         contains_pii=contains_pii
@@ -159,7 +165,8 @@ def register_avro_schema_from_avro_json(
         most_recent_topic = _create_topic_for_source(
             namespace_name=namespace_name,
             source=source,
-            contains_pii=contains_pii
+            contains_pii=contains_pii,
+            cluster_type=cluster_type
         )
     return _create_avro_schema(
         avro_schema_json=avro_schema_json,
@@ -181,28 +188,41 @@ def _is_same_schema(schema, avro_schema_json, base_schema_id):
             schema.base_schema_id == base_schema_id)
 
 
-def _is_topic_compatible(topic, avro_schema_json, contains_pii):
+def _is_candidate_topic_compatible(topic, avro_schema_json, contains_pii):
     return (topic and
             topic.contains_pii == contains_pii and
             is_schema_compatible_in_topic(avro_schema_json, topic.name) and
             _is_pkey_identical(avro_schema_json, topic.name))
 
 
-def _create_topic_for_source(namespace_name, source, contains_pii):
+def _create_topic_for_source(
+    namespace_name,
+    source,
+    contains_pii,
+    cluster_type
+):
     # Note that creating duplicate topic names will throw a sqlalchemy
     # IntegrityError exception. When it occurs, it indicates the uuid
     # is generating the same value (rarely) and we'd like to know it.
     # Per SEC-5079, sqlalchemy IntegrityError now is replaced with yelp-conn
     # IntegrityError.
-    topic_name = _construct_topic_name(namespace_name, source.name)
-    return _create_topic(topic_name, source.id, contains_pii)
+    if cluster_type == 'scribe':
+        topic_name = _construct_scribe_topic_name(namespace_name, source.name)
+    else:
+        topic_name = _construct_topic_name(namespace_name, source.name)
+    return _create_topic(topic_name, source.id, contains_pii, cluster_type)
+
+
+def _construct_scribe_topic_name(namespace, source):
+    """Scribe topics must only consist of [a-z0-9_] only"""
+    return '_'.join((namespace, source, uuid.uuid4().hex))
 
 
 def _construct_topic_name(namespace, source):
     return '.'.join((namespace, source, uuid.uuid4().hex))
 
 
-def _create_topic(topic_name, source_id, contains_pii):
+def _create_topic(topic_name, source_id, contains_pii, cluster_type):
     """Create a topic named `topic_name` in the given source.
     It returns a newly created topic. If a topic with the same
     name already exists, an exception is thrown
@@ -210,7 +230,8 @@ def _create_topic(topic_name, source_id, contains_pii):
     topic = models.Topic(
         name=topic_name,
         source_id=source_id,
-        contains_pii=contains_pii
+        contains_pii=contains_pii,
+        cluster_type=cluster_type
     )
     session.add(topic)
     session.flush()
@@ -363,6 +384,7 @@ def _get_topic_candidates(
         source_id,
         base_schema_id,
         contains_pii,
+        cluster_type,
         limit=None,
         enabled_schemas_only=True
 ):
@@ -375,6 +397,7 @@ def _get_topic_candidates(
         not derived from other schemas.
     :param bool contains_pii: Limit to topics which either do or do not
         contain PII. Defaults to None, which will not apply any filter.
+    :param string cluster_type : Limit to topics of same cluster type.
     :param int|None limit: Provide a limit to the number of topics returned.
     :param bool enabled_schemas_only: Set to True to limit results to schemas
         which have not been disabled
@@ -387,6 +410,7 @@ def _get_topic_candidates(
     ).filter(
         models.Topic.source_id == source_id,
         models.Topic._contains_pii == int(contains_pii),
+        models.Topic._cluster_type == cluster_type,
         models.AvroSchema.base_schema_id == base_schema_id
     )
     if enabled_schemas_only:
