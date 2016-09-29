@@ -8,28 +8,49 @@ from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.responses import responses_v1
 from schematizer.logic import meta_attribute_mappers as meta_attr_logic
+from schematizer.models import AvroSchema
 from schematizer.models import Namespace
+from schematizer.models import Source
 from schematizer.models.exceptions import EntityNotFoundError
 
 
 def _register_meta_attribute_mapping_for_entity(
+    entity_model,
     entity_id,
-    meta_attr_schema_id,
-    register_func
+    meta_attr_schema_id
 ):
     try:
-        return register_func(meta_attr_schema_id, entity_id)
+        mapping = meta_attr_logic.register_meta_attribute_for_entity(
+            entity_model,
+            entity_id,
+            meta_attr_schema_id
+        )
+
+        return responses_v1.get_meta_attr_mapping_response(
+            entity_type=entity_model.__name__.lower() + '_id',
+            entity_id=mapping.entity_id,
+            meta_attr_id=mapping.meta_attr_schema_id
+        )
     except EntityNotFoundError as e:
         raise exceptions_v1.entity_not_found_exception(e.message)
 
 
 def _delete_meta_attribute_mapping_for_entity(
+    entity_model,
     entity_id,
-    meta_attr_schema_id,
-    delete_func
+    meta_attr_schema_id
 ):
     try:
-        return delete_func(meta_attr_schema_id, entity_id)
+        mapping = meta_attr_logic.delete_meta_attribute_mapping_for_entity(
+            entity_model,
+            entity_id,
+            meta_attr_schema_id
+        )
+        return responses_v1.get_meta_attr_mapping_response(
+            entity_type=entity_model.__name__.lower() + '_id',
+            entity_id=mapping.entity_id,
+            meta_attr_id=mapping.meta_attr_schema_id
+        )
     except EntityNotFoundError as e:
         raise exceptions_v1.entity_not_found_exception(e.message)
 
@@ -47,15 +68,10 @@ def register_namepsace_meta_attribute_mapping(request):
         namespace_id = Namespace.get_by_name(namespace_name).id
     except EntityNotFoundError as e:
         raise exceptions_v1.entity_not_found_exception(e.message)
-    mapping = _register_meta_attribute_mapping_for_entity(
+    return _register_meta_attribute_mapping_for_entity(
+        Namespace,
         namespace_id,
-        meta_attr_schema_id,
-        meta_attr_logic.register_namespace_meta_attribute_mapping
-    )
-    return responses_v1.get_meta_attr_mapping_response(
-        'namespace_id',
-        mapping.entity_id,
-        mapping.meta_attr_schema_id
+        meta_attr_schema_id
     )
 
 
@@ -72,15 +88,10 @@ def delete_namespace_meta_attribute_mapping(request):
         namespace_id = Namespace.get_by_name(namespace_name).id
     except EntityNotFoundError as e:
         raise exceptions_v1.entity_not_found_exception(e.message)
-    deleted_mapping = _delete_meta_attribute_mapping_for_entity(
+    return _delete_meta_attribute_mapping_for_entity(
+        Namespace,
         namespace_id,
-        meta_attr_schema_id,
-        meta_attr_logic.delete_namespace_meta_attribute_mapping
-    )
-    return responses_v1.get_meta_attr_mapping_response(
-        'namespace_id',
-        deleted_mapping.entity_id,
-        deleted_mapping.meta_attr_schema_id
+        meta_attr_schema_id
     )
 
 
@@ -93,15 +104,10 @@ def delete_namespace_meta_attribute_mapping(request):
 def register_source_meta_attribute_mapping(request):
     source_id = request.matchdict.get('source_id')
     meta_attr_schema_id = request.json_body['meta_attribute_schema_id']
-    mapping = _register_meta_attribute_mapping_for_entity(
+    return _register_meta_attribute_mapping_for_entity(
+        Source,
         source_id,
-        meta_attr_schema_id,
-        meta_attr_logic.register_source_meta_attribute_mapping
-    )
-    return responses_v1.get_meta_attr_mapping_response(
-        'source_id',
-        mapping.entity_id,
-        mapping.meta_attr_schema_id
+        meta_attr_schema_id
     )
 
 
@@ -114,15 +120,10 @@ def register_source_meta_attribute_mapping(request):
 def delete_source_meta_attribute_mapping(request):
     source_id = request.matchdict.get('source_id')
     meta_attr_schema_id = request.json_body['meta_attribute_schema_id']
-    deleted_mapping = _delete_meta_attribute_mapping_for_entity(
+    return _delete_meta_attribute_mapping_for_entity(
+        Source,
         source_id,
-        meta_attr_schema_id,
-        meta_attr_logic.delete_source_meta_attribute_mapping
-    )
-    return responses_v1.get_meta_attr_mapping_response(
-        'source_id',
-        deleted_mapping.entity_id,
-        deleted_mapping.meta_attr_schema_id
+        meta_attr_schema_id
     )
 
 
@@ -135,15 +136,10 @@ def delete_source_meta_attribute_mapping(request):
 def register_schema_meta_attribute_mapping(request):
     schema_id = request.matchdict.get('schema_id')
     meta_attr_schema_id = request.json_body['meta_attribute_schema_id']
-    mapping = _register_meta_attribute_mapping_for_entity(
+    return _register_meta_attribute_mapping_for_entity(
+        AvroSchema,
         schema_id,
-        meta_attr_schema_id,
-        meta_attr_logic.register_schema_meta_attribute_mapping
-    )
-    return responses_v1.get_meta_attr_mapping_response(
-        'avroschema_id',
-        mapping.entity_id,
-        mapping.meta_attr_schema_id
+        meta_attr_schema_id
     )
 
 
@@ -156,15 +152,10 @@ def register_schema_meta_attribute_mapping(request):
 def delete_schema_meta_attribute_mapping(request):
     schema_id = request.matchdict.get('schema_id')
     meta_attr_schema_id = request.json_body['meta_attribute_schema_id']
-    deleted_mapping = _delete_meta_attribute_mapping_for_entity(
+    return _delete_meta_attribute_mapping_for_entity(
+        AvroSchema,
         schema_id,
-        meta_attr_schema_id,
-        meta_attr_logic.delete_schema_meta_attribute_mapping
-    )
-    return responses_v1.get_meta_attr_mapping_response(
-        'avroschema_id',
-        deleted_mapping.entity_id,
-        deleted_mapping.meta_attr_schema_id
+        meta_attr_schema_id
     )
 
 

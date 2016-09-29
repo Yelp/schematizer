@@ -27,7 +27,7 @@ except ImportError:
     from sqlalchemy.exc import IntegrityError
 
 
-def _register_meta_attribute_for_entity(
+def register_meta_attribute_for_entity(
     entity_model,
     entity_id,
     meta_attr_schema_id
@@ -52,7 +52,7 @@ def _register_meta_attribute_for_entity(
     return new_mapping
 
 
-def _delete_meta_attribute_mapping_for_entity(
+def delete_meta_attribute_mapping_for_entity(
     entity_model,
     entity_id,
     meta_attr_schema_id
@@ -74,72 +74,6 @@ def _delete_meta_attribute_mapping_for_entity(
     ).delete()
 
     return mapping_to_delete
-
-
-def register_namespace_meta_attribute_mapping(
-    meta_attr_schema_id,
-    namespace_id
-):
-    return _register_meta_attribute_for_entity(
-        entity_model=Namespace,
-        entity_id=namespace_id,
-        meta_attr_schema_id=meta_attr_schema_id
-    )
-
-
-def register_source_meta_attribute_mapping(
-    meta_attr_schema_id,
-    source_id
-):
-    return _register_meta_attribute_for_entity(
-        entity_model=Source,
-        entity_id=source_id,
-        meta_attr_schema_id=meta_attr_schema_id
-    )
-
-
-def register_schema_meta_attribute_mapping(
-    meta_attr_schema_id,
-    schema_id
-):
-    return _register_meta_attribute_for_entity(
-        entity_model=AvroSchema,
-        entity_id=schema_id,
-        meta_attr_schema_id=meta_attr_schema_id
-    )
-
-
-def delete_namespace_meta_attribute_mapping(
-    meta_attr_schema_id,
-    namespace_id
-):
-    return _delete_meta_attribute_mapping_for_entity(
-        entity_model=Namespace,
-        entity_id=namespace_id,
-        meta_attr_schema_id=meta_attr_schema_id
-    )
-
-
-def delete_source_meta_attribute_mapping(
-    meta_attr_schema_id,
-    source_id
-):
-    return _delete_meta_attribute_mapping_for_entity(
-        entity_model=Source,
-        entity_id=source_id,
-        meta_attr_schema_id=meta_attr_schema_id
-    )
-
-
-def delete_schema_meta_attribute_mapping(
-    meta_attr_schema_id,
-    schema_id
-):
-    return _delete_meta_attribute_mapping_for_entity(
-        entity_model=AvroSchema,
-        entity_id=schema_id,
-        meta_attr_schema_id=meta_attr_schema_id
-    )
 
 
 def _filter_param_for_namespace(namespace_id):
@@ -172,8 +106,12 @@ def _get_meta_attributes_by_filters(filters):
 
 
 def get_meta_attributes_by_namespace(namespace_id):
-    """Logic method to list meta attributes registered to a given namespace_id.
-    Invalid namespace ids will raise an EntityNotFoundError exception"""
+    """Get list of meta attributes registered to a given namespace_id.
+
+    :param namespace_id: the Namespace Id
+    :return: List of meta attribute AvroSchema Ids
+    :raises EntityNotFoundError: Invalid Namespace id.
+    """
     Namespace.get_by_id(namespace_id)
     return _get_meta_attributes_by_filters(
         _filter_param_for_namespace(namespace_id)
@@ -181,9 +119,13 @@ def get_meta_attributes_by_namespace(namespace_id):
 
 
 def get_meta_attributes_by_source(source_id):
-    """Logic method to list meta attributes registered to a given source_id and
-    the namespace it belongs to. Invalid source ids will raise an
-    EntityNotFoundError exception"""
+    """Get list of meta attributes registered to a given source_id and
+    the namespace it belongs to.
+
+    :param source_id: the Source Id
+    :return: List of meta attribute AvroSchema Ids
+    :raises EntityNotFoundError: Invalid Source id.
+    """
     source = Source.get_by_id(source_id)
     return _get_meta_attributes_by_filters(
         or_(
@@ -194,9 +136,13 @@ def get_meta_attributes_by_source(source_id):
 
 
 def get_meta_attributes_by_schema(avro_schema_id):
-    """Logic method to list meta attributes registered to a given schema_id and
-    the namespace and source it belongs to. Invalid schema ids will raise an
-    EntityNotFoundError exception"""
+    """Get list of meta attributes registered to a given schema_id and
+    the namespace and source it belongs to.
+
+    :param avro_schema_id: the AvroSchema Id
+    :return: List of meta attribute AvroSchema Ids
+    :raises EntityNotFoundError: Invalid AvroSchema id.
+    """
     avro_schema = AvroSchema.get_by_id(avro_schema_id)
     source_id = avro_schema.topic.source_id
     namespace_id = avro_schema.topic.source.namespace_id

@@ -770,23 +770,13 @@ def _add_meta_attribute_mappings(schema_id):
     for meta_attr_schema_id in meta_attr_logic.get_meta_attributes_by_schema(
         schema_id
     ):
-        try:
-            with session.begin_nested():
-                new_mapping = models.SchemaMetaAttributeMapping(
-                    schema_id=schema_id,
-                    meta_attr_schema_id=meta_attr_schema_id
-                )
-                session.add(new_mapping)
-        except exc.IntegrityError:
-            # Ignore this error due to trying to create a duplicate mapping
-            new_mapping = session.query(
-                models.SchemaMetaAttributeMapping
-            ).filter(
-                models.SchemaMetaAttributeMapping.schema_id == schema_id,
-                models.SchemaMetaAttributeMapping.meta_attr_schema_id ==
-                meta_attr_schema_id
-            ).one()
+        new_mapping = models.SchemaMetaAttributeMapping(
+            schema_id=schema_id,
+            meta_attr_schema_id=meta_attr_schema_id
+        )
+        session.add(new_mapping)
         mappings.append(new_mapping)
+    session.flush()
     return mappings
 
 

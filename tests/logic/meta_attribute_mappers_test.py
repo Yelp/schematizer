@@ -32,16 +32,25 @@ class RegisterAndDeleteMetaAttributeBase(DBTestCase):
         )
 
     def test_invalid_entity_id_fails(self, meta_attr_schema):
-        fake_id = 0
+        fake_entity_id = 0
         with pytest.raises(EntityNotFoundError):
-            self.register_logic_method(meta_attr_schema.id, fake_id)
+            meta_attr_logic.register_meta_attribute_for_entity(
+                self.entity_model,
+                fake_entity_id,
+                meta_attr_schema.id
+            )
         with pytest.raises(EntityNotFoundError):
-            self.delete_logic_method(meta_attr_schema.id, fake_id)
+            meta_attr_logic.delete_meta_attribute_mapping_for_entity(
+                self.entity_model,
+                fake_entity_id,
+                meta_attr_schema.id
+            )
 
     def test_register_first_time(self, meta_attr_schema):
-        actual = self.register_logic_method(
-            meta_attr_schema.id,
-            self.entity.id
+        actual = meta_attr_logic.register_meta_attribute_for_entity(
+            self.entity_model,
+            self.entity.id,
+            meta_attr_schema.id
         )
         expected = meta_attr_model(
             entity_type=self.entity_model.__name__,
@@ -52,13 +61,15 @@ class RegisterAndDeleteMetaAttributeBase(DBTestCase):
 
     def test_idempotent_registration(self, meta_attr_schema):
         self._setup_meta_attribute_mapping(meta_attr_schema, self.entity.id)
-        first_result = self.register_logic_method(
-            meta_attr_schema.id,
-            self.entity.id
+        first_result = meta_attr_logic.register_meta_attribute_for_entity(
+            self.entity_model,
+            self.entity.id,
+            meta_attr_schema.id
         )
-        second_result = self.register_logic_method(
-            meta_attr_schema.id,
-            self.entity.id
+        second_result = meta_attr_logic.register_meta_attribute_for_entity(
+            self.entity_model,
+            self.entity.id,
+            meta_attr_schema.id
         )
         expected = meta_attr_model(
             entity_type=self.entity_model.__name__,
@@ -70,9 +81,10 @@ class RegisterAndDeleteMetaAttributeBase(DBTestCase):
 
     def test_delete_mapping(self, meta_attr_schema):
         self._setup_meta_attribute_mapping(meta_attr_schema, self.entity.id)
-        actual = self.delete_logic_method(
-            meta_attr_schema.id,
-            self.entity.id
+        actual = meta_attr_logic.delete_meta_attribute_mapping_for_entity(
+            self.entity_model,
+            self.entity.id,
+            meta_attr_schema.id
         )
         expected = meta_attr_model(
             entity_type=self.entity_model.__name__,
@@ -91,9 +103,10 @@ class RegisterAndDeleteMetaAttributeBase(DBTestCase):
 
     def test_delete_non_existent_mapping(self, meta_attr_schema):
         with pytest.raises(EntityNotFoundError):
-            self.delete_logic_method(
-                meta_attr_schema.id,
-                self.entity.id
+            meta_attr_logic.delete_meta_attribute_mapping_for_entity(
+                self.entity_model,
+                self.entity.id,
+                meta_attr_schema.id
             )
 
 
@@ -105,10 +118,6 @@ class TestRegisterAndDeleteMetaAttributeForNamespace(
     @pytest.fixture
     def setup_test(self, yelp_namespace):
         self.entity_model = Namespace
-        self.register_logic_method = (
-            meta_attr_logic.register_namespace_meta_attribute_mapping)
-        self.delete_logic_method = (
-            meta_attr_logic.delete_namespace_meta_attribute_mapping)
         self.entity = yelp_namespace
 
 
@@ -120,10 +129,6 @@ class TestRegisterAndDeleteMetaAttributeForSource(
     @pytest.fixture
     def setup_test(self, biz_source):
         self.entity_model = Source
-        self.register_logic_method = (
-            meta_attr_logic.register_source_meta_attribute_mapping)
-        self.delete_logic_method = (
-            meta_attr_logic.delete_source_meta_attribute_mapping)
         self.entity = biz_source
 
 
@@ -135,10 +140,6 @@ class TestRegisterAndDeleteMetaAttributeForSchema(
     @pytest.fixture
     def setup_test(self, biz_schema):
         self.entity_model = AvroSchema
-        self.register_logic_method = (
-            meta_attr_logic.register_schema_meta_attribute_mapping)
-        self.delete_logic_method = (
-            meta_attr_logic.delete_schema_meta_attribute_mapping)
         self.entity = biz_schema
 
 

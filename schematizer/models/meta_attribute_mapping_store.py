@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
-from sqlalchemy.orm import exc as orm_exc
 from sqlalchemy.types import Enum
 
 from schematizer.models.base_model import BaseModel
@@ -68,15 +67,14 @@ class MetaAttributeMappingStore(Base, BaseModel):
 
     @classmethod
     def get_by_mapping(cls, entity_type, entity_id, meta_attr_schema_id):
-        try:
-            return session.query(
-                MetaAttributeMappingStore
-            ).filter(
-                cls.entity_type == entity_type,
-                cls.entity_id == entity_id,
-                cls.meta_attr_schema_id == meta_attr_schema_id
-            ).one()
-        except orm_exc.NoResultFound:
+        result = session.query(
+            MetaAttributeMappingStore
+        ).filter(
+            cls.entity_type == entity_type,
+            cls.entity_id == entity_id,
+            cls.meta_attr_schema_id == meta_attr_schema_id
+        ).one_or_none()
+        if result is None:
             err_mapping = {
                 entity_type: entity_id,
                 'meta_attribute_schema_id': meta_attr_schema_id
@@ -84,3 +82,4 @@ class MetaAttributeMappingStore(Base, BaseModel):
             raise EntityNotFoundError(
                 entity_desc='{} mapping `{}`'.format(cls.__name__, err_mapping)
             )
+        return result
