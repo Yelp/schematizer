@@ -14,15 +14,15 @@ setup(
     packages=find_packages(exclude=['tests*']),
     install_requires=[
         'uwsgi',
-        'pyramid',
-        'yelp_servlib',
-        'yelp-profiling'
+        'pyramid'
     ],
     extras_require={
         'internal': [
             'pyramid-yelp-conn',
             'pyramid-uwsgi-metrics',
             'yelp-conn',
+            'yelp_servlib',
+            'yelp-profiling',
             'yelp_pyramid'
         ]
     }

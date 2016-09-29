@@ -1,4 +1,6 @@
 pyramid-uwsgi-metrics==0.3.1
 pyramid-yelp-conn==0.4.0
 yelp-conn==10.2.2
+yelp-servlib==4.9.0
+yelp-profiling==4.0.1
 yelp-pyramid==0.24.1
