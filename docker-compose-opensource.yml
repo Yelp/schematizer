@@ -4,7 +4,6 @@ schematizerdatabase:
 schematizerconfigs:
     build: acceptance/configs/
 
-# TODO(DATAPIPE-1507|abrar): may be move this into a different file.
 schematizerservice:
     build: .
     dockerfile: Dockerfile-opensource
