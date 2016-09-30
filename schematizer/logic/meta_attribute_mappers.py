@@ -9,11 +9,11 @@ from sqlalchemy import or_
 from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.logic.validators import verify_entity_exists
 from schematizer.models import AvroSchema
-from schematizer.models.meta_attribute_mapping_store import (
-    MetaAttributeMappingStore)
 from schematizer.models import Namespace
 from schematizer.models import Source
 from schematizer.models.database import session
+from schematizer.models.meta_attribute_mapping_store import (
+    MetaAttributeMappingStore)
 
 try:
     # TODO(DATAPIPE-1506|abrar): Currently we have
@@ -103,7 +103,7 @@ def _get_meta_attributes_by_filters(filters):
     if filters is not None:
         qry = qry.filter(filters)
     results = qry.order_by(MetaAttributeMappingStore.meta_attr_schema_id).all()
-    return [m.meta_attr_schema_id for m in results]
+    return list({m.meta_attr_schema_id for m in results})
 
 
 def get_meta_attributes_by_namespace(namespace_id):
