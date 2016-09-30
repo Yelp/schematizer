@@ -10,7 +10,7 @@ import clog
 import clog.handlers
 import staticconf
 
-from schematizer.helpers.logging_util import DETAILED_FORMAT
+from schematizer.servlib.logging_util import DETAILED_FORMAT
 
 _current_pid = None
 

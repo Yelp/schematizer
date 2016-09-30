@@ -165,7 +165,7 @@ import os.path
 
 import staticconf
 
-from schematizer.helpers.logging_util import DETAILED_FORMAT
+from schematizer.servlib.logging_util import DETAILED_FORMAT
 
 log = logging.getLogger(__name__)
 DEFAULT_LOG_FORMAT = DETAILED_FORMAT
