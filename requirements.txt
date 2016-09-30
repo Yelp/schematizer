@@ -3,7 +3,7 @@
 #sqlparse==0.1.13
 -e git://github.com/Yelp/sqlparse.git@a29c8c1fb827863c6b57d8811ed3b69e982a3877#egg=sqlparse
 
-# TODO(DATAPIPE-1507|abrar): this has to be removed after
+# TODO(DATAPIPE-1494, DATAPIPE-1802|abrar): this has to be removed after
 # yelp_avro and avro are promoted to public pypi server.
 avro==1.9.0-yelp3
 yelp-avro==0.1.9

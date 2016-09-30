@@ -1,4 +1,4 @@
---extra-index-url https://pypi.python.org/simple
+--extra-index-url https://pypi.yelpcorp.com/simple/
 geogrid==1.0.8
 hashing-lib==0.1.2
 kafka-python==0.9.4.post2
