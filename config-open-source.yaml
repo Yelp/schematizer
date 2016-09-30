@@ -27,15 +27,11 @@
 
 module_config:
     -   namespace: clog
-        initialize: yelp_servlib.clog_util.initialize
+        initialize: schematizer.helpers.clog_util.initialize
         config:
             log_stream_name: schematizer
         file:
+            # TODO(DATAPIPE-1507|abrar) : create a local clog.yaml file
+            # by default lets set scribe to disabled in this config,
+            # this file should be configured by external users.
             /nail/srv/configs/clog.yaml
-
-    -   namespace: yelp_profiling
-        config:
-            cprofile_scribe_log: service_schematizer_cprofiles
-            cprofile_sampling_enabled: true
-            cprofile_sampling_probability: 0.05
-            email_smtp_server: 169.254.255.254

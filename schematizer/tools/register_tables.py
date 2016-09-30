@@ -157,8 +157,22 @@ def _setup_schematizer_container():
     try:
         _run_docker_compose_command(
             '--project-name={}'.format(project),
+            'pull'
+        )
+        _run_docker_compose_command(
+            '--project-name={}'.format(project),
+            'rm',
+            '--force'
+        )
+        _run_docker_compose_command(
+            '--project-name={}'.format(project),
+            'build'
+        )
+        _run_docker_compose_command(
+            '--project-name={}'.format(project),
             'up',
             '-d',
+            '--no-build',
             service
         )
         container_id = _ensure_containers_up(project, service)

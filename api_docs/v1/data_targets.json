@@ -87,6 +87,41 @@
             "operations": [
                 {
                     "authorizations": {},
+                    "method": "GET",
+                    "nickname": "get_data_target_by_name",
+                    "parameters": [
+                        {
+                            "allowMultiple": false,
+                            "name": "data_target_name",
+                            "paramType": "path",
+                            "required": true,
+                            "type": "string"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid data target name supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Data target name not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ],
+                    "summary": "Get the data target of specified name",
+                    "type": "DataTarget"
+                }
+            ],
+            "path": "/v1/data_targets/name/{data_target_name}"
+        },
+        {
+            "operations": [
+                {
+                    "authorizations": {},
                     "items": {
                         "$ref": "ConsumerGroup"
                     },
@@ -255,12 +290,17 @@
                     "description": "Url that connects to the data target, such as the connection url to a Redshift cluster.",
                     "type": "string"
                 },
+                "name": {
+                    "description": "A user defined name to uniquely identify the data target, such as my_data_target.",
+                    "type": "string"
+                },
                 "target_type": {
                     "description": "Short description of the data target type, such as Redshift.",
                     "type": "string"
                 }
             },
             "required": [
+                "name",
                 "target_type",
                 "destination"
             ]
@@ -279,6 +319,10 @@
                 },
                 "destination": {
                     "description": "Url that connects to the data target, such as Redshift cluster connection url.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Data target name",
                     "type": "string"
                 },
                 "target_type": {
@@ -353,6 +397,10 @@
         "Topic": {
             "id": "Topic",
             "properties": {
+                "cluster_type": {
+                    "description": "Type of kafka cluster this topic belongs to. See http://y/datapipe_cluster_types for more info on cluster_types.",
+                    "type": "string"
+                },
                 "contains_pii": {
                     "description": "Whether the messages in this topic contain PII.",
                     "type": "boolean"

@@ -11,6 +11,7 @@ import pytest
 
 from schematizer import models
 from schematizer.components import converters
+from schematizer.config import get_config
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
 from schematizer.models.database import session
@@ -45,10 +46,6 @@ class TestSchemaRepository(DBTestCase):
     @property
     def source_owner_email(self):
         return factories.fake_owner_email
-
-    @property
-    def schema_contains_pii(self):
-        return True
 
     @pytest.fixture
     def namespace(self):
@@ -481,6 +478,42 @@ class TestSchemaRepository(DBTestCase):
         )
         self.assert_equal_source_partial(expected_source, actual_source)
 
+    @pytest.mark.parametrize("cluster_type", [None, 'datapipe', 'scribe'])
+    def test_registering_from_avro_json_with_cluster_types(self, cluster_type):
+        expected_base_schema_id = 100
+        if cluster_type:
+            cluster_override = {
+                'cluster_type': cluster_type
+            }
+            expected_cluster_type = cluster_type
+        else:
+            cluster_override = {}
+            expected_cluster_type = get_config().default_kafka_cluster_type
+
+        actual_schema = schema_repo.register_avro_schema_from_avro_json(
+            self.rw_schema_json,
+            self.namespace_name,
+            self.source_name,
+            self.source_owner_email,
+            contains_pii=False,
+            base_schema_id=expected_base_schema_id,
+            **cluster_override
+        )
+        actual_topic = session.query(models.Topic).filter(
+            models.Topic.id == actual_schema.topic.id
+        ).one()
+        expected_topic = models.Topic(
+            name=actual_schema.topic.name,
+            source_id=actual_schema.topic.source_id,
+            contains_pii=actual_schema.topic.contains_pii,
+            cluster_type=expected_cluster_type
+        )
+        self.assert_equal_topic_partial(expected_topic, actual_topic)
+        self.assert_topic_name_by_cluster_type(
+            actual_schema.topic.name,
+            cluster_type
+        )
+
     def test_registering_from_avro_json_with_pkey_added(self):
         actual_schema1 = schema_repo.register_avro_schema_from_avro_json(
             self.pkey_schema_json,
@@ -598,14 +631,16 @@ class TestSchemaRepository(DBTestCase):
     def assert_new_topic_created_after_schema_register(
         self,
         topic,
-        contains_pii
+        contains_pii,
+        cluster_type
     ):
         actual_schema = schema_repo.register_avro_schema_from_avro_json(
             self.another_rw_schema_json,
             topic.source.namespace.name,
             topic.source.name,
             topic.source.owner_email,
-            contains_pii
+            contains_pii,
+            cluster_type
         )
 
         expected_schema = models.AvroSchema(
@@ -689,7 +724,7 @@ class TestSchemaRepository(DBTestCase):
                 topic.source.namespace.name,
                 topic.source.name,
                 topic.source.owner_email,
-                contains_pii=False
+                contains_pii=False,
             )
 
     def test_register_avro_schema_without_docs_dont_require_doc(
@@ -709,26 +744,42 @@ class TestSchemaRepository(DBTestCase):
 
     @pytest.mark.usefixtures('rw_schema')
     def test_create_schema_from_avro_json_with_incompatible_schema(
-            self,
-            topic,
-            mock_compatible_func
+        self,
+        topic,
+        mock_compatible_func
     ):
         mock_compatible_func.return_value = False
         self.assert_new_topic_created_after_schema_register(
-            topic,
-            contains_pii=False
+            topic=topic,
+            contains_pii=topic.contains_pii,
+            cluster_type=topic.cluster_type
         )
 
     @pytest.mark.usefixtures('rw_schema')
     def test_create_schema_from_avro_json_with_different_pii(
-            self,
-            topic,
-            mock_compatible_func
+        self,
+        topic,
+        mock_compatible_func
     ):
         mock_compatible_func.return_value = True
         self.assert_new_topic_created_after_schema_register(
-            topic,
-            not topic.contains_pii
+            topic=topic,
+            contains_pii=not topic.contains_pii,
+            cluster_type=topic.cluster_type
+        )
+
+    @pytest.mark.usefixtures('rw_schema')
+    def test_create_schema_from_avro_json_with_different_cluster_type(
+        self,
+        topic,
+        mock_compatible_func
+    ):
+        mock_compatible_func.return_value = True
+        assert topic.cluster_type != 'scribe'
+        self.assert_new_topic_created_after_schema_register(
+            topic=topic,
+            contains_pii=topic.contains_pii,
+            cluster_type='scribe'
         )
 
     def _register_avro_schema(self, avro_schema):
@@ -738,30 +789,31 @@ class TestSchemaRepository(DBTestCase):
             avro_schema.topic.source.name,
             avro_schema.topic.source.owner_email,
             contains_pii=avro_schema.topic.contains_pii,
+            cluster_type=avro_schema.topic.cluster_type,
             base_schema_id=avro_schema.base_schema_id
         )
 
     def test_registering_from_avro_json_with_same_schema(
-            self,
-            rw_schema,
-            mock_compatible_func
+        self,
+        rw_schema,
+        mock_compatible_func
     ):
         mock_compatible_func.return_value = True
         actual = self._register_avro_schema(rw_schema)
         assert rw_schema.id == actual.id
 
     def test_registering_same_transformed_schema_is_same(
-            self,
-            rw_transformed_schema
+        self,
+        rw_transformed_schema
     ):
         result_a1 = self._register_avro_schema(rw_transformed_schema)
         result_a2 = self._register_avro_schema(rw_transformed_schema)
         self.assert_equal_avro_schema_partial(result_a1, result_a2)
 
     def test_add_different_transformed_schemas_with_same_base_schema(
-            self,
-            rw_transformed_schema,
-            another_rw_transformed_schema
+        self,
+        rw_transformed_schema,
+        another_rw_transformed_schema
     ):
         # Registering a different transformed schema should result in a
         # different schema/topic
@@ -779,9 +831,9 @@ class TestSchemaRepository(DBTestCase):
         assert result_a1.base_schema_id == result_a2.base_schema_id
 
     def test_reregistering_compatible_transformed_schema_stays_in_topic(
-            self,
-            rw_transformed_schema,
-            rw_transformed_v2_schema
+        self,
+        rw_transformed_schema,
+        rw_transformed_v2_schema
     ):
         result_a1 = self._register_avro_schema(rw_transformed_schema)
         result_b = self._register_avro_schema(rw_transformed_v2_schema)
@@ -794,9 +846,9 @@ class TestSchemaRepository(DBTestCase):
         assert result_a1.base_schema_id == result_a2.base_schema_id
 
     def test_registering_same_schema_twice(
-            self,
-            topic,
-            rw_schema
+        self,
+        topic,
+        rw_schema
     ):
         result_a = self._register_avro_schema(rw_schema)
         result_b = self._register_avro_schema(rw_schema)
@@ -816,10 +868,10 @@ class TestSchemaRepository(DBTestCase):
         self.assert_equal_avro_schema_partial(expected, result_b)
 
     def test_registering_from_avro_json_with_diff_base_schema(
-            self,
-            topic,
-            rw_schema,
-            mock_compatible_func
+        self,
+        topic,
+        rw_schema,
+        mock_compatible_func
     ):
         mock_compatible_func.return_value = True
         expected_base_schema_id = 100
@@ -901,10 +953,10 @@ class TestSchemaRepository(DBTestCase):
     @pytest.mark.usefixtures('source', 'rw_schema', 'disabled_schema')
     @pytest.mark.parametrize("is_compatible", [True, False])
     def test_is_schema_compatible_in_topic(
-            self,
-            topic,
-            mock_compatible_func,
-            is_compatible
+        self,
+        topic,
+        mock_compatible_func,
+        is_compatible
     ):
         mock_compatible_func.return_value = is_compatible
         actual = schema_repo.is_schema_compatible_in_topic(
@@ -965,8 +1017,8 @@ class TestSchemaRepository(DBTestCase):
 
     @pytest.mark.usefixtures('disabled_schema')
     def test_get_latest_schema_by_topic_id_with_all_disabled_schema(
-            self,
-            topic
+        self,
+        topic
     ):
         actual = schema_repo.get_latest_schema_by_topic_id(topic.id)
         assert actual is None
@@ -1002,10 +1054,10 @@ class TestSchemaRepository(DBTestCase):
         self.assert_equal_avro_schema(rw_schema, actual[0])
 
     def test_get_schemas_by_topic_name_including_disabled(
-            self,
-            topic,
-            rw_schema,
-            disabled_schema
+        self,
+        topic,
+        rw_schema,
+        disabled_schema
     ):
         actual = schema_repo.get_schemas_by_topic_name(topic.name, True)
         self.assert_equal_entities(
@@ -1097,10 +1149,10 @@ class TestSchemaRepository(DBTestCase):
         assert actual == []
 
     def test_get_schemas_by_topic_id_including_disabled(
-            self,
-            topic,
-            rw_schema,
-            disabled_schema
+        self,
+        topic,
+        rw_schema,
+        disabled_schema
     ):
         actual = schema_repo.get_schemas_by_topic_id(topic.id, True)
         self.assert_equal_entities(
@@ -1314,6 +1366,7 @@ class TestSchemaRepository(DBTestCase):
 
     def assert_equal_topic_partial(self, expected, actual):
         assert expected.name == actual.name
+        assert expected.cluster_type == actual.cluster_type
 
     def assert_equal_topic(self, expected, actual):
         assert expected.id == actual.id
@@ -1321,6 +1374,12 @@ class TestSchemaRepository(DBTestCase):
         assert expected.created_at == actual.created_at
         assert expected.updated_at == actual.updated_at
         self.assert_equal_topic_partial(expected, actual)
+
+    def assert_topic_name_by_cluster_type(self, topic_name, cluster_type):
+        joining_char = '_' if cluster_type == 'scribe' else '.'
+        assert joining_char.join(
+            [self.namespace_name, self.source_name]
+        ) in topic_name
 
     def assert_equal_avro_schema_partial(self, expected, actual):
         assert expected.avro_schema == actual.avro_schema
@@ -1348,11 +1407,11 @@ class TestSchemaRepository(DBTestCase):
         )
 
     def assert_equal_entities(
-            self,
-            expected_entities,
-            actual_entities,
-            assert_func,
-            filter_key='id',
+        self,
+        expected_entities,
+        actual_entities,
+        assert_func,
+        filter_key='id',
     ):
         assert len(expected_entities) == len(actual_entities)
         for actual_elem in actual_entities:
@@ -1521,10 +1580,10 @@ class TestByCriteria(DBTestCase):
         assert actual == []
 
     def test_refresh_get_yelp_namespace_only(
-            self,
-            biz_refresh,
-            user_refresh,
-            yelp_namespace
+        self,
+        biz_refresh,
+        user_refresh,
+        yelp_namespace
     ):
         self.assert_equal_refreshes(
             actual_refreshes=schema_repo.get_refreshes_by_criteria(
@@ -1548,10 +1607,10 @@ class TestByCriteria(DBTestCase):
         )
 
     def test_get_by_refresh_status_only(
-            self,
-            biz_refresh,
-            user_refresh,
-            cta_refresh
+        self,
+        biz_refresh,
+        user_refresh,
+        cta_refresh
     ):
         self.assert_equal_refreshes(
             actual_refreshes=schema_repo.get_refreshes_by_criteria(

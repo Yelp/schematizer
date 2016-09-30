@@ -41,6 +41,7 @@ def get_topic_response_from_topic(topic):
         'name': topic.name,
         'source': get_source_response_from_source(topic.source),
         'contains_pii': topic.contains_pii,
+        'cluster_type': topic.cluster_type,
         'primary_keys': topic.primary_keys,
         'created_at': _format_datetime(topic.created_at),
         'updated_at': _format_datetime(topic.updated_at)
@@ -111,6 +112,7 @@ def get_refresh_response_from_refresh(refresh):
 def get_data_target_response_from_data_target(data_target):
     return {
         'data_target_id': data_target.id,
+        'name': data_target.name,
         'target_type': data_target.target_type,
         'destination': data_target.destination,
         'created_at': _format_datetime(data_target.created_at),
