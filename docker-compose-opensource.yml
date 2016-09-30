@@ -4,12 +4,16 @@ schematizerdatabase:
 schematizerconfigs:
     build: acceptance/configs/
 
+# TODO(DATAPIPE-1507|abrar): may be move this into a different file.
 schematizerservice:
     build: .
-    dockerfile: Dockerfile
+    dockerfile: Dockerfile-opensource
     links:
         - schematizerdatabase
     volumes_from:
         - schematizerconfigs
     ports:
         - "49257:8888"
+    environment:
+      - SERVICE_CONFIG_PATH=config-open-source.yaml
+      - FORCE_AVOID_INTERNAL_PACKAGES=True

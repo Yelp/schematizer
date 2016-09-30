@@ -2,9 +2,12 @@
 --extra-index-url https://pypi.python.org/pypi
 #sqlparse==0.1.13
 -e git://github.com/Yelp/sqlparse.git@a29c8c1fb827863c6b57d8811ed3b69e982a3877#egg=sqlparse
-# TODO(DATAPIPE-1507|abrar) : internal.txt has to be unlinked from requirements.txt
-# internal.txt should be built only for internal users
--r requirements.d/internal.txt
+
+# TODO(DATAPIPE-1507|abrar): this has to be removed after
+# yelp_avro and avro are promoted to public pypi server.
+avro==1.9.0-yelp3
+yelp-avro==0.1.9
+
 MarkupSafe==0.23
 docker-py==1.3.1
 MySQL-python==1.2.5
@@ -24,13 +27,10 @@ contextlib2==0.5.1
 dateglob==0.1
 enum34==1.0.4
 future==0.14.3
-geogrid==1.0.8
-hashing-lib==0.1.2
 html2text==2015.4.14
 ipaddress==1.0.6
 iso8601==0.1.10
 jsonschema==2.5.1
-kafka-python==0.9.4.post2
 kazoo==2.2
 lxml==3.4.1
 mysqlclient==1.3.6
@@ -40,12 +40,11 @@ pycrypto==2.6.1
 pyramid-exclog==0.7
 pyramid-mako==1.0.2
 pyramid-swagger==2.3.0_rc3
-pyramid-zipkin==0.12.3
+pyramid-zipkin==0.13.0
 pyramid==1.5.7
 pysubnettree==0.23
 python-dateutil==2.4.2
 pytz==2014.9
-replication-delay-client==1.1.1
 repoze.lru==0.6
 retrying==1.3.3
 setproctitle==1.1.8
@@ -59,21 +58,11 @@ tornado==2.4.1
 translationstring==1.3
 treap==1.23.1
 uWSGI==2.0.13.1
-uwsgi-metrics==1.1.4
+uwsgi-metrics==1.1.5
 venusian==1.0
-avro==1.9.0-yelp3
-yelp-avro==0.1.9
 yelp-bytes==0.3.0
-yelp-cgeom==1.3.1
 yelp-cheetah==0.18.0
-yelp-clog==1.4.2
-yelp-crypto==1.2.0
-yelp-email==1.2.1
+yelp-clog==2.2.11
 yelp-encodings==0.1.3
-yelp-ips==0.1.1
-yelp-kafka==4.5.5
-yelp-logging==1.7.3
-yelp-markupsafe==0.0.1
-yelp-meteorite==1.0.0
 zope.deprecation==4.1.2
 zope.interface==4.1.2

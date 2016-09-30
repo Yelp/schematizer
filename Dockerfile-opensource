@@ -17,7 +17,7 @@ RUN     apt-get install -y libyaml-0-2 libxml2 libpython2.7 libmysqlclient-dev l
 
 # Add the service code
 ADD     requirements.txt /code/requirements.txt
-ADD     requirements.d/ /code/requirements.d/
+ADD     requirements-internal.txt /code/requirements-internal.txt
 RUN     virtualenv --python python2.7 /code/virtualenv_run
 
 # TODO(DATAPIPE-1507|abrar): stop pointing to yelpcorp pypi package

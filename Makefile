@@ -33,19 +33,28 @@ docs:
 	tox -e docs
 
 test:
-	tox $(REBUILD_FLAG)
+	tox -c tox.ini $(REBUILD_FLAG)
+
+test-opensource:
+	tox -c tox-opensource.ini $(REBUILD_FLAG)
 
 debug:
 	tox $(REBUILD_FLAG) -- -s
 
 itest: cook-image
 	paasta local-run -s schematizer -t
-	tox -e acceptance
+	tox -c tox.ini -e acceptance
+
+itest-opensource: cook-image-opensource
+	tox -c tox-opensource.ini -e acceptance
 
 DOCKER_TAG ?= schematizer-dev-$(USER)
 
 cook-image:
-	docker build -t $(DOCKER_TAG) .
+	docker build --file=Dockerfile -t $(DOCKER_TAG) .
+
+cook-image-opensource:
+	docker build --file=Dockerfile-opensource -t $(DOCKER_TAG) .
 
 export GIT_SHA ?= $(shell git rev-parse --short HEAD)
 
