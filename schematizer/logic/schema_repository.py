@@ -17,6 +17,8 @@ from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import meta_attribute_mappers as meta_attr_logic
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.models.database import session
+from schematizer.models.schema_meta_attribute_mapping import (
+    SchemaMetaAttributeMapping)
 
 try:
     # TODO(DATAPIPE-1506|abrar): Currently we have
@@ -758,9 +760,9 @@ def get_meta_attributes_by_schema_id(schema_id):
     EntityNotFoundError exception"""
     models.AvroSchema.get_by_id(schema_id)
     mappings = session.query(
-        models.SchemaMetaAttributeMapping
+        SchemaMetaAttributeMapping
     ).filter(
-        models.SchemaMetaAttributeMapping.schema_id == schema_id
+        SchemaMetaAttributeMapping.schema_id == schema_id
     ).all()
     return [m.meta_attr_schema_id for m in mappings]
 
@@ -770,7 +772,7 @@ def _add_meta_attribute_mappings(schema_id):
     for meta_attr_schema_id in meta_attr_logic.get_meta_attributes_by_schema(
         schema_id
     ):
-        new_mapping = models.SchemaMetaAttributeMapping(
+        new_mapping = SchemaMetaAttributeMapping(
             schema_id=schema_id,
             meta_attr_schema_id=meta_attr_schema_id
         )

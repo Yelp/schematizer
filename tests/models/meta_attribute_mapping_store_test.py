@@ -5,8 +5,8 @@ from __future__ import unicode_literals
 import pytest
 
 from schematizer.models.exceptions import EntityNotFoundError
-from schematizer.models.meta_attribute_mapping_store \
-    import MetaAttributeMappingStore
+from schematizer.models.meta_attribute_mapping_store import (
+    MetaAttributeMappingStore)
 from schematizer_testing import asserts
 from schematizer_testing import factories
 from tests.models.testing_db import DBTestCase

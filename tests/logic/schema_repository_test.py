@@ -19,6 +19,8 @@ from schematizer.models import Namespace
 from schematizer.models.database import session
 from schematizer.models.exceptions import EntityNotFoundError
 from schematizer.models.page_info import PageInfo
+from schematizer.models.schema_meta_attribute_mapping import (
+    SchemaMetaAttributeMapping)
 from schematizer_testing import asserts
 from schematizer_testing import factories
 from tests.logic.meta_attribute_mappers_test import GetMetaAttributeBaseTest
@@ -1839,8 +1841,8 @@ class TestAddToSchemaMetaAttributeMapping(GetMetaAttributeBaseTest):
         }
 
     def _get_meta_attr_mappings(self, schema_id):
-        result = session.query(models.SchemaMetaAttributeMapping).filter(
-            models.SchemaMetaAttributeMapping.schema_id == schema_id
+        result = session.query(SchemaMetaAttributeMapping).filter(
+            SchemaMetaAttributeMapping.schema_id == schema_id
         ).all()
         mappings_dict = defaultdict(set)
         for m in result:

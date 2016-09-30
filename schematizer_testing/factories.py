@@ -7,6 +7,8 @@ from datetime import datetime
 from schematizer import models
 from schematizer.models.avro_schema import AvroSchema
 from schematizer.models.database import session
+from schematizer.models.meta_attribute_mapping_store import (
+    MetaAttributeMappingStore)
 
 
 fake_default_id = 1
@@ -211,7 +213,7 @@ def create_meta_attribute_mapping(
     entity_type,
     entity_id
 ):
-    return models.MetaAttributeMappingStore.create(
+    return MetaAttributeMappingStore.create(
         session,
         entity_type=entity_type,
         entity_id=entity_id,

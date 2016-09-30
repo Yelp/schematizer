@@ -9,7 +9,8 @@ from sqlalchemy import or_
 from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.logic.validators import verify_entity_exists
 from schematizer.models import AvroSchema
-from schematizer.models import MetaAttributeMappingStore
+from schematizer.models.meta_attribute_mapping_store import (
+    MetaAttributeMappingStore)
 from schematizer.models import Namespace
 from schematizer.models import Source
 from schematizer.models.database import session

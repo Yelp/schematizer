@@ -7,6 +7,8 @@ import pytest
 from pyramid import httpexceptions
 
 from schematizer import models
+from schematizer.models.meta_attribute_mapping_store import (
+    MetaAttributeMappingStore)
 from schematizer.helpers.formatting import _format_datetime
 from schematizer_testing import utils
 from tests.models.testing_db import DBTestCase
@@ -138,7 +140,7 @@ class ApiTestBase(DBTestCase):
 
     def get_expected_meta_attr_response(self, entity_type, entity_id):
         mappings = utils.get_entity_by_kwargs(
-            models.MetaAttributeMappingStore,
+            MetaAttributeMappingStore,
             entity_type=entity_type,
             entity_id=entity_id
         )

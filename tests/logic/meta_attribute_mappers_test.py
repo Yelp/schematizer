@@ -7,7 +7,8 @@ from sqlalchemy.orm import exc as orm_exc
 
 from schematizer.logic import meta_attribute_mappers as meta_attr_logic
 from schematizer.models import AvroSchema
-from schematizer.models import MetaAttributeMappingStore as meta_attr_model
+from schematizer.models.meta_attribute_mapping_store import (
+    MetaAttributeMappingStore as meta_attr_model)
 from schematizer.models import Namespace
 from schematizer.models import Source
 from schematizer.models.database import session
