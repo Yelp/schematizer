@@ -585,7 +585,6 @@
                 }
             },
             "required": [
-                "source_id",
                 "meta_attribute_schema_id"
             ]
         },
