@@ -27,7 +27,7 @@
 
 module_config:
     -   namespace: clog
-        initialize: schematizer.helpers.clog_util.initialize
+        initialize: schematizer.servlib.clog_util.initialize
         config:
             log_stream_name: schematizer
         file:

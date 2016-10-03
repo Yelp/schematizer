@@ -30,27 +30,23 @@ clean:
 	rm -rf .tox/
 
 docs:
-	tox -e docs
+	tox -c tox-opensource.ini -e docs
 
 test:
-	tox -c tox.ini $(REBUILD_FLAG)
-
-debug:
-	tox $(REBUILD_FLAG) -- -s
+	tox -c tox-opensource.ini $(REBUILD_FLAG)
 
 itest: cook-image
-	paasta local-run -s schematizer -t
-	tox -c tox.ini -e acceptance
+	tox -c tox-opensource.ini -e acceptance
 
-DOCKER_TAG ?= schematizer-dev-$(USER)
+DOCKER_TAG ?= schematizer-opensource-dev-$(USER)
 
 cook-image:
-	docker build --file=Dockerfile -t $(DOCKER_TAG) .
+	docker build --file=Dockerfile-opensource -t $(DOCKER_TAG) .
 
 export GIT_SHA ?= $(shell git rev-parse --short HEAD)
 
 docker-push:
-	tox -e docker-push
+	tox -c tox-opensource.ini -e docker-push
 
 install-hooks:
-	tox -e pre-commit -- install -f --install-hooks
+	tox -c tox-opensource.ini -e pre-commit -- install -f --install-hooks

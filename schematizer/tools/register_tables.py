@@ -159,19 +159,23 @@ def _setup_schematizer_container():
     try:
         _run_docker_compose_command(
             '--project-name={}'.format(project),
+            '--file=docker-compose-opensource.yml',
             'pull'
         )
         _run_docker_compose_command(
             '--project-name={}'.format(project),
+            '--file=docker-compose-opensource.yml',
             'rm',
             '--force'
         )
         _run_docker_compose_command(
             '--project-name={}'.format(project),
+            '--file=docker-compose-opensource.yml',
             'build'
         )
         _run_docker_compose_command(
             '--project-name={}'.format(project),
+            '--file=docker-compose-opensource.yml',
             'up',
             '-d',
             '--no-build',
@@ -185,10 +189,12 @@ def _setup_schematizer_container():
     finally:
         _run_docker_compose_command(
             '--project-name={}'.format(project),
+            '--file=docker-compose-opensource.yml',
             'kill'
         )
         _run_docker_compose_command(
             '--project-name={}'.format(project),
+            '--file=docker-compose-opensource.yml',
             'rm',
             '--force'
         )
