@@ -389,6 +389,10 @@
         "Refresh": {
             "id": "Refresh",
             "properties": {
+                "avg_rows_per_second_cap": {
+                    "description": "This field throttles the throughput of the refresh runner once the refresh is actually run. We will sleep in between batch row gets to limit it to this cap (default: null)",
+                    "type": "integer"
+                },
                 "batch_size": {
                     "description": "Number of rows to refresh per batch.",
                     "type": "integer"
