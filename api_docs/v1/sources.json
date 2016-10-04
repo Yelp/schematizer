@@ -1,43 +1,31 @@
 {
     "apiVersion": "1.0.0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://169.254.255.254:20912",
-    "resourcePath": "/v1/sources",
-    "produces": [
-        "application/json"
-    ],
-    "consumes": [
-        "application/json"
-    ],
     "apis": [
         {
-            "path": "/v1/sources",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "List all the sources",
-                    "type": "array",
+                    "authorizations": {},
                     "items": {
                         "$ref": "Source"
                     },
+                    "method": "GET",
                     "nickname": "list_sources",
-                    "authorizations": {},
                     "parameters": [
                         {
-                            "name": "count",
+                            "allowMultiple": false,
                             "description": "Maximum number of sources to retrieve.",
-                            "required": false,
-                            "type": "integer",
+                            "name": "count",
                             "paramType": "query",
-                            "allowMultiple": false
+                            "required": false,
+                            "type": "integer"
                         },
                         {
-                            "name": "min_id",
+                            "allowMultiple": false,
                             "description": "Limits results to those sources with an id greater than or equal to given min_id.",
-                            "required": false,
-                            "type": "integer",
+                            "name": "min_id",
                             "paramType": "query",
-                            "allowMultiple": false
+                            "required": false,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -45,26 +33,26 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "List all the sources",
+                    "type": "array"
                 }
-            ]
+            ],
+            "path": "/v1/sources"
         },
         {
-            "path": "/v1/sources/{source_id}",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "Get the source of specified ID",
-                    "type": "Source",
-                    "nickname": "get_source_by_id",
                     "authorizations": {},
+                    "method": "GET",
+                    "nickname": "get_source_by_id",
                     "parameters": [
                         {
+                            "allowMultiple": false,
                             "name": "source_id",
-                            "required": true,
-                            "type": "integer",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -80,34 +68,34 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Get the source of specified ID",
+                    "type": "Source"
                 }
-            ]
+            ],
+            "path": "/v1/sources/{source_id}"
         },
         {
-            "path": "/v1/sources/{source_id}/category",
             "operations": [
                 {
-                    "method": "POST",
-                    "summary": "Update the category of given source.",
-                    "notes": "",
-                    "type": "CategoryResponse",
-                    "nickname": "update_category",
                     "authorizations": {},
+                    "method": "POST",
+                    "nickname": "update_category",
+                    "notes": "",
                     "parameters": [
                         {
                             "name": "body",
+                            "paramType": "body",
                             "required": true,
-                            "type": "CategoryRequest",
-                            "paramType": "body"
+                            "type": "CategoryRequest"
                         },
                         {
-                            "name": "source_id",
+                            "allowMultiple": false,
                             "description": "ID of source that will have its category updated",
-                            "required": true,
-                            "type": "integer",
+                            "name": "source_id",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -123,23 +111,23 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Update the category of given source.",
+                    "type": "CategoryResponse"
                 },
                 {
-                    "method": "DELETE",
-                    "summary": "Remove the source from current category.",
-                    "notes": "",
-                    "type": "CategoryResponse",
-                    "nickname": "delete_category",
                     "authorizations": {},
+                    "method": "DELETE",
+                    "nickname": "delete_category",
+                    "notes": "",
                     "parameters": [
                         {
-                            "name": "source_id",
+                            "allowMultiple": false,
                             "description": "ID of source that will have its category deleted",
-                            "required": true,
-                            "type": "integer",
+                            "name": "source_id",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -149,39 +137,35 @@
                         },
                         {
                             "code": 404,
-                            "message": "Source ID not found"
-                        },
-                        {
-                            "code": 404,
-                            "message": "Category not found for the given source"
+                            "message": "Source is not found., Category not found for the given source"
                         },
                         {
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Remove the source from current category.",
+                    "type": "CategoryResponse"
                 }
-            ]
+            ],
+            "path": "/v1/sources/{source_id}/category"
         },
         {
-            "path": "/v1/sources/{source_id}/topics",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "List all the topics of specified source",
-                    "type": "array",
+                    "authorizations": {},
                     "items": {
                         "$ref": "Topic"
                     },
+                    "method": "GET",
                     "nickname": "list_topics_by_source_id",
-                    "authorizations": {},
                     "parameters": [
                         {
+                            "allowMultiple": false,
                             "name": "source_id",
-                            "required": true,
-                            "type": "integer",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -197,26 +181,26 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "List all the topics of specified source",
+                    "type": "array"
                 }
-            ]
+            ],
+            "path": "/v1/sources/{source_id}/topics"
         },
         {
-            "path": "/v1/sources/{source_id}/topics/latest",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "Get the latest topic of specified source",
-                    "type": "Topic",
-                    "nickname": "get_latest_topic_by_source_id",
                     "authorizations": {},
+                    "method": "GET",
+                    "nickname": "get_latest_topic_by_source_id",
                     "parameters": [
                         {
+                            "allowMultiple": false,
                             "name": "source_id",
-                            "required": true,
-                            "type": "integer",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -226,42 +210,38 @@
                         },
                         {
                             "code": 404,
-                            "message": "Latest topic is not found."
-                        },
-                        {
-                            "code": 404,
-                            "message": "Source is not found."
+                            "message": "Latest topic is not found., Source is not found."
                         },
                         {
                             "code": 500,
                             "message": "Server side error."
                         }
-                    ]
+                    ],
+                    "summary": "Get the latest topic of specified source",
+                    "type": "Topic"
                 }
-            ]
+            ],
+            "path": "/v1/sources/{source_id}/topics/latest"
         },
         {
-            "path": "/v1/sources/{source_id}/refreshes",
             "operations": [
                 {
-                    "method": "POST",
-                    "summary": "Create a refresh associated with specified source id.",
-                    "type": "Refresh",
-                    "nickname": "create_refresh",
                     "authorizations": {},
+                    "method": "POST",
+                    "nickname": "create_refresh",
                     "parameters": [
                         {
+                            "allowMultiple": false,
                             "name": "source_id",
-                            "required": true,
-                            "type": "integer",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         },
                         {
                             "name": "body",
+                            "paramType": "body",
                             "required": true,
-                            "type": "CreateRefreshRequest",
-                            "paramType": "body"
+                            "type": "CreateRefreshRequest"
                         }
                     ],
                     "responseMessages": [
@@ -272,30 +252,29 @@
                         {
                             "code": 404,
                             "message": "Source is not found."
-
                         },
                         {
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Create a refresh associated with specified source id.",
+                    "type": "Refresh"
                 },
                 {
-                    "method": "GET",
-                    "summary": "List the history of refreshes on the specified source id.",
-                    "type": "array",
+                    "authorizations": {},
                     "items": {
                         "$ref": "Refresh"
                     },
+                    "method": "GET",
                     "nickname": "list_refreshes_by_source_id",
-                    "authorizations": {},
                     "parameters": [
                         {
+                            "allowMultiple": false,
                             "name": "source_id",
-                            "required": true,
-                            "type": "integer",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -311,156 +290,140 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "List the history of refreshes on the specified source id.",
+                    "type": "array"
                 }
-            ]
+            ],
+            "path": "/v1/sources/{source_id}/refreshes"
         }
     ],
+    "basePath": "http://169.254.255.254:20912",
+    "consumes": [
+        "application/json"
+    ],
     "models": {
-        "Namespace": {
-            "id": "Namespace",
-            "properties": {
-                "namespace_id": {
-                    "type": "integer",
-                    "description": "Namespace ID"
-                },
-                "name": {
-                    "type": "string",
-                    "description": "Namespace, such as yelpmain.db, etc"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this namespace is created"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this namespace is last updated"
-                }
-            }
-        },
-        "Source": {
-            "id": "Source",
-            "properties": {
-                "source_id": {
-                    "type": "integer",
-                    "description": "Source ID"
-                },
-                "namespace": {
-                    "$ref": "Namespace",
-                    "description": "Namespace of the source"
-                },
-                "name": {
-                    "type": "string",
-                    "description": "Name of the source, such as 'User' for table User."
-                },
-                "owner_email": {
-                    "type": "string",
-                    "description": "Email address of the source owner"
-                },
-                "category": {
-                    "type": "string",
-                    "description": "Category that this source belongs to"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this source is created"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this source is last updated"
-                }
-            }
-        },
-        "Topic": {
-            "id": "Topic",
-            "properties": {
-                "topic_id": {
-                    "type": "integer",
-                    "description": "Topic ID"
-                },
-                "name": {
-                    "type": "string",
-                    "description": "The Kafka topic name."
-                },
-                "source": {
-                    "$ref": "Source",
-                    "description": "Source of the Avro schema."
-                },
-                "contains_pii": {
-                    "type": "boolean",
-                    "description": "Whether the messages in this topic contain PII."
-                },
-                "primary_keys": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "description": "List of primary key names."
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this topic is created"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this topic is last updated"
-                }
-            }
-        },
         "CategoryRequest": {
             "id": "CategoryRequest",
-            "required": [
-                "category"
-            ],
             "properties": {
                 "category": {
-                    "type": "string",
-                    "description": "The updated category of a source"
+                    "description": "The updated category of a source",
+                    "type": "string"
                 }
-            }
+            },
+            "required": [
+                "category"
+            ]
         },
         "CategoryResponse": {
             "id": "CategoryResponse",
             "properties": {
-                "source_id": {
-                    "type": "integer",
-                    "description": "The id of the source this category specifies"
-                },
                 "category": {
-                    "type": "string",
-                    "description": "The category that the specified source belongs to"
+                    "description": "The category that the specified source belongs to",
+                    "type": "string"
                 },
                 "created_at": {
-                    "type": "string",
+                    "description": "When this category is created",
                     "format": "date-time",
-                    "description": "When this category is created"
+                    "type": "string"
+                },
+                "source_id": {
+                    "description": "The id of the source this category specifies",
+                    "type": "integer"
                 },
                 "updated_at": {
-                    "type": "string",
+                    "description": "When this category is last updated",
                     "format": "date-time",
-                    "description": "When this category is last updated"
+                    "type": "string"
+                }
+            }
+        },
+        "CreateRefreshRequest": {
+            "id": "CreateRefreshRequest",
+            "properties": {
+                "avg_rows_per_second_cap": {
+                    "description": "This field throttles the throughput of the refresh runner once the refresh is actually run. It will sleep in between batch row gets to limit it to this cap (default: null)",
+                    "type": "integer"
+                },
+                "batch_size": {
+                    "description": "Number of rows to refresh per batch.",
+                    "type": "integer"
+                },
+                "filter_condition": {
+                    "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table.",
+                    "type": "string"
+                },
+                "offset": {
+                    "description": "Represents the last known position that has been refreshed.",
+                    "type": "integer"
+                },
+                "priority": {
+                    "description": "Priority of this refresh. LOW=20, MAX=100",
+                    "type": "integer"
+                }
+            }
+        },
+        "Namespace": {
+            "id": "Namespace",
+            "properties": {
+                "created_at": {
+                    "description": "When this namespace is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Namespace, such as yelpmain.db, etc",
+                    "type": "string"
+                },
+                "namespace_id": {
+                    "description": "Namespace ID",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "When this namespace is last updated",
+                    "format": "date-time",
+                    "type": "string"
                 }
             }
         },
         "Refresh": {
             "id": "Refresh",
             "properties": {
-                "refresh_id": {
-                    "type": "integer",
-                    "description": "Refresh ID"
+                "batch_size": {
+                    "description": "Number of rows to refresh per batch.",
+                    "type": "integer"
                 },
-                "source": {
-                    "$ref": "Source",
-                    "description": "Source that this refresh is running on."
+                "created_at": {
+                    "description": "When this refresh is created.",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "filter_condition": {
+                    "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table.",
+                    "type": "string"
+                },
+                "namespace_name": {
+                    "description": "Name of the namespace the refresh is running on.",
+                    "type": "string"
+                },
+                "offset": {
+                    "description": "Represents the last known position that has been refreshed.",
+                    "type": "integer"
+                },
+                "priority": {
+                    "description": "Priority of this refresh. LOW=20, MAX=100",
+                    "type": "integer"
+                },
+                "refresh_id": {
+                    "description": "Refresh ID",
+                    "type": "integer"
+                },
+                "source_name": {
+                    "description": "Name of the source the refresh is running on.",
+                    "type": "string"
                 },
                 "status": {
-                    "type": "string",
+                    "description": "Current status of refresh.",
                     "enum": [
                         "NOT_STARTED",
                         "IN_PROGRESS",
@@ -468,73 +431,92 @@
                         "SUCCESS",
                         "FAILED"
                     ],
-                    "description": "Current status of refresh."
-                },
-                "offset": {
-                    "type": "integer",
-                    "description": "Represents the last known position that has been refreshed."
-                },
-                "batch_size": {
-                    "type": "integer",
-                    "description": "Number of rows to refresh per batch."
-                },
-                "priority": {
-                    "type": "string",
-                    "enum": [
-                        "LOW",
-                        "MEDIUM",
-                        "HIGH",
-                        "MAX"
-                    ],
-                    "description": "Priority of this refresh."
-                },
-                "filter_condition": {
-                    "type": "string",
-                    "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table."
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this refresh is created."
+                    "type": "string"
                 },
                 "updated_at": {
-                    "type": "string",
+                    "description": "When this refresh is last updated.",
                     "format": "date-time",
-                    "description": "When this refresh is last updated."
+                    "type": "string"
                 }
             }
         },
-        "CreateRefreshRequest": {
-            "id": "CreateRefreshRequest",
+        "Source": {
+            "id": "Source",
             "properties": {
-                "offset": {
-                    "type": "integer",
-                    "description": "Represents the last known position that has been refreshed."
+                "category": {
+                    "description": "Category that this source belongs to",
+                    "type": "string"
                 },
-                "batch_size": {
-                    "type": "integer",
-                    "description": "Number of rows to refresh per batch."
+                "created_at": {
+                    "description": "When this source is created",
+                    "format": "date-time",
+                    "type": "string"
                 },
-                "priority": {
-                    "type": "string",
-                    "enum": [
-                        "LOW",
-                        "MEDIUM",
-                        "HIGH",
-                        "MAX"
-                    ],
-                    "description": "Priority of this refresh."
+                "name": {
+                    "description": "Name of the source, such as 'User' for table User.",
+                    "type": "string"
                 },
-                "filter_condition": {
-                    "type": "string",
-                    "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table."
+                "namespace": {
+                    "$ref": "Namespace",
+                    "description": "Namespace of the source"
                 },
-                "avg_rows_per_second_cap": {
-                    "type": "integer",
-                    "description": "This field throttles the throughput of the refresh runner once the refresh is actually run. It will sleep in between batch row gets to limit it to this cap",
-                    "required": false
+                "owner_email": {
+                    "description": "Email address of the source owner",
+                    "type": "string"
+                },
+                "source_id": {
+                    "description": "Source ID",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "When this source is last updated",
+                    "format": "date-time",
+                    "type": "string"
+                }
+            }
+        },
+        "Topic": {
+            "id": "Topic",
+            "properties": {
+                "contains_pii": {
+                    "description": "Whether the messages in this topic contain PII.",
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "description": "When this topic is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "The Kafka topic name.",
+                    "type": "string"
+                },
+                "primary_keys": {
+                    "description": "List of primary key names.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "source": {
+                    "$ref": "Source",
+                    "description": "Source of the Avro schema."
+                },
+                "topic_id": {
+                    "description": "Topic ID",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "When this topic is last updated",
+                    "format": "date-time",
+                    "type": "string"
                 }
             }
         }
-    }
+    },
+    "produces": [
+        "application/json"
+    ],
+    "resourcePath": "/v1/sources",
+    "swaggerVersion": "1.2"
 }

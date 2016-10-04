@@ -1,56 +1,44 @@
 {
     "apiVersion": "1.0.0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://169.254.255.254:20912",
-    "resourcePath": "/v1/namespaces",
-    "produces": [
-        "application/json"
-    ],
-    "consumes": [
-        "application/json"
-    ],
     "apis": [
         {
-            "path": "/v1/namespaces",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "List all the namespaces",
-                    "type": "array",
+                    "authorizations": {},
                     "items": {
                         "$ref": "Namespace"
                     },
+                    "method": "GET",
                     "nickname": "list_namespaces",
-                    "authorizations": {},
                     "parameters": [],
                     "responseMessages": [
                         {
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "List all the namespaces",
+                    "type": "array"
                 }
-            ]
+            ],
+            "path": "/v1/namespaces"
         },
         {
-            "path": "/v1/namespaces/{namespace}/sources",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "List all the sources of specified namespace",
-                    "type": "array",
+                    "authorizations": {},
                     "items": {
                         "$ref": "Source"
                     },
+                    "method": "GET",
                     "nickname": "list_sources_by_namespace",
-                    "authorizations": {},
                     "parameters": [
                         {
+                            "allowMultiple": false,
                             "name": "namespace",
-                            "required": true,
-                            "type": "string",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "string"
                         }
                     ],
                     "responseMessages": [
@@ -66,29 +54,29 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "List all the sources of specified namespace",
+                    "type": "array"
                 }
-            ]
+            ],
+            "path": "/v1/namespaces/{namespace}/sources"
         },
         {
-            "path": "/v1/namespaces/{namespace}/refreshes",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "List all refreshes of specified namespace",
-                    "type": "array",
+                    "authorizations": {},
                     "items": {
                         "$ref": "Refresh"
                     },
+                    "method": "GET",
                     "nickname": "list_refreshes_by_namespace",
-                    "authorizations": {},
                     "parameters": [
                         {
+                            "allowMultiple": false,
                             "name": "namespace",
-                            "required": true,
-                            "type": "string",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "string"
                         }
                     ],
                     "responseMessages": [
@@ -104,83 +92,84 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "List all refreshes of specified namespace",
+                    "type": "array"
                 }
-            ]
+            ],
+            "path": "/v1/namespaces/{namespace}/refreshes"
         }
+    ],
+    "basePath": "http://169.254.255.254:20912",
+    "consumes": [
+        "application/json"
     ],
     "models": {
         "Namespace": {
             "id": "Namespace",
             "properties": {
+                "created_at": {
+                    "description": "When this namespace is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Namespace, such as yelpmain.db, etc",
+                    "type": "string"
+                },
                 "namespace_id": {
-                    "type": "integer",
-                    "description": "Namespace ID"
-                },
-                "name": {
-                    "type": "string",
-                    "description": "Namespace, such as yelpmain.db, etc"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this namespace is created"
+                    "description": "Namespace ID",
+                    "type": "integer"
                 },
                 "updated_at": {
-                    "type": "string",
+                    "description": "When this namespace is last updated",
                     "format": "date-time",
-                    "description": "When this namespace is last updated"
-                }
-            }
-        },
-        "Source": {
-            "id": "Source",
-            "properties": {
-                "source_id": {
-                    "type": "integer",
-                    "description": "Source ID"
-                },
-                "namespace": {
-                    "$ref": "Namespace",
-                    "description": "Namespace of the source"
-                },
-                "name": {
-                    "type": "string",
-                    "description": "Name of the source, such as 'User' for table User."
-                },
-                "owner_email": {
-                    "type": "string",
-                    "description": "Email address of the source owner"
-                },
-                "category": {
-                    "type": "string",
-                    "description": "Category that this source belongs to"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this source is created"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this source is last updated"
+                    "type": "string"
                 }
             }
         },
         "Refresh": {
             "id": "Refresh",
             "properties": {
-                "refresh_id": {
-                    "type": "integer",
-                    "description": "Refresh ID"
+                "avg_rows_per_second_cap": {
+                    "description": "This field throttles the per-instance throughput of the refresh runner once the refresh is actually run. We will sleep in between batch row gets to limit it to this cap (default: null)",
+                    "type": "integer"
                 },
-                "source": {
-                    "$ref": "Source",
-                    "description": "Source that this refresh is running on."
+                "batch_size": {
+                    "description": "Number of rows to refresh per batch.",
+                    "type": "integer"
+                },
+                "created_at": {
+                    "description": "When this refresh is created.",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "filter_condition": {
+                    "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table.",
+                    "type": "string"
+                },
+                "namespace_name": {
+                    "description": "Name of the namespace the refresh is running on.",
+                    "type": "string"
+                },
+                "offset": {
+                    "description": "Represents the last known position that has been refreshed.",
+                    "type": "integer"
+                },
+                "priority": {
+                    "description": "Priority of this refresh. LOW=20, MAX=100",
+                    "type": "integer"
+                },
+                "refresh_id": {
+                    "description": "Refresh ID",
+                    "type": "integer"
+                },
+                "source_name": {
+                    "description": "Name of the source the refresh is running on.",
+                    "type": "string"
                 },
                 "status": {
-                    "type": "string",
+                    "description": "Current status of refresh.",
                     "enum": [
                         "NOT_STARTED",
                         "IN_PROGRESS",
@@ -188,41 +177,54 @@
                         "SUCCESS",
                         "FAILED"
                     ],
-                    "description": "Current status of refresh."
-                },
-                "offset": {
-                    "type": "integer",
-                    "description": "Represents the last known position that has been refreshed."
-                },
-                "batch_size": {
-                    "type": "integer",
-                    "description": "Number of rows to refresh per batch."
-                },
-                "priority": {
-                    "type": "string",
-                    "enum": [
-                        "LOW",
-                        "MEDIUM",
-                        "HIGH",
-                        "MAX"
-                    ],
-                    "description": "Priority of this refresh."
-                },
-                "filter_condition": {
-                    "type": "string",
-                    "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table."
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this refresh is created."
+                    "type": "string"
                 },
                 "updated_at": {
-                    "type": "string",
+                    "description": "When this refresh is last updated.",
                     "format": "date-time",
-                    "description": "When this refresh is last updated."
+                    "type": "string"
+                }
+            }
+        },
+        "Source": {
+            "id": "Source",
+            "properties": {
+                "category": {
+                    "description": "Category that this source belongs to",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "When this source is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name of the source, such as 'User' for table User.",
+                    "type": "string"
+                },
+                "namespace": {
+                    "$ref": "Namespace",
+                    "description": "Namespace of the source"
+                },
+                "owner_email": {
+                    "description": "Email address of the source owner",
+                    "type": "string"
+                },
+                "source_id": {
+                    "description": "Source ID",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "When this source is last updated",
+                    "format": "date-time",
+                    "type": "string"
                 }
             }
         }
-    }
+    },
+    "produces": [
+        "application/json"
+    ],
+    "resourcePath": "/v1/namespaces",
+    "swaggerVersion": "1.2"
 }

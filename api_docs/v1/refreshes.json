@@ -1,31 +1,19 @@
 {
     "apiVersion": "1.0.0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://169.254.255.254:20912",
-    "resourcePath": "/v1/refreshes",
-    "produces": [
-        "application/json"
-    ],
-    "consumes": [
-        "application/json"
-    ],
     "apis": [
         {
-            "path": "/v1/refreshes/{refresh_id}",
-	        "operations": [
+            "operations": [
                 {
-                    "method": "GET",
-                    "summary": "Get refresh for the specified refresh id.",
-                    "type": "Refresh",
-                    "nickname": "get_refresh_by_id",
                     "authorizations": {},
+                    "method": "GET",
+                    "nickname": "get_refresh_by_id",
                     "parameters": [
                         {
+                            "allowMultiple": false,
                             "name": "refresh_id",
-                            "required": true,
-                            "type": "string",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "string"
                         }
                     ],
                     "responseMessages": [
@@ -41,28 +29,26 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Get refresh for the specified refresh id.",
+                    "type": "Refresh"
                 }
-            ]
+            ],
+            "path": "/v1/refreshes/{refresh_id}"
         },
         {
-            "path": "/v1/refreshes",
             "operations": [
                 {
-                    "method": "GET",
-                    "summary": "Get the refreshes that match the specified criteria. If no criteria is specified, returns all refreshes.",
-                    "type": "array",
-                    "items":{
+                    "authorizations": {},
+                    "items": {
                         "$ref": "Refresh"
                     },
+                    "method": "GET",
                     "nickname": "get_refreshes_by_criteria",
-                    "authorizations": {},
                     "parameters": [
                         {
-                            "name": "status",
+                            "allowMultiple": false,
                             "description": "Current status of the refresh.",
-                            "required": false,
-                            "type": "string",
                             "enum": [
                                 "NOT_STARTED",
                                 "IN_PROGRESS",
@@ -70,32 +56,34 @@
                                 "SUCCESS",
                                 "FAILED"
                             ],
+                            "name": "status",
                             "paramType": "query",
-                            "allowMultiple": false
+                            "required": false,
+                            "type": "string"
                         },
                         {
-                            "name": "namespace",
+                            "allowMultiple": false,
                             "description": "Namespace name of the source of the refresh.",
-                            "required": false,
-                            "type": "string",
+                            "name": "namespace",
                             "paramType": "query",
-                            "allowMultiple": false
+                            "required": false,
+                            "type": "string"
                         },
                         {
-                            "name": "created_after",
+                            "allowMultiple": false,
                             "description": "Unix timestamp that the refresh was created after. Refreshes created at the same timestamp will be included.",
-                            "required": false,
-                            "type": "integer",
+                            "name": "created_after",
                             "paramType": "query",
-                            "allowMultiple": false
+                            "required": false,
+                            "type": "integer"
                         },
                         {
-                            "name": "updated_after",
+                            "allowMultiple": false,
                             "description": "Unix timestamp that the refresh was updated after. Refreshes updated at the same timestamp will be included.",
-                            "required": false,
-                            "type": "integer",
+                            "name": "updated_after",
                             "paramType": "query",
-                            "allowMultiple": false
+                            "required": false,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -107,33 +95,33 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Get the refreshes that match the specified criteria. If no criteria is specified, returns all refreshes.",
+                    "type": "array"
                 }
-            ]
+            ],
+            "path": "/v1/refreshes"
         },
         {
-            "path": "/v1/refreshes/{refresh_id}/status",
             "operations": [
                 {
-                    "method": "POST",
-                    "summary": "Update status of refresh.",
-                    "type": "Refresh",
-                    "nickname": "update_refresh",
                     "authorizations": {},
+                    "method": "POST",
+                    "nickname": "update_refresh",
                     "parameters": [
                         {
                             "name": "body",
+                            "paramType": "body",
                             "required": true,
-                            "type": "UpdateRefreshStatusRequest",
-                            "paramType": "body"
+                            "type": "UpdateRefreshStatusRequest"
                         },
                         {
-                            "name": "refresh_id",
+                            "allowMultiple": false,
                             "description": "ID of refresh that will have its status updated",
-                            "required": true,
-                            "type": "integer",
+                            "name": "refresh_id",
                             "paramType": "path",
-                            "allowMultiple": false
+                            "required": true,
+                            "type": "integer"
                         }
                     ],
                     "responseMessages": [
@@ -149,83 +137,84 @@
                             "code": 500,
                             "message": "Server side error"
                         }
-                    ]
+                    ],
+                    "summary": "Update status of refresh.",
+                    "type": "Refresh"
                 }
-            ]
+            ],
+            "path": "/v1/refreshes/{refresh_id}/status"
         }
+    ],
+    "basePath": "http://169.254.255.254:20912",
+    "consumes": [
+        "application/json"
     ],
     "models": {
         "Namespace": {
             "id": "Namespace",
             "properties": {
+                "created_at": {
+                    "description": "When this namespace is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Namespace, such as yelpmain.db, etc",
+                    "type": "string"
+                },
                 "namespace_id": {
-                    "type": "integer",
-                    "description": "Namespace ID"
-                },
-                "name": {
-                    "type": "string",
-                    "description": "Namespace, such as yelpmain.db, etc"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this namespace is created"
+                    "description": "Namespace ID",
+                    "type": "integer"
                 },
                 "updated_at": {
-                    "type": "string",
+                    "description": "When this namespace is last updated",
                     "format": "date-time",
-                    "description": "When this namespace is last updated"
-                }
-            }
-        },
-        "Source": {
-            "id": "Source",
-            "properties": {
-                "source_id": {
-                    "type": "integer",
-                    "description": "Source ID"
-                },
-                "namespace": {
-                    "$ref": "Namespace",
-                    "description": "Namespace of the source"
-                },
-                "name": {
-                    "type": "string",
-                    "description": "Name of the source, such as 'User' for table User."
-                },
-                "owner_email": {
-                    "type": "string",
-                    "description": "Email address of the source owner"
-                },
-                "category": {
-                    "type": "string",
-                    "description": "Category that this source belongs to"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this source is created"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this source is last updated"
+                    "type": "string"
                 }
             }
         },
         "Refresh": {
             "id": "Refresh",
             "properties": {
-                "refresh_id": {
-                    "type": "integer",
-                    "description": "Refresh ID"
+                "avg_rows_per_second_cap": {
+                    "description": "This field throttles the throughput of the refresh runner once the refresh is actually run. We will sleep in between batch row gets to limit it to this cap (default: null)",
+                    "type": "integer"
                 },
-                "source": {
-                    "$ref": "Source",
-                    "description": "Source that this refresh is running on."
+                "batch_size": {
+                    "description": "Number of rows to refresh per batch.",
+                    "type": "integer"
+                },
+                "created_at": {
+                    "description": "When this refresh is created.",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "filter_condition": {
+                    "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table.",
+                    "type": "string"
+                },
+                "namespace_name": {
+                    "description": "Name of the namespace the refresh is running on.",
+                    "type": "string"
+                },
+                "offset": {
+                    "description": "Represents the last known position that has been refreshed.",
+                    "type": "integer"
+                },
+                "priority": {
+                    "description": "Priority of this refresh. LOW=20, MAX=100",
+                    "type": "integer"
+                },
+                "refresh_id": {
+                    "description": "Refresh ID",
+                    "type": "integer"
+                },
+                "source_name": {
+                    "description": "Name of the source the refresh is running on.",
+                    "type": "string"
                 },
                 "status": {
-                    "type": "string",
+                    "description": "Current status of refresh.",
                     "enum": [
                         "NOT_STARTED",
                         "IN_PROGRESS",
@@ -233,55 +222,59 @@
                         "SUCCESS",
                         "FAILED"
                     ],
-                    "description": "Current status of refresh."
-                },
-                "offset": {
-                    "type": "integer",
-                    "description": "Represents the last known position that has been refreshed."
-                },
-                "batch_size": {
-                    "type": "integer",
-                    "description": "Number of rows to refresh per batch."
-                },
-                "priority": {
-                    "type": "string",
-                    "enum": [
-                        "LOW",
-                        "MEDIUM",
-                        "HIGH",
-                        "MAX"
-                    ],
-                    "description": "Priority of this refresh."
-                },
-                "filter_condition": {
-                    "type": "string",
-                    "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table."
-                },
-                "avg_rows_per_second_cap": {
-                    "type": "integer",
-                    "description": "This field throttles the throughput of the refresh runner once the refresh is actually run. We will sleep in between batch row gets to limit it to this cap (default: null)"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "When this refresh is created."
+                    "type": "string"
                 },
                 "updated_at": {
-                    "type": "string",
+                    "description": "When this refresh is last updated.",
                     "format": "date-time",
-                    "description": "When this refresh is last updated."
+                    "type": "string"
+                }
+            }
+        },
+        "Source": {
+            "id": "Source",
+            "properties": {
+                "category": {
+                    "description": "Category that this source belongs to",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "When this source is created",
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name of the source, such as 'User' for table User.",
+                    "type": "string"
+                },
+                "namespace": {
+                    "$ref": "Namespace",
+                    "description": "Namespace of the source"
+                },
+                "owner_email": {
+                    "description": "Email address of the source owner",
+                    "type": "string"
+                },
+                "source_id": {
+                    "description": "Source ID",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "When this source is last updated",
+                    "format": "date-time",
+                    "type": "string"
                 }
             }
         },
         "UpdateRefreshStatusRequest": {
             "id": "UpdateRefreshStatusRequest",
-            "required": [
-                "status",
-                "offset"
-            ],
             "properties": {
+                "offset": {
+                    "description": "Represents the last known position that has been refreshed.",
+                    "type": "integer"
+                },
                 "status": {
-                    "type": "string",
+                    "description": "Refresh status to be set.",
                     "enum": [
                         "NOT_STARTED",
                         "IN_PROGRESS",
@@ -289,13 +282,18 @@
                         "SUCCESS",
                         "FAILED"
                     ],
-                    "description": "Refresh status to be set."
-                },
-                "offset": {
-                    "type": "integer",
-                    "description": "Represents the last known position that has been refreshed."
+                    "type": "string"
                 }
-            }
+            },
+            "required": [
+                "status",
+                "offset"
+            ]
         }
-    }
+    },
+    "produces": [
+        "application/json"
+    ],
+    "resourcePath": "/v1/refreshes",
+    "swaggerVersion": "1.2"
 }

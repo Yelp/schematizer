@@ -2,9 +2,12 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import pytest
+
 from schematizer.models.source import Topic
 from schematizer_testing import factories
 from tests.models.base_model_test import GetAllModelTestBase
+from tests.models.testing_db import DBTestCase
 
 
 class TestGetAllTopics(GetAllModelTestBase):
@@ -24,3 +27,25 @@ class TestGetAllTopics(GetAllModelTestBase):
     entity_model = Topic
     create_entity_func = create_topic
     assert_func_name = 'assert_equal_topic'
+
+
+class TestTopicModel(DBTestCase):
+
+    @pytest.mark.parametrize("overrides, expected_cluster_type", [
+        ({}, 'datapipe'),
+        ({'cluster_type': 'datapipe'}, 'datapipe'),
+        ({'cluster_type': 'scribe'}, 'scribe')
+    ])
+    def test_valid_cluster_type(
+        self,
+        biz_source,
+        overrides,
+        expected_cluster_type
+    ):
+        topic = factories.create_topic(
+            topic_name='yelp.biz_test.1',
+            namespace_name=biz_source.namespace.name,
+            source_name=biz_source.name,
+            **overrides
+        )
+        assert topic.cluster_type == expected_cluster_type

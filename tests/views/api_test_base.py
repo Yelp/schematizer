@@ -7,6 +7,7 @@ import pytest
 from pyramid import httpexceptions
 
 from schematizer import models
+from schematizer.helpers.formatting import _format_datetime
 from schematizer_testing import utils
 from tests.models.testing_db import DBTestCase
 
@@ -23,8 +24,8 @@ class ApiTestBase(DBTestCase):
         return {
             'namespace_id': namespace.id,
             'name': namespace.name,
-            'created_at': namespace.created_at.isoformat(),
-            'updated_at': namespace.updated_at.isoformat()
+            'created_at': _format_datetime(namespace.created_at),
+            'updated_at': _format_datetime(namespace.updated_at)
         }
 
     def get_expected_src_resp(self, source_id):
@@ -34,8 +35,8 @@ class ApiTestBase(DBTestCase):
             'namespace': self.get_expected_namespace_resp(src.namespace.id),
             'name': src.name,
             'owner_email': src.owner_email,
-            'created_at': src.created_at.isoformat(),
-            'updated_at': src.updated_at.isoformat()
+            'created_at': _format_datetime(src.created_at),
+            'updated_at': _format_datetime(src.updated_at)
         }
 
     def get_expected_topic_resp(self, topic_id):
@@ -45,9 +46,10 @@ class ApiTestBase(DBTestCase):
             'name': topic.name,
             'source': self.get_expected_src_resp(topic.source_id),
             'contains_pii': False,
+            'cluster_type': topic.cluster_type,
             'primary_keys': topic.primary_keys,
-            'created_at': topic.created_at.isoformat(),
-            'updated_at': topic.updated_at.isoformat(),
+            'created_at': _format_datetime(topic.created_at),
+            'updated_at': _format_datetime(topic.updated_at),
         }
 
     def get_expected_schema_resp(self, schema_id, **overrides):
@@ -58,8 +60,8 @@ class ApiTestBase(DBTestCase):
             'topic': self.get_expected_topic_resp(avro_schema.topic_id),
             'status': models.AvroSchemaStatus.READ_AND_WRITE,
             'primary_keys': [],
-            'created_at': avro_schema.created_at.isoformat(),
-            'updated_at': avro_schema.updated_at.isoformat()
+            'created_at': _format_datetime(avro_schema.created_at),
+            'updated_at': _format_datetime(avro_schema.updated_at)
         }
         if overrides:
             expected.update(overrides)
@@ -69,13 +71,14 @@ class ApiTestBase(DBTestCase):
         src_refresh = utils.get_entity_by_id(models.Refresh, src_refresh_id)
         expected = {
             'refresh_id': src_refresh.id,
-            'source': self.get_expected_src_resp(src_refresh.source_id),
+            'source_name': src_refresh.source.name,
+            'namespace_name': src_refresh.source.namespace.name,
             'status': models.RefreshStatus(src_refresh.status).name,
             'offset': src_refresh.offset,
             'batch_size': src_refresh.batch_size,
-            'priority': models.Priority(src_refresh.priority).name,
-            'created_at': src_refresh.created_at.isoformat(),
-            'updated_at': src_refresh.updated_at.isoformat()
+            'priority': src_refresh.priority,
+            'created_at': _format_datetime(src_refresh.created_at),
+            'updated_at': _format_datetime(src_refresh.updated_at)
         }
         if src_refresh.avg_rows_per_second_cap is not None:
             expected[
@@ -89,10 +92,11 @@ class ApiTestBase(DBTestCase):
         data_target = utils.get_entity_by_id(models.DataTarget, data_target_id)
         expected = {
             'data_target_id': data_target.id,
+            'name': data_target.name,
             'target_type': data_target.target_type,
             'destination': data_target.destination,
-            'created_at': data_target.created_at.isoformat(),
-            'updated_at': data_target.updated_at.isoformat()
+            'created_at': _format_datetime(data_target.created_at),
+            'updated_at': _format_datetime(data_target.updated_at)
         }
         if overrides:
             expected.update(overrides)
@@ -106,8 +110,8 @@ class ApiTestBase(DBTestCase):
             'data_target': self.get_expected_data_target_resp(
                 group.data_target.id
             ),
-            'created_at': group.created_at.isoformat(),
-            'updated_at': group.updated_at.isoformat()
+            'created_at': _format_datetime(group.created_at),
+            'updated_at': _format_datetime(group.updated_at)
         }
         if overrides:
             expected.update(overrides)
@@ -127,8 +131,8 @@ class ApiTestBase(DBTestCase):
             'consumer_group_id': data_source.consumer_group.id,
             'data_source_type': data_source.data_source_type,
             'data_source_id': data_source.data_source_id,
-            'created_at': data_source.created_at.isoformat(),
-            'updated_at': data_source.updated_at.isoformat()
+            'created_at': _format_datetime(data_source.created_at),
+            'updated_at': _format_datetime(data_source.updated_at)
         }
         if overrides:
             expected.update(overrides)

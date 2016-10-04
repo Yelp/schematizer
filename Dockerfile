@@ -1,4 +1,4 @@
-FROM    docker-dev.yelpcorp.com/lucid_yelp
+FROM    ubuntu:14.04
 
 ENV     DEBIAN_FRONTEND noninteractive
 
@@ -13,7 +13,7 @@ RUN     apt-get update && \
             git
 
 # uwsgi deps
-RUN     apt-get install -y libyaml-0-2 libxml2 libpython2.7
+RUN     apt-get install -y libyaml-0-2 libxml2 libpython2.7 libmysqlclient-dev libssl0.9.8
 
 # Add the service code
 ADD     requirements.txt /code/requirements.txt
@@ -32,5 +32,5 @@ ADD     . /code
 WORKDIR /code
 ENV     BASEPATH /code
 USER    nobody
-CMD     PORT=8888 /code/virtualenv_run/bin/python /code/serviceinit.d/schematizer start-no-daemon
+CMD     PORT=8888 /code/virtualenv_run/bin/python /code/serviceinitd/internal_schematizer start-no-daemon
 EXPOSE  8888

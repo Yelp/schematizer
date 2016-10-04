@@ -23,11 +23,11 @@ class Priority(Enum):
 
 class RefreshStatus(Enum):
 
-    NOT_STARTED = 0
-    IN_PROGRESS = 1
-    PAUSED = 2
-    SUCCESS = 3
-    FAILED = 4
+    NOT_STARTED = "NOT_STARTED"
+    IN_PROGRESS = "IN_PROGRESS"
+    PAUSED = "PAUSED"
+    SUCCESS = "SUCCESS"
+    FAILED = "FAILED"
 
 
 class Refresh(Base, BaseModel):
@@ -43,7 +43,7 @@ class Refresh(Base, BaseModel):
     )
 
     status = Column(
-        Integer,
+        String,
         default=RefreshStatus.NOT_STARTED.value,
         nullable=False
     )

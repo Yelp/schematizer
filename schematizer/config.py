@@ -31,24 +31,18 @@ class Config(object):
             default='/nail/srv/configs/topology.yaml'
         )
 
-    @property
-    def force_avoid_internal_packages(self):
-        """ TODO(DATAPIPE-1506|abrar): Currently we have
-        force_avoid_internal_packages as a means of simulating an absence
-        of a yelp's internal package. And all references
-        of force_avoid_internal_packages have to be removed from schematizer
-        after we have completely ready for open source.
-        """
-        return staticconf.get(
-            'force_avoid_internal_packages',
-            default=False
-        )
-
     @cached_property
     def namespace_no_doc_required(self):
         return staticconf.read_list_of_string(
             'namespace_no_doc_required',
             default=[]
+        )
+
+    @cached_property
+    def default_kafka_cluster_type(self):
+        return staticconf.get(
+            'default_kafka_cluster_type',
+            default='datapipe'
         )
 
 
@@ -191,6 +185,11 @@ def routes(config):
     config.add_route(
         'api.v1.get_data_target_by_id',
         '/v1/data_targets/{data_target_id}',
+        request_method="GET"
+    )
+    config.add_route(
+        'api.v1.get_data_target_by_name',
+        '/v1/data_targets/name/{data_target_name}',
         request_method="GET"
     )
     config.add_route(

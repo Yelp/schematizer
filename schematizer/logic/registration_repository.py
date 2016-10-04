@@ -9,20 +9,33 @@ from __future__ import unicode_literals
 from sqlalchemy import and_
 from sqlalchemy import exc
 from sqlalchemy import or_
-from yelp_conn.mysqldb import IntegrityError
 
 from schematizer import models
+from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.logic.validators import verify_entity_exists
 from schematizer.logic.validators import verify_truthy_value
 from schematizer.models.consumer_group_data_source \
     import DataSourceTypeEnum as SrcType
 from schematizer.models.database import session
 
+try:
+    # TODO(DATAPIPE-1506|abrar): Currently we have
+    # force_avoid_internal_packages as a means of simulating an absence
+    # of a yelp's internal package. And all references
+    # of force_avoid_internal_packages have to be removed from
+    # schematizer after we have completely ready for open source.
+    if FORCE_AVOID_INTERNAL_PACKAGES:
+        raise ImportError
+    from yelp_conn.mysqldb import IntegrityError
+except ImportError:
+    from sqlalchemy.exc import IntegrityError
 
-def create_data_target(target_type, destination):
+
+def create_data_target(name, target_type, destination):
     """Create a new data target of specified target type and destination.
 
     Args:
+        name (string): name to uniquely identify a data target
         target_type (string): string describing the type of the data target
         destination (string): the actual location of the data target, such as
             the url of the cluster.
@@ -33,11 +46,13 @@ def create_data_target(target_type, destination):
     Raises:
         ValueError: if given target type or destination is empty.
     """
+    verify_truthy_value(name, "data target name")
     verify_truthy_value(target_type, "data target type")
     verify_truthy_value(destination, "destination of data target")
 
     return models.DataTarget.create(
         session,
+        name=name,
         target_type=target_type,
         destination=destination
     )
