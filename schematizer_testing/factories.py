@@ -159,13 +159,12 @@ def create_refresh(
     filter_condition=None,
     avg_rows_per_second_cap=200
 ):
-    priority_value = None if not priority else models.Priority[priority].value
     return models.Refresh.create(
         session,
         source_id=source_id,
         offset=offset,
         batch_size=batch_size,
-        priority=priority_value,
+        priority=priority,
         filter_condition=filter_condition,
         avg_rows_per_second_cap=avg_rows_per_second_cap
     )
@@ -179,9 +178,10 @@ def create_source_category(source_id, category):
     )
 
 
-def create_data_target(target_type, destination):
+def create_data_target(name, target_type, destination):
     return models.DataTarget.create(
         session,
+        name=name,
         target_type=target_type,
         destination=destination
     )

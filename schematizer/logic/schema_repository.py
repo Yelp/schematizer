@@ -722,12 +722,11 @@ def create_refresh(
         filter_condition,
         avg_rows_per_second_cap
 ):
-    priority_value = None if not priority else models.Priority[priority].value
     refresh = models.Refresh(
         source_id=source_id,
         offset=offset,
         batch_size=batch_size,
-        priority=priority_value,
+        priority=priority,
         filter_condition=filter_condition,
         avg_rows_per_second_cap=avg_rows_per_second_cap
     )
@@ -904,7 +903,7 @@ def get_refreshes_by_criteria(
             if specified.
         source_name(Optional[str]): get refreshes of given source
             if specified.
-        status(Optional[int]): get refreshes of given status
+        status(Optional[str]): get refreshes of given status
             if specified.
         created_after(Optional[datetime]): get refreshes created
             after given utc datetime (inclusive) if specified.
@@ -926,7 +925,6 @@ def get_refreshes_by_criteria(
             models.Source.name == source_name
         )
     if status:
-        status = models.RefreshStatus[status].value
         qry = qry.filter(models.Refresh.status == status)
     if created_after:
         qry = qry.filter(models.Refresh.created_at >= created_after)
@@ -948,14 +946,13 @@ def get_refresh_by_id(refresh_id):
 
 
 def update_refresh(refresh_id, status, offset):
-    status_value = models.RefreshStatus[status].value
     return session.query(
         models.Refresh
     ).filter(
         models.Refresh.id == refresh_id
     ).update(
         {
-            models.Refresh.status: status_value,
+            models.Refresh.status: status,
             models.Refresh.offset: offset
         }
     )

@@ -409,6 +409,10 @@
                     "description": "Url that connects to the data target, such as Redshift cluster connection url.",
                     "type": "string"
                 },
+                "name": {
+                    "description": "Data target name",
+                    "type": "string"
+                },
                 "target_type": {
                     "description": "Short description of the data target type, such as Redshift.",
                     "type": "string"

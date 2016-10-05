@@ -153,12 +153,32 @@ def _setup_schematizer_container():
     container. It removes the container when exiting the context manager.
     """
     project = 'schematizermanualtest{}'.format(getpass.getuser())
+    # TODO(DATAPIPE-1822|abrar): make it configurable so that it can
+    # be run using both docker-compose.yml and docker-compose-opensource.yml
     service = 'schematizerservice'
     try:
         _run_docker_compose_command(
             '--project-name={}'.format(project),
+            '--file=docker-compose-opensource.yml',
+            'pull'
+        )
+        _run_docker_compose_command(
+            '--project-name={}'.format(project),
+            '--file=docker-compose-opensource.yml',
+            'rm',
+            '--force'
+        )
+        _run_docker_compose_command(
+            '--project-name={}'.format(project),
+            '--file=docker-compose-opensource.yml',
+            'build'
+        )
+        _run_docker_compose_command(
+            '--project-name={}'.format(project),
+            '--file=docker-compose-opensource.yml',
             'up',
             '-d',
+            '--no-build',
             service
         )
         container_id = _ensure_containers_up(project, service)
@@ -169,10 +189,12 @@ def _setup_schematizer_container():
     finally:
         _run_docker_compose_command(
             '--project-name={}'.format(project),
+            '--file=docker-compose-opensource.yml',
             'kill'
         )
         _run_docker_compose_command(
             '--project-name={}'.format(project),
+            '--file=docker-compose-opensource.yml',
             'rm',
             '--force'
         )

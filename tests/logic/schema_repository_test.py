@@ -125,11 +125,7 @@ class TestSchemaRepository(DBTestCase):
 
     @property
     def priority(self):
-        return factories.fake_priority
-
-    @property
-    def priority_value(self):
-        return factories.fake_priority_value
+        return 50
 
     @property
     def filter_condition(self):
@@ -1337,10 +1333,10 @@ class TestSchemaRepository(DBTestCase):
         )
         expected_refresh = models.Refresh(
             source_id=self.source_id,
-            status=0,
+            status=models.RefreshStatus.NOT_STARTED.value,
             offset=self.offset,
             batch_size=self.batch_size,
-            priority=self.priority_value,
+            priority=self.priority,
             filter_condition=self.filter_condition,
             avg_rows_per_second_cap=self.avg_rows_per_second_cap
         )
@@ -1544,13 +1540,17 @@ class TestByCriteria(DBTestCase):
     def avg_rows_per_second_cap(self):
         return 1000
 
+    @property
+    def priority(self):
+        return 50
+
     @pytest.fixture
     def biz_refresh(self, biz_source):
         return factories.create_refresh(
             source_id=biz_source.id,
             offset=factories.fake_offset,
             batch_size=factories.fake_batch_size,
-            priority=factories.fake_priority,
+            priority=self.priority,
             filter_condition=factories.fake_filter_condition,
             avg_rows_per_second_cap=self.avg_rows_per_second_cap
         )
@@ -1561,7 +1561,7 @@ class TestByCriteria(DBTestCase):
             source_id=user_source.id,
             offset=factories.fake_offset,
             batch_size=factories.fake_batch_size,
-            priority=factories.fake_priority,
+            priority=self.priority,
             filter_condition=factories.fake_filter_condition,
             avg_rows_per_second_cap=self.avg_rows_per_second_cap
         )
@@ -1572,7 +1572,7 @@ class TestByCriteria(DBTestCase):
             source_id=cta_source.id,
             offset=factories.fake_offset,
             batch_size=factories.fake_batch_size,
-            priority=factories.fake_priority,
+            priority=self.priority,
             filter_condition=factories.fake_filter_condition,
             avg_rows_per_second_cap=self.avg_rows_per_second_cap
         )

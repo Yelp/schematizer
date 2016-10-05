@@ -237,6 +237,11 @@ def routes(config):
         request_method="GET"
     )
     config.add_route(
+        'api.v1.get_data_target_by_name',
+        '/v1/data_targets/name/{data_target_name}',
+        request_method="GET"
+    )
+    config.add_route(
         'api.v1.get_consumer_groups_by_data_target_id',
         '/v1/data_targets/{data_target_id}/consumer_groups',
         request_method="GET"

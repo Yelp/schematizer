@@ -7,14 +7,14 @@ import os
 import uwsgi_metrics
 from pyramid.config import Configurator
 from pyramid.tweens import EXCVIEW
-from yelp_servlib import config_util
-from yelp_servlib import logging_util
 
 import schematizer.config
 import schematizer.models.database
 from schematizer import healthchecks
 from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.helpers.decorators import memoized
+from schematizer.servlib import config_util
+from schematizer.servlib import logging_util
 
 SERVICE_CONFIG_PATH = os.environ.get('SERVICE_CONFIG_PATH')
 SERVICE_ENV_CONFIG_PATH = os.environ.get('SERVICE_ENV_CONFIG_PATH')
