@@ -38,13 +38,6 @@ class Config(object):
             default=[]
         )
 
-    @cached_property
-    def default_kafka_cluster_type(self):
-        return staticconf.get(
-            'default_kafka_cluster_type',
-            default='datapipe'
-        )
-
 
 def get_config():
     """Returns the global schematizer configuration object"""

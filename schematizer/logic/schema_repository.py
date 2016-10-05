@@ -11,7 +11,6 @@ from sqlalchemy.orm import exc as orm_exc
 
 from schematizer import models
 from schematizer.components.converters.converter_base import BaseConverter
-from schematizer.config import get_config
 from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
@@ -89,7 +88,7 @@ def register_avro_schema_from_avro_json(
         source_name,
         source_email_owner,
         contains_pii,
-        cluster_type=get_config().default_kafka_cluster_type,
+        cluster_type,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
         base_schema_id=None,
         docs_required=True
@@ -102,8 +101,7 @@ def register_avro_schema_from_avro_json(
     :param source: source name string
     :param domain_owner_email: email of the schema owner
     :param cluster_type: Type of kafka cluster Ex: datapipe, scribe, etc.
-        Defaults to datapipe. See http://y/datapipe_cluster_types for more info
-        on cluster_types.
+        See http://y/datapipe_cluster_types for more info on cluster_types.
     :param status: AvroStatusEnum: RW/R/Disabled
     :param base_schema_id: Id of the Avro schema from which the new schema is
         derived from
