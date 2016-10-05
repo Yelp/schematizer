@@ -189,7 +189,7 @@ def biz_src_refresh(biz_source):
         source_id=biz_source.id,
         offset=0,
         batch_size=500,
-        priority=models.Priority.MEDIUM.name,
+        priority=models.Priority.MEDIUM.value,
         filter_condition=None,
         avg_rows_per_second_cap=1000
     )
