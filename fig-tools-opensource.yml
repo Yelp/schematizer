@@ -6,7 +6,7 @@
 
 schematizer_schematizerservice:
     image: docker-dev.yelpcorp.com/schematizer_service
-    tags: ['latestopensource', '${GIT_SHA}']
+    tags: ['latestopensource']
 
 schematizer_schematizerdatabase:
     image: docker-dev.yelpcorp.com/schematizer_database
