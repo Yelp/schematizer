@@ -13,8 +13,8 @@ except ImportError:
     import mock
 
 
-from schematizer.helpers import logging_util
-from schematizer.helpers import clog_util
+from schematizer.servlib import logging_util
+from schematizer.servlib import clog_util
 
 
 class TestClogUtil(object):
@@ -24,7 +24,7 @@ class TestClogUtil(object):
 
     @pytest.yield_fixture
     def mock_clog(self):
-        with mock.patch('schematizer.helpers.clog_util.clog') as mock_clog:
+        with mock.patch('schematizer.servlib.clog_util.clog') as mock_clog:
             mock_clog.config.enabled = True
             yield mock_clog
 
@@ -65,7 +65,7 @@ class TestInitialize(object):
     @pytest.yield_fixture
     def mock_clog(self):
         with mock.patch(
-            'schematizer.helpers.clog_util.clog.handlers',
+            'schematizer.servlib.clog_util.clog.handlers',
             autospec=True
         ) as mock_clog:
             yield mock_clog
@@ -73,7 +73,7 @@ class TestInitialize(object):
     @pytest.yield_fixture
     def mock_root_log(self):
         with mock.patch(
-            'schematizer.helpers.clog_util.logging.root',
+            'schematizer.servlib.clog_util.logging.root',
             autospec=True
         ) as mock_root_log:
             yield mock_root_log

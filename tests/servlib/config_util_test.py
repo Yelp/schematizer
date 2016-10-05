@@ -6,7 +6,7 @@ import mock
 import pytest
 import staticconf
 
-from schematizer.helpers import config_util
+from schematizer.servlib import config_util
 
 
 def initialize_module_3():
@@ -57,7 +57,7 @@ class TestLoadPackageConfig(object):
     @pytest.fixture
     def mock_staticconf(self):
         with mock.patch(
-            'schematizer.helpers.config_util.staticconf',
+            'schematizer.servlib.config_util.staticconf',
             autospec=True
         ) as mock_staticconf:
             yield mock_staticconf
@@ -65,7 +65,7 @@ class TestLoadPackageConfig(object):
     @pytest.fixture
     def mock_config_packages(self):
         with mock.patch(
-            'schematizer.helpers.config_util.configure_packages',
+            'schematizer.servlib.config_util.configure_packages',
             autospec=True
         ) as mock_config_packages:
             yield mock_config_packages
@@ -98,14 +98,14 @@ class TestConfigurePackages(object):
 
 @pytest.yield_fixture
 def mock_load_package_config():
-    with mock.patch('schematizer.helpers.config_util.load_package_config',
+    with mock.patch('schematizer.servlib.config_util.load_package_config',
                     autospec=True) as mock_load:
         yield mock_load
 
 
 @pytest.yield_fixture
 def mock_path_exists():
-    with mock.patch('schematizer.helpers.config_util.os.path.exists',
+    with mock.patch('schematizer.servlib.config_util.os.path.exists',
                     autospec=True) as mock_path:
         yield mock_path
 

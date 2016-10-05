@@ -8,13 +8,13 @@ from collections import namedtuple
 from sqlalchemy.orm import exc as orm_exc
 
 from schematizer import models
-from schematizer.helpers.config_util import load_default_config
 from schematizer.logic.doc_tool import get_notes_by_schemas_and_elements
 from schematizer.logic.doc_tool import get_source_categories_by_criteria
 from schematizer.logic.schema_repository import get_namespace_by_name
 from schematizer.logic.schema_repository import get_refreshes_by_criteria
 from schematizer.logic.schema_repository import get_schemas_by_criteria
 from schematizer.models.database import session
+from schematizer.servlib.config_util import load_default_config
 
 ModelIdsPair = namedtuple('ModelIdsPair', ['model', 'ids'])
 

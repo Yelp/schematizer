@@ -10,7 +10,7 @@ import imp
 import os
 import pytest
 
-from schematizer.helpers import logging_util
+from schematizer.servlib import logging_util
 
 
 class TestInitializeUwsgiLogging(object):
@@ -18,7 +18,7 @@ class TestInitializeUwsgiLogging(object):
     @pytest.yield_fixture
     def mock_logging(self):
         with mock.patch(
-            'schematizer.helpers.logging_util.logging',
+            'schematizer.servlib.logging_util.logging',
             autospec=True
         ) as mock_logging:
             yield mock_logging
@@ -26,7 +26,7 @@ class TestInitializeUwsgiLogging(object):
     @pytest.yield_fixture
     def mock_file_handler(self):
         with mock.patch(
-            'schematizer.helpers.logging_util.RotatingFileHandler',
+            'schematizer.servlib.logging_util.RotatingFileHandler',
             autospec=True
         ) as mock_file_handler:
             yield mock_file_handler
@@ -34,7 +34,7 @@ class TestInitializeUwsgiLogging(object):
     @pytest.yield_fixture
     def mock_tempfile(self):
         with mock.patch(
-            'schematizer.helpers.logging_util.tempfile',
+            'schematizer.servlib.logging_util.tempfile',
             autospec=True
         ) as mock_tempfile:
             yield mock_tempfile
