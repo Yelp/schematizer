@@ -17,12 +17,12 @@ RUN     apt-get install -y libyaml-0-2 libxml2 libpython2.7 libmysqlclient-dev l
 
 # Add the service code
 ADD     requirements.txt /code/requirements.txt
-ADD     requirements-internal.txt /code/requirements-internal.txt
 RUN     virtualenv --python python2.7 /code/virtualenv_run
+
+# TODO(DATAPIPE-1507|abrar): stop pointing to yelpcorp pypi package
 RUN     /code/virtualenv_run/bin/pip install \
             -i https://pypi.yelpcorp.com/simple/ \
-            -r /code/requirements.txt \
-            -r /code/requirements-internal.txt
+            -r /code/requirements.txt
 
 # Share the logging directory as a volume
 RUN     mkdir /tmp/logs && chown -R nobody /tmp/logs/
@@ -33,5 +33,5 @@ ADD     . /code
 WORKDIR /code
 ENV     BASEPATH /code
 USER    nobody
-CMD     PORT=8888 /code/virtualenv_run/bin/python /code/serviceinitd/internal_schematizer start-no-daemon
+CMD     /code/virtualenv_run/bin/python -m serviceinitd.schematizer
 EXPOSE  8888

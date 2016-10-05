@@ -157,13 +157,12 @@ def create_refresh(
     filter_condition=None,
     avg_rows_per_second_cap=200
 ):
-    priority_value = None if not priority else models.Priority[priority].value
     return models.Refresh.create(
         session,
         source_id=source_id,
         offset=offset,
         batch_size=batch_size,
-        priority=priority_value,
+        priority=priority,
         filter_condition=filter_condition,
         avg_rows_per_second_cap=avg_rows_per_second_cap
     )

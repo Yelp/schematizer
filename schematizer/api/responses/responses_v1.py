@@ -10,8 +10,6 @@ from __future__ import unicode_literals
 from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
 from schematizer.helpers.formatting import _format_datetime
-from schematizer.models.refresh import Priority
-from schematizer.models.refresh import RefreshStatus
 
 
 def get_namespace_response_from_namespace(namespace):
@@ -98,11 +96,12 @@ def get_category_response_from_source_category(source_category):
 def get_refresh_response_from_refresh(refresh):
     return {
         'refresh_id': refresh.id,
-        'source': get_source_response_from_source(refresh.source),
-        'status': RefreshStatus(refresh.status).name,
+        'source_name': refresh.source.name,
+        'namespace_name': refresh.source.namespace.name,
+        'status': refresh.status,
         'offset': refresh.offset,
         'batch_size': refresh.batch_size,
-        'priority': Priority(refresh.priority).name,
+        'priority': refresh.priority,
         'filter_condition': refresh.filter_condition,
         'avg_rows_per_second_cap': refresh.avg_rows_per_second_cap,
         'created_at': _format_datetime(refresh.created_at),

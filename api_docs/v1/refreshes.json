@@ -193,27 +193,25 @@
                     "description": "This field contains the expression used to filter the records that must be refreshed. E.g. It may be a MySQL where clause if the source of the refresh is a MySQL table.",
                     "type": "string"
                 },
+                "namespace_name": {
+                    "description": "Name of the namespace the refresh is running on.",
+                    "type": "string"
+                },
                 "offset": {
                     "description": "Represents the last known position that has been refreshed.",
                     "type": "integer"
                 },
                 "priority": {
-                    "description": "Priority of this refresh.",
-                    "enum": [
-                        "LOW",
-                        "MEDIUM",
-                        "HIGH",
-                        "MAX"
-                    ],
-                    "type": "string"
+                    "description": "Priority of this refresh. LOW=20, MAX=100",
+                    "type": "integer"
                 },
                 "refresh_id": {
                     "description": "Refresh ID",
                     "type": "integer"
                 },
-                "source": {
-                    "$ref": "Source",
-                    "description": "Source that this refresh is running on."
+                "source_name": {
+                    "description": "Name of the source the refresh is running on.",
+                    "type": "string"
                 },
                 "status": {
                     "description": "Current status of refresh.",
