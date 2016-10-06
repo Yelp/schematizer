@@ -55,3 +55,16 @@ class Namespace(Base, BaseModel):
             raise EntityNotFoundError(
                 entity_desc='{} name `{}`'.format(cls.__name__, name)
             )
+
+    def get_sources(self, page_info=None):
+        qry = session.query(
+            Source
+        )
+        if page_info and page_info.min_id:
+            qry = qry.filter(
+                Source.id >= page_info.min_id
+            )
+        qry = qry.order_by(Source.id)
+        if page_info and page_info.count:
+            qry = qry.limit(page_info.count)
+        return qry.all()
