@@ -2,6 +2,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from time import time
+
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
@@ -11,7 +13,6 @@ from schematizer.models.base_model import BaseModel
 from schematizer.models.database import Base
 from schematizer.models.database import session
 from schematizer.models.exceptions import EntityNotFoundError
-from schematizer.models.types.time import build_time_column
 
 
 class MetaAttributeEntity(object):
@@ -53,16 +54,18 @@ class MetaAttributeMappingStore(Base, BaseModel):
     meta_attr_schema_id = Column(Integer, ForeignKey('avro_schema.id'))
 
     # Timestamp when the entry is created
-    created_at = build_time_column(
-        default_now=True,
-        nullable=False
+    created_at = Column(
+        Integer,
+        nullable=False,
+        default=lambda: int(time())
     )
 
     # Timestamp when the entry is last updated
-    updated_at = build_time_column(
-        default_now=True,
-        onupdate_now=True,
-        nullable=False
+    updated_at = Column(
+        Integer,
+        nullable=False,
+        default=lambda: int(time()),
+        onupdate=lambda: int(time())
     )
 
     @classmethod
