@@ -59,7 +59,7 @@ class Namespace(Base, BaseModel):
     def get_sources(self, page_info=None):
         qry = session.query(
             Source
-        )
+        ).filter(Source.namespace_id == self.id)
         if page_info and page_info.min_id:
             qry = qry.filter(
                 Source.id >= page_info.min_id

@@ -43,7 +43,6 @@ def list_sources_by_namespace(request):
         raise exceptions_v1.entity_not_found_exception(e.message)
 
 
-
 @view_config(
     route_name='api.v1.list_refreshes_by_namespace',
     request_method='GET',

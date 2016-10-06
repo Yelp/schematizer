@@ -61,11 +61,6 @@ class TestSourcesRelatedToNamespace(DBTestCase):
     def namespace(self, namespace_name):
         return factories.create_namespace(namespace_name)
 
-
-    @pytest.fixture
-    def namespace_no_sources(self):
-        return factories.create_namespace('non_sources')
-
     @pytest.fixture
     def sources(self, namespace_name):
         return [
@@ -73,19 +68,19 @@ class TestSourcesRelatedToNamespace(DBTestCase):
             factories.create_source(namespace_name, 'source2')
         ]
 
-    def test_happy_case(self, namespace):
+    def test_happy_case(self, namespace, sources):
         info = PageInfo(min_id=0,count=1)
-        sources = namespace.get_sources(page_info= info)
-        assert len(sources) == 1
-        assert sources[0].name == 'source1'
-        new_min_id = sources[0].id + 1
+        actual = namespace.get_sources(page_info= info)
+        assert len(actual) == 1
+        assert actual[0].name == sources[0].name
+        new_min_id = actual[0].id + 1
         new_info = PageInfo(min_id=new_min_id)
-        sources = namespace.get_sources(page_info=new_info)
-        assert len(sources) == 1
-        assert sources[0].name == 'source2'
+        actual = namespace.get_sources(page_info=new_info)
+        assert len(actual) == 1
+        assert actual[0].name == sources[1].name
 
-    def test_non_related_sources(self, namespace_no_sources):
-        sources = namespace_no_sources.get_sources()
-        assert len(sources) == 0
+    def test_non_related_sources(self, namespace):
+        actual = namespace.get_sources()
+        assert len(actual) == 0
 
 
