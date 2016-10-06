@@ -52,6 +52,7 @@ class TestGetNamespaceByName(DBTestCase):
         with pytest.raises(EntityNotFoundError):
             Namespace.get_by_name(name='bad namespace')
 
+
 class TestSourcesRelatedToNamespace(DBTestCase):
     @pytest.fixture
     def namespace_name(self):
@@ -69,8 +70,8 @@ class TestSourcesRelatedToNamespace(DBTestCase):
         ]
 
     def test_happy_case(self, namespace, sources):
-        info = PageInfo(min_id=0,count=1)
-        actual = namespace.get_sources(page_info= info)
+        info = PageInfo(min_id=0, count=1)
+        actual = namespace.get_sources(page_info=info)
         assert len(actual) == 1
         assert actual[0].name == sources[0].name
         new_min_id = actual[0].id + 1
@@ -82,5 +83,3 @@ class TestSourcesRelatedToNamespace(DBTestCase):
     def test_non_related_sources(self, namespace):
         actual = namespace.get_sources()
         assert len(actual) == 0
-
-
