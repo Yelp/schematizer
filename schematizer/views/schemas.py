@@ -107,6 +107,7 @@ def register_schema_from_mysql_stmts(request):
         source=req.source,
         source_email_owner=req.source_owner_email,
         contains_pii=req.contains_pii,
+        cluster_type=req.cluster_type,
         docs_required=False
     )
 
@@ -117,7 +118,7 @@ def _register_avro_schema(
     source,
     source_email_owner,
     contains_pii,
-    cluster_type=get_config().default_kafka_cluster_type,
+    cluster_type,
     base_schema_id=None,
     docs_required=True
 ):

@@ -7,8 +7,9 @@ from datetime import datetime
 import simplejson
 from cached_property import cached_property
 
-from schematizer.config import get_config
 from schematizer.models.page_info import PageInfo
+
+DEFAULT_KAFKA_CLUSTER_TYPE = 'datapipe'
 
 
 # TODO [clin|DATAPIPE-1433] remove these request classes and only keep common
@@ -49,7 +50,7 @@ class RegisterSchemaRequest(RequestBase):
         source,
         source_owner_email,
         contains_pii=False,
-        cluster_type=get_config().default_kafka_cluster_type,
+        cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE,
         base_schema_id=None
     ):
         super(RegisterSchemaRequest, self).__init__()
@@ -86,6 +87,7 @@ class RegisterSchemaFromMySqlRequest(RequestBase):
         self.source = source
         self.source_owner_email = source_owner_email
         self.contains_pii = contains_pii
+        self.cluster_type = DEFAULT_KAFKA_CLUSTER_TYPE
 
 
 class AvroSchemaCompatibilityRequest(RequestBase):

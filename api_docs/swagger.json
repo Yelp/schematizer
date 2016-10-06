@@ -508,6 +508,10 @@
                     "description": "The original Avro schema that this schema is transformed from",
                     "type": "integer"
                 },
+                "cluster_type": {
+                    "description": "Type of kafka cluster this topic belongs to. See http://y/datapipe_cluster_types for more info on cluster_types.",
+                    "type": "string"
+                },
                 "contains_pii": {
                     "description": "Whether the schema contains PII field.",
                     "type": "boolean"
@@ -684,6 +688,10 @@
         "Topic": {
             "description": "Topic that this schema is associated to",
             "properties": {
+                "cluster_type": {
+                    "description": "Type of kafka cluster this topic belongs to. See http://y/datapipe_cluster_types for more info on cluster_types.",
+                    "type": "string"
+                },
                 "contains_pii": {
                     "description": "Whether the messages in this topic contain PII.",
                     "type": "boolean"

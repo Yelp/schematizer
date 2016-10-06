@@ -11,8 +11,8 @@ import mock
 import pytest
 
 from schematizer import models
+from schematizer.api.requests.requests_v1 import DEFAULT_KAFKA_CLUSTER_TYPE
 from schematizer.components import converters
-from schematizer.config import get_config
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import schema_repository as schema_repo
 from schematizer.models import Namespace
@@ -493,6 +493,7 @@ class TestSchemaRepository(DBTestCase):
             self.source_name,
             self.source_owner_email,
             contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE,
             base_schema_id=expected_base_schema_id
         )
 
@@ -514,26 +515,17 @@ class TestSchemaRepository(DBTestCase):
         )
         self.assert_equal_source_partial(expected_source, actual_source)
 
-    @pytest.mark.parametrize("cluster_type", [None, 'datapipe', 'scribe'])
+    @pytest.mark.parametrize("cluster_type", ['datapipe', 'scribe'])
     def test_registering_from_avro_json_with_cluster_types(self, cluster_type):
         expected_base_schema_id = 100
-        if cluster_type:
-            cluster_override = {
-                'cluster_type': cluster_type
-            }
-            expected_cluster_type = cluster_type
-        else:
-            cluster_override = {}
-            expected_cluster_type = get_config().default_kafka_cluster_type
-
         actual_schema = schema_repo.register_avro_schema_from_avro_json(
             self.rw_schema_json,
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
             contains_pii=False,
-            base_schema_id=expected_base_schema_id,
-            **cluster_override
+            cluster_type=cluster_type,
+            base_schema_id=expected_base_schema_id
         )
         actual_topic = session.query(models.Topic).filter(
             models.Topic.id == actual_schema.topic.id
@@ -542,7 +534,7 @@ class TestSchemaRepository(DBTestCase):
             name=actual_schema.topic.name,
             source_id=actual_schema.topic.source_id,
             contains_pii=actual_schema.topic.contains_pii,
-            cluster_type=expected_cluster_type
+            cluster_type=cluster_type
         )
         self.assert_equal_topic_partial(expected_topic, actual_topic)
         self.assert_topic_name_by_cluster_type(
@@ -556,7 +548,8 @@ class TestSchemaRepository(DBTestCase):
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
-            contains_pii=False
+            contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
         )
 
         actual_schema2 = schema_repo.register_avro_schema_from_avro_json(
@@ -564,7 +557,8 @@ class TestSchemaRepository(DBTestCase):
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
-            contains_pii=False
+            contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
         )
         assert actual_schema1.topic.id != actual_schema2.topic.id
 
@@ -574,7 +568,8 @@ class TestSchemaRepository(DBTestCase):
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
-            contains_pii=False
+            contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
         )
 
         actual_schema2 = schema_repo.register_avro_schema_from_avro_json(
@@ -582,7 +577,8 @@ class TestSchemaRepository(DBTestCase):
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
-            contains_pii=False
+            contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
         )
         assert actual_schema1.topic.id != actual_schema2.topic.id
 
@@ -592,7 +588,8 @@ class TestSchemaRepository(DBTestCase):
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
-            contains_pii=False
+            contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
         )
 
         actual_schema2 = schema_repo.register_avro_schema_from_avro_json(
@@ -600,7 +597,8 @@ class TestSchemaRepository(DBTestCase):
             self.namespace_name,
             self.source_name,
             self.source_owner_email,
-            contains_pii=False
+            contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
         )
         assert actual_schema1.topic.id == actual_schema2.topic.id
 
@@ -617,7 +615,8 @@ class TestSchemaRepository(DBTestCase):
             topic.source.namespace.name,
             topic.source.name,
             topic.source.owner_email,
-            contains_pii=False
+            contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
         )
 
         expected_schema = models.AvroSchema(
@@ -642,6 +641,7 @@ class TestSchemaRepository(DBTestCase):
                 avro_schema.topic.source.name,
                 email,
                 contains_pii=False,
+                cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE,
                 base_schema_id=avro_schema.base_schema_id
             )
         assert str(e.value) == "Source owner email must be non-empty."
@@ -660,6 +660,7 @@ class TestSchemaRepository(DBTestCase):
                 src_name,
                 avro_schema.topic.source.owner_email,
                 contains_pii=False,
+                cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE,
                 base_schema_id=avro_schema.base_schema_id
             )
         assert str(e.value) == "Source name must be non-empty."
@@ -717,6 +718,7 @@ class TestSchemaRepository(DBTestCase):
             topic.source.name,
             topic.source.owner_email,
             contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE,
             docs_required=True
         )
         assert actual_schema.avro_schema_json == avro_schema_with_docs
@@ -732,6 +734,7 @@ class TestSchemaRepository(DBTestCase):
             topic.source.name,
             topic.source.owner_email,
             contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE,
             docs_required=False
         )
         assert actual_schema.avro_schema_json == avro_schema_with_docs
@@ -761,6 +764,7 @@ class TestSchemaRepository(DBTestCase):
                 topic.source.name,
                 topic.source.owner_email,
                 contains_pii=False,
+                cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
             )
 
     def test_register_avro_schema_without_docs_dont_require_doc(
@@ -774,6 +778,7 @@ class TestSchemaRepository(DBTestCase):
             topic.source.name,
             topic.source.owner_email,
             contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE,
             docs_required=False
         )
         assert actual_schema.avro_schema_json == avro_schema_without_docs
@@ -918,6 +923,7 @@ class TestSchemaRepository(DBTestCase):
             rw_schema.topic.source.name,
             rw_schema.topic.source.owner_email,
             contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE,
             base_schema_id=expected_base_schema_id
         )
 

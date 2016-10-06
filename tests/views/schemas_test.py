@@ -11,7 +11,7 @@ import simplejson
 
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
-from schematizer.config import get_config
+from schematizer.api.requests.requests_v1 import DEFAULT_KAFKA_CLUSTER_TYPE
 from schematizer.helpers.formatting import _format_datetime
 from schematizer.views import schemas as schema_views
 from schematizer_testing import factories
@@ -347,7 +347,7 @@ class TestRegisterSchema(RegisterSchemaTestBase):
             request_json['cluster_type'] = cluster_type
             expected_cluster_type = cluster_type
         else:
-            expected_cluster_type = get_config().default_kafka_cluster_type
+            expected_cluster_type = DEFAULT_KAFKA_CLUSTER_TYPE
         mock_request.json_body = request_json
         actual = schema_views.register_schema(mock_request)
         self._assert_equal_schema_response(actual, request_json)
