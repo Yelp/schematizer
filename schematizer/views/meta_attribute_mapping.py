@@ -24,7 +24,6 @@ def _register_meta_attribute_mapping_for_entity(
             entity_id,
             meta_attr_schema_id
         )
-
         return responses_v1.get_meta_attr_mapping_response(
             entity_type=entity_model.__name__.lower() + '_id',
             entity_id=mapping.entity_id,
@@ -95,6 +94,26 @@ def delete_namespace_meta_attribute_mapping(request):
 
 
 @view_config(
+    route_name='api.v1.get_namespace_meta_attribute_mappings',
+    request_method='GET',
+    renderer='json'
+)
+@transform_api_response()
+def get_namespace_meta_attribute_mappings(request):
+    try:
+        namespace_name = request.matchdict.get('namespace')
+        namespace = Namespace.get_by_name(namespace_name)
+        meta_attr_ids = meta_attr_logic.get_meta_attributes_by_namespace(
+            namespace.id
+        )
+        return [responses_v1.get_meta_attr_mapping_response(
+            'namespace_id', namespace.id, meta_attr_id
+        ) for meta_attr_id in meta_attr_ids]
+    except EntityNotFoundError as e:
+        raise exceptions_v1.entity_not_found_exception(e.message)
+
+
+@view_config(
     route_name='api.v1.register_source_meta_attribute_mapping',
     request_method='POST',
     renderer='json'
@@ -124,26 +143,6 @@ def delete_source_meta_attribute_mapping(request):
         source_id,
         meta_attr_schema_id
     )
-
-
-@view_config(
-    route_name='api.v1.get_namespace_meta_attribute_mappings',
-    request_method='GET',
-    renderer='json'
-)
-@transform_api_response()
-def get_namespace_meta_attribute_mappings(request):
-    try:
-        namespace_name = request.matchdict.get('namespace')
-        namespace = Namespace.get_by_name(namespace_name)
-        meta_attr_ids = meta_attr_logic.get_meta_attributes_by_namespace(
-            namespace.id
-        )
-        return [responses_v1.get_meta_attr_mapping_response(
-            'namespace_id', namespace.id, meta_attr_id
-        ) for meta_attr_id in meta_attr_ids]
-    except EntityNotFoundError as e:
-        raise exceptions_v1.entity_not_found_exception(e.message)
 
 
 @view_config(

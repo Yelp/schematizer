@@ -23,19 +23,19 @@ class MetaAttributeEntity(object):
 
 class MetaAttributeMappingStore(Base, BaseModel):
     """This table stores all the mappings of meta attribute registered for
-    each entity. The entities can be Namespace, Source or AvroSchema. This
-    table is a source of truth for all mappings currently active in the Data
-    Pipeline. Rows are modified in this table by hitting the
-    meta_attribute_mappings endpints for each entity. However this table is
-    not used for enforcing the meta attributes in messages. This information
-    is present in SchemaMetaAttributeMapping.
+    each entity. The entities can be Namespace or Source. This table is a
+    source of truth for all mappings currently active in the Data Pipeline.
+    Rows are modified in this table by hitting the meta_attribute_mappings
+    endpoints for each entity. However this table is not used for enforcing
+    the meta attributes in messages. This information is present in
+    SchemaMetaAttributeMapping.
     """
 
     __tablename__ = 'meta_attribute_mapping_store'
 
     id = Column(Integer, primary_key=True)
 
-    # The name of the entity type, can be namespace, source or schema.
+    # The name of the entity type, can be namespace or source.
     entity_type = Column(
         Enum(
             MetaAttributeEntity.NAMESPACE,

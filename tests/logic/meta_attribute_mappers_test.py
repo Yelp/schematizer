@@ -141,7 +141,6 @@ class GetMetaAttributeBaseTest(DBTestCase):
     testing with:
         NamespaceA:
           - SourceA1
-        NamespaceB
 
     +----+-------------+-----------+--------------------------+
     | id | entity_type | entity_id |     meta_attr_schema     |

@@ -490,11 +490,11 @@ def get_source_by_fullname(namespace_name, source_name):
 
 
 def _create_avro_schema(
-        avro_schema_json,
-        source_id,
-        topic_id,
-        status=models.AvroSchemaStatus.READ_AND_WRITE,
-        base_schema_id=None
+    avro_schema_json,
+    source_id,
+    topic_id,
+    status=models.AvroSchemaStatus.READ_AND_WRITE,
+    base_schema_id=None
 ):
     avro_schema_elements = models.AvroSchema.create_schema_elements_from_json(
         avro_schema_json

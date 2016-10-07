@@ -84,8 +84,8 @@ class TestGetMetaAttributesBySource(ApiTestBase):
 
 
 class RegisterMetaAttributeBase(ApiTestBase):
-    """Entities here can be Namespaces, Sources or Schemas. You need to
-    implement the following to use this Base class:
+    """Entities here can be Namespaces or Sources. You need to implement the
+    following to use this Base class:
 
         entity_type: The entity for which you are querying the MetaAttributes
         register_logic_method: The logic funtion to add a mapping.

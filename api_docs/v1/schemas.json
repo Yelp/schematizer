@@ -240,7 +240,7 @@
                     },
                     "method": "GET",
                     "nickname": "get_meta_attributes_by_schema_id",
-                    "notes": "",
+                    "notes": "The avro schema id should exist.",
                     "parameters": [
                         {
                             "allowMultiple": false,
@@ -265,7 +265,7 @@
                             "message": "Server side error"
                         }
                     ],
-                    "summary": "Get the meta_attribute schema_ids for specified schema id.",
+                    "summary": "Get list of all required meta attributes for specified schema_id.",
                     "type": "array"
                 }
             ],

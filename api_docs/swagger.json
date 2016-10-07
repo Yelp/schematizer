@@ -254,7 +254,7 @@
             "type": "object"
         },
         "MetaAttributeMapping": {
-            "description": "Mapping of Meta Attributes to be includes for sepcific entities (Namespace, Source or AvroSchema).",
+            "description": "Mapping of Meta Attributes to be includes for sepcific entities (Namespace or Source).",
             "properties": {
                 "meta_attribute_schema_id": {
                     "description": "Avro Schema ID of meta attribute.",
@@ -450,7 +450,7 @@
             "type": "object"
         },
         "RegisterMetaAttributeRequest": {
-            "description": "Register a mapping of sepcified meta_attributes and entity (Namespace, Source or AvroSchema).",
+            "description": "Register a mapping of sepcified meta_attributes and entity (Namespace or Source).",
             "properties": {
                 "meta_attribute_schema_id": {
                     "description": "AvroSchema ID of Meta Attribute schema to be mapped.",
@@ -2208,7 +2208,7 @@
                         "description": "Server side error"
                     }
                 },
-                "summary": "Get list of all meta attributes required for specified schema_id.",
+                "summary": "Get list of all required meta attributes for specified schema_id.",
                 "tags": [
                     "schemas"
                 ]
