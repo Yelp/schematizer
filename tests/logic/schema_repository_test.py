@@ -483,6 +483,7 @@ class TestSchemaRepository(DBTestCase):
             biz_source.name,
             'biz.user@yelp.com',
             contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
         )
 
     def test_registering_from_avro_json_with_new_schema(self, namespace):
@@ -1868,6 +1869,7 @@ class TestAddToSchemaMetaAttributeMapping(GetMetaAttributeBaseTest):
             dummy_src.name,
             'dexter@morgan.com',
             contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
         )
         expected = {
             actual_schema_1.id: {
@@ -1883,6 +1885,7 @@ class TestAddToSchemaMetaAttributeMapping(GetMetaAttributeBaseTest):
             dummy_src.name,
             'dexter@morgan.com',
             contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
         )
         assert expected == self._get_meta_attr_mappings(actual_schema_2.id)
 
@@ -1905,6 +1908,7 @@ class TestAddToSchemaMetaAttributeMapping(GetMetaAttributeBaseTest):
             dummy_src.name,
             'dexter@morgan.com',
             contains_pii=False,
+            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
         )
         expected = {
             actual_schema.id: {
