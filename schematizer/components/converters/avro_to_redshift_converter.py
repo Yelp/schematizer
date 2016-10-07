@@ -126,10 +126,13 @@ class AvroToRedshiftConverter(BaseConverter):
             typ = field_type
 
         converter_func = self._type_converters.get(typ)
-        if 'logicalType' in field.props:
-            converter_func = self._logical_type_converters.get(
-                field.props.get("logicalType")
-            ) or converter_func
+
+        if 'logicalType' in field_type.props:
+            logical_converter_func = self._logical_type_converters.get(
+                field_type.props.get('logicalType')
+            )
+            if logical_converter_func:
+                return logical_converter_func(field_type)
 
         if converter_func:
             return converter_func(field)
