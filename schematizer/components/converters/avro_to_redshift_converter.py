@@ -104,6 +104,9 @@ class AvroToRedshiftConverter(BaseConverter):
     def _is_union_schema(self, avro_schema):
         return isinstance(avro_schema, schema.UnionSchema)
 
+    def _is_logical_schema(self, avro_schema):
+        return isinstance(avro_schema, schema.LogicalSchema)
+
     def _is_complex_schema(self, avro_schema):
         # The RecordSchema type is excluded because the Redshift converter
         # doesn't support nested table schemas.
@@ -127,7 +130,7 @@ class AvroToRedshiftConverter(BaseConverter):
 
         converter_func = self._type_converters.get(typ)
 
-        if 'logicalType' in field_type.props:
+        if self._is_logical_schema(field_type):
             logical_converter_func = self._logical_type_converters.get(
                 field_type.props.get('logicalType')
             )
