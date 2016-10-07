@@ -121,12 +121,12 @@ class TestAvroToRedshiftConverter(object):
         self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
-            'type': ['null',
-                {'logicalType': 'decimal',
-                AvroMetaDataKeys.PRECISION: 10,
-                AvroMetaDataKeys.SCALE: 2,
-                'type': 'bytes'}
-            ]},
+             'type': ['null',
+                      {'logicalType': 'decimal',
+                       AvroMetaDataKeys.PRECISION: 10,
+                       AvroMetaDataKeys.SCALE: 2,
+                       'type': 'bytes'}
+                      ]},
             SQLColumn(self.col_name, redshift_types.RedshiftDecimal(10, 2))
         )
 
@@ -134,9 +134,9 @@ class TestAvroToRedshiftConverter(object):
         self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
-            'type': ['null',
-                {'logicalType': 'date', 'type': 'int'}
-            ]},
+             'type': ['null',
+                      {'logicalType': 'date', 'type': 'int'}
+                      ]},
             SQLColumn(self.col_name, redshift_types.RedshiftDate())
         )
 
