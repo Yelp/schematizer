@@ -6,7 +6,6 @@ import pytest
 from sqlalchemy.orm import exc as orm_exc
 
 from schematizer.logic import meta_attribute_mappers as meta_attr_logic
-from schematizer.models import AvroSchema
 from schematizer.models import Namespace
 from schematizer.models import Source
 from schematizer.models.database import session
@@ -133,28 +132,15 @@ class TestRegisterAndDeleteMetaAttributeForSource(
         self.entity = biz_source
 
 
-@pytest.mark.usefixtures('setup_test')
-class TestRegisterAndDeleteMetaAttributeForSchema(
-    RegisterAndDeleteMetaAttributeBase
-):
-
-    @pytest.fixture
-    def setup_test(self, biz_schema):
-        self.entity_model = AvroSchema
-        self.entity = biz_schema
-
-
 class GetMetaAttributeBaseTest(DBTestCase):
     """MetaAttribute Mappings are supposed to be additive. In other words, a
     Source should have all the meta attributes for itself and the namespace it
-    belongs to. Similarly an AvroSchema should have all the meta attributes for
-    itself and the source and namespace it belongs to.
+    belongs to.
 
     Below are the entity structures and the meta attribute mappings I will be
     testing with:
         NamespaceA:
           - SourceA1
-            - SchemaA1X
         NamespaceB
 
     +----+-------------+-----------+--------------------------+
@@ -162,7 +148,6 @@ class GetMetaAttributeBaseTest(DBTestCase):
     +----+-------------+-----------+--------------------------+
     |  1 |   namespace |         A |      namespace_meta_attr |
     |  2 |      source |        A1 |         source_meta_attr |
-    |  3 |      schema |       A1X |         schema_meta_attr |
     +----+-------------+-----------+--------------------------+
     """
 
@@ -176,22 +161,6 @@ class GetMetaAttributeBaseTest(DBTestCase):
             namespace_name=dummy_namespace.name,
             source_name='meta_source_A_1',
             owner_email='test-meta-src@yelp.com'
-        )
-
-    @pytest.fixture
-    def dummy_schema(
-        self,
-        dummy_namespace,
-        dummy_src,
-        meta_attr_schema_json,
-        meta_attr_schema_elements
-    ):
-        return factories.create_avro_schema(
-            meta_attr_schema_json,
-            meta_attr_schema_elements,
-            topic_name='.'.join([dummy_namespace.name, dummy_src.name, '1']),
-            namespace=dummy_namespace.name,
-            source=dummy_src.name
         )
 
     def _create_meta_attribute_schema(
@@ -233,18 +202,6 @@ class GetMetaAttributeBaseTest(DBTestCase):
         )
 
     @pytest.fixture
-    def schema_meta_attr(
-        self,
-        meta_attr_schema_json,
-        meta_attr_schema_elements
-    ):
-        return self._create_meta_attribute_schema(
-            'schema_meta_attr',
-            meta_attr_schema_json,
-            meta_attr_schema_elements
-        )
-
-    @pytest.fixture
     def namespace_meta_attr_mapping(
         self,
         namespace_meta_attr,
@@ -264,19 +221,10 @@ class GetMetaAttributeBaseTest(DBTestCase):
             dummy_src.id
         )
 
-    @pytest.fixture
-    def schema_meta_attr_mapping(self, schema_meta_attr, dummy_schema):
-        factories.create_meta_attribute_mapping(
-            schema_meta_attr.id,
-            AvroSchema.__name__,
-            dummy_schema.id
-        )
-
 
 @pytest.mark.usefixtures(
     'namespace_meta_attr_mapping',
     'source_meta_attr_mapping',
-    'schema_meta_attr_mapping'
 )
 class TestGetMetaAttributeMappings(GetMetaAttributeBaseTest):
 
@@ -301,25 +249,9 @@ class TestGetMetaAttributeMappings(GetMetaAttributeBaseTest):
         expected = [namespace_meta_attr.id, source_meta_attr.id]
         assert actual == expected
 
-    def test_get_mapping_by_schema(
-        self,
-        dummy_schema,
-        namespace_meta_attr,
-        source_meta_attr,
-        schema_meta_attr
-    ):
-        actual = meta_attr_logic.get_meta_attributes_by_schema(dummy_schema.id)
-        expected = [
-            namespace_meta_attr.id,
-            source_meta_attr.id,
-            schema_meta_attr.id
-        ]
-        assert actual == expected
-
     @pytest.mark.parametrize('getter_method', [
         meta_attr_logic.get_meta_attributes_by_namespace,
         meta_attr_logic.get_meta_attributes_by_source,
-        meta_attr_logic.get_meta_attributes_by_schema
     ])
     def test_get_non_existing_mapping(self, getter_method):
         fake_id = 0

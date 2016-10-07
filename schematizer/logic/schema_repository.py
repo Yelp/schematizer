@@ -171,6 +171,7 @@ def register_avro_schema_from_avro_json(
         )
     return _create_avro_schema(
         avro_schema_json=avro_schema_json,
+        source_id=source.id,
         topic_id=most_recent_topic.id,
         status=status,
         base_schema_id=base_schema_id
@@ -490,6 +491,7 @@ def get_source_by_fullname(namespace_name, source_name):
 
 def _create_avro_schema(
         avro_schema_json,
+        source_id,
         topic_id,
         status=models.AvroSchemaStatus.READ_AND_WRITE,
         base_schema_id=None
@@ -512,7 +514,7 @@ def _create_avro_schema(
         session.add(avro_schema_element)
 
     session.flush()
-    _add_meta_attribute_mappings(avro_schema.id)
+    _add_meta_attribute_mappings(avro_schema.id, source_id)
     return avro_schema
 
 
@@ -764,10 +766,10 @@ def get_meta_attributes_by_schema_id(schema_id):
     return [m.meta_attr_schema_id for m in mappings]
 
 
-def _add_meta_attribute_mappings(schema_id):
+def _add_meta_attribute_mappings(schema_id, source_id):
     mappings = []
-    for meta_attr_schema_id in meta_attr_logic.get_meta_attributes_by_schema(
-        schema_id
+    for meta_attr_schema_id in meta_attr_logic.get_meta_attributes_by_source(
+        source_id
     ):
         new_mapping = SchemaMetaAttributeMapping(
             schema_id=schema_id,

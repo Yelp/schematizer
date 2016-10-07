@@ -91,13 +91,6 @@ def _filter_param_for_source(source_id):
     )
 
 
-def _filter_param_for_schema(schema_id):
-    return and_(
-        MetaAttributeMappingStore.entity_type == AvroSchema.__name__,
-        MetaAttributeMappingStore.entity_id == schema_id
-    )
-
-
 def _get_meta_attributes_by_filters(filters):
     qry = session.query(MetaAttributeMappingStore)
     if filters is not None:
@@ -132,25 +125,5 @@ def get_meta_attributes_by_source(source_id):
         or_(
             _filter_param_for_namespace(source.namespace_id),
             _filter_param_for_source(source.id)
-        )
-    )
-
-
-def get_meta_attributes_by_schema(avro_schema_id):
-    """Get list of meta attributes registered to a given schema_id and
-    the namespace and source it belongs to.
-
-    :param avro_schema_id: the AvroSchema Id
-    :return: List of meta attribute AvroSchema Ids
-    :raises EntityNotFoundError: Invalid AvroSchema id.
-    """
-    avro_schema = AvroSchema.get_by_id(avro_schema_id)
-    source_id = avro_schema.topic.source_id
-    namespace_id = avro_schema.topic.source.namespace_id
-    return _get_meta_attributes_by_filters(
-        or_(
-            _filter_param_for_namespace(namespace_id),
-            _filter_param_for_source(source_id),
-            _filter_param_for_schema(avro_schema.id)
         )
     )

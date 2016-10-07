@@ -1831,7 +1831,6 @@ class TestGetTopicsByCriteria(DBTestCase):
 @pytest.mark.usefixtures(
     'namespace_meta_attr_mapping',
     'source_meta_attr_mapping',
-    'schema_meta_attr_mapping'
 )
 class TestAddToSchemaMetaAttributeMapping(GetMetaAttributeBaseTest):
 

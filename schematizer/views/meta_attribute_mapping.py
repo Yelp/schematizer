@@ -8,7 +8,6 @@ from schematizer.api.decorators import transform_api_response
 from schematizer.api.exceptions import exceptions_v1
 from schematizer.api.responses import responses_v1
 from schematizer.logic import meta_attribute_mappers as meta_attr_logic
-from schematizer.models import AvroSchema
 from schematizer.models import Namespace
 from schematizer.models import Source
 from schematizer.models.exceptions import EntityNotFoundError
@@ -128,38 +127,6 @@ def delete_source_meta_attribute_mapping(request):
 
 
 @view_config(
-    route_name='api.v1.register_schema_meta_attribute_mapping',
-    request_method='POST',
-    renderer='json'
-)
-@transform_api_response()
-def register_schema_meta_attribute_mapping(request):
-    schema_id = request.matchdict.get('schema_id')
-    meta_attr_schema_id = request.json_body['meta_attribute_schema_id']
-    return _register_meta_attribute_mapping_for_entity(
-        AvroSchema,
-        schema_id,
-        meta_attr_schema_id
-    )
-
-
-@view_config(
-    route_name='api.v1.delete_schema_meta_attribute_mapping',
-    request_method='DELETE',
-    renderer='json'
-)
-@transform_api_response()
-def delete_schema_meta_attribute_mapping(request):
-    schema_id = request.matchdict.get('schema_id')
-    meta_attr_schema_id = request.json_body['meta_attribute_schema_id']
-    return _delete_meta_attribute_mapping_for_entity(
-        AvroSchema,
-        schema_id,
-        meta_attr_schema_id
-    )
-
-
-@view_config(
     route_name='api.v1.get_namespace_meta_attribute_mappings',
     request_method='GET',
     renderer='json'
@@ -193,25 +160,6 @@ def get_source_meta_attribute_mappings(request):
         )
         return [responses_v1.get_meta_attr_mapping_response(
             'source_id', source_id, meta_attr_id
-        ) for meta_attr_id in meta_attr_ids]
-    except EntityNotFoundError as e:
-        raise exceptions_v1.entity_not_found_exception(e.message)
-
-
-@view_config(
-    route_name='api.v1.get_schema_meta_attribute_mappings',
-    request_method='GET',
-    renderer='json'
-)
-@transform_api_response()
-def get_schema_meta_attribute_mappings(request):
-    try:
-        schema_id = int(request.matchdict.get('schema_id'))
-        meta_attr_ids = meta_attr_logic.get_meta_attributes_by_schema(
-            schema_id
-        )
-        return [responses_v1.get_meta_attr_mapping_response(
-            'avroschema_id', schema_id, meta_attr_id
         ) for meta_attr_id in meta_attr_ids]
     except EntityNotFoundError as e:
         raise exceptions_v1.entity_not_found_exception(e.message)

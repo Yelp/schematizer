@@ -163,21 +163,6 @@ def routes(config):
         '/v1/schemas/{schema_id}/data_targets'
     )
     config.add_route(
-        'api.v1.register_schema_meta_attribute_mapping',
-        '/v1/schemas/{schema_id}/meta_attr_mappings',
-        request_method="POST"
-    )
-    config.add_route(
-        'api.v1.delete_schema_meta_attribute_mapping',
-        '/v1/schemas/{schema_id}/meta_attr_mappings',
-        request_method="DELETE"
-    )
-    config.add_route(
-        'api.v1.get_schema_meta_attribute_mappings',
-        '/v1/schemas/{schema_id}/meta_attr_mappings',
-        request_method="GET"
-    )
-    config.add_route(
         'api.v1.get_meta_attributes_by_schema_id',
         '/v1/schemas/{schema_id}/meta_attributes'
     )

@@ -19,7 +19,6 @@ class MetaAttributeEntity(object):
 
     NAMESPACE = 'Namespace'
     SOURCE = 'Source'
-    AVRO_SCHEMA = 'AvroSchema'
 
 
 class MetaAttributeMappingStore(Base, BaseModel):
@@ -41,7 +40,6 @@ class MetaAttributeMappingStore(Base, BaseModel):
         Enum(
             MetaAttributeEntity.NAMESPACE,
             MetaAttributeEntity.SOURCE,
-            MetaAttributeEntity.AVRO_SCHEMA,
             name='entity_type'
         ),
         nullable=False

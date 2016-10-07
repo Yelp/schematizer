@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 import pytest
 
-from schematizer.models import AvroSchema
 from schematizer.models import Namespace
 from schematizer.models import Source
 from schematizer.views import meta_attribute_mapping as meta_attr_views
@@ -31,7 +30,8 @@ class TestGetMetaAttributesByNamespace(ApiTestBase):
             meta_attr_views.get_namespace_meta_attribute_mappings(mock_request)
         assert e.value.code == expected_exception.code
         assert str(e.value) == '{0} name `{1}` not found.'.format(
-            self.entity_type, fake_namespace_name
+            self.entity_type,
+            fake_namespace_name
         )
 
     def test_happy_case(self, mock_request, meta_attr_schema, yelp_namespace):
@@ -41,71 +41,46 @@ class TestGetMetaAttributesByNamespace(ApiTestBase):
             mock_request
         )
         expected = self.get_expected_meta_attr_response(
-            self.entity_type, yelp_namespace.id
+            self.entity_type,
+            yelp_namespace.id
         )
         assert actual == expected
 
 
-class GetMetaAttributeBase(ApiTestBase):
-    """Entities here can be Namespaces, Sources or Schemas. You need to
-    implement the following to use this Base class:
+class TestGetMetaAttributesBySource(ApiTestBase):
 
-        entity_type: The entity for which you are querying the MetaAttributes
-        entity_type_id: The id column name for it
-        getter_logic_method: The logic funtion being tested.
-        entity: A sample test entity to run tests against.
-    """
+    entity_type = Source.__name__
 
-    def _setup_meta_attribute_mapping(self, meta_attr_schema, entity_id):
+    def _setup_meta_attribute_mapping(self, meta_attr_schema, biz_source):
         factories.create_meta_attribute_mapping(
             meta_attr_schema.id,
             self.entity_type,
-            entity_id
+            biz_source.id
         )
 
     def test_non_existing_entity(self, mock_request):
         expected_exception = self.get_http_exception(404)
-        fake_entity_id = 0
+        fake_source_id = 0
         with pytest.raises(expected_exception) as e:
-            mock_request.matchdict = {self.entity_type_id: fake_entity_id}
-            self.getter_logic_method(mock_request)
+            mock_request.matchdict = {'source_id': fake_source_id}
+            meta_attr_views.get_source_meta_attribute_mappings(mock_request)
         assert e.value.code == expected_exception.code
         assert str(e.value) == '{0} id {1} not found.'.format(
-            self.entity_type, fake_entity_id
+            self.entity_type,
+            fake_source_id
         )
 
-    def test_happy_case(self, mock_request, meta_attr_schema):
-        self._setup_meta_attribute_mapping(meta_attr_schema, self.entity.id)
-        mock_request.matchdict = {self.entity_type_id: self.entity.id}
-        actual = self.getter_logic_method(mock_request)
+    def test_happy_case(self, mock_request, meta_attr_schema, biz_source):
+        self._setup_meta_attribute_mapping(meta_attr_schema, biz_source)
+        mock_request.matchdict = {'source_id': biz_source.id}
+        actual = meta_attr_views.get_source_meta_attribute_mappings(
+            mock_request
+        )
         expected = self.get_expected_meta_attr_response(
-            self.entity_type, self.entity.id
+            self.entity_type,
+            biz_source.id
         )
         assert actual == expected
-
-
-@pytest.mark.usefixtures('setup_test')
-class TestGetMetaAttributesBySource(GetMetaAttributeBase):
-
-    @pytest.fixture
-    def setup_test(self, biz_source):
-        self.entity_type = Source.__name__
-        self.entity_type_id = 'source_id'
-        self.getter_logic_method = meta_attr_views.\
-            get_source_meta_attribute_mappings
-        self.entity = biz_source
-
-
-@pytest.mark.usefixtures('setup_test')
-class TestGetMetaAttributesBySchema(GetMetaAttributeBase):
-
-    @pytest.fixture
-    def setup_test(self, biz_schema):
-        self.entity_type = AvroSchema.__name__
-        self.entity_type_id = 'schema_id'
-        self.getter_logic_method = meta_attr_views.\
-            get_schema_meta_attribute_mappings
-        self.entity = biz_schema
 
 
 class RegisterMetaAttributeBase(ApiTestBase):
@@ -237,19 +212,3 @@ class TestRegisterMetaAttributeForSource(RegisterMetaAttributeBase):
             meta_attr_views.register_source_meta_attribute_mapping)
         self.delete_logic_method = (
             meta_attr_views.delete_source_meta_attribute_mapping)
-
-
-@pytest.mark.usefixtures('setup_test')
-class TestRegisterMetaAttributeForSchema(RegisterMetaAttributeBase):
-
-    @pytest.fixture
-    def setup_test(self, biz_schema, meta_attr_schema):
-        self.entity_type = AvroSchema.__name__
-        self.entity_key = 'schema_id'
-        self.req_matchdict = {self.entity_key: biz_schema.id}
-        self.req_json_body = {'meta_attribute_schema_id': meta_attr_schema.id}
-        self.entity = biz_schema
-        self.register_logic_method = (
-            meta_attr_views.register_schema_meta_attribute_mapping)
-        self.delete_logic_method = (
-            meta_attr_views.delete_schema_meta_attribute_mapping)
