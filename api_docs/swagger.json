@@ -2310,6 +2310,51 @@
                 ]
             }
         },
+        "/v1/schemas/{schema_id}/meta_attributes": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "The schema_id of AvroSchema should exist.",
+                "operationId": "get_meta_attributes_by_schema_id",
+                "parameters": [
+                    {
+                        "description": "ID of AvroSchema for which meta attributes will be fetched",
+                        "in": "path",
+                        "name": "schema_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response was specified",
+                        "schema": {
+                            "items": {
+                                "type": "integer"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid AvroSchema ID supplied"
+                    },
+                    "404": {
+                        "description": "AvroSchema not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get list of all meta attributes required for specified schema_id.",
+                "tags": [
+                    "schemas"
+                ]
+            }
+        },
         "/v1/sources": {
             "get": {
                 "consumes": [

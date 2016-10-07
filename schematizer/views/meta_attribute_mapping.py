@@ -162,6 +162,7 @@ def delete_schema_meta_attribute_mapping(request):
 @view_config(
     route_name='api.v1.get_namespace_meta_attribute_mappings',
     request_method='GET',
+    renderer='json'
 )
 @transform_api_response()
 def get_namespace_meta_attribute_mappings(request):
