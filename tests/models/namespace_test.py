@@ -53,7 +53,7 @@ class TestGetNamespaceByName(DBTestCase):
             Namespace.get_by_name(name='bad namespace')
 
 
-class TestSourcesRelatedToNamespace(DBTestCase):
+class TestGetSourcesByNamespace(DBTestCase):
     @pytest.fixture
     def namespace_name(self):
         return 'foo'
@@ -69,17 +69,17 @@ class TestSourcesRelatedToNamespace(DBTestCase):
             factories.create_source(namespace_name, 'source2')
         ]
 
-    def test_happy_case(self, namespace, sources):
-        info = PageInfo(min_id=0, count=1)
+    def test_filter_by_count(self, namespace, sources):
+        info = PageInfo(count=1)
         actual = namespace.get_sources(page_info=info)
         assert len(actual) == 1
-        assert actual[0].name == sources[0].name
-        new_min_id = actual[0].id + 1
-        new_info = PageInfo(min_id=new_min_id)
-        actual = namespace.get_sources(page_info=new_info)
-        assert len(actual) == 1
+
+    def test_filter_by_min_id(self, namespace, sources):
+        id = sources[0].id + 1
+        info = PageInfo(min_id=id)
+        actual = namespace.get_sources(page_info=info)
         assert actual[0].name == sources[1].name
 
-    def test_non_related_sources(self, namespace):
+    def test_non_sources(self, namespace):
         actual = namespace.get_sources()
         assert len(actual) == 0
