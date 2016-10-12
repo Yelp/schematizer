@@ -789,8 +789,8 @@ def get_topics_by_criteria(
     if created_after is not None:
         qry = qry.filter(models.Topic.created_at >= created_after)
 
-    min_id = page_info.min_id if page_info else 0
-    qry = qry.filter(models.Topic.id >= min_id)
+    if page_info and page_info.min_id:
+        qry = qry.filter(models.Topic.id >= page_info.min_id)
 
     qry = qry.order_by(models.Topic.id)
     if page_info and page_info.count:
