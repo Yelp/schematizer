@@ -387,8 +387,9 @@ class TestRedshiftSchemaMigration(object):
                     'default': None},
                 {'name': 'bigint_col', 'type': ['null', 'long'],
                     'default': None},
-                {'name': 'decimal_col', 'type': ['null', 'bytes'],
-                    'logicalType': 'decimal', 'precision': 4, 'scale': 2,
+                {'name': 'decimal_col', 'type': ['null', {
+                    'logicalType': 'decimal',
+                    'precision': 4, 'scale': 2, 'type': 'bytes'}],
                     'default': None},
                 {'name': 'real_col', 'type': ['null', 'float'],
                     'default': None},
@@ -419,8 +420,9 @@ class TestRedshiftSchemaMigration(object):
                 # DATETYPE TYPES
 
                 # Supported:
-                {'name': 'date_col', 'type': ['null', 'int'],
-                    'logicalType': 'date'},
+                {'name': 'date_col', 'type': ['null', {
+                    'logicalType': 'date', 'type': 'int'}]
+                 },
                 {'name': 'timestamp_col', 'type': ['null', 'long'],
                     'timestamp': True},
 
