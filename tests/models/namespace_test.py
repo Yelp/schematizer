@@ -54,6 +54,7 @@ class TestGetNamespaceByName(DBTestCase):
 
 
 class TestGetSourcesByNamespace(DBTestCase):
+
     @pytest.fixture
     def namespace_name(self):
         return 'foo'
@@ -83,3 +84,5 @@ class TestGetSourcesByNamespace(DBTestCase):
     def test_non_sources(self, namespace):
         actual = namespace.get_sources()
         assert len(actual) == 0
+
+
