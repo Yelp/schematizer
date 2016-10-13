@@ -538,10 +538,6 @@ class TestSchemaRepository(DBTestCase):
             cluster_type=cluster_type
         )
         self.assert_equal_topic_partial(expected_topic, actual_topic)
-        self.assert_topic_name_by_cluster_type(
-            actual_schema.topic.name,
-            cluster_type
-        )
 
     def test_registering_from_avro_json_with_pkey_added(self):
         actual_schema1 = schema_repo.register_avro_schema_from_avro_json(
@@ -1442,12 +1438,6 @@ class TestSchemaRepository(DBTestCase):
         assert expected.created_at == actual.created_at
         assert expected.updated_at == actual.updated_at
         self.assert_equal_topic_partial(expected, actual)
-
-    def assert_topic_name_by_cluster_type(self, topic_name, cluster_type):
-        joining_char = '_' if cluster_type == 'scribe' else '.'
-        assert joining_char.join(
-            [self.namespace_name, self.source_name]
-        ) in topic_name
 
     def assert_equal_avro_schema_partial(self, expected, actual):
         assert expected.avro_schema == actual.avro_schema
