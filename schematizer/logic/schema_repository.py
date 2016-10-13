@@ -209,8 +209,7 @@ def _create_topic_for_source(
 
 
 def _construct_topic_name(namespace, source):
-    # TODO [askatti|DATAPIPE-1870] Replace '.' with '__'
-    return '.'.join((namespace, source, uuid.uuid4().hex))
+    return '__'.join((namespace, source, uuid.uuid4().hex))
 
 
 def _create_topic(topic_name, source_id, contains_pii, cluster_type):
