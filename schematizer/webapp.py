@@ -75,7 +75,6 @@ def _create_application():
             '/(status)\\b',
             '/(swagger.json)\\b'
         ],
-        'pyramid_yelp_conn.reload_clusters': CLUSTERS
     }
 
     # Create a basic pyramid Configurator.
