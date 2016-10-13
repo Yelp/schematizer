@@ -215,7 +215,7 @@ def _create_topic_for_source(
 
 def _construct_scribe_topic_name(namespace, source):
     """Scribe topics must only consist of [a-z0-9_] only"""
-    return '_'.join((namespace, source, uuid.uuid4().hex))
+    return '__'.join((namespace, source, uuid.uuid4().hex))
 
 
 def _construct_topic_name(namespace, source):
