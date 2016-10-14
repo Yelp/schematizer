@@ -3,7 +3,8 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from avro import schema
-from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
+from data_pipeline_avro_util.data_pipeline.avro_meta_data \
+    import AvroMetaDataKeys
 
 from schematizer.components.converters.converter_base import BaseConverter
 from schematizer.components.converters.converter_base \
@@ -57,7 +58,8 @@ class AvroToRedshiftConverter(BaseConverter):
             columns=cols,
             doc=record_schema.doc,
             # TODO(chohan|DATAPIPE-1133): Define this property in
-            # AvroMetaDataKeys in yelp_avro and update this line accordingly.
+            # AvroMetaDataKeys in data_pipeline_avro_util and update
+            # this line accordingly.
             schema_name=record_schema.get_prop('schema_name'),
             **table_metadata
         )
