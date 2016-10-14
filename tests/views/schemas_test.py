@@ -11,9 +11,10 @@ import simplejson
 
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
-from schematizer.config import get_config
+from schematizer.api.requests.requests_v1 import DEFAULT_KAFKA_CLUSTER_TYPE
 from schematizer.helpers.formatting import _format_datetime
 from schematizer.views import schemas as schema_views
+from schematizer_testing import factories
 from tests.views.api_test_base import ApiTestBase
 
 
@@ -346,7 +347,7 @@ class TestRegisterSchema(RegisterSchemaTestBase):
             request_json['cluster_type'] = cluster_type
             expected_cluster_type = cluster_type
         else:
-            expected_cluster_type = get_config().default_kafka_cluster_type
+            expected_cluster_type = DEFAULT_KAFKA_CLUSTER_TYPE
         mock_request.json_body = request_json
         actual = schema_views.register_schema(mock_request)
         self._assert_equal_schema_response(actual, request_json)
@@ -483,6 +484,72 @@ class TestGetSchemaElements(ApiTestBase):
             )
 
         return response
+
+
+@pytest.mark.usefixtures('create_biz_src_meta_attr_mapping')
+class TestGetMetaAttrBySchemaId(ApiTestBase):
+
+    @pytest.fixture
+    def create_biz_src_meta_attr_mapping(self, meta_attr_schema, biz_source):
+        factories.create_meta_attribute_mapping(
+            meta_attr_schema.id,
+            models.Source.__name__,
+            biz_source.id
+        )
+
+    @pytest.fixture
+    def new_biz_schema_json(self):
+        return {
+            "name": "biz",
+            "type": "record",
+            "fields": [
+                {"name": "id", "type": "int", "doc": "id", "default": 0},
+                {"name": "name", "type": "string", "doc": "biz name"}
+            ],
+            "doc": "biz table"
+        }
+
+    @pytest.fixture
+    def request_json(self, new_biz_schema_json, biz_source):
+        return {
+            "schema": simplejson.dumps(new_biz_schema_json),
+            "namespace": biz_source.namespace.name,
+            "source": biz_source.name,
+            "source_owner_email": 'biz.user@yelp.com',
+            'contains_pii': False
+        }
+
+    @pytest.fixture
+    def new_biz_schema_id(self, mock_request, request_json):
+        mock_request.json_body = request_json
+        new_biz_schema = schema_views.register_schema(mock_request)
+        return new_biz_schema['schema_id']
+
+    def test_non_existing_schema(self, mock_request):
+        expected_exception = self.get_http_exception(404)
+        with pytest.raises(expected_exception) as e:
+            mock_request.matchdict = {'schema_id': '0'}
+            schema_views.get_meta_attributes_by_schema_id(mock_request)
+
+        assert e.value.code == expected_exception.code
+        assert str(e.value) == 'AvroSchema id 0 not found.'
+
+    def test_get_meta_attr_by_new_schema_id(
+        self,
+        mock_request,
+        new_biz_schema_id,
+        meta_attr_schema
+    ):
+        mock_request.matchdict = {'schema_id': str(new_biz_schema_id)}
+        actual = schema_views.get_meta_attributes_by_schema_id(mock_request)
+        expected = [meta_attr_schema.id]
+        assert actual == expected
+
+    def test_get_meta_attr_by_old_schema_id(self, mock_request, biz_schema):
+        mock_request.matchdict = {'schema_id': str(biz_schema.id)}
+        actual = schema_views.get_meta_attributes_by_schema_id(mock_request)
+        expected = []
+        assert actual == expected
 
 
 class TestGetDataTaragetsBySchemaID(ApiTestBase):

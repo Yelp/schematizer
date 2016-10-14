@@ -159,3 +159,7 @@ def get_element_response_from_element(element):
         'created_at': _format_datetime(element.created_at),
         'updated_at': _format_datetime(element.updated_at),
     }
+
+
+def get_meta_attr_mapping_response(entity_type, entity_id, meta_attr_id):
+    return {entity_type: entity_id, 'meta_attribute_schema_id': meta_attr_id}

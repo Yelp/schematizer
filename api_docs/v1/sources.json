@@ -296,6 +296,122 @@
                 }
             ],
             "path": "/v1/sources/{source_id}/refreshes"
+        },
+        {
+            "operations": [
+                {
+                    "authorizations": {},
+                    "method": "POST",
+                    "nickname": "register_source_meta_attribute_mapping",
+                    "notes": "The source_id and the schema_id of Meta attribute schema should exist.",
+                    "parameters": [
+                        {
+                            "allowMultiple": false,
+                            "description": "ID of source for which meta attribute mappings will be registered",
+                            "name": "source_id",
+                            "paramType": "path",
+                            "required": true,
+                            "type": "integer"
+                        },
+                        {
+                            "name": "body",
+                            "paramType": "body",
+                            "required": true,
+                            "type": "RegisterMetaAttributeRequest"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 404,
+                            "message": "Entity not found"
+                        },
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ],
+                    "summary": "Register the specified meta attribute schema_id to the specified source_id.",
+                    "type": "MetaAttributeMapping"
+                },
+                {
+                    "authorizations": {},
+                    "method": "DELETE",
+                    "nickname": "delete_source_meta_attribute_mapping",
+                    "notes": "The source_id and the schema_id of Meta attribute schema should exist.",
+                    "parameters": [
+                        {
+                            "allowMultiple": false,
+                            "description": "ID of source for which meta attribute mappings will be deleted",
+                            "name": "source_id",
+                            "paramType": "path",
+                            "required": true,
+                            "type": "integer"
+                        },
+                        {
+                            "name": "body",
+                            "paramType": "body",
+                            "required": true,
+                            "type": "RegisterMetaAttributeRequest"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 404,
+                            "message": "Entity not found"
+                        },
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ],
+                    "summary": "Remove the specified meta attribute schema_id mapping from the specified source_id.",
+                    "type": "MetaAttributeMapping"
+                },
+                {
+                    "authorizations": {},
+                    "items": {
+                        "$ref": "MetaAttributeMapping"
+                    },
+                    "method": "GET",
+                    "nickname": "get_source_meta_attribute_mappings",
+                    "notes": "The source_id should exist.",
+                    "parameters": [
+                        {
+                            "allowMultiple": false,
+                            "description": "ID of source for which meta attributes will be fetched",
+                            "name": "source_id",
+                            "paramType": "path",
+                            "required": true,
+                            "type": "integer"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid Source ID supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Source not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ],
+                    "summary": "Get a list of all meta attribute schema_ids mapped to specified source_id.",
+                    "type": "array"
+                }
+            ],
+            "path": "/v1/sources/{source_id}/meta_attr_mappings"
         }
     ],
     "basePath": "http://169.254.255.254:20912",
@@ -362,6 +478,18 @@
                     "type": "integer"
                 }
             }
+        },
+        "MetaAttributeMapping": {
+            "id": "MetaAttributeMapping",
+            "properties": {
+                "meta_attribute_schema_id": {
+                    "description": "Avro Schema ID of meta attribute.",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "meta_attribute_schema_id"
+            ]
         },
         "Namespace": {
             "id": "Namespace",
@@ -444,6 +572,18 @@
                 }
             }
         },
+        "RegisterMetaAttributeRequest": {
+            "id": "RegisterMetaAttributeRequest",
+            "properties": {
+                "meta_attribute_schema_id": {
+                    "description": "AvroSchema ID of Meta Attribute schema to be mapped.",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "meta_attribute_schema_id"
+            ]
+        },
         "Source": {
             "id": "Source",
             "properties": {
@@ -482,6 +622,10 @@
         "Topic": {
             "id": "Topic",
             "properties": {
+                "cluster_type": {
+                    "description": "Type of kafka cluster this topic belongs to. See http://y/datapipe_cluster_types for more info on cluster_types.",
+                    "type": "string"
+                },
                 "contains_pii": {
                     "description": "Whether the messages in this topic contain PII.",
                     "type": "boolean"
