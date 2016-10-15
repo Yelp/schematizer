@@ -73,16 +73,16 @@ class TestGetSourcesByNamespace(DBTestCase):
     def test_filter_by_count(self, namespace, sources):
         info = PageInfo(count=1)
         actual = namespace.get_sources(page_info=info)
-        assert len(actual) == 1
+        asserts.assert_equal_entity_list(
+            actual, sources[0:1], asserts.assert_equal_source
+        )
 
     def test_filter_by_min_id(self, namespace, sources):
-        id = sources[0].id + 1
-        info = PageInfo(min_id=id)
+        min_id = sources[0].id + 1
+        info = PageInfo(min_id=min_id)
         actual = namespace.get_sources(page_info=info)
-        assert actual[0].name == sources[1].name
+        asserts.assert_equal_source(actual[0], sources[1])
 
-    def test_non_sources(self, namespace):
+    def test_no_source(self, namespace):
         actual = namespace.get_sources()
         assert len(actual) == 0
-
-
