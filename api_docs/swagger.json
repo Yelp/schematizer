@@ -253,6 +253,19 @@
             },
             "type": "object"
         },
+        "MetaAttributeMapping": {
+            "description": "Mapping of Meta Attributes to be includes for sepcific entities (Namespace or Source).",
+            "properties": {
+                "meta_attribute_schema_id": {
+                    "description": "Avro Schema ID of meta attribute.",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "meta_attribute_schema_id"
+            ],
+            "type": "object"
+        },
         "MysqlSchemaCompatibilityRequest": {
             "properties": {
                 "alter_table_stmt": {
@@ -434,6 +447,19 @@
                     "type": "string"
                 }
             },
+            "type": "object"
+        },
+        "RegisterMetaAttributeRequest": {
+            "description": "Register a mapping of sepcified meta_attributes and entity (Namespace or Source).",
+            "properties": {
+                "meta_attribute_schema_id": {
+                    "description": "AvroSchema ID of Meta Attribute schema to be mapped.",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "meta_attribute_schema_id"
+            ],
             "type": "object"
         },
         "RegisterSchemaFromMySqlRequest": {
@@ -1352,6 +1378,147 @@
                 ]
             }
         },
+        "/v1/namespaces/{namespace}/meta_attr_mappings": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "The namespace name and the schema_id of Meta attribute schema should exist.",
+                "operationId": "delete_namespace_meta_attribute_mapping",
+                "parameters": [
+                    {
+                        "description": "Namespace for which meta attribute mappings will be deleted",
+                        "in": "path",
+                        "name": "namespace",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RegisterMetaAttributeRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response was specified",
+                        "schema": {
+                            "$ref": "#/definitions/MetaAttributeMapping"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Entity not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Remove the specified meta attribute schema_id mapping from the specified namespace name.",
+                "tags": [
+                    "namespaces"
+                ]
+            },
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "The namespace name should exist.",
+                "operationId": "get_namespace_meta_attribute_mappings",
+                "parameters": [
+                    {
+                        "description": "Namespace for which meta attributes will be fetched",
+                        "in": "path",
+                        "name": "namespace",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response was specified",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/MetaAttributeMapping"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Namespace name supplied"
+                    },
+                    "404": {
+                        "description": "Namespace not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get a list of all meta attribute schema_ids mapped to specified namespace name.",
+                "tags": [
+                    "namespaces"
+                ]
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "The namespace name and the schema_id of Meta attribute schema should exist.",
+                "operationId": "register_namespace_meta_attribute_mapping",
+                "parameters": [
+                    {
+                        "description": "Namespace for which meta attribute mappings will be registered",
+                        "in": "path",
+                        "name": "namespace",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RegisterMetaAttributeRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response was specified",
+                        "schema": {
+                            "$ref": "#/definitions/MetaAttributeMapping"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Entity not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Register the specified meta attribute schema_id to the specified namespace name.",
+                "tags": [
+                    "namespaces"
+                ]
+            }
+        },
         "/v1/namespaces/{namespace}/refreshes": {
             "get": {
                 "consumes": [
@@ -2002,6 +2169,51 @@
                 ]
             }
         },
+        "/v1/schemas/{schema_id}/meta_attributes": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "The schema_id of AvroSchema should exist.",
+                "operationId": "get_meta_attributes_by_schema_id",
+                "parameters": [
+                    {
+                        "description": "ID of AvroSchema for which meta attributes will be fetched",
+                        "in": "path",
+                        "name": "schema_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response was specified",
+                        "schema": {
+                            "items": {
+                                "type": "integer"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid AvroSchema ID supplied"
+                    },
+                    "404": {
+                        "description": "AvroSchema not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get list of all required meta attributes for specified schema_id.",
+                "tags": [
+                    "schemas"
+                ]
+            }
+        },
         "/v1/sources": {
             "get": {
                 "consumes": [
@@ -2174,6 +2386,147 @@
                     }
                 },
                 "summary": "Update the category of given source.",
+                "tags": [
+                    "sources"
+                ]
+            }
+        },
+        "/v1/sources/{source_id}/meta_attr_mappings": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "The source_id and the schema_id of Meta attribute schema should exist.",
+                "operationId": "delete_source_meta_attribute_mapping",
+                "parameters": [
+                    {
+                        "description": "ID of source for which meta attribute mappings will be deleted",
+                        "in": "path",
+                        "name": "source_id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RegisterMetaAttributeRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response was specified",
+                        "schema": {
+                            "$ref": "#/definitions/MetaAttributeMapping"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Entity not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Remove the specified meta attribute schema_id mapping from the specified source_id.",
+                "tags": [
+                    "sources"
+                ]
+            },
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "The source_id should exist.",
+                "operationId": "get_source_meta_attribute_mappings",
+                "parameters": [
+                    {
+                        "description": "ID of source for which meta attributes will be fetched",
+                        "in": "path",
+                        "name": "source_id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response was specified",
+                        "schema": {
+                            "items": {
+                                "$ref": "#/definitions/MetaAttributeMapping"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Source ID supplied"
+                    },
+                    "404": {
+                        "description": "Source not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Get a list of all meta attribute schema_ids mapped to specified source_id.",
+                "tags": [
+                    "sources"
+                ]
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "The source_id and the schema_id of Meta attribute schema should exist.",
+                "operationId": "register_source_meta_attribute_mapping",
+                "parameters": [
+                    {
+                        "description": "ID of source for which meta attribute mappings will be registered",
+                        "in": "path",
+                        "name": "source_id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RegisterMetaAttributeRequest"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response was specified",
+                        "schema": {
+                            "$ref": "#/definitions/MetaAttributeMapping"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Entity not found"
+                    },
+                    "500": {
+                        "description": "Server side error"
+                    }
+                },
+                "summary": "Register the specified meta attribute schema_id to the specified source_id.",
                 "tags": [
                     "sources"
                 ]

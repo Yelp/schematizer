@@ -7,7 +7,8 @@ in this module.
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
+from data_pipeline_avro_util.data_pipeline.avro_meta_data \
+    import AvroMetaDataKeys
 
 from schematizer.helpers.formatting import _format_datetime
 
@@ -158,3 +159,7 @@ def get_element_response_from_element(element):
         'created_at': _format_datetime(element.created_at),
         'updated_at': _format_datetime(element.updated_at),
     }
+
+
+def get_meta_attr_mapping_response(entity_type, entity_id, meta_attr_id):
+    return {entity_type: entity_id, 'meta_attribute_schema_id': meta_attr_id}

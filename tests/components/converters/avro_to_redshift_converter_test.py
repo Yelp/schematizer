@@ -3,7 +3,8 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import pytest
-from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
+from data_pipeline_avro_util.data_pipeline.avro_meta_data \
+    import AvroMetaDataKeys
 
 from schematizer.components.converters import AvroToRedshiftConverter
 from schematizer.components.converters.converter_base \

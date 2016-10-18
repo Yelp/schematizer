@@ -159,6 +159,20 @@ def get_schema_elements_by_schema_id(request):
 
 
 @view_config(
+    route_name='api.v1.get_meta_attributes_by_schema_id',
+    request_method='GET',
+    renderer='json'
+)
+@transform_api_response()
+def get_meta_attributes_by_schema_id(request):
+    try:
+        schema_id = int(request.matchdict.get('schema_id'))
+        return schema_repository.get_meta_attributes_by_schema_id(schema_id)
+    except EntityNotFoundError as e:
+        raise exceptions_v1.entity_not_found_exception(e.message)
+
+
+@view_config(
     route_name='api.v1.get_data_targets_by_schema_id',
     request_method='GET',
     renderer='json'

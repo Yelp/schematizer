@@ -2,13 +2,14 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from data_pipeline_avro_util.data_pipeline.avro_meta_data \
+    import AvroMetaDataKeys
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
-from yelp_avro.data_pipeline.avro_meta_data import AvroMetaDataKeys
 
 from schematizer.models.avro_schema import AvroSchema
 from schematizer.models.base_model import BaseModel
