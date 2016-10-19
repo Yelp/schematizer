@@ -25,7 +25,7 @@ def _register_meta_attribute_mapping_for_entity(
             meta_attr_schema_id
         )
         return responses_v1.get_meta_attr_mapping_response(
-            entity_type=entity_model.__name__.lower() + '_id',
+            entity_type=entity_model.__name__,
             entity_id=mapping.entity_id,
             meta_attr_id=mapping.meta_attr_schema_id
         )
@@ -45,7 +45,7 @@ def _delete_meta_attribute_mapping_for_entity(
             meta_attr_schema_id
         )
         return responses_v1.get_meta_attr_mapping_response(
-            entity_type=entity_model.__name__.lower() + '_id',
+            entity_type=entity_model.__name__,
             entity_id=mapping.entity_id,
             meta_attr_id=mapping.meta_attr_schema_id
         )
@@ -54,12 +54,12 @@ def _delete_meta_attribute_mapping_for_entity(
 
 
 @view_config(
-    route_name='api.v1.register_namepsace_meta_attribute_mapping',
+    route_name='api.v1.register_namespace_meta_attribute_mapping',
     request_method='POST',
     renderer='json'
 )
 @transform_api_response()
-def register_namepsace_meta_attribute_mapping(request):
+def register_namespace_meta_attribute_mapping(request):
     namespace_name = request.matchdict.get('namespace')
     meta_attr_schema_id = request.json_body['meta_attribute_schema_id']
     try:
@@ -107,7 +107,9 @@ def get_namespace_meta_attribute_mappings(request):
             namespace.id
         )
         return [responses_v1.get_meta_attr_mapping_response(
-            'namespace_id', namespace.id, meta_attr_id
+            entity_type='Namespace',
+            entity_id=namespace.id,
+            meta_attr_id=meta_attr_id
         ) for meta_attr_id in meta_attr_ids]
     except EntityNotFoundError as e:
         raise exceptions_v1.entity_not_found_exception(e.message)
@@ -158,7 +160,9 @@ def get_source_meta_attribute_mappings(request):
             source_id
         )
         return [responses_v1.get_meta_attr_mapping_response(
-            'source_id', source_id, meta_attr_id
+            entity_type='Source',
+            entity_id=source_id,
+            meta_attr_id=meta_attr_id
         ) for meta_attr_id in meta_attr_ids]
     except EntityNotFoundError as e:
         raise exceptions_v1.entity_not_found_exception(e.message)
