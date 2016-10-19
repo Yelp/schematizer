@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import pytest
+from sqlalchemy.exc import IntegrityError
 
 from schematizer.models.source import Topic
 from schematizer_testing import factories
@@ -31,21 +32,21 @@ class TestGetAllTopics(GetAllModelTestBase):
 
 class TestTopicModel(DBTestCase):
 
-    @pytest.mark.parametrize("overrides, expected_cluster_type", [
-        ({}, 'datapipe'),
-        ({'cluster_type': 'datapipe'}, 'datapipe'),
-        ({'cluster_type': 'scribe'}, 'scribe')
-    ])
-    def test_valid_cluster_type(
-        self,
-        biz_source,
-        overrides,
-        expected_cluster_type
-    ):
+    def test_valid_cluster_type(self, biz_source):
+        cluster_type = 'scribe'
         topic = factories.create_topic(
             topic_name='yelp.biz_test.1',
             namespace_name=biz_source.namespace.name,
             source_name=biz_source.name,
-            **overrides
+            cluster_type=cluster_type
         )
-        assert topic.cluster_type == expected_cluster_type
+        assert topic.cluster_type == cluster_type
+
+    def test_empty_cluster_type(self, biz_source):
+        with pytest.raises(IntegrityError):
+            factories.create_topic(
+                topic_name='yelp.biz_test.1',
+                namespace_name=biz_source.namespace.name,
+                source_name=biz_source.name,
+                cluster_type=None
+            )

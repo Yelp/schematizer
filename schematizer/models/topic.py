@@ -56,7 +56,7 @@ class Topic(Base, BaseModel):
 
         self._contains_pii = int(value)
 
-    cluster_type = Column(String, nullable=False, default='datapipe')
+    cluster_type = Column(String, nullable=False)
 
     @property
     def primary_keys(self):

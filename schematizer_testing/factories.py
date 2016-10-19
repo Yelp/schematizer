@@ -79,7 +79,8 @@ def create_topic(topic_name, namespace_name, source_name, **overrides):
     params = {
         'name': topic_name,
         'source_id': source.id,
-        'contains_pii': False
+        'contains_pii': False,
+        'cluster_type': 'datapipe'
     }
     params.update(overrides)
     return models.Topic.create(session, **params)
