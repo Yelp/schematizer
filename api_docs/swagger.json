@@ -256,19 +256,14 @@
         "MetaAttributeMapping": {
             "description": "Mapping of Meta Attributes to be includes for sepcific entities (Namespace or Source).",
             "properties": {
-                "entity_id": {
-                    "description": "ID to distinguish a unique entity.",
-                    "type": "integer"
-                },
-                "entity_type": {
-                    "description": "Type of the entity. It can be either 'Namespace' or 'Source'.",
-                    "type": "string"
-                },
                 "meta_attribute_schema_id": {
                     "description": "Avro Schema ID of meta attribute.",
                     "type": "integer"
                 }
             },
+            "required": [
+                "meta_attribute_schema_id"
+            ],
             "type": "object"
         },
         "MysqlSchemaCompatibilityRequest": {
