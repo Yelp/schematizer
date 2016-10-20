@@ -59,7 +59,7 @@ def routes(config):
         '/v1/namespaces/{namespace}/refreshes'
     )
     config.add_route(
-        'api.v1.register_namespace_meta_attribute_mapping',
+        'api.v1.register_namepsace_meta_attribute_mapping',
         '/v1/namespaces/{namespace}/meta_attr_mappings',
         request_method="POST"
     )

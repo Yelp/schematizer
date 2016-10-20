@@ -157,13 +157,8 @@ class RegisterMetaAttributeBase(ApiTestBase):
             mock_request.matchdict = self.req_matchdict
             self.delete_logic_method(mock_request)
             assert e.value.code == expected_exception.code
-            # expected_err_msg = {
-            #     self.entity_type.__name__: self.entity.id,
-            #     'meta_attribute_schema_id': meta_attr_schema.id
-            # }
             expected_err_msg = {
-                'entity_id': self.entity.id,
-                'entity_type': self.entity_type.__name__,
+                self.entity_type.__name__: self.entity.id,
                 'meta_attribute_schema_id': meta_attr_schema.id
             }
             assert str(e.value) == (
@@ -183,7 +178,7 @@ class TestRegisterMetaAttributeForNamespace(RegisterMetaAttributeBase):
         self.req_json_body = {'meta_attribute_schema_id': meta_attr_schema.id}
         self.entity = yelp_namespace
         self.register_logic_method = (
-            meta_attr_views.register_namespace_meta_attribute_mapping)
+            meta_attr_views.register_namepsace_meta_attribute_mapping)
         self.delete_logic_method = (
             meta_attr_views.delete_namespace_meta_attribute_mapping)
 

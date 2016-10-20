@@ -77,8 +77,7 @@ class MetaAttributeMappingStore(Base, BaseModel):
         ).one_or_none()
         if result is None:
             err_mapping = {
-                'entity_id': entity_id,
-                'entity_type': entity_type,
+                entity_type + '_id': entity_id,
                 'meta_attribute_schema_id': meta_attr_schema_id
             }
             raise EntityNotFoundError(
