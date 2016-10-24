@@ -490,7 +490,11 @@
                     "description": "ID to distinguish a unique source.",
                     "type": "integer"
                 }
-            }
+            },
+            "required": [
+                "meta_attribute_schema_id",
+                "source_id"
+            ]
         },
         "Namespace": {
             "id": "Namespace",

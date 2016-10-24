@@ -232,7 +232,11 @@
                     "description": "ID to distinguish a unique namespace.",
                     "type": "integer"
                 }
-            }
+            },
+            "required": [
+                "meta_attribute_schema_id",
+                "namespace_id"
+            ]
         },
         "Namespace": {
             "id": "Namespace",

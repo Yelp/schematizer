@@ -265,6 +265,10 @@
                     "type": "integer"
                 }
             },
+            "required": [
+                "meta_attribute_schema_id",
+                "namespace_id"
+            ],
             "type": "object"
         },
         "MetaAttributeSourceMapping": {
@@ -279,6 +283,10 @@
                     "type": "integer"
                 }
             },
+            "required": [
+                "meta_attribute_schema_id",
+                "source_id"
+            ],
             "type": "object"
         },
         "MysqlSchemaCompatibilityRequest": {
