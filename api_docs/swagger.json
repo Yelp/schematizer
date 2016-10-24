@@ -253,17 +253,32 @@
             },
             "type": "object"
         },
-        "MetaAttributeMapping": {
-            "description": "Mapping of Meta Attributes to be includes for sepcific entities (Namespace or Source).",
+        "MetaAttributeNamespaceMapping": {
+            "description": "Mapping of Meta Attributes to be included for Namespace.",
             "properties": {
                 "meta_attribute_schema_id": {
                     "description": "Avro Schema ID of meta attribute.",
                     "type": "integer"
+                },
+                "namespace_id": {
+                    "description": "ID to distinguish a unique namespace.",
+                    "type": "integer"
                 }
             },
-            "required": [
-                "meta_attribute_schema_id"
-            ],
+            "type": "object"
+        },
+        "MetaAttributeSourceMapping": {
+            "description": "Mapping of Meta Attributes to be included for Source.",
+            "properties": {
+                "meta_attribute_schema_id": {
+                    "description": "Avro Schema ID of meta attribute.",
+                    "type": "integer"
+                },
+                "source_id": {
+                    "description": "ID to distinguish a unique source.",
+                    "type": "integer"
+                }
+            },
             "type": "object"
         },
         "MysqlSchemaCompatibilityRequest": {
@@ -1409,7 +1424,7 @@
                     "200": {
                         "description": "No response was specified",
                         "schema": {
-                            "$ref": "#/definitions/MetaAttributeMapping"
+                            "$ref": "#/definitions/MetaAttributeNamespaceMapping"
                         }
                     },
                     "400": {
@@ -1450,7 +1465,7 @@
                         "description": "No response was specified",
                         "schema": {
                             "items": {
-                                "$ref": "#/definitions/MetaAttributeMapping"
+                                "$ref": "#/definitions/MetaAttributeNamespaceMapping"
                             },
                             "type": "array"
                         }
@@ -1500,7 +1515,7 @@
                     "200": {
                         "description": "No response was specified",
                         "schema": {
-                            "$ref": "#/definitions/MetaAttributeMapping"
+                            "$ref": "#/definitions/MetaAttributeNamespaceMapping"
                         }
                     },
                     "400": {
@@ -2422,7 +2437,7 @@
                     "200": {
                         "description": "No response was specified",
                         "schema": {
-                            "$ref": "#/definitions/MetaAttributeMapping"
+                            "$ref": "#/definitions/MetaAttributeSourceMapping"
                         }
                     },
                     "400": {
@@ -2463,7 +2478,7 @@
                         "description": "No response was specified",
                         "schema": {
                             "items": {
-                                "$ref": "#/definitions/MetaAttributeMapping"
+                                "$ref": "#/definitions/MetaAttributeSourceMapping"
                             },
                             "type": "array"
                         }
@@ -2513,7 +2528,7 @@
                     "200": {
                         "description": "No response was specified",
                         "schema": {
-                            "$ref": "#/definitions/MetaAttributeMapping"
+                            "$ref": "#/definitions/MetaAttributeSourceMapping"
                         }
                     },
                     "400": {

@@ -137,7 +137,7 @@
                         }
                     ],
                     "summary": "Register the specified meta attribute schema_id to the specified namespace name.",
-                    "type": "MetaAttributeMapping"
+                    "type": "MetaAttributeNamespaceMapping"
                 },
                 {
                     "authorizations": {},
@@ -175,12 +175,12 @@
                         }
                     ],
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified namespace name.",
-                    "type": "MetaAttributeMapping"
+                    "type": "MetaAttributeNamespaceMapping"
                 },
                 {
                     "authorizations": {},
                     "items": {
-                        "$ref": "MetaAttributeMapping"
+                        "$ref": "MetaAttributeNamespaceMapping"
                     },
                     "method": "GET",
                     "nickname": "get_namespace_meta_attribute_mappings",
@@ -221,17 +221,18 @@
         "application/json"
     ],
     "models": {
-        "MetaAttributeMapping": {
-            "id": "MetaAttributeMapping",
+        "MetaAttributeNamespaceMapping": {
+            "id": "MetaAttributeNamespaceMapping",
             "properties": {
                 "meta_attribute_schema_id": {
                     "description": "Avro Schema ID of meta attribute.",
                     "type": "integer"
+                },
+                "namespace_id": {
+                    "description": "ID to distinguish a unique namespace.",
+                    "type": "integer"
                 }
-            },
-            "required": [
-                "meta_attribute_schema_id"
-            ]
+            }
         },
         "Namespace": {
             "id": "Namespace",

@@ -308,18 +308,6 @@
                 }
             }
         },
-        "MetaAttributeMapping": {
-            "id": "MetaAttributeMapping",
-            "properties": {
-                "meta_attribute_schema_id": {
-                    "description": "Avro Schema ID of meta attribute.",
-                    "type": "integer"
-                }
-            },
-            "required": [
-                "meta_attribute_schema_id"
-            ]
-        },
         "Namespace": {
             "id": "Namespace",
             "properties": {

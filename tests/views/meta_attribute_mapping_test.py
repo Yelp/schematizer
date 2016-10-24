@@ -178,7 +178,7 @@ class TestRegisterMetaAttributeForNamespace(RegisterMetaAttributeBase):
         self.req_json_body = {'meta_attribute_schema_id': meta_attr_schema.id}
         self.entity = yelp_namespace
         self.register_logic_method = (
-            meta_attr_views.register_namepsace_meta_attribute_mapping)
+            meta_attr_views.register_namespace_meta_attribute_mapping)
         self.delete_logic_method = (
             meta_attr_views.delete_namespace_meta_attribute_mapping)
 

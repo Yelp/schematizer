@@ -54,12 +54,12 @@ def _delete_meta_attribute_mapping_for_entity(
 
 
 @view_config(
-    route_name='api.v1.register_namepsace_meta_attribute_mapping',
+    route_name='api.v1.register_namespace_meta_attribute_mapping',
     request_method='POST',
     renderer='json'
 )
 @transform_api_response()
-def register_namepsace_meta_attribute_mapping(request):
+def register_namespace_meta_attribute_mapping(request):
     namespace_name = request.matchdict.get('namespace')
     meta_attr_schema_id = request.json_body['meta_attribute_schema_id']
     try:
