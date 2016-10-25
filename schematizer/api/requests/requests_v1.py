@@ -247,10 +247,7 @@ class CreateConsumerGroupDataSourceRequest(RequestBase):
 
 
 def get_pagination_info(query_params):
-    if 'count' not in query_params and 'min_id' not in query_params:
-        return None
-    else:
-        return PageInfo(
-            query_params.get('count', 0),
-            query_params.get('min_id', 0)
-        )
+    return PageInfo(
+        query_params.get('count', 0),
+        query_params.get('min_id', 0)
+    )
