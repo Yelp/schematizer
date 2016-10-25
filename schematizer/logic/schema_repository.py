@@ -847,7 +847,6 @@ def get_schemas_by_criteria(
             models.AvroSchema.status != models.AvroSchemaStatus.DISABLED
         )
 
-
     min_id = page_info.min_id if page_info else 0
     qry = qry.filter(models.AvroSchema.id >= min_id)
 
