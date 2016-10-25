@@ -251,6 +251,6 @@ def get_pagination_info(query_params):
         return None
     else:
         return PageInfo(
-            query_params.get('count', None),
-            query_params.get('min_id', None)
+            query_params.get('count', 0),
+            query_params.get('min_id', 0)
         )
