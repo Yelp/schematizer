@@ -27,6 +27,24 @@ class TestListSourcesByNamespace(ApiTestBase):
         expected = [self.get_expected_src_resp(biz_source.id)]
         assert actual == expected
 
+    def test_with_min_id(self, mock_request, yelp_namespace, biz_source):
+        mock_request.matchdict = {'namespace': yelp_namespace.name}
+        mock_request.params = {'min_id': biz_source.id + 1}
+        actual = namespace_views.list_sources_by_namespace(mock_request)
+        assert actual == []
+
+    def test_with_count(
+            self,
+            mock_request,
+            yelp_namespace,
+            biz_source,
+            another_biz_source
+    ):
+        mock_request.matchdict = {'namespace': yelp_namespace.name}
+        mock_request.params = {'count': 1}
+        actual = namespace_views.list_sources_by_namespace(mock_request)
+        assert len(actual) == 1
+
 
 class TestListNamespaces(ApiTestBase):
 

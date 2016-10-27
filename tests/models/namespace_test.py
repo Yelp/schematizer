@@ -74,7 +74,9 @@ class TestGetSourcesByNamespace(DBTestCase):
         info = PageInfo(count=1)
         actual = namespace.get_sources(page_info=info)
         asserts.assert_equal_entity_list(
-            actual, sources[0:1], asserts.assert_equal_source
+            actual,
+            sources[0:1],
+            asserts.assert_equal_source
         )
 
     def test_filter_by_min_id(self, namespace, sources):
@@ -85,4 +87,4 @@ class TestGetSourcesByNamespace(DBTestCase):
 
     def test_no_source(self, namespace):
         actual = namespace.get_sources()
-        assert len(actual) == 0
+        assert actual == []
