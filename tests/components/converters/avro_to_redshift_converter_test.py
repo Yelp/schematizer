@@ -234,7 +234,7 @@ class TestAvroToRedshiftConverter(object):
         self._convert_and_assert_with_one_column(
             converter,
             {'name': self.col_name,
-             'type': ['null',{
+             'type': ['null', {
                  'type': 'enum',
                  'name': self.col_name,
                  'symbols': ['1', '123', '12']}
@@ -254,7 +254,7 @@ class TestAvroToRedshiftConverter(object):
                  'type': 'enum',
                  'name': self.col_name,
                  'symbols': ['1', '123', '12']}
-            },
+             },
             SQLColumn(
                 self.col_name,
                 redshift_types.RedshiftVarChar(3),
