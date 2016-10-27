@@ -43,7 +43,8 @@ class TestListSourcesByNamespace(ApiTestBase):
         mock_request.matchdict = {'namespace': yelp_namespace.name}
         mock_request.params = {'count': 1}
         actual = namespace_views.list_sources_by_namespace(mock_request)
-        assert len(actual) == 1
+        expected = [self.get_expected_src_resp(biz_source.id)]
+        assert actual == expected
 
 
 class TestListNamespaces(ApiTestBase):
