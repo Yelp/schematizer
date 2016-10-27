@@ -107,6 +107,7 @@ def register_schema_from_mysql_stmts(request):
         source=req.source,
         source_email_owner=req.source_owner_email,
         contains_pii=req.contains_pii,
+        cluster_type=req.cluster_type,
         docs_required=False
     )
 
@@ -117,7 +118,7 @@ def _register_avro_schema(
     source,
     source_email_owner,
     contains_pii,
-    cluster_type=get_config().default_kafka_cluster_type,
+    cluster_type,
     base_schema_id=None,
     docs_required=True
 ):
@@ -155,6 +156,20 @@ def get_schema_elements_by_schema_id(request):
     elements = schema_repository.get_schema_elements_by_schema_id(schema_id)
     return [responses_v1.get_element_response_from_element(element)
             for element in elements]
+
+
+@view_config(
+    route_name='api.v1.get_meta_attributes_by_schema_id',
+    request_method='GET',
+    renderer='json'
+)
+@transform_api_response()
+def get_meta_attributes_by_schema_id(request):
+    try:
+        schema_id = int(request.matchdict.get('schema_id'))
+        return schema_repository.get_meta_attributes_by_schema_id(schema_id)
+    except EntityNotFoundError as e:
+        raise exceptions_v1.entity_not_found_exception(e.message)
 
 
 @view_config(

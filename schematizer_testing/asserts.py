@@ -92,6 +92,12 @@ def assert_equal_entity_set(actual_set, expected_set, assert_func, id_attr):
         assert expected_id in actual_id_to_obj_map, err_msg.format(expected_id)
 
 
+def assert_equal_meta_attribute_mapping(actual, expected):
+    attrs = ('id', 'entity_type', 'entity_id', 'meta_attr_schema_id',
+             'created_at', 'updated_at')
+    _assert_equal_multi_attrs(actual, expected, *attrs)
+
+
 def _assert_equal_multi_attrs(expected_entity, actual_entity, *attrs):
     for attr in attrs:
         assert getattr(actual_entity, attr) == getattr(expected_entity, attr)

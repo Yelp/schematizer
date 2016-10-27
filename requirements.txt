@@ -6,7 +6,7 @@
 # TODO(DATAPIPE-1494, DATAPIPE-1802|abrar): this has to be removed after
 # yelp_avro and avro are promoted to public pypi server.
 avro==1.9.0-yelp3
-yelp-avro==0.1.9
+data-pipeline-avro-util==0.2.1
 
 MarkupSafe==0.23
 docker-py==1.3.1
@@ -56,7 +56,7 @@ testing.mysqld==1.4.0
 thriftpy==0.1.15
 tornado==2.4.1
 translationstring==1.3
-treap==1.23.1
+treap==1.38
 uWSGI==2.0.13.1
 uwsgi-metrics==1.1.5
 venusian==1.0

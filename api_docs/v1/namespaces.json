@@ -98,6 +98,122 @@
                 }
             ],
             "path": "/v1/namespaces/{namespace}/refreshes"
+        },
+        {
+            "operations": [
+                {
+                    "authorizations": {},
+                    "method": "POST",
+                    "nickname": "register_namespace_meta_attribute_mapping",
+                    "notes": "The namespace name and the schema_id of Meta attribute schema should exist.",
+                    "parameters": [
+                        {
+                            "allowMultiple": false,
+                            "description": "Namespace for which meta attribute mappings will be registered",
+                            "name": "namespace",
+                            "paramType": "path",
+                            "required": true,
+                            "type": "string"
+                        },
+                        {
+                            "name": "body",
+                            "paramType": "body",
+                            "required": true,
+                            "type": "RegisterMetaAttributeRequest"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 404,
+                            "message": "Entity not found"
+                        },
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ],
+                    "summary": "Register the specified meta attribute schema_id to the specified namespace name.",
+                    "type": "MetaAttributeNamespaceMapping"
+                },
+                {
+                    "authorizations": {},
+                    "method": "DELETE",
+                    "nickname": "delete_namespace_meta_attribute_mapping",
+                    "notes": "The namespace name and the schema_id of Meta attribute schema should exist.",
+                    "parameters": [
+                        {
+                            "allowMultiple": false,
+                            "description": "Namespace for which meta attribute mappings will be deleted",
+                            "name": "namespace",
+                            "paramType": "path",
+                            "required": true,
+                            "type": "string"
+                        },
+                        {
+                            "name": "body",
+                            "paramType": "body",
+                            "required": true,
+                            "type": "RegisterMetaAttributeRequest"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 404,
+                            "message": "Entity not found"
+                        },
+                        {
+                            "code": 400,
+                            "message": "Invalid request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ],
+                    "summary": "Remove the specified meta attribute schema_id mapping from the specified namespace name.",
+                    "type": "MetaAttributeNamespaceMapping"
+                },
+                {
+                    "authorizations": {},
+                    "items": {
+                        "$ref": "MetaAttributeNamespaceMapping"
+                    },
+                    "method": "GET",
+                    "nickname": "get_namespace_meta_attribute_mappings",
+                    "notes": "The namespace name should exist.",
+                    "parameters": [
+                        {
+                            "allowMultiple": false,
+                            "description": "Namespace for which meta attributes will be fetched",
+                            "name": "namespace",
+                            "paramType": "path",
+                            "required": true,
+                            "type": "string"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 400,
+                            "message": "Invalid Namespace name supplied"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Namespace not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Server side error"
+                        }
+                    ],
+                    "summary": "Get a list of all meta attribute schema_ids mapped to specified namespace name.",
+                    "type": "array"
+                }
+            ],
+            "path": "/v1/namespaces/{namespace}/meta_attr_mappings"
         }
     ],
     "basePath": "http://169.254.255.254:20912",
@@ -105,6 +221,23 @@
         "application/json"
     ],
     "models": {
+        "MetaAttributeNamespaceMapping": {
+            "id": "MetaAttributeNamespaceMapping",
+            "properties": {
+                "meta_attribute_schema_id": {
+                    "description": "Avro Schema ID of meta attribute.",
+                    "type": "integer"
+                },
+                "namespace_id": {
+                    "description": "ID to distinguish a unique namespace.",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "meta_attribute_schema_id",
+                "namespace_id"
+            ]
+        },
         "Namespace": {
             "id": "Namespace",
             "properties": {
@@ -185,6 +318,18 @@
                     "type": "string"
                 }
             }
+        },
+        "RegisterMetaAttributeRequest": {
+            "id": "RegisterMetaAttributeRequest",
+            "properties": {
+                "meta_attribute_schema_id": {
+                    "description": "AvroSchema ID of Meta Attribute schema to be mapped.",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "meta_attribute_schema_id"
+            ]
         },
         "Source": {
             "id": "Source",

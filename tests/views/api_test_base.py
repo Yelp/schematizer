@@ -8,6 +8,8 @@ from pyramid import httpexceptions
 
 from schematizer import models
 from schematizer.helpers.formatting import _format_datetime
+from schematizer.models.meta_attribute_mapping_store import (
+    MetaAttributeMappingStore)
 from schematizer_testing import utils
 from tests.models.testing_db import DBTestCase
 
@@ -137,6 +139,21 @@ class ApiTestBase(DBTestCase):
         if overrides:
             expected.update(overrides)
         return expected
+
+    def get_expected_meta_attr_response(self, entity_type, entity_id):
+        mappings = utils.get_entity_by_kwargs(
+            MetaAttributeMappingStore,
+            entity_type=entity_type,
+            entity_id=entity_id
+        )
+        if not mappings:
+            return {}
+        expected_entity_type = (mappings[0].entity_type + '_id').lower()
+        expected_entity_id = mappings[0].entity_id
+        return [
+            {expected_entity_type: expected_entity_id,
+             'meta_attribute_schema_id': mapping.meta_attr_schema_id
+             } for mapping in mappings]
 
     @classmethod
     def get_http_exception(cls, http_status_code):
