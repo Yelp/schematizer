@@ -14,6 +14,7 @@ class TestListSourcesByNamespace(ApiTestBase):
         expected_exception = self.get_http_exception(404)
         with pytest.raises(expected_exception) as e:
             mock_request.matchdict = {'namespace': 'foo'}
+            mock_request.params = {}
             namespace_views.list_sources_by_namespace(mock_request)
 
         assert e.value.code == expected_exception.code
@@ -21,6 +22,26 @@ class TestListSourcesByNamespace(ApiTestBase):
 
     def test_happy_case(self, mock_request, yelp_namespace, biz_source):
         mock_request.matchdict = {'namespace': yelp_namespace.name}
+        mock_request.params = {}
+        actual = namespace_views.list_sources_by_namespace(mock_request)
+        expected = [self.get_expected_src_resp(biz_source.id)]
+        assert actual == expected
+
+    def test_with_min_id(self, mock_request, yelp_namespace, biz_source):
+        mock_request.matchdict = {'namespace': yelp_namespace.name}
+        mock_request.params = {'min_id': biz_source.id + 1}
+        actual = namespace_views.list_sources_by_namespace(mock_request)
+        assert actual == []
+
+    def test_with_count(
+            self,
+            mock_request,
+            yelp_namespace,
+            biz_source,
+            another_biz_source
+    ):
+        mock_request.matchdict = {'namespace': yelp_namespace.name}
+        mock_request.params = {'count': 1}
         actual = namespace_views.list_sources_by_namespace(mock_request)
         expected = [self.get_expected_src_resp(biz_source.id)]
         assert actual == expected

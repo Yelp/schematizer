@@ -52,7 +52,9 @@ class TestGetNamespaceByName(DBTestCase):
         with pytest.raises(EntityNotFoundError):
             Namespace.get_by_name(name='bad namespace')
 
-class TestSourcesRelatedToNamespace(DBTestCase):
+
+class TestGetSourcesByNamespace(DBTestCase):
+
     @pytest.fixture
     def namespace_name(self):
         return 'foo'
@@ -61,11 +63,6 @@ class TestSourcesRelatedToNamespace(DBTestCase):
     def namespace(self, namespace_name):
         return factories.create_namespace(namespace_name)
 
-
-    @pytest.fixture
-    def namespace_no_sources(self):
-        return factories.create_namespace('non_sources')
-
     @pytest.fixture
     def sources(self, namespace_name):
         return [
@@ -73,19 +70,21 @@ class TestSourcesRelatedToNamespace(DBTestCase):
             factories.create_source(namespace_name, 'source2')
         ]
 
-    def test_happy_case(self, namespace):
-        info = PageInfo(min_id=0,count=1)
-        sources = namespace.get_sources(page_info= info)
-        assert len(sources) == 1
-        assert sources[0].name == 'source1'
-        new_min_id = sources[0].id + 1
-        new_info = PageInfo(min_id=new_min_id)
-        sources = namespace.get_sources(page_info=new_info)
-        assert len(sources) == 1
-        assert sources[0].name == 'source2'
+    def test_filter_by_count(self, namespace, sources):
+        info = PageInfo(count=1)
+        actual = namespace.get_sources(page_info=info)
+        asserts.assert_equal_entity_list(
+            actual,
+            sources[0:1],
+            asserts.assert_equal_source
+        )
 
-    def test_non_related_sources(self, namespace_no_sources):
-        sources = namespace_no_sources.get_sources()
-        assert len(sources) == 0
+    def test_filter_by_min_id(self, namespace, sources):
+        min_id = sources[0].id + 1
+        info = PageInfo(min_id=min_id)
+        actual = namespace.get_sources(page_info=info)
+        asserts.assert_equal_source(actual[0], sources[1])
 
-
+    def test_no_source(self, namespace):
+        actual = namespace.get_sources()
+        assert actual == []
