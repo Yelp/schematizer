@@ -425,6 +425,9 @@ class TestRedshiftSchemaMigration(object):
                  },
                 {'name': 'timestamp_col', 'type': ['null', 'long'],
                     'timestamp': True},
+                {'name': 'timestamptz_col', 'type': ['null', {
+                    'logicalType': 'timestamp-millis', 'type': 'long'}]
+                },
 
 
                 # BOOLEAN TYPES
@@ -453,6 +456,7 @@ class TestRedshiftSchemaMigration(object):
             'varchar_col_enum varchar(3) not null,'
             'date_col date,'
             'timestamp_col timestamp,'
+            'timestamptz_col timestamptz,'
             'boolean_col boolean'
             ');'
         )

@@ -241,7 +241,8 @@ class AvroToRedshiftConverter(BaseConverter):
     def _logical_type_converters(self):
         return {
             'date': self._convert_date_type,
-            'decimal': self._convert_decimal_type
+            'decimal': self._convert_decimal_type,
+            'timestamp-millis': self._convert_timestamp_millis_type
         }
 
     def _convert_date_type(self, field):
@@ -250,6 +251,9 @@ class AvroToRedshiftConverter(BaseConverter):
     def _convert_decimal_type(self, field):
         precision, scale = self._get_precision_metadata(field)
         return redshift_data_types.RedshiftDecimal(precision, scale)
+
+    def _convert_timestamp_millis_type(self, field):
+        return redshift_data_types.RedshiftTimestampTz()
 
     def _get_table_metadata(self, record_schema):
         table_metadata = ({MetaDataKey.NAMESPACE: record_schema.namespace}
