@@ -427,7 +427,7 @@ class TestRedshiftSchemaMigration(object):
                     'timestamp': True},
                 {'name': 'timestamptz_col', 'type': ['null', {
                     'logicalType': 'timestamp-millis', 'type': 'long'}]
-                },
+                 },
 
 
                 # BOOLEAN TYPES

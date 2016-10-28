@@ -151,7 +151,6 @@ class TestAvroToRedshiftConverter(object):
             SQLColumn(self.col_name, redshift_types.RedshiftTimestampTz())
         )
 
-
     def test_convert_with_field_float(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
