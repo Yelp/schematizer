@@ -123,6 +123,8 @@ class AvroToRedshiftConverter(BaseConverter):
         )
 
     def _convert_field_type(self, field_type, field):
+        # TODO(chohan|DATAPIPE-1999): Revisit the conversion logic here to
+        # handle avro schemas in a more general way.
         is_complex = False
         if self._is_primitive_schema(field_type):
             typ = field_type.fullname
