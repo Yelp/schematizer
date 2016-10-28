@@ -39,7 +39,22 @@
                             "paramType": "path",
                             "required": true,
                             "type": "string"
+                        },
+                        {
+                            "description": "Maximum number of sources to retrieve.",
+                            "paramType": "query",
+                            "name": "count",
+                            "required": false,
+                            "type": "integer"
+                        },
+                        {
+                            "description": "Limits results to those sources with an id greater than or equal to given min_id.",
+                            "paramType": "query",
+                            "name": "min_id",
+                            "required": false,
+                            "type": "integer"
                         }
+
                     ],
                     "responseMessages": [
                         {
