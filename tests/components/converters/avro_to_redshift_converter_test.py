@@ -141,6 +141,16 @@ class TestAvroToRedshiftConverter(object):
             SQLColumn(self.col_name, redshift_types.RedshiftDate())
         )
 
+    def test_convert_with_field_timestamp_millis(self, converter):
+        self._convert_and_assert_with_one_column(
+            converter,
+            {'name': self.col_name,
+             'type': ['null',
+                      {'logicalType': 'timestamp-millis', 'type': 'long'}
+                      ]},
+            SQLColumn(self.col_name, redshift_types.RedshiftTimestampTz())
+        )
+
     def test_convert_with_field_float(self, converter):
         self._convert_and_assert_with_one_column(
             converter,
@@ -228,6 +238,22 @@ class TestAvroToRedshiftConverter(object):
              'type': ['null', 'boolean'],
              'default': None},
             SQLColumn(self.col_name, redshift_types.RedshiftBoolean()),
+        )
+
+    def test_convert_with_field_nullable_enum(self, converter):
+        self._convert_and_assert_with_one_column(
+            converter,
+            {'name': self.col_name,
+             'type': ['null', {
+                 'type': 'enum',
+                 'name': self.col_name,
+                 'symbols': ['1', '123', '12']}
+             ]},
+            SQLColumn(
+                self.col_name,
+                redshift_types.RedshiftVarChar(3),
+                is_nullable=True
+            ),
         )
 
     def test_convert_with_field_enum(self, converter):

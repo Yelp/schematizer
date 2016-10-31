@@ -173,6 +173,11 @@ class RedshiftTimestamp(RedshiftDateAndTime):
     type_name = 'timestamp'
 
 
+class RedshiftTimestampTz(RedshiftDateAndTime):
+
+    type_name = 'timestamptz'
+
+
 class RedshiftBoolean(SQLColumnDataType):
 
     type_name = 'boolean'

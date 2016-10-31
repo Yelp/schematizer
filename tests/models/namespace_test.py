@@ -6,6 +6,7 @@ import pytest
 
 from schematizer.models.exceptions import EntityNotFoundError
 from schematizer.models.namespace import Namespace
+from schematizer.models.page_info import PageInfo
 from schematizer_testing import asserts
 from schematizer_testing import factories
 from tests.models.base_model_test import GetAllModelTestBase
@@ -50,3 +51,40 @@ class TestGetNamespaceByName(DBTestCase):
     def test_non_existed_namespace(self):
         with pytest.raises(EntityNotFoundError):
             Namespace.get_by_name(name='bad namespace')
+
+
+class TestGetSourcesByNamespace(DBTestCase):
+
+    @pytest.fixture
+    def namespace_name(self):
+        return 'foo'
+
+    @pytest.fixture
+    def namespace(self, namespace_name):
+        return factories.create_namespace(namespace_name)
+
+    @pytest.fixture
+    def sources(self, namespace_name):
+        return [
+            factories.create_source(namespace_name, 'source1'),
+            factories.create_source(namespace_name, 'source2')
+        ]
+
+    def test_filter_by_count(self, namespace, sources):
+        info = PageInfo(count=1)
+        actual = namespace.get_sources(page_info=info)
+        asserts.assert_equal_entity_list(
+            actual,
+            sources[0:1],
+            asserts.assert_equal_source
+        )
+
+    def test_filter_by_min_id(self, namespace, sources):
+        min_id = sources[0].id + 1
+        info = PageInfo(min_id=min_id)
+        actual = namespace.get_sources(page_info=info)
+        asserts.assert_equal_source(actual[0], sources[1])
+
+    def test_no_source(self, namespace):
+        actual = namespace.get_sources()
+        assert actual == []

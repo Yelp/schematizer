@@ -162,4 +162,7 @@ def get_element_response_from_element(element):
 
 
 def get_meta_attr_mapping_response(entity_type, entity_id, meta_attr_id):
-    return {entity_type: entity_id, 'meta_attribute_schema_id': meta_attr_id}
+    return {
+        entity_type: int(entity_id),
+        'meta_attribute_schema_id': meta_attr_id
+    }

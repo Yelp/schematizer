@@ -123,10 +123,14 @@ class AvroToRedshiftConverter(BaseConverter):
         )
 
     def _convert_field_type(self, field_type, field):
+        # TODO(chohan|DATAPIPE-1999): Revisit the conversion logic here to
+        # handle avro schemas in a more general way.
+        is_complex = False
         if self._is_primitive_schema(field_type):
             typ = field_type.fullname
         elif self._is_complex_schema(field_type):
             typ = field_type.type
+            is_complex = True
         else:
             typ = field_type
 
@@ -140,7 +144,9 @@ class AvroToRedshiftConverter(BaseConverter):
                 return logical_converter_func(field_type)
 
         if converter_func:
-            return converter_func(field)
+            return converter_func(
+                field_type if is_complex else field
+            )
 
         raise UnsupportedTypeException(
             "Unable to convert field {0} type {1} to Redshift column type."
@@ -226,7 +232,7 @@ class AvroToRedshiftConverter(BaseConverter):
         return redshift_data_types.RedshiftBoolean()
 
     def _convert_enum_type(self, field):
-        max_symbol_len = max(len(symbol) for symbol in field.type.symbols)
+        max_symbol_len = max(len(symbol) for symbol in field.symbols)
         return redshift_data_types.RedshiftVarChar(
             min(max_symbol_len, self.MAX_VARCHAR_BYTES)
         )
@@ -235,7 +241,8 @@ class AvroToRedshiftConverter(BaseConverter):
     def _logical_type_converters(self):
         return {
             'date': self._convert_date_type,
-            'decimal': self._convert_decimal_type
+            'decimal': self._convert_decimal_type,
+            'timestamp-millis': self._convert_timestamp_millis_type
         }
 
     def _convert_date_type(self, field):
@@ -244,6 +251,9 @@ class AvroToRedshiftConverter(BaseConverter):
     def _convert_decimal_type(self, field):
         precision, scale = self._get_precision_metadata(field)
         return redshift_data_types.RedshiftDecimal(precision, scale)
+
+    def _convert_timestamp_millis_type(self, field):
+        return redshift_data_types.RedshiftTimestampTz()
 
     def _get_table_metadata(self, record_schema):
         table_metadata = ({MetaDataKey.NAMESPACE: record_schema.namespace}

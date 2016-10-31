@@ -335,7 +335,7 @@
                         }
                     ],
                     "summary": "Register the specified meta attribute schema_id to the specified source_id.",
-                    "type": "MetaAttributeMapping"
+                    "type": "MetaAttributeSourceMapping"
                 },
                 {
                     "authorizations": {},
@@ -373,12 +373,12 @@
                         }
                     ],
                     "summary": "Remove the specified meta attribute schema_id mapping from the specified source_id.",
-                    "type": "MetaAttributeMapping"
+                    "type": "MetaAttributeSourceMapping"
                 },
                 {
                     "authorizations": {},
                     "items": {
-                        "$ref": "MetaAttributeMapping"
+                        "$ref": "MetaAttributeSourceMapping"
                     },
                     "method": "GET",
                     "nickname": "get_source_meta_attribute_mappings",
@@ -479,16 +479,21 @@
                 }
             }
         },
-        "MetaAttributeMapping": {
-            "id": "MetaAttributeMapping",
+        "MetaAttributeSourceMapping": {
+            "id": "MetaAttributeSourceMapping",
             "properties": {
                 "meta_attribute_schema_id": {
                     "description": "Avro Schema ID of meta attribute.",
                     "type": "integer"
+                },
+                "source_id": {
+                    "description": "ID to distinguish a unique source.",
+                    "type": "integer"
                 }
             },
             "required": [
-                "meta_attribute_schema_id"
+                "meta_attribute_schema_id",
+                "source_id"
             ]
         },
         "Namespace": {
