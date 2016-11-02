@@ -76,7 +76,7 @@ curl -X POST --header 'Content-Type: application/json' --header 'Accept: text/pl
   "source_owner_email": "test@test.com",
   "source": "test_source",
   "contains_pii": false,
-  "schema": "{\n   \"type\":\"record\",\n   \"namespace\":\"test_namespace\",\n   \"source\":\"test_source\",\n   \"name\":\"test_name\",\n   \"doc\":\"test_doc\",\n   \"fields\":[\n      {\n         \"type\":\"string\",\n         \"doc\":\"test_doc1\",\n         \"name\":\"key1\"\n      },\n      {\n         \"type\":\"string\",\n         \"doc\":\"test_doc2\",\n         \"name\":\"key2\"\n      }\n   ]\n}"
+  "schema": "{\"type\":\"record\",\"namespace\":\"test_namespace\",\"source\":\"test_source\",\"name\":\"test_name\",\"doc\":\"test_doc\",\"fields\":[{\"type\":\"string\",\"doc\":\"test_doc1\",\"name\":\"key1\"},{\"type\":\"string\",\"doc\":\"test_doc2\",\"name\":\"key2\"}]}"
 }' 'http://127.0.0.1:8888/v1/schemas/avro'
 ```
 
