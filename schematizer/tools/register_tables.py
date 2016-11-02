@@ -174,8 +174,6 @@ def _setup_schematizer_container(docker_compose_file):
     container. It removes the container when exiting the context manager.
     """
     project = 'schematizermanualtest{}'.format(getpass.getuser())
-    # TODO(DATAPIPE-1822|abrar): make it configurable so that it can
-    # be run using both docker-compose.yml and docker-compose-opensource.yml
     service = 'schematizerservice'
 
     project_arg = '--project-name={}'.format(project)
