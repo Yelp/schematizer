@@ -1,42 +1,96 @@
-The "schematizer" Service
-=======================
+# Schematizer
 
-This repository contains a trivial service called `schematizer`.
-You can run it by doing something like
 
-    PORT=<port> STATS_PORT=<stats_port> inenv serviceinit.d/schematizer start-dev
+What is it?
+-----------
+The Schematizer is a schema store service that tracks and manages all the schemas 
+used in the Data Pipeline and provides features like automatic documentation support.
+We use Apache Avro to represent our schemas.
 
-The documentation for this service should be available at:
+[Read More](https://engineeringblog.yelp.com/2016/08/more-than-just-a-schema-store.html)
 
-    http://servicedocs.yelpcorp.com/docs/schematizer/index.html
 
-How to Update Schematizer Docker Images to Yelp Docker Registry
-============================================================================================
+How to download
+---------------
+```
+git clone git@github.com:Yelp/schematizer.git
+```
 
-docker build -t docker-dev.yelpcorp.com/schematizer_service:v1 .
-docker build -t docker-dev.yelpcorp.com/schematizer_database:v1 schema/
-docker build -t docker-dev.yelpcorp.com/schematizer_configs:v1 acceptance/configs/
 
-docker tag docker-dev.yelpcorp.com/schematizer_service:v1 docker-dev.yelpcorp.com/schematizer_service:latest
-docker tag docker-dev.yelpcorp.com/schematizer_database:v1 docker-dev.yelpcorp.com/schematizer_database:latest
-docker tag docker-dev.yelpcorp.com/schematizer_configs:v1 docker-dev.yelpcorp.com/schematizer_configs:latest
-docker push docker-dev.yelpcorp.com/schematizer_service
-docker push docker-dev.yelpcorp.com/schematizer_database
-docker push docker-dev.yelpcorp.com/schematizer_configs
+Tests
+-----
+Running unit tests
+```
+make -f Makefile-opensource test
+```
 
-How to Get Latest Schematizer Docker Images and Set Up a Local Testing Environment
-============================================================================================
+Running unit integration tests
+```
+make -f Makefile-opensource itest
+```
 
-docker run -d --name db docker-dev.yelpcorp.com/schematizer_database
-docker run -d --name configs docker-dev.yelpcorp.com/schematizer_configs
-docker run -p 8888:8888 --name schematizer --link db:schematizerdatabase --volumes-from=configs docker-dev.yelpcorp.com/schematizer_service /code/virtualenv_run/bin/python /code/serviceinit.d/schematizer start-dev
 
-How To Service
-==============
+Setup and Configuration
+-----------------------
+Create a mysql database for Schematizer Service::
+```
+CREATE DATABASE <db_name> DEFAULT CHARACTER SET utf8;
+```
 
-Please read the update documentation to learn more about services at Yelp,
-best practices, and how to extend your service to do all the cool things
-you want to do with it:
+Create a mysql tables in `<db_name>` database for Schematizer Service::
+```
+cat schema/tables/*.sql | mysql <db_name>
+```
 
-    https://trac.yelpcorp.com/wiki/HowToService
-    http://servicedocs.yelpcorp.com/docs/tutorial_happyhour/index.html
+Create a `topology.yaml` file
+```
+topology:
+-   cluster: <schematizer_cluster_name>
+    replica: master
+    entries:
+        - charset: utf8
+          use_unicode: true
+          host: <db_ip>
+          db: <db_name>
+          user: <db_user>
+          passwd: <db_password>
+          port: <db_port>
+```
+
+In `config.yaml` assign values to following configs::
+```
+schematizer_cluster: <schematizer_cluster_name>
+
+topology_path: /path/to/topology.yaml
+```
+
+
+Usage
+-----
+Use `serviceinitd/schematizer.py` to start schematizer service.
+
+Registering a schema with schematizer::
+```
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: text/plain' -d '{
+  "namespace": "test_namespace",
+  "source_owner_email": "test@test.com",
+  "source": "test_source",
+  "contains_pii": false,
+  "schema": "{\n   \"type\":\"record\",\n   \"namespace\":\"test_namespace\",\n   \"source\":\"test_source\",\n   \"name\":\"test_name\",\n   \"doc\":\"test_doc\",\n   \"fields\":[\n      {\n         \"type\":\"string\",\n         \"doc\":\"test_doc1\",\n         \"name\":\"key1\"\n      },\n      {\n         \"type\":\"string\",\n         \"doc\":\"test_doc2\",\n         \"name\":\"key2\"\n      }\n   ]\n}"
+}' 'http://swagger_ui.paasta-norcal-devc.yelp/schematizer/v1/schemas/avro'
+```
+
+Getting Schema By ID from schematizer::
+```
+curl -X GET --header 'Accept: text/plain' 'http://127.0.0.1:8888/v1/schemas/<schema_id>'
+```
+
+
+License
+-------
+Schematizer is licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0
+
+
+Contributing
+------------
+Everyone is encouraged to contribute to Schematizer by forking the Github repository and making a pull request or opening an issue.
