@@ -61,7 +61,8 @@ class TestRegisterTables(DBTestCase):
     def test_register_all_schematizer_tables(self, simple_topology_file):
         parsed_args = Namespace(
             cluster_name=self.schematizer_cluster,
-            config_file=simple_topology_file
+            config_file=simple_topology_file,
+            docker_file='docker-compose-opensource.yml'
         )
         with mock.patch(
             'schematizer.tools.register_tables.print'
