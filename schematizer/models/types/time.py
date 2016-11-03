@@ -13,9 +13,6 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""This code is originally copied from yelp-main.
-https://opengrok.yelpcorp.com/xref/yelp-main/yelp/models/types/time.py
-"""
 from __future__ import absolute_import
 from __future__ import unicode_literals
 

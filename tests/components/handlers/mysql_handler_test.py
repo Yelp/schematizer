@@ -324,7 +324,7 @@ class TestMySQLHandler(object):
         # Note that MySQL BLOB and TEXT cannot have default value so we are
         # intentionally excluding them from such tests. For more information
         # See http://dev.mysql.com/doc/refman/5.5/en/data-type-defaults.html
-        # or the discussion on https://reviewboard.yelpcorp.com/r/119051/
+        # or the discussion on r/119051/
     ])
     def test_create_sql_table_from_sql_stmts_with_string_type(
         self,
@@ -487,7 +487,7 @@ class TestMySQLHandler(object):
         # Note that MySQL BLOB and TEXT cannot have default value so we are
         # intentionally excluding them from such tests. For more information
         # See http://dev.mysql.com/doc/refman/5.5/en/data-type-defaults.html
-        # or the discussion on https://reviewboard.yelpcorp.com/r/119051/
+        # or the discussion on r/119051/
     ])
     def test_create_sql_table_from_sql_stmts_with_binary_type(
         self,

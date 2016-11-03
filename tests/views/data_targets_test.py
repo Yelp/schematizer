@@ -80,7 +80,7 @@ class TestCreateDataTarget(ApiTestBase):
         return {
             'name': 'yelp_redshift',
             'target_type': 'redshift',
-            'destination': 'prod.yelpcorp'
+            'destination': 'example.org'
         }
 
     def test_happy_case(self, mock_request, request_json):

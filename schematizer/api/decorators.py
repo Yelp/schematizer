@@ -75,7 +75,7 @@ def _dict_filter_out_none_values(input_dict):
     dict responses with None values, since `null` entries aren't supported by
     the swagger schema.
 
-    See https://jira.yelpcorp.com/browse/PSHIP-4692 for more info.
+    See PSHIP-4692 for more info.
     """
     if isinstance(input_dict, dict):
         for key in input_dict.keys():
