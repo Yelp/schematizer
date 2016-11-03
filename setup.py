@@ -24,7 +24,7 @@ setup(
     name='schematizer',
     author='BAM',
     author_email='bam@yelp.com',
-    license='Copyright Yelp 2015',
+    license='Copyright 2016 Yelp Inc.',
     packages=find_packages(exclude=['tests*']),
     install_requires=[
         'uwsgi',
