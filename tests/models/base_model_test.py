@@ -100,7 +100,7 @@ class TestGetModelById(DBTestCase):
         return factories.create_data_target(
             name='yelp_redshift',
             target_type='redshift',
-            destination='dwv1.redshift.yc.com'
+            destination='example.org'
         )
 
     @pytest.fixture

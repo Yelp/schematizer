@@ -214,7 +214,7 @@ def dw_data_target():
     return factories.create_data_target(
         name='yelp_redshift',
         target_type='dw_redshift',
-        destination='dwv1.redshift.yc.com'
+        destination='example.org'
     )
 
 
