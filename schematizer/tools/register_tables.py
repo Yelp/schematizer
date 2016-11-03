@@ -65,6 +65,13 @@ def _setup_cli_options():
         help='Name of the cluster to connect to, such as primary, aux, etc. '
              'Required.'
     )
+    parser.add_argument(
+        '--docker-file',
+        type=str,
+        default='docker-compose.yml',
+        help='Docker compose file for building Schematizer container. '
+             'Default is %(default)s.'
+    )
     return parser
 
 
@@ -75,7 +82,7 @@ def run(parsed_args):
     )
     with _setup_mysql_connection(conn_param) as conn:
         tables_info = _get_mysql_tables_info(conn)
-    with _setup_schematizer_container() as host:
+    with _setup_schematizer_container(parsed_args.docker_file) as host:
         register_tables_results = _register_tables(host, tables_info)
     results_stats = _verify_register_tables_results(register_tables_results)
     _output_results(results_stats)
@@ -162,34 +169,35 @@ def _execute_query(connection, query):
 
 
 @contextmanager
-def _setup_schematizer_container():
+def _setup_schematizer_container(docker_compose_file):
     """Set up a scheamtizer container and yields the IP address of the host
     container. It removes the container when exiting the context manager.
     """
     project = 'schematizermanualtest{}'.format(getpass.getuser())
-    # TODO(DATAPIPE-1822|abrar): make it configurable so that it can
-    # be run using both docker-compose.yml and docker-compose-opensource.yml
     service = 'schematizerservice'
+
+    project_arg = '--project-name={}'.format(project)
+    docker_compose_file_arg = '--file={}'.format(docker_compose_file)
     try:
         _run_docker_compose_command(
-            '--project-name={}'.format(project),
-            '--file=docker-compose-opensource.yml',
+            project_arg,
+            docker_compose_file_arg,
             'pull'
         )
         _run_docker_compose_command(
-            '--project-name={}'.format(project),
-            '--file=docker-compose-opensource.yml',
+            project_arg,
+            docker_compose_file_arg,
             'rm',
             '--force'
         )
         _run_docker_compose_command(
-            '--project-name={}'.format(project),
-            '--file=docker-compose-opensource.yml',
+            project_arg,
+            docker_compose_file_arg,
             'build'
         )
         _run_docker_compose_command(
-            '--project-name={}'.format(project),
-            '--file=docker-compose-opensource.yml',
+            project_arg,
+            docker_compose_file_arg,
             'up',
             '-d',
             '--no-build',
@@ -202,13 +210,13 @@ def _setup_schematizer_container():
 
     finally:
         _run_docker_compose_command(
-            '--project-name={}'.format(project),
-            '--file=docker-compose-opensource.yml',
+            project_arg,
+            docker_compose_file_arg,
             'kill'
         )
         _run_docker_compose_command(
-            '--project-name={}'.format(project),
-            '--file=docker-compose-opensource.yml',
+            project_arg,
+            docker_compose_file_arg,
             'rm',
             '--force'
         )

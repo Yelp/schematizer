@@ -25,7 +25,6 @@ import simplejson
 
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
-from schematizer.api.requests.requests_v1 import DEFAULT_KAFKA_CLUSTER_TYPE
 from schematizer.helpers.formatting import _format_datetime
 from schematizer.views import schemas as schema_views
 from schematizer_testing import factories
@@ -350,22 +349,24 @@ class TestRegisterSchema(RegisterSchemaTestBase):
         assert e.value.code == expected_exception.code
         assert str(e.value) == "Source owner email must be non-empty."
 
-    @pytest.mark.parametrize("cluster_type", [None, 'datapipe', 'scribe'])
-    def test_register_schema_with_cluster_type(
+    def test_register_schema_defaults_to_datapipe_cluster_type(
         self,
         mock_request,
-        request_json,
-        cluster_type
+        request_json
     ):
-        if cluster_type:
-            request_json['cluster_type'] = cluster_type
-            expected_cluster_type = cluster_type
-        else:
-            expected_cluster_type = DEFAULT_KAFKA_CLUSTER_TYPE
         mock_request.json_body = request_json
         actual = schema_views.register_schema(mock_request)
         self._assert_equal_schema_response(actual, request_json)
-        assert expected_cluster_type == actual['topic']['cluster_type']
+
+    def test_register_schema_with_cluster_type(
+        self,
+        mock_request,
+        request_json
+    ):
+        request_json['cluster_type'] = 'scribe'
+        mock_request.json_body = request_json
+        actual = schema_views.register_schema(mock_request)
+        self._assert_equal_schema_response(actual, request_json)
 
 
 class TestRegisterSchemaFromMySQL(RegisterSchemaTestBase):
