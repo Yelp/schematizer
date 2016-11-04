@@ -39,7 +39,7 @@ debug:
 	tox $(REBUILD_FLAG) -- -s
 
 itest: cook-image
-	paasta local-run -s schematizer -t
+	paasta local-run -s schematizer -t --instance main --cluster everywhere-testopia
 	tox -c tox.ini -e acceptance
 
 DOCKER_TAG ?= schematizer-dev-$(USER)
