@@ -25,13 +25,16 @@ from sqlalchemy.orm import exc as orm_exc
 
 from schematizer import models
 from schematizer.components.converters.converter_base import BaseConverter
+from schematizer.config import log
 from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import meta_attribute_mappers as meta_attr_logic
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.models.database import session
 from schematizer.models.schema_meta_attribute_mapping import (
-    SchemaMetaAttributeMapping)
+    SchemaMetaAttributeMapping
+)
+
 
 try:
     # TODO(DATAPIPE-1506|abrar): Currently we have
@@ -139,9 +142,7 @@ def register_avro_schema_from_avro_json(
                          .format(avro_schema_json, error))
 
     if docs_required:
-        models.AvroSchema.verify_avro_schema_has_docs(
-            avro_schema_json
-        )
+        models.AvroSchema.verify_avro_schema_has_docs(avro_schema_json)
 
     namespace = _get_namespace_or_create(namespace_name)
     _lock_namespace(namespace)
@@ -164,11 +165,23 @@ def register_avro_schema_from_avro_json(
     for topic in topic_candidates:
         _lock_topic_and_schemas(topic)
         latest_schema = get_latest_schema_by_topic_id(topic.id)
-        if _is_same_schema(
+        is_same_schema = _is_same_schema(
             schema=latest_schema,
             avro_schema_json=avro_schema_json,
             base_schema_id=base_schema_id
-        ):
+        )
+        log.info(
+            'Registering schema {} on namespace {} and source {}. '
+            'Checking same schema with latest {} on topic {}: {}'.format(
+                avro_schema_json,
+                namespace_name,
+                source_name,
+                latest_schema,
+                topic,
+                is_same_schema
+            )
+        )
+        if is_same_schema:
             return latest_schema
 
     most_recent_topic = topic_candidates[0] if topic_candidates else None
