@@ -100,23 +100,23 @@ def convert_schema(source_type, target_type, source_schema):
 
 
 def register_avro_schema_from_avro_json(
-        avro_schema_json,
-        namespace_name,
-        source_name,
-        source_email_owner,
-        contains_pii,
-        cluster_type,
-        status=models.AvroSchemaStatus.READ_AND_WRITE,
-        base_schema_id=None,
-        docs_required=True
+    avro_schema_json,
+    namespace_name,
+    source_name,
+    source_owner_email,
+    contains_pii,
+    cluster_type,
+    status=models.AvroSchemaStatus.READ_AND_WRITE,
+    base_schema_id=None,
+    docs_required=True
 ):
     """Add an Avro schema of given schema json object into schema store.
     The steps from checking compatibility to create new topic should be atomic.
 
     :param avro_schema_json: JSON representation of Avro schema
-    :param namespace: namespace string
-    :param source: source name string
-    :param domain_owner_email: email of the schema owner
+    :param namespace_name: namespace string
+    :param source_name: source name string
+    :param source_owner_email: email of the schema owner
     :param cluster_type: Type of kafka cluster Ex: datapipe, scribe, etc.
         See http://y/datapipe_cluster_types for more info on cluster_types.
     :param status: AvroStatusEnum: RW/R/Disabled
@@ -127,10 +127,10 @@ def register_avro_schema_from_avro_json(
     :return: New created AvroSchema object.
     """
 
-    source_email_owner = _strip_if_not_none(source_email_owner)
+    source_owner_email = _strip_if_not_none(source_owner_email)
     source_name = _strip_if_not_none(source_name)
 
-    _assert_non_empty_email(source_email_owner)
+    _assert_non_empty_email(source_owner_email)
     _assert_non_empty_src_name(source_name)
 
     is_valid, error = models.AvroSchema.verify_avro_schema(avro_schema_json)
@@ -149,7 +149,7 @@ def register_avro_schema_from_avro_json(
     source = _get_source_or_create(
         namespace.id,
         source_name.strip(),
-        source_email_owner.strip()
+        source_owner_email.strip()
     )
     _lock_source(source)
 
