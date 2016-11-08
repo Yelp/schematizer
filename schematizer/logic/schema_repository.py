@@ -25,13 +25,16 @@ from sqlalchemy.orm import exc as orm_exc
 
 from schematizer import models
 from schematizer.components.converters.converter_base import BaseConverter
+from schematizer.config import log
 from schematizer.environment_configs import FORCE_AVOID_INTERNAL_PACKAGES
 from schematizer.logic import exceptions as sch_exc
 from schematizer.logic import meta_attribute_mappers as meta_attr_logic
 from schematizer.logic.schema_resolution import SchemaCompatibilityValidator
 from schematizer.models.database import session
 from schematizer.models.schema_meta_attribute_mapping import (
-    SchemaMetaAttributeMapping)
+    SchemaMetaAttributeMapping
+)
+
 
 try:
     # TODO(DATAPIPE-1506|abrar): Currently we have
@@ -100,23 +103,23 @@ def convert_schema(source_type, target_type, source_schema):
 
 
 def register_avro_schema_from_avro_json(
-        avro_schema_json,
-        namespace_name,
-        source_name,
-        source_email_owner,
-        contains_pii,
-        cluster_type,
-        status=models.AvroSchemaStatus.READ_AND_WRITE,
-        base_schema_id=None,
-        docs_required=True
+    avro_schema_json,
+    namespace_name,
+    source_name,
+    source_owner_email,
+    contains_pii,
+    cluster_type,
+    status=models.AvroSchemaStatus.READ_AND_WRITE,
+    base_schema_id=None,
+    docs_required=True
 ):
     """Add an Avro schema of given schema json object into schema store.
     The steps from checking compatibility to create new topic should be atomic.
 
     :param avro_schema_json: JSON representation of Avro schema
-    :param namespace: namespace string
-    :param source: source name string
-    :param domain_owner_email: email of the schema owner
+    :param namespace_name: namespace string
+    :param source_name: source name string
+    :param source_owner_email: email of the schema owner
     :param cluster_type: Type of kafka cluster Ex: datapipe, scribe, etc.
         See http://y/datapipe_cluster_types for more info on cluster_types.
     :param status: AvroStatusEnum: RW/R/Disabled
@@ -127,10 +130,10 @@ def register_avro_schema_from_avro_json(
     :return: New created AvroSchema object.
     """
 
-    source_email_owner = _strip_if_not_none(source_email_owner)
+    source_owner_email = _strip_if_not_none(source_owner_email)
     source_name = _strip_if_not_none(source_name)
 
-    _assert_non_empty_email(source_email_owner)
+    _assert_non_empty_email(source_owner_email)
     _assert_non_empty_src_name(source_name)
 
     is_valid, error = models.AvroSchema.verify_avro_schema(avro_schema_json)
@@ -139,9 +142,7 @@ def register_avro_schema_from_avro_json(
                          .format(avro_schema_json, error))
 
     if docs_required:
-        models.AvroSchema.verify_avro_schema_has_docs(
-            avro_schema_json
-        )
+        models.AvroSchema.verify_avro_schema_has_docs(avro_schema_json)
 
     namespace = _get_namespace_or_create(namespace_name)
     _lock_namespace(namespace)
@@ -149,7 +150,7 @@ def register_avro_schema_from_avro_json(
     source = _get_source_or_create(
         namespace.id,
         source_name.strip(),
-        source_email_owner.strip()
+        source_owner_email.strip()
     )
     _lock_source(source)
 
@@ -164,11 +165,23 @@ def register_avro_schema_from_avro_json(
     for topic in topic_candidates:
         _lock_topic_and_schemas(topic)
         latest_schema = get_latest_schema_by_topic_id(topic.id)
-        if _is_same_schema(
+        is_same_schema = _is_same_schema(
             schema=latest_schema,
             avro_schema_json=avro_schema_json,
             base_schema_id=base_schema_id
-        ):
+        )
+        log.info(
+            'Registering schema {} on namespace {} and source {}. '
+            'Checking same schema with latest {} on topic {}: {}'.format(
+                avro_schema_json,
+                namespace_name,
+                source_name,
+                latest_schema,
+                topic,
+                is_same_schema
+            )
+        )
+        if is_same_schema:
             return latest_schema
 
     most_recent_topic = topic_candidates[0] if topic_candidates else None
