@@ -147,9 +147,6 @@ def register_avro_schema_from_avro_json(
         limit=None if base_schema_id else 1
     )
 
-    required_meta_attr_ids = meta_attr_logic.get_meta_attributes_by_source(
-        source.id
-    )
     for topic in topic_candidates:
         _lock_topic_and_schemas(topic)
         latest_schema = get_latest_schema_by_topic_id(topic.id)
@@ -157,7 +154,7 @@ def register_avro_schema_from_avro_json(
             schema=latest_schema,
             avro_schema_json=avro_schema_json,
             base_schema_id=base_schema_id,
-            required_meta_attr_ids=required_meta_attr_ids
+            source_id=source.id
         ):
             return latest_schema
 
@@ -192,17 +189,17 @@ def _is_same_schema(
     schema,
     avro_schema_json,
     base_schema_id,
-    required_meta_attr_ids
+    source_id
 ):
     return (schema and
             schema.avro_schema_json == avro_schema_json and
             schema.base_schema_id == base_schema_id and
-            _are_meta_attributes_same(schema.id, required_meta_attr_ids))
+            _are_meta_attr_mappings_same(schema.id, source_id))
 
 
-def _are_meta_attributes_same(schema_id, required_meta_attr_ids):
+def _are_meta_attr_mappings_same(schema_id, source_id):
     return (set(get_meta_attributes_by_schema_id(schema_id)) ==
-            set(required_meta_attr_ids))
+            set(meta_attr_logic.get_meta_attributes_by_source(source_id)))
 
 
 def _is_candidate_topic_compatible(topic, avro_schema_json, contains_pii):
@@ -439,16 +436,13 @@ def is_schema_compatible_in_topic(target_schema, topic):
     with existing schemas in the specified topic. Note that target_schema
     is the avro json object.
     """
-    required_meta_attr_ids = meta_attr_logic.get_meta_attributes_by_source(
-        topic.source_id
-    )
     enabled_schemas = get_schemas_by_topic_name(topic.name)
     for enabled_schema in enabled_schemas:
         schema_json = simplejson.loads(enabled_schema.avro_schema)
         if (not is_full_compatible(schema_json, target_schema) or
-            not _are_meta_attributes_same(
+            not _are_meta_attr_mappings_same(
                 enabled_schema.id,
-                required_meta_attr_ids
+                topic.source_id
         )):
             return False
     return True

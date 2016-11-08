@@ -516,25 +516,6 @@ class TestSchemaRepository(DBTestCase):
         )
         self.assert_equal_source_partial(expected_source, actual_source)
 
-    def test_registering_same_avro_schema_twice_from_avro_json(self):
-        schema1 = schema_repo.register_avro_schema_from_avro_json(
-            self.rw_schema_json,
-            self.namespace_name,
-            self.source_name,
-            self.source_owner_email,
-            contains_pii=False,
-            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
-        )
-        schema2 = schema_repo.register_avro_schema_from_avro_json(
-            self.rw_schema_json,
-            self.namespace_name,
-            self.source_name,
-            self.source_owner_email,
-            contains_pii=False,
-            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
-        )
-        self.assert_equal_avro_schema(schema1, schema2)
-
     def test_register_schema_after_meta_attribute_mapping_changes(
         self,
         namespace,
@@ -543,7 +524,8 @@ class TestSchemaRepository(DBTestCase):
     ):
         """ This test registers a schema json and then registers a namespace
         meta attribute mapping. Then it registers the same schema json again
-        and verifies that a new schema gets registered in a new topic.
+        and verifies that a new schema gets registered in a new topic and meta
+        attributes are enforced on the schema..
         """
         schema1 = schema_repo.register_avro_schema_from_avro_json(
             self.rw_schema_json,
@@ -555,7 +537,7 @@ class TestSchemaRepository(DBTestCase):
         )
         factories.create_meta_attribute_mapping(
             meta_attr_schema.id,
-            namespace.__class__.__name__,
+            models.Namespace.__name__,
             namespace.id
         )
 
@@ -567,12 +549,12 @@ class TestSchemaRepository(DBTestCase):
             contains_pii=False,
             cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
         )
-        factories.delete_meta_attribute_mappings(
-            namespace.__class__.__name__,
-            namespace.id,
-        )
+        actual = schema_repo.get_meta_attributes_by_schema_id(schema2.id)
+        expected = [meta_attr_schema.id]
+
         assert schema1.id != schema2.id
         assert schema1.topic_id != schema2.topic_id
+        assert actual == expected
 
     @pytest.mark.parametrize("cluster_type", ['datapipe', 'scribe'])
     def test_registering_from_avro_json_with_cluster_types(self, cluster_type):
@@ -1049,11 +1031,11 @@ class TestSchemaRepository(DBTestCase):
 
     @pytest.mark.usefixtures('source', 'rw_schema', 'disabled_schema')
     @pytest.mark.parametrize(
-        "is_compatible, get_meta_attributes_by_schema_id, "
-        "get_meta_attributes_by_source, expected_output", [
+        "is_compatible, meta_attributes_for_schema_id, "
+        "meta_attributes_for_source, expected_output", [
             (True, [10, 20], [10, 20], True),
             (True, [10, 20], [10, 30], False),
-            (False, [10, 20], [10, 30], False),
+            (False, [10, 20], [10, 20], False),
             (False, [10, 20], [10, 30], False),
         ])
     def test_is_schema_compatible_in_topic(
@@ -1061,23 +1043,19 @@ class TestSchemaRepository(DBTestCase):
         topic,
         mock_compatible_func,
         is_compatible,
-        get_meta_attributes_by_schema_id,
-        get_meta_attributes_by_source,
+        meta_attributes_for_schema_id,
+        meta_attributes_for_source,
         expected_output
     ):
         with mock.patch(
             'schematizer.logic.schema_repository.'
-            'meta_attr_logic.get_meta_attributes_by_source'
-        ) as mock_get_meta_attributes_by_source, mock.patch(
+            'meta_attr_logic.get_meta_attributes_by_source',
+            return_value=meta_attributes_for_source
+        ), mock.patch(
             'schematizer.logic.schema_repository.'
-            'get_meta_attributes_by_schema_id'
-        ) as mock_get_meta_attributes_by_schema_id:
-            mock_get_meta_attributes_by_source.return_value = (
-                get_meta_attributes_by_source
-            )
-            mock_get_meta_attributes_by_schema_id.return_value = (
-                get_meta_attributes_by_schema_id
-            )
+            'get_meta_attributes_by_schema_id',
+            return_value=meta_attributes_for_schema_id
+        ):
             mock_compatible_func.return_value = is_compatible
 
             actual = schema_repo.is_schema_compatible_in_topic(
