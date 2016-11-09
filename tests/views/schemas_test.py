@@ -1,4 +1,18 @@
 # -*- coding: utf-8 -*-
+# Copyright 2016 Yelp Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
@@ -11,7 +25,6 @@ import simplejson
 
 from schematizer import models
 from schematizer.api.exceptions import exceptions_v1
-from schematizer.api.requests.requests_v1 import DEFAULT_KAFKA_CLUSTER_TYPE
 from schematizer.helpers.formatting import _format_datetime
 from schematizer.views import schemas as schema_views
 from schematizer_testing import factories
@@ -336,22 +349,24 @@ class TestRegisterSchema(RegisterSchemaTestBase):
         assert e.value.code == expected_exception.code
         assert str(e.value) == "Source owner email must be non-empty."
 
-    @pytest.mark.parametrize("cluster_type", [None, 'datapipe', 'scribe'])
-    def test_register_schema_with_cluster_type(
+    def test_register_schema_defaults_to_datapipe_cluster_type(
         self,
         mock_request,
-        request_json,
-        cluster_type
+        request_json
     ):
-        if cluster_type:
-            request_json['cluster_type'] = cluster_type
-            expected_cluster_type = cluster_type
-        else:
-            expected_cluster_type = DEFAULT_KAFKA_CLUSTER_TYPE
         mock_request.json_body = request_json
         actual = schema_views.register_schema(mock_request)
         self._assert_equal_schema_response(actual, request_json)
-        assert expected_cluster_type == actual['topic']['cluster_type']
+
+    def test_register_schema_with_cluster_type(
+        self,
+        mock_request,
+        request_json
+    ):
+        request_json['cluster_type'] = 'scribe'
+        mock_request.json_body = request_json
+        actual = schema_views.register_schema(mock_request)
+        self._assert_equal_schema_response(actual, request_json)
 
 
 class TestRegisterSchemaFromMySQL(RegisterSchemaTestBase):

@@ -1,4 +1,18 @@
 # -*- coding: utf-8 -*-
+# Copyright 2016 Yelp Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
@@ -69,7 +83,7 @@ def register_schema(request):
             schema_json=req.schema_json,
             namespace=req.namespace,
             source=req.source,
-            source_email_owner=req.source_owner_email,
+            source_owner_email=req.source_owner_email,
             contains_pii=req.contains_pii,
             cluster_type=req.cluster_type,
             base_schema_id=req.base_schema_id,
@@ -105,7 +119,7 @@ def register_schema_from_mysql_stmts(request):
         schema_json=avro_schema_json,
         namespace=req.namespace,
         source=req.source,
-        source_email_owner=req.source_owner_email,
+        source_owner_email=req.source_owner_email,
         contains_pii=req.contains_pii,
         cluster_type=req.cluster_type,
         docs_required=False
@@ -116,7 +130,7 @@ def _register_avro_schema(
     schema_json,
     namespace,
     source,
-    source_email_owner,
+    source_owner_email,
     contains_pii,
     cluster_type,
     base_schema_id=None,
@@ -128,7 +142,7 @@ def _register_avro_schema(
             avro_schema_json=schema_json,
             namespace_name=namespace,
             source_name=source,
-            source_email_owner=source_email_owner,
+            source_owner_email=source_owner_email,
             contains_pii=contains_pii,
             cluster_type=cluster_type,
             base_schema_id=base_schema_id,

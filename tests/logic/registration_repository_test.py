@@ -1,4 +1,18 @@
 # -*- coding: utf-8 -*-
+# Copyright 2016 Yelp Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
@@ -22,7 +36,7 @@ class TestCreateDataTarget(DBTestCase):
         actual = reg_repo.create_data_target(
             name='yelp_redshift',
             target_type='redshift',
-            destination='dwv1.redshift.yelpcorp.com'
+            destination='example.org'
         )
         expected = utils.get_entity_by_id(models.DataTarget, actual.id)
         asserts.assert_equal_data_target(actual, expected)
@@ -59,7 +73,7 @@ class TestCreateConsumerGroup(DBTestCase):
         return factories.create_data_target(
             name='yelp_redshift',
             target_type='dw_redshift',
-            destination='dwv1.redshift.yelpcorp.com'
+            destination='example.org'
         )
 
     def test_happy_case(self, dw_data_target):
@@ -314,7 +328,7 @@ class TestGetDataTargetBySchemaID(DBTestCase):
         return factories.create_data_target(
             name='yelp_redshift_v2',
             target_type='redshift',
-            destination='dwv2.redshift.yelpcorp.com'
+            destination='example.org'
         )
 
     @pytest.fixture
