@@ -550,7 +550,7 @@ class TestSchemaRepository(DBTestCase):
             source.name,
             self.source_owner_email,
             contains_pii=False,
-            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
+            cluster_type=self.cluster_type
         )
         factories.create_meta_attribute_mapping(
             meta_attr_schema.id,
@@ -564,7 +564,7 @@ class TestSchemaRepository(DBTestCase):
             self.source_name,
             self.source_owner_email,
             contains_pii=False,
-            cluster_type=DEFAULT_KAFKA_CLUSTER_TYPE
+            cluster_type=self.cluster_type
         )
         actual = schema_repo.get_meta_attributes_by_schema_id(schema2.id)
         expected = [meta_attr_schema.id]
