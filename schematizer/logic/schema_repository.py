@@ -176,8 +176,8 @@ def register_avro_schema_from_avro_json(
                 avro_schema_json,
                 namespace_name,
                 source_name,
-                latest_schema,
-                topic,
+                latest_schema.avro_schema_json if latest_schema else 'None',
+                topic.name,
                 is_same_schema
             )
         )
