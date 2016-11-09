@@ -221,21 +221,6 @@ def create_meta_attribute_mapping(
     )
 
 
-def delete_meta_attribute_mappings(
-    entity_type,
-    entity_id
-):
-    meta_attr_mappings = session.query(
-        MetaAttributeMappingStore
-    ).filter(
-        MetaAttributeMappingStore.entity_type == entity_type and
-        MetaAttributeMappingStore.entity_id == entity_id
-    ).all()
-    for meta_attr_mapping in meta_attr_mappings:
-        session.delete(meta_attr_mapping)
-    session.flush()
-
-
 class SourceFactory(object):
 
     @classmethod
