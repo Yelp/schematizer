@@ -16,6 +16,7 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import re
 import uuid
 
 import simplejson
@@ -252,7 +253,8 @@ def _create_topic_for_source(
 
 
 def _construct_topic_name(namespace, source):
-    return '__'.join((namespace, source, uuid.uuid4().hex))
+    topic_name = '__'.join((namespace, source, uuid.uuid4().hex))
+    return re.sub('[^\w-]', '_', topic_name)
 
 
 def _create_topic(topic_name, source_id, contains_pii, cluster_type):
