@@ -42,7 +42,7 @@ class Config(object):
     def topology_path(self):
         return staticconf.get(
             'topology_path',
-            default='/nail/srv/configs/topology.yaml'
+            default='topology.yaml'
         )
 
     @cached_property

@@ -13,7 +13,15 @@ RUN     apt-get update && \
             git
 
 # uwsgi deps
-RUN     apt-get install -y libyaml-0-2 libxml2 libpython2.7 libmysqlclient-dev libssl0.9.8
+RUN     apt-get install -y libyaml-0-2 \
+            libxml2 \
+            libxml2-dev \
+            libxslt1-dev \
+            libpython2.7 \
+            libmysqlclient-dev \
+            libssl0.9.8 \
+            m4 \
+            python-dev
 
 # Add the service code
 ADD     requirements.txt /code/requirements.txt
@@ -21,7 +29,6 @@ RUN     virtualenv --python python2.7 /code/virtualenv_run
 
 # TODO(DATAPIPE-1507|abrar): stop pointing to yelpcorp pypi package
 RUN     /code/virtualenv_run/bin/pip install \
-            -i https://pypi.yelpcorp.com/simple/ \
             -r /code/requirements.txt
 
 # Share the logging directory as a volume

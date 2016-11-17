@@ -25,6 +25,8 @@
 #     initialize: 'package.module.initialize_func'
 #
 
+topology_path: /nail/srv/configs/topology.yaml
+
 module_config:
     -   namespace: yelp_pyramid
         config:
