@@ -54,3 +54,7 @@ docker-push:
 
 install-hooks:
 	tox -e pre-commit -- install -f --install-hooks
+
+.PHONY: push-swagger-spec-to-registry
+push-swagger-spec-to-registry:
+	swagger post schematizer api_docs/swagger.json
