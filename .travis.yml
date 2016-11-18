@@ -5,10 +5,6 @@ branches:
 language: python
 python:
 - '2.7'
-env:
-  matrix:
-  - MAKE_TARGET=test
-  - MAKE_TARGET=itest
 services:
   - docker
 install:
@@ -19,10 +15,21 @@ install:
  - sudo apt-get install -q -y -o Dpkg::Options::=--force-confnew mysql-server
  - sudo mysql_upgrade
  - pip install coveralls tox
-script: make -f Makefile-opensource "$MAKE_TARGET"
+script: 
+  - make -f Makefile-opensource test
+  - make -f Makefile-opensource itest
 after_success:
   - coveralls
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME"
-    -p="$DOCKER_PASSWORD"; docker build -t yelp/schematizer .;
-    docker push yelp/schematizer;
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+    docker-compose  --file=docker-compose-opensource.yml build
+
+    docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+
+    docker tag schematizer_schematizerservice:latest yelp/schematizer_service:latest;
+    docker tag schematizer_schematizerconfigs:latest yelp/schematizer_schematizerconfigs:latest;
+    docker tag schematizer_schematizerdatabase:latest yelp/schematizer_schematizerdatabase:latest;
+
+    docker push docker.io/yelp/schematizer_service;
+    docker push docker.io/yelp/schematizer_schematizerconfigs;
+    docker push docker.io/yelp/schematizer_schematizerdatabase;
     fi
