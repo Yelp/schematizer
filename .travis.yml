@@ -8,7 +8,6 @@ python:
 env:
   matrix:
   - MAKE_TARGET=test
-sudo: required
 addons:
   apt:
     packages:
