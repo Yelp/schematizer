@@ -8,10 +8,16 @@ python:
 env:
   matrix:
   - MAKE_TARGET=test
+dist: trusty
 sudo: required
+addons:
+  apt:
+    packages:
+    - mysql-server-5.6
+    - mysql-client-core-5.6
+    - mysql-client-5.6
 services:
   - docker
-  - mysql
 install: pip install coveralls tox
 script: make -f Makefile-opensource "$MAKE_TARGET"
 after_success:
