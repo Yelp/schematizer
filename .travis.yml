@@ -8,7 +8,6 @@ python:
 env:
   matrix:
   - MAKE_TARGET=test
-dist: trusty
 sudo: required
 addons:
   apt:
@@ -19,7 +18,7 @@ addons:
 services:
   - docker
 install: pip install coveralls tox
-script: sudo make -f Makefile-opensource "$MAKE_TARGET"
+script: make -f Makefile-opensource "$MAKE_TARGET"
 after_success:
   - coveralls
   - if [ "$TRAVIS_BRANCH" == "master" ]; then docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME"
