@@ -10,7 +10,8 @@ env:
   - MAKE_TARGET=test
 sudo: required
 services:
-- docker
+  - docker
+  - mysql
 install: pip install coveralls tox
 script: make -f Makefile-opensource "$MAKE_TARGET"
 after_success:
