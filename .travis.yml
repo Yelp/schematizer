@@ -15,7 +15,7 @@ install:
  - sudo apt-get install -q -y -o Dpkg::Options::=--force-confnew mysql-server
  - sudo mysql_upgrade
  - pip install coveralls tox
-script: 
+script:
   - make -f Makefile-opensource test
   - make -f Makefile-opensource itest
 after_success:
