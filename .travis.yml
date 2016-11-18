@@ -1,0 +1,21 @@
+branches:
+  only:
+  - master
+  - /^v[0-9.]+$/
+language: python
+python:
+- '2.7'
+env:
+  matrix:
+  - MAKE_TARGET=test
+sudo: required
+services:
+- docker
+install: pip install coveralls tox
+script: make -f Makefile-opensource "$MAKE_TARGET"
+after_success:
+  - coveralls
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME"
+    -p="$DOCKER_PASSWORD"; docker build -t yelp/schematizer .;
+    docker push yelp/schematizer;
+    fi
