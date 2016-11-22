@@ -20,16 +20,3 @@ script:
   - make -f Makefile-opensource itest
 after_success:
   - coveralls
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then
-    docker-compose  --file=docker-compose-opensource.yml build
-
-    docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-
-    docker tag schematizer_schematizerservice:latest yelp/schematizer_service:latest;
-    docker tag schematizer_schematizerconfigs:latest yelp/schematizer_schematizerconfigs:latest;
-    docker tag schematizer_schematizerdatabase:latest yelp/schematizer_schematizerdatabase:latest;
-
-    docker push docker.io/yelp/schematizer_service;
-    docker push docker.io/yelp/schematizer_schematizerconfigs;
-    docker push docker.io/yelp/schematizer_schematizerdatabase;
-    fi
