@@ -1,5 +1,6 @@
 # Schematizer
 
+[![Build Status](https://travis-ci.org/Yelp/schematizer.svg?branch=master)](https://travis-ci.org/Yelp/schematizer)
 
 What is it?
 -----------
